@@ -1,0 +1,91 @@
+// Inventory.cpp: implementation of the Inventory class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "Inventory.h"
+#include "Core.h"
+#include "Variables.h"
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+Inventory::Inventory(TiXmlElement *xe)
+	: Messager(xe)
+{
+	_pos.x = atoi(xe->Attribute("x"));
+	_pos.y = atoi(xe->Attribute("y"));
+	std::string texture = xe->Attribute("texture"); 
+	_texture = Core::getTexture(texture);
+	_variableInHand = Variables::GetLink("$inHand");
+	_variableInHand->SetValue("None");
+	_hge = hgeCreate(HGE_VERSION);
+	_active = NULL;
+}
+
+Inventory::~Inventory()
+{
+	_hge->Release();
+}
+
+void Inventory::OnMessage(std::string message) {
+	if (CanCut(message, "add ")) {
+		_tools.push_back(Tool());
+		_tools.back().id = message;
+		_tools.back().texture = Core::getTexture(message + "_icon");
+	} if (message == "remove from hand") {
+		for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
+			if (i->id == _variableInHand->GetValue()) {
+				_tools.erase(i);
+				_variableInHand->SetValue("None");
+				return;
+			}
+		}
+	}
+}
+
+void Inventory::Draw() {
+	_texture->Render(_pos);
+	hgeVector iconPressed(35, 13);
+	iconPressed += _pos;
+	for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
+		if (i->id != _variableInHand->GetValue()) {
+			i->texture->Render(iconPressed);
+		}
+		iconPressed.x += 72;
+	}
+	if (_variableInHand->GetValue() != "None") {
+		_active->Render(_lastMousePos.x, _lastMousePos.y + 20);
+	}
+}
+
+void Inventory::Update(float deltaTime) {
+	if (_hge->Input_KeyDown(HGEK_RBUTTON)) {
+		_variableInHand->SetValue("None");
+		_active = NULL;
+	}
+}
+
+bool Inventory::IsMouseOver(hgeVector mousePos) {
+	hgeVector local = mousePos - _pos;
+	return _texture->IsNotTransparent(int(local.x), int(local.y));
+}
+
+void Inventory::OnMouseDown(hgeVector mousePos) {
+	hgeVector local = mousePos - (_pos + hgeVector(35, 13));
+	int width = 70;
+	for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
+		if (local.x > 0 && local.x < width && _variableInHand->GetValue() != i->id) {
+			_variableInHand->SetValue(i->id);
+			_active = i->texture;
+			return;
+		}
+		local.x -= 72;
+	}
+	_variableInHand->SetValue("None");
+	_active = NULL;
+}
+
+void Inventory::OnMouseMove(hgeVector mousePos) {
+	_lastMousePos = mousePos;
+}
