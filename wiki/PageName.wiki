@@ -1,0 +1,10 @@
+#summary One-sentence summary of this page.
+
+= Вступление =
+
+проект для быстрого создания простых квестов, вся логика и настройки вынесены в xml файлы
+
+*Детали проекта*
+  * проект пишется под Microsoft Visual C++ 6.0
+  * нужна библиотека hge(http://hge.relishgames.com/)
+  * нужна библиотека TinyXml(спросить на google.ru)
