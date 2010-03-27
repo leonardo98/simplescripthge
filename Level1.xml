@@ -2,223 +2,187 @@
 <fileroot>
 	<Resources fileName="GUI_textures.xml"/>
 	<script name="onLoad">
-  	{
- 		  $vent="closed";
-	  	$shkaf="locked";
-			$switch="on";
-			$toolboxfaze="one";
-      $box="faze1";
-	  }
-	</script>
+    switch = "on";
+    vent = "closed";
+    shkaf = "locked";
+    switch = "on";
+    toolboxfaze = "one";
+    box = "faze1";
+    inHand = "None";
+  </script>
 	<StaticTexture x="346" y="119" texture="nebo"/>
   <StarsRect x="362" y="162" width="334" height="135" number="150" texture="star"/>
 	<StaticTexture x="0" y="0" texture="fon"/>
 	<Mask x="239" y="317" texture="boxes_mask">
 		<script>
-      {
-        if ($inHand == "otvertka") {
-          send "тыкать коробки отверткой - совершенно бесполезное занятие" to "messageWindow";
-        } else {
-          send "пустые картонные коробки из под провианта" to "messageWindow";
-        }
-      }
+        if inHand == "otvertka" then
+          SendMessage("messageWindow" , "тыкать коробки отверткой - совершенно бесполезное занятие" ) ;
+        else
+          SendMessage("messageWindow" , "пустые картонные коробки из под провианта" ) ;
+        end
     </script>
 	</Mask>
 	<Mask x="49" y="323" texture="switch_mask">
 		<script>
-			{
-				if ($switch == "on") {
-					$switch = "off";
-				} else {
-					$switch = "on";
-				}
-			}
+				if switch == "on" then
+					switch = "off";
+				else
+					switch = "on";
+				end
 		</script>
 	</Mask>
 	<Mask x="0" y="178" texture="firesafe_mask">
 		<script>
-      {
-        if ($inHand == "otvertka") {
-          send "огнетушитель отверткой не проткнешь" to "messageWindow";
-        } else {
-          send "огнетушитель,... мне? нет не нужен" to "messageWindow";
-        }
-      }
+      if (inHand == "otvertka") then
+        SendMessage("messageWindow" , "огнетушитель отверткой не проткнешь" ) ;
+      else
+        SendMessage("messageWindow" , "огнетушитель,... мне? нет не нужен" ) ;
+      end
     </script>
 	</Mask>
 	<Mask x="498" y="134" texture="messsage1_mask">
 		<script>
-      {
-        if ($inHand != "None") {
-          send "даже в минуту глубоко безделья я туда не полезу ради такой ерунды" to "messageWindow";
-        } else {
-          send "надпись: 'в случае аварии разбить стекло' - бородатая космическая шутка" to "messageWindow";
-        }
-      }
+        if (inHand ~= "None") then
+          SendMessage("messageWindow" , "даже в минуту глубоко безделья я туда не полезу ради такой ерунды" ) ;
+        else
+          SendMessage("messageWindow" , "надпись: 'в случае аварии разбить стекло' - бородатая космическая шутка" ) ;
+        end
     </script>
 	</Mask>
 	<Mask x="726" y="144" texture="messsage2_mask">
 		<script>
-			{
-        if ($inHand != "None") {
-          send "нет,... не буду выполнять столь странное задание" to "messageWindow";
-        } else {
-  				send "надпись:   'ОСТОРОЖНО: ОТКРЫТЫЙ КОСМОС!'" to "messageWindow";
-        }
-			}
+        if (inHand ~= "None") then
+          SendMessage("messageWindow" , "нет,... не буду выполнять столь странное задание" ) ;
+        else
+  				SendMessage("messageWindow" , "надпись:   'ОСТОРОЖНО: ОТКРЫТЫЙ КОСМОС!'" ) ;
+        end
 		</script>
 	</Mask>
 	<Mask x="206" y="306" texture="rot_mask">
 		<script>
-			{
-        if ($inHand != "None") {
-          send "нет, это совершенно бесполезно" to "messageWindow";
-        } else {
-  				send "это механизм для аварийного открывания двери,... но он давно заржавел" to "messageWindow";
-        }
-			}
+        if (inHand ~= "None") then
+          SendMessage("messageWindow" , "нет, это совершенно бесполезно" ) ;
+        else
+  				SendMessage("messageWindow" , "это механизм для аварийного открывания двери,... но он давно заржавел" ) ;
+        end
 		</script>
 	</Mask>
 	<Mask x="360" y="159" texture="windows_mask">
 		<script>
-			{
-        if ($inHand != "None") {
-          send "нет, этим стекло не сломать - тут танк нужен" to "messageWindow";
-        } else {
-				  send "космос, глубокий и безмятежный - постойка,.. кажется, корабль абсолютно неподвижен - это странно" to "messageWindow";
-        }
-			}
+        if (inHand ~= "None") then
+          SendMessage("messageWindow" , "нет, этим стекло не сломать - тут танк нужен" ); 
+        else
+				  SendMessage("messageWindow" , "космос, глубокий и безмятежный - постойка,.. кажется, корабль абсолютно неподвижен - это странно" );
+        end
 		</script>
 	</Mask>
 	<Mask x="0" y="23" texture="trube_mask">
 		<script>
-      {
-        if ($inHand != "None") {
-          send "глупо,.. ну ведь это же глупо!!!" to "messageWindow";
-        } else {
-           send "трубы какие-то,... сейчас мне от них пользы ноль, но в дороге они меня грели" to "messageWindow";
-        }
-      }
+        if (inHand ~= "None") then
+          SendMessage("messageWindow" , "глупо,.. ну ведь это же глупо!!!" ) ;
+        else
+          SendMessage("messageWindow" , "трубы какие-то,... сейчас мне от них пользы ноль, но в дороге они меня грели" ) ;
+        end
     </script>
 	</Mask>
 	<Mask x="267" y="0" texture="svet_mask">
 		<script>
-			{
-				send "это современный источник света" to "messageWindow";
-			}
+				SendMessage("messageWindow" , "это современный источник света" ) ;
 		</script>
 	</Mask>
 	<Mask x="293" y="362" texture="nary_mask">
 		<script>
-			{
-				send "нары, спал я на них аки бомж" to "messageWindow";
-			}
+				SendMessage("messageWindow" , "нары, спал я на них аки бомж" ) ;
 		</script>
 	</Mask>
 	<Mask x="207" y="266" texture="comp_mask">
 		<script>
-			{
-				send "компьютер,... но без личного кода он меня не выпустить" to "messageWindow";
-			}
+				SendMessage("messageWindow" , "компьютер,... но без личного кода он меня не выпустить" ) ;
 		</script>
 	</Mask>
 	<Mask x="143" y="126" texture="luk_mask">
 		<script>
-			{
-				send "люк,... там проводка, наверное" to "messageWindow";
-			}
+				SendMessage("messageWindow" , "люк,... там проводка, наверное" ) ;
 		</script>
 	</Mask>
 	<Mask x="82" y="104" texture="luk_mask">
 		<script>
-			{
-				send "система аварийной световой сигнализации..., не мигает, значит аварии нет" to "messageWindow";
-			}
+				SendMessage("messageWindow" , "система аварийной световой сигнализации..., не мигает, значит аварии нет" ) ;
 		</script>
 	</Mask>
 	<Mask x="81" y="193" texture="door_mask">
 		<script>
-			{
-				if ($inHand == "otvertka") {
-					send "не, отверкой эту дверь не сломать..." to "messageWindow";
-				} else {
-					send "через дверь мне из этого склада без личного кода не выйти - это, так сказать, минусы путешествия зайцем.." to "messageWindow";
-				}
-			}
+				if (inHand == "otvertka") then
+					SendMessage("messageWindow" , "не, отверкой эту дверь не сломать..." ) ;
+				else
+					SendMessage("messageWindow" , "через дверь мне из этого склада без личного кода не выйти - это, так сказать, минусы путешествия зайцем.." ) ;
+				end
 		</script>
 	</Mask>
 	<Mask x="279" y="254" texture="banki_mask">
 		<script>
-			{
-				send "банки с хлоркой" to "messageWindow";
-			}
+				SendMessage("messageWindow" , "банки с хлоркой" ) ;
 		</script>
 	</Mask>
   <InventoryObject x="764" y="347" id="key"/>
-  <MultiTexture variableName="$box">
+  <MultiTexture variableName="box">
     <states>
       <if value="faze1" x="683" y="318" texture="box_faze1"/>
       <if value="faze2" x="649" y="319" texture="box_faze2"/>
     </states>
     <script>
-      {
-        if ($box == "faze1") {
-          $box = "faze2";
-        } else {
-          if ($inHand == "otvertka") {
-            send "тыкать коробки отверткой - совершенно бесполезное занятие" to "messageWindow";
-          } else {
-            send "пустые картонные коробки из под провианта" to "messageWindow";
-          }
-        }
-      }
+        if (box == "faze1") then
+          box = "faze2";
+        else
+          if (inHand == "otvertka") then
+            SendMessage("messageWindow" , "тыкать коробки отверткой - совершенно бесполезное занятие" ) ;
+          else
+            SendMessage("messageWindow" , "пустые картонные коробки из под провианта" ) ;
+          end
+        end
     </script>
   </MultiTexture>
   <InventoryObject x="275" y="327" id="otvertka"/>
-	<MultiTexture variableName="$shkaf">
+	<MultiTexture variableName="shkaf">
 		<states>
       <if value="locked" x="263" y="214" texture="shkaf_close"/>
       <if value="closed" x="263" y="214" texture="shkaf_close"/>
       <if value="opened" x="230" y="208" texture="shkaf_open"/>
 		</states>
 	  <script>
-      {
-        if ($shkaf == "closed") {
-          $shkaf = "opened";
-        } else if ($shkaf == "opened") {
-          $shkaf = "closed";
-        } else if ($inHand == "key") {
-           $shkaf = "opened";
-           send "remove from hand" to "inventory";
-        } else {
-          send "ключик нада, где тут валялся - простенький такой" to "messageWindow";
-        }
-      }
+        if (shkaf == "closed") then
+          shkaf = "opened";
+        elseif (shkaf == "opened") then
+          shkaf = "closed";
+        elseif (inHand == "key") then
+           shkaf = "opened";
+           SendMessage("messageWindow" , "remove from hand" ) "inventory";
+        else
+          SendMessage("messageWindow" , "ключик нада, где тут валялся - простенький такой" ) ;
+        end
     </script>
 	</MultiTexture>
-	<MultiTexture variableName="$vent">
+	<MultiTexture variableName="vent">
 		<states>
 			<if value="closed" x="129" y="55" texture="closed_vent"/>
 		</states>
 	</MultiTexture>
 	<Mask x="129" y="55" texture="closed_vent_mask">
 	  <script>
-			{
-				if ($toolboxfaze != "last") {
-					send "высоковато - не достать,... подставить бы чего-нибудь" to "messageWindow";
-				} else if ($inHand != "otvertka" and $vent == "closed") {
-					send "эх, ответрку бы... в миг можно было бы решетку открутить" to "messageWindow";
-				} else if ($inHand == "otvertka" and $vent == "closed") {
-					$vent = "opened";
-				} else if ($inHand != "None") {
-					send "не удобно лезть с занятой рукой" to "messageWindow";
-				} else {
-					send "УРА! УРОВЕНЬ ПРОЙДЕН, тут должен быть переход в новую комнату, но поскольку это больше Демка возможностей движка, то это конец" to "messageWindow";
-				}
-			}
-		</script>
+      if (toolboxfaze ~= "last") then
+        SendMessage("messageWindow" , "высоковато - не достать,... подставить бы чего-нибудь" )
+      elseif (inHand ~= "otvertka" and vent == "closed") then
+        SendMessage("messageWindow" , "эх, ответрку бы... в миг можно было бы решетку открутить" )
+      elseif (inHand == "otvertka" and vent == "closed") then
+        vent = "opened"
+      elseif (inHand ~= "None") then
+        SendMessage("messageWindow" , "не удобно лезть с занятой рукой" )
+      else
+        SendMessage("messageWindow" , "УРА! УРОВЕНЬ ПРОЙДЕН, тут должен быть переход в новую комнату, но поскольку это больше Демка возможностей движка, то это конец" )
+      end
+    </script>
 	</Mask>
-	<MultiTexture variableName="$toolboxfaze">
+	<MultiTexture variableName="toolboxfaze">
 		<states>
 			<if value="one" x="0" y="396" texture="toolbox_faze1"/>
 			<if value="onetwo" x="89" y="393" texture="toolbox_faze12"/>
@@ -226,22 +190,20 @@
 			<if value="last" x="153" y="354" texture="toolbox_faze3"/>
 		</states>
 	  <script>
-     {
-      if ($inHand != "None") {
-        send "сей высокотехнологичный девайс расколупать отверткой не получится" to "messageWindow";
-      } else if ($toolboxfaze == "one") {
-        $toolboxfaze = "onetwo";
-      } else if ($toolboxfaze == "onetwo") {
-        $toolboxfaze = "two";
-      } else if ($toolboxfaze == "two") {
-        $toolboxfaze = "last";
-      } else {
-        send "отличная подставка получилась" to "messageWindow";
-      }
-     }
+      if (inHand ~= "None") then
+        SendMessage("messageWindow" , "сей высокотехнологичный девайс расколупать отверткой не получится" ) 
+      elseif (toolboxfaze == "one") then
+        toolboxfaze = "onetwo"
+      elseif (toolboxfaze == "onetwo") then
+        toolboxfaze = "two"
+      elseif (toolboxfaze == "two") then
+        toolboxfaze = "last"
+      else
+        SendMessage("messageWindow" , "отличная подставка получилась" ) 
+      end
     </script>
 	</MultiTexture>
-	<MultiTexture variableName="$switch">
+	<MultiTexture variableName="switch">
 		<states>
 			<if value="off" x="0" y="0" texture="dark_mask"/>
 		</states>

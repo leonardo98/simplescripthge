@@ -12,7 +12,7 @@
 TestObject::TestObject(TiXmlElement* xe) 
 	: Object()
 {
-	_visible = Variables::GetLink(xe->Attribute("variableName"));
+	_visibleVariableName = xe->Attribute("variableName");
 	_hge = hgeCreate(HGE_VERSION);
 	_pos.x = atoi(xe->Attribute("x"));
 	_pos.y = atoi(xe->Attribute("y"));
@@ -20,11 +20,12 @@ TestObject::TestObject(TiXmlElement* xe)
 	_texture = Core::getTexture(texture);
 	TiXmlElement *script = xe->FirstChildElement("script");
 	TiXmlText *text = (TiXmlText *)script->FirstChild();
-	_parser.Read((char *)text->Value());
+	_luaScript = new LuaScript(Variables::l);
+	_luaScript->Read((char *)text->Value());
 }
 
 void TestObject::Draw() {
-	if (_visible->GetValue() != "true") {
+	if (Variables::Get(_visibleVariableName.c_str()) != "true") {
 		return;
 	}
 	_texture->Render(_pos);
@@ -35,6 +36,7 @@ void TestObject::Update(float) {}
 TestObject::~TestObject() 
 {
 	_hge->Release();
+	delete _luaScript;
 }
 
 bool TestObject::IsMouseOver(hgeVector mousePos)
@@ -45,5 +47,5 @@ bool TestObject::IsMouseOver(hgeVector mousePos)
 void TestObject::OnMouseDown(hgeVector mousePos)
 {
 	//_pos = mousePos;
-	_parser.Execute();
+	_luaScript->Execute();
 }

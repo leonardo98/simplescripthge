@@ -10,14 +10,13 @@
 #include "types.h"
 #include "Messager.h"
 #include "TextureManager.h"
-#include "Parser.h"
+#include "LuaScript.h"
 #include "Object.h"
 
 
 class Core
 	: public Messager
 	, public TextureManager
-	, public Parser
 {
 public:
 	Core();
@@ -31,8 +30,11 @@ public:
 	typedef std::vector<Object *> Objects;
 protected:
 	Objects _objects;
-	std::map<std::string, Parser> _scripts;
+	typedef std::map<std::string, LuaScript *> ScriptMap;
+	ScriptMap _scripts;
 	std::list<std::string> _messages;
+	lua_State *lua;
+	LuaScript *_luaScript;
 };
 
 #endif // !defined(_CORE_INCLUDED_)

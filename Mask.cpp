@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 Mask::Mask(TiXmlElement *xe)
-	: _parser(xe->FirstChildElement("script"))
+	: _luaScript(new LuaScript(Variables::l, xe->FirstChildElement("script")))
 {
 	_pos.x = atoi(xe->Attribute("x"));
 	_pos.y = atoi(xe->Attribute("y"));
@@ -16,10 +16,15 @@ Mask::Mask(TiXmlElement *xe)
 	_texture = Core::getTexture(texture);
 }
 
+Mask::~Mask()
+{
+	delete _luaScript;
+}
+
 void Mask::OnMouseDown(hgeVector mousePos) {
 	mousePos -= _pos;
 	if (_texture->IsNotTransparent((int)mousePos.x, (int)mousePos.y)) {
-		_parser.Execute();
+		_luaScript->Execute();
 	}
 }
 

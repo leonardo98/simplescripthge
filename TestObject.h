@@ -10,8 +10,8 @@
 #endif // _MSC_VER > 1000
 
 #include "types.h"
-#include "Parser.h"
 #include "Variables.h"
+#include "LuaScript.h"
 
 class TestObject  
 	: public Object	
@@ -27,8 +27,8 @@ private:
 	hgeVector _pos;
 	Texture *_texture;
 	HGE *_hge;
-	Parser _parser;
-	Variable::Ptr _visible;
+	std::string _visibleVariableName;
+	LuaScript *_luaScript;
 };
 
 #endif // !defined(_TESTOBJECT_INCLUDED_)

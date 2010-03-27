@@ -6,6 +6,13 @@
 #include <list>
 #include <map>
 
+extern "C" 
+{
+  #include <lua.h>
+  #include <lualib.h>
+  #include <lauxlib.h>
+}
+
 #include "hge.h"
 #include "hgesprite.h"
 #include "hgevector.h"
@@ -17,6 +24,8 @@
 
 #include "Object.h"
 #include "Texture.h"
+
+#pragma 
 
 //typedef hgeSprite Texture;
 

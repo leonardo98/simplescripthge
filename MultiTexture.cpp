@@ -46,73 +46,37 @@ void State::SetAlpha(float alpha) {
 }
 
 MultiTexture::MultiTexture(TiXmlElement *xe)
-	:  _parser(xe->FirstChildElement("script"))
+	: _luaScript(new LuaScript(Variables::l, xe->FirstChildElement("script")))
 {
-	std::string variableName = xe->Attribute("variableName");
-	_stateVariable = Variables::GetLink(variableName);
+	_stateVariableName = xe->Attribute("variableName");
 	TiXmlElement *ifXml = xe->FirstChildElement("states")->FirstChildElement("if");
 	while (ifXml != NULL) {
 		_states.push_back(State(ifXml));
 		ifXml = ifXml->NextSiblingElement();
 	}
-	_stateName = _stateVariable->GetValue();
 }
 
 MultiTexture::~MultiTexture() {
-
+	delete _luaScript;
 }
 
 void MultiTexture::Update(float deltaTime) {
-	if (_counter.Action()) {
-		_counter.Update(deltaTime);
-		if (_counter.Done()) {
-			_stateName = _stateVariable->GetValue();
-		}
-	} 
 }
 
 void MultiTexture::Draw() {
-	if (!_counter.Action() && _stateName != _stateVariable->GetValue()) {
-		_counter.Init(0.0f);
-	}
-	if (_counter.Action()) {
-		for (int i = _states.size() - 1; i >= 0; i--) {
-			if (_states[i].name == _stateVariable->GetValue()) {
-				_states[i].SetAlpha(_counter.Progress());
-				_states[i].Draw();
-				//_states[i].SetAlpha(1.f);
-			} 
-			if (_states[i].name == _stateName) {
-				_states[i].SetAlpha(1 - _counter.Progress());
-				_states[i].Draw();
-				//_states[i].SetAlpha(1.f);
-			}
-		}
-		return;
-	} else {
-		for (int i = _states.size() - 1; i >= 0; i--) {
-			if (_states[i].name == _stateVariable->GetValue()) {
-				_states[i].Draw();
-				return;
-			}
-		}
-	}
-	// сюда не должен доходить
-	{
-		for (int i = _states.size() - 1; i >= 0; i--) {
-			if (_states[i].name == _stateVariable->GetValue()) {
-				_states[i].texture->SetColor(0xFF000000);
-				_states[i].Draw();
-				_states[i].texture->SetColor(0xFFFFFFFF);
-			}
+	std::string varvalue = Variables::Get(_stateVariableName.c_str());
+	for (int i = _states.size() - 1; i >= 0; i--) {
+		if (_states[i].name == varvalue) {
+			_states[i].Draw();
 		}
 	}
 }
 
 bool MultiTexture::IsMouseOver(hgeVector mousePos) {
+	std::string varvalue = Variables::Get(_stateVariableName.c_str());
 	for (int i = _states.size() - 1; i >= 0; i--) {
 		hgeVector t = mousePos - _states[i].pos;
-		if (_states[i].name == _stateVariable->GetValue()) {			
+		if (_states[i].name == varvalue) {			
 			return (_states[i].texture != NULL && _states[i].texture->IsNotTransparent((int)t.x, (int)t.y)); 
 		}
 	}
@@ -120,14 +84,12 @@ bool MultiTexture::IsMouseOver(hgeVector mousePos) {
 }
 
 void MultiTexture::OnMouseDown(hgeVector mousePos) {
-	if (_counter.Action()) {
-		return;
-	}
+	std::string varvalue = Variables::Get(_stateVariableName.c_str());
 	for (int i = _states.size() - 1; i >= 0; i--) {
 		hgeVector t = mousePos - _states[i].pos;
-		if (_states[i].name == _stateVariable->GetValue() && _states[i].texture != NULL && _states[i].texture->IsNotTransparent((int)t.x, (int)t.y)) 
+		if (_states[i].name == varvalue && _states[i].texture != NULL && _states[i].texture->IsNotTransparent((int)t.x, (int)t.y)) 
 		{
-			_parser.Execute();
+			_luaScript->Execute();
 			return; 
 		}
 	}

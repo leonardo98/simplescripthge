@@ -3,11 +3,24 @@
 #include "types.h"
 #include "Core.h"
 #include "ObjectFactory.h"
+#include "Variables.h"
 
+static int LuaSendMessage(lua_State *L) {
+	int err = lua_gettop(L);
+	const char *name = lua_tostring(L, 1);
+	const char *message = lua_tostring(L, 2);
+	Messager::SendMessage(name, message);
+	assert(err == lua_gettop(L));
+	return 0;
+}
 
 Core::Core()
 	: Messager("Core")
-{}
+{
+	lua = lua_open();
+	lua_register(lua, "SendMessage", LuaSendMessage);
+	Variables::Init(lua);
+}
 
 void Core::Load(std::string fileName)
 {
@@ -20,8 +33,7 @@ void Core::Load(std::string fileName)
 		while (element != NULL) {
 			std::string name = element->Value();
 			if (name == "script") {
-				Parser parser(element);
-				_scripts[element->Attribute("name")] = parser;
+				_scripts[element->Attribute("name")] = new LuaScript(lua, element);
 			} else if (name == "Resources") {
 				ReadDescriptions(element->Attribute("fileName"));
 			} else {
@@ -31,7 +43,7 @@ void Core::Load(std::string fileName)
 		}
 	}
 	if (_scripts.find("onLoad") != _scripts.end()) {
-		_scripts["onLoad"].Execute();
+		_scripts["onLoad"]->Execute();
 	}
 }
 
@@ -72,6 +84,7 @@ void Core::Update(float deltaTime)
 
 Core::~Core()
 {
+	lua_close(lua);
 }
 
 void Core::Release()
@@ -79,6 +92,10 @@ void Core::Release()
 	for (unsigned int i = 0; i < _objects.size(); i++) {
 		delete _objects[i];
 		_objects[i] = NULL;
+	}
+	for (ScriptMap::iterator i = _scripts.begin(), e = _scripts.end(); i != e; i++) {
+		delete _scripts.begin()->second;
+		_scripts.begin()->second = NULL;
 	}
 	_objects.clear();
 	_scripts.clear();
