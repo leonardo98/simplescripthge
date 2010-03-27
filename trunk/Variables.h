@@ -8,17 +8,18 @@
 #endif // _MSC_VER > 1000
 
 #include "types.h"
-#include "Variable.h"
 
 class Variables  
 {
 public:
-	static void Set(std::string variableName, std::string value);
-	static std::string Get(std::string variableName);
-	static Variable::Ptr GetLink(std::string variableName);
-	static void Remove(std::string variableName);
+	static void Init(lua_State *L);
+	static void Set(const char *variableName, const char *value);
+	static std::string Get(const char *variableName);
 private:
-	static std::map<std::string, Variable> _map;
+	static lua_State *l;
+	friend class Mask;
+	friend class MultiTexture;
+	friend class TestObject;
 };
 
 #endif // !defined(_VARIABLES_INCLUDED_)

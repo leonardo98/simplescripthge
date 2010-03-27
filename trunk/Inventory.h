@@ -11,7 +11,6 @@
 
 #include "Messager.h"
 #include "InputSystem.h"
-#include "Variable.h"
 
 struct Tool {
 	std::string id;
@@ -38,7 +37,6 @@ private:
 	typedef std::list<Tool> Tools;
 	Tools _tools;
 	HGE *_hge;
-	Variable::Ptr _variableInHand;
 	Texture *_active;
 };
 

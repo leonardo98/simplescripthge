@@ -1,7 +1,6 @@
 // SimpleScript.cpp : Defines the entry point for the console application.
 #include "Variables.h"
 #include "Messager.h"
-#include "Parser.h"
 #include "Core.h"
 #include "InputSystem.h"
 

@@ -10,9 +10,8 @@
 #endif // _MSC_VER > 1000
 
 #include "InputSystem.h"
-#include "Variable.h"
-#include "Parser.h"
 #include "Counter.h"
+#include "LuaScript.h"
 
 struct State {
 	hgeVector pos;
@@ -37,10 +36,8 @@ public:
 private:
 	typedef std::vector<State> States;
 	States _states;
-	Variable::Ptr _stateVariable;
-	Parser _parser;
-	Counter _counter;
-	std::string _stateName;
+	std::string _stateVariableName;
+	LuaScript *_luaScript;
 };
 
 #endif // !defined(_MULTITEXTURE_INCLUDED_)

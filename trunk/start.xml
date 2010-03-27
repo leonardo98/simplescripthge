@@ -2,8 +2,6 @@
 <fileroot>
 	<Resources fileName="GUI_textures.xml"/>
 	<script name="onLoad">
-    {
-      send "load xml Level1.xml" to "Core";
-    }
+    SendMessage("Core", "load xml Level1.xml");
   </script>
 </fileroot>
