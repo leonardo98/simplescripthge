@@ -1,5 +1,5 @@
 === что и как ===
 
-[howto1 как собрать и скомпилировать]
+[http://code.google.com/p/simplescripthge/wiki/howto1 как собрать и скомпилировать]
 
 [howto1  как писать на этом игру]
