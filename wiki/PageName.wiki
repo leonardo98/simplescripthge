@@ -2,4 +2,4 @@
 
 [http://code.google.com/p/simplescripthge/wiki/howto1 как собрать и скомпилировать]
 
-[howto1  как писать на этом игру]
+[howto2  как писать на этом игру]
