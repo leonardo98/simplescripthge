@@ -1,3 +1,4 @@
+
 === что и как ===
 
 [http://code.google.com/p/simplescripthge/wiki/howto1 как собрать и скомпилировать]
