@@ -22,7 +22,7 @@ std::string Variables ::Get(const char *variableName)
 {
 	int err = lua_gettop(l);
 	lua_getglobal(l, variableName);
-	const char *result = lua_tostring(l, 1);
+	const char *result = lua_tostring(l, -1);
 	// NULL - переменная не была определена в lua скрипте, а значение уже спрашивают
 	assert(result != NULL); 
 	std::string value(result);
