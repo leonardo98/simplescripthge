@@ -60,30 +60,17 @@ void InputSystem::MouseMove(hgeVector mousePos) {
 InputSystem::Listeners InputSystem::_listeners;
 
 bool CheckForInputEvent(HGE *hge) {
-	static bool mouseDown = false;
 	hgeInputEvent event;
-	if (hge->Input_GetEvent(&event)) {
-		if (event.type == INPUT_MBUTTONDOWN) {
+	while (hge->Input_GetEvent(&event)) {
+		if (event.type == INPUT_MBUTTONDOWN && event.key == HGEK_LBUTTON) {
 			InputSystem::MouseDown(hgeVector(event.x, event.y));
-			mouseDown = hge->Input_GetKeyState(HGEK_LBUTTON);
-		} else if (event.type == INPUT_MBUTTONUP) {
+		} else if (event.type == INPUT_MBUTTONUP && event.key == HGEK_LBUTTON) {
 			InputSystem::MouseUp();
-			mouseDown = hge->Input_GetKeyState(HGEK_LBUTTON);
 		} else if (event.type == INPUT_MOUSEMOVE) {
 			InputSystem::MouseMove(hgeVector(event.x, event.y));
-		} else if (event.type == INPUT_KEYDOWN) {
-			if (event.key == HGEK_ESCAPE) {
-				return true;
-			}
+		} else if (event.type == INPUT_KEYDOWN && event.key == HGEK_ESCAPE) {
+			return true;
 		}
-	}
-	if (mouseDown != hge->Input_GetKeyState(HGEK_LBUTTON)) {
-		mouseDown = hge->Input_GetKeyState(HGEK_LBUTTON);
-		if (mouseDown) {
-			InputSystem::MouseDown(hgeVector(event.x, event.y));
-		} else {
-			InputSystem::MouseUp();
-		} 
 	}
 	return false;
 }
