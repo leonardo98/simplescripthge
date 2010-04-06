@@ -14,6 +14,7 @@
 #include "StarsRect.h"
 #include "Tester.h"
 #include "Messager.h"
+#include "VideoFrame.h"
 
 Object * ObjectFactory::Create(TiXmlElement *xe)
 {
@@ -36,6 +37,8 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 		return new MultiTexture(xe);
 	} else if(name == "StarsRect") {
 		return new StarsRect(xe);
+	} else if(name == "VideoFrame") {
+		return new VideoFrame(xe);
 	} else if(name == "Tester") {
 		return new Tester(xe);
 	} else {

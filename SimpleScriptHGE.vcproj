@@ -74,11 +74,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib lualib.lib hgehelp.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib lualib.lib hgehelp.lib libogg_static.lib libtheora_static.lib"
 				OutputFile="SimpleScriptHGE.exe"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="libc.lib"
+				IgnoreDefaultLibraryNames="libc.lib;libcmt.lib"
 				ProgramDatabaseFile=".\Release/SimpleScriptHGE.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -170,11 +170,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="false"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib hgehelp.lib lualibd.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib hgehelp.lib lualibd.lib libogg_staticd.lib libtheora_staticd.lib"
 				OutputFile="SimpleScriptHGE_D.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC.lib"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames="libc.lib;libcmtd.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/SimpleScriptHGE.pdb"
 				SubSystem="2"
@@ -458,6 +459,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\VideoFrame.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -513,6 +518,10 @@
 			</File>
 			<File
 				RelativePath="Variables.h"
+				>
+			</File>
+			<File
+				RelativePath=".\VideoFrame.h"
 				>
 			</File>
 		</Filter>

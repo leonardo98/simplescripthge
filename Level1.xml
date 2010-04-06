@@ -26,8 +26,10 @@
 		<script>
 				if switch == "on" then
 					switch = "off";
+          SendMessage("video", "play");
 				else
 					switch = "on";
+          SendMessage("video", "stop");
 				end
 		</script>
 	</Mask>
@@ -208,6 +210,9 @@
 			<if value="off" x="0" y="0" texture="dark_mask"/>
 		</states>
 	</MultiTexture>
+  <VideoFrame fileName="data\test.ogg" x="300" y="200">
+    <messager name="video"/>
+  </VideoFrame>
 	<TextBox x="400" y="470" width="300" height="50" font="data\font2.fnt" hideTime="2.5">
 		<messager name="messageWindow"/>
 		<background texture="textback" x="51" y="455"/>

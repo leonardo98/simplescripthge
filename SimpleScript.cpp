@@ -8,7 +8,6 @@ HGE *hge;
 
 Core core;
 
-
 class Log
 	: public Messager
 {
@@ -16,7 +15,7 @@ public:
 	Log() : Messager("log") {
 	}
 	virtual void OnMessage(std::string message) {
-		hge->System_Log(("message : " + Variables::Get("$second") + message + "\n").c_str());
+		hge->System_Log(("message : " + message + "\n").c_str());
 	}
 };
 
