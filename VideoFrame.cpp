@@ -175,6 +175,11 @@ void VideoFrame::TheoraInit()
 	theora_decode_init(&THEORA_STATE,&THEORA_INFO);
 	report_colorspace(&THEORA_INFO);
 	dump_comments(&THEORA_COMMENT);
+
+	deltaFps = THEORA_INFO.fps_denominator / float(THEORA_INFO.fps_numerator);
+
+	ReadFrameFromFile();
+	waitFrame = 0;
 }
 
 void VideoFrame::report_colorspace(theora_info *ti)
@@ -267,9 +272,10 @@ void VideoFrame::TheoraClose()
 	delete sprite;
 	// удаляем буфер кадра
 	hge->Texture_Free(hTexture);
+	hTexture = 0;
 }
 
-BYTE VideoFrame::ClampFloatToByte(const float &value)
+__forceinline BYTE VideoFrame::ClampFloatToByte(const float &value)
 {
 	BYTE result=(BYTE)value;
 
@@ -277,6 +283,19 @@ BYTE VideoFrame::ClampFloatToByte(const float &value)
 	value>255?result=255:NULL;
 
 	return result;
+}
+
+__forceinline BYTE VideoFrame::ClampShortToByte(signed short value)
+{
+	value>255?value=255:( value<0?value=0:NULL );
+	return (BYTE)value;
+}
+
+__forceinline BYTE VideoFrame::ClampIntToByte(int value)
+{
+  value>255?value=255:( value<0?value=0:NULL );
+
+  return (BYTE)value;
 }
 
 VideoFrame::VideoFrame(TiXmlElement *xe)
@@ -295,9 +314,200 @@ VideoFrame::VideoFrame(TiXmlElement *xe)
 
 void VideoFrame::Draw()
 {
+	if (!currentfile || !hTexture) {
+		return;
+	}
+	sprite->Render(pos.x, pos.y);
+}
+
+void VideoFrame::OnMessage(std::string message) 
+{
+	if (message == "play") {
+		TheoraInit();
+	} else if (message == "stop") {
+		TheoraClose();
+	}
+}
+
+VideoFrame::~VideoFrame(void)
+{
+	if (currentfile) {
+		TheoraClose();
+	}
+	hge->Release();
+}
+
+void VideoFrame::Update(float dt)
+{
 	if (!currentfile) {
 		return;
 	}
+	if (current_frame == 0 && hTexture == 0) {
+		hTexture = hge->Texture_Create(YUV_BUFFER.y_width, YUV_BUFFER.y_height);
+		sprite = new hgeSprite(hTexture, 0, 0, YUV_BUFFER.y_width, YUV_BUFFER.y_height);
+		PutDataToTexture();
+		return;
+	}
+	waitFrame += dt;
+	unsigned int mustBeFrame = (unsigned int)(current_frame + waitFrame / deltaFps);
+	if (current_frame == mustBeFrame) {
+		return;
+	}
+	while (current_frame < mustBeFrame) {
+		if (!ReadFrameFromFile()){			
+			return;
+		}
+		++current_frame;
+	}
+	PutDataToTexture();
+	while (waitFrame > deltaFps) {
+		waitFrame -= deltaFps;
+	}
+}
+
+void VideoFrame::PutDataToTexture()
+{
+	frame = hge->Texture_Lock(hTexture, false);
+	unsigned int width = hge->Texture_GetWidth(hTexture, false);
+	/*
+	theora, как и многие другие кодеки работает в цветовом пространстве YUV12, где Y – информация о яркости точки, а UV – цветоразностные характеристики, придающие картинке цветность. Таким образом, если вас устраивает черно-белая картинка, ничего преобразовывать не надо – просто используйте данные из слоя Y. :)
+	Формула для преобразования yuv->rgb выглядит так: 
+	R = Y + 1.371(CR - 128) 
+	G = Y - 0.698(CR - 128) - 0.336(CB - 128) 
+	B = Y + 1.732(CB - 128) 
+	, где CB – это U, а CR – это V.
+	Кроме того, надо учитывать, что разрешение Y слоя в кадре theora меньше, чем разрешение UV слоев, так как было подмечено, что яркость меняется не так резко, как цветность. Для определения положения нужной точки внутри слоев в структуре yuv_buffer имеются поля y_stride и uv_stride.
+	Вот код преобразования: */
+	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
+	{
+		int nYShift = YUV_BUFFER.y_stride * nTempY;
+		int nUVShift = YUV_BUFFER.uv_stride * ( nTempY >> 1 );
+
+		for ( int nTempX = 0; nTempX < YUV_BUFFER.y_width; nTempX++ )
+		{
+			int nHX = ( nTempX >> 1 );
+
+			BYTE nY = *(BYTE*)( YUV_BUFFER.y + nYShift + nTempX );
+			BYTE nU = *(BYTE*)( YUV_BUFFER.u + nUVShift + nHX );
+			BYTE nV = *(BYTE*)( YUV_BUFFER.v + nUVShift + nHX );
+
+			int index=(nTempY * width+nTempX);
+
+			float r=nY+1.371f*(nV-128);
+			float g=nY-0.698f*(nV-128)-0.336f*(nU-128);
+			float b=nY+1.732f*(nU-128);
+			
+			frame[index] = ClampFloatToByte(r) << 16
+							| ClampFloatToByte(g) << 8
+							| ClampFloatToByte(b)
+							| 255 << 24;			
+		}
+	}
+	hge->Texture_Unlock(hTexture);
+}
+
+// далее два варианта оптимизации, но они мне ничем не помогли потому без них пока
+void VideoFrame::PutDataToTextureInt()
+{
+	frame = hge->Texture_Lock(hTexture, false);
+	unsigned int width = hge->Texture_GetWidth(hTexture, false);
+	unsigned int index = 0;
+	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
+	{
+		int nYShift = YUV_BUFFER.y_stride * nTempY;
+		int nUVShift = YUV_BUFFER.uv_stride * ( nTempY >> 1 );
+
+		for ( int nTempX = 0; nTempX < YUV_BUFFER.y_width; nTempX++ )
+		{
+			register unsigned char nY = *reinterpret_cast<unsigned char*>( YUV_BUFFER.y + nYShift + nTempX);
+			register signed char nU = 
+			 (unsigned char)128 ^ *reinterpret_cast<signed char*>(YUV_BUFFER.u + nUVShift + (nTempX >> 1));
+			register signed char nV = 
+			  (unsigned char)128 ^ *reinterpret_cast<signed char*>(YUV_BUFFER.v + nUVShift + (nTempX >> 1));
+			// (float)  0 - 2
+			// (BYTE)  0 - 256
+			// (float)  1.371
+			// (BYTE)  175
+			// (float)  0.698
+			// (BYTE)   89
+			// (float)  0.336
+			// (BYTE)   43
+			// (float)  1.732
+			// (BYTE)  222
+			register signed short r =
+			  (signed short)nY + (signed short)(((unsigned char)175 * nV) >> 7);
+			register signed short g =
+			  (signed short)nY - (signed short)(((unsigned char)89 * nV + (unsigned char)43 * nU) >> 7);
+			register signed short b =
+			  (signed short)nY + (signed short)(((unsigned char)222 * nU) >> 7);
+
+			frame[index] = ClampShortToByte(r) << 16
+							| ClampShortToByte(g) << 8
+							| ClampShortToByte(b)
+							| 255 << 24;
+			++index;
+		}
+		index += width - YUV_BUFFER.y_width;
+	}
+	hge->Texture_Unlock(hTexture);
+}
+
+void VideoFrame::PutDataToTextureIntPre()
+{
+	static int b0_[256];
+	static int b1_[256];
+	static int b2_[256];
+	static int b3_[256];
+	// расчет таблиц, заодно их кэширование
+	for(signed int cc=0; cc<256; cc++)
+	{
+	  b0_[cc] = ( 113443 * (cc-128) + 32768 ) >> 16;
+	}
+
+	for(signed int cc=0; cc<256; cc++)
+	{
+	  b1_[cc] = (  45744 * (cc-128) + 32768 ) >> 16;
+	}
+
+	for(signed int cc=0; cc<256; cc++)
+	{
+	  b2_[cc] = (  22020 * (cc-128) + 32768 ) >> 16;
+	}
+
+	for(signed int cc=0; cc<256; cc++)
+	{
+	  b3_[cc] = ( 113508 * (cc-128) + 32768 ) >> 16;
+	}
+	register DWORD *frame = hge->Texture_Lock(hTexture, false);
+	unsigned int width = hge->Texture_GetWidth(hTexture, false);
+	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
+	{
+		int nYShift = YUV_BUFFER.y_stride * nTempY;
+		int nUVShift = YUV_BUFFER.uv_stride * ( nTempY >> 1 );
+
+		for ( int nTempX = 0; nTempX < YUV_BUFFER.y_width; nTempX++ )
+		{
+			int nTempX_ = nTempX >> 1;
+			register
+			int nY = (int) ( *reinterpret_cast<unsigned char*>( YUV_BUFFER.y + nYShift + nTempX) );
+			register unsigned char nU = *(YUV_BUFFER.u + nUVShift + nTempX_);
+			register unsigned char nV = *(YUV_BUFFER.v + nUVShift + nTempX_);
+			register int r = nY + b0_[nV];
+			register int g = nY - b1_[nV] - b2_[nU];
+			register int b = nY + b3_[nU];
+			*frame = ClampIntToByte(r) << 16
+							| ClampIntToByte(g) << 8
+							| ClampIntToByte(b)
+							| 255 << 24;
+			++frame;
+		} 
+		frame += (width - YUV_BUFFER.y_width);
+	}
+	hge->Texture_Unlock(hTexture);
+}
+
+bool VideoFrame::ReadFrameFromFile()
+{
 	// theora processing...
 	while( ogg_stream_packetout(&OGG_STREAM_STATE_THEORA,&OGG_PACKET) <=0)
 	{
@@ -314,7 +524,7 @@ void VideoFrame::Draw()
 
 			//LOG_NUMBER(LOG_NOTE, "frames: ", current_frame);
 			//FINISHED=true;
-			return;
+			return false;
 		}
 
 		while( ogg_sync_pageout(&OGG_SYNC_STATE,&OGG_PAGE) >0)
@@ -345,72 +555,5 @@ void VideoFrame::Draw()
 		// ошибка декодирования
 		throw std::runtime_error("error during theora_decode_YUVout...");
 	}
-
-	/*
-	Ура, кадр получен! Однако, theora, как и многие другие кодеки работает в цветовом пространстве YUV12, где Y – информация о яркости точки, а UV – цветоразностные характеристики, придающие картинке цветность. Таким образом, если вас устраивает черно-белая картинка, ничего преобразовывать не надо – просто используйте данные из слоя Y. :)
-	Формула для преобразования yuv->rgb выглядит так: 
-	R = Y + 1.371(CR - 128) 
-	G = Y - 0.698(CR - 128) - 0.336(CB - 128) 
-	B = Y + 1.732(CB - 128) 
-	, где CB – это U, а CR – это V.
-	Кроме того, надо учитывать, что разрешение Y слоя в кадре theora меньше, чем разрешение UV слоев, так как было подмечено, что яркость меняется не так резко, как цветность. Для определения положения нужной точки внутри слоев в структуре yuv_buffer имеются поля y_stride и uv_stride.
-	Вот код преобразования: */
-	if (current_frame == 0)
-	{
-		// если это первый кадр, то создаем буфер кадра
-		hTexture = hge->Texture_Create(YUV_BUFFER.y_width, YUV_BUFFER.y_height);
-		sprite = new hgeSprite(hTexture, 0, 0, YUV_BUFFER.y_width, YUV_BUFFER.y_height);
-	}
-	frame = hge->Texture_Lock(hTexture, false);
-	unsigned int width = hge->Texture_GetWidth(hTexture, false);
-	// преобразуем yuv -> rgb
-	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
-	{
-		int nYShift = YUV_BUFFER.y_stride * nTempY;
-		int nUVShift = YUV_BUFFER.uv_stride * ( nTempY >> 1 );
-
-		for ( int nTempX = 0; nTempX < YUV_BUFFER.y_width; nTempX++ )
-		{
-			int nHX = ( nTempX >> 1 );
-
-			BYTE nY = *(BYTE*)( YUV_BUFFER.y + nYShift + nTempX );
-			BYTE nU = *(BYTE*)( YUV_BUFFER.u + nUVShift + nHX );
-			BYTE nV = *(BYTE*)( YUV_BUFFER.v + nUVShift + nHX );
-
-			int index=(nTempY * width+nTempX);
-
-			float r=nY+1.371f*(nV-128);
-			float g=nY-0.698f*(nV-128)-0.336f*(nU-128);
-			float b=nY+1.732f*(nU-128);
-
-			frame[index]= ClampFloatToByte(r) << 16
-							| ClampFloatToByte(g) << 8
-							| ClampFloatToByte(b)
-							| 255 << 24;
-		}
-	}
-	hge->Texture_Unlock(hTexture);
-	// Как может заметить опытный читатель, кроме самого преобразования, необходим еще и клампинг (насыщение) на границу байта.
-	// Важно: theora поддерживает несколько цветовых пространств (colorspaces), однако, я не являюсь специалистом по ним и не знаю, как надо изменить коэффициенты в таких случаях. Довольно разумно просто закрыть глаза на это, тем более, что созданное вами видео все равно будет иметь цветовое пространство «по умолчанию» и я не думаю, что этот вопрос будет актуален. Тем не менее, если Вам хочется получить больше информации по данному вопросу, рекомендую обратиться к файлу color.html, который находится в папке doc в дистрибутиве theora.
-	// Вот и все, осталось только отобразить кадр:   // загружаем битовую карту:
-	sprite->Render(pos.x, pos.y);
-
-	++current_frame;
-}
-
-void VideoFrame::OnMessage(std::string message) 
-{
-	if (message == "play") {
-		TheoraInit();
-	} else if (message == "stop") {
-		TheoraClose();
-	}
-}
-
-VideoFrame::~VideoFrame(void)
-{
-	if (currentfile) {
-		TheoraClose();
-	}
-	hge->Release();
+	return true;
 }

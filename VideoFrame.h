@@ -12,6 +12,7 @@ public:
 	VideoFrame(TiXmlElement *xe);
 	virtual void OnMessage(std::string message);
 	virtual void Draw();
+	virtual void Update(float dt);
 	virtual ~VideoFrame(void);
 private:
 	std::string fileName;
@@ -40,7 +41,17 @@ private:
 	// добавляет завершенные страницы в поток
 	int push_page_into_logical_stream(ogg_page *page);
 	void TheoraClose();
-	BYTE ClampFloatToByte(const float &value);
+	static BYTE ClampFloatToByte(const float &value);
+	void PutDataToTexture();
+	static BYTE VideoFrame::ClampShortToByte(signed short value);
+	void PutDataToTextureInt();
+	static BYTE ClampIntToByte(int value);
+	void PutDataToTextureIntPre();
+	
+	float waitFrame; // счетчик времени до следующего кадра
+	float deltaFps;// 1 / частота кадров видео
+
+	bool ReadFrameFromFile();
 
 	HTEXTURE hTexture;
 	hgeSprite *sprite;
