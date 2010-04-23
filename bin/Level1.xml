@@ -99,7 +99,7 @@
 	</Mask>
 	<Mask x="207" y="266" texture="comp_mask">
 		<script>
-				SendMessage("messageWindow" , "компьютер,... но без личного кода он меня не выпустить" ) ;
+				SendMessage("messageWindow" , "компьютер,... но без личного кода он меня не выпустит" ) ;
 		</script>
 	</Mask>
 	<Mask x="143" y="126" texture="luk_mask">
@@ -115,7 +115,7 @@
 	<Mask x="81" y="193" texture="door_mask">
 		<script>
 				if (inHand == "otvertka") then
-					SendMessage("messageWindow" , "не, отверкой эту дверь не сломать..." ) ;
+					SendMessage("messageWindow" , "не,... отверкой эту дверь не сломать..." ) ;
 				else
 					SendMessage("messageWindow" , "через дверь мне из этого склада без личного кода не выйти - это, так сказать, минусы путешествия зайцем.." ) ;
 				end
@@ -193,7 +193,7 @@
 		</states>
 	  <script>
       if (inHand ~= "None") then
-        SendMessage("messageWindow" , "сей высокотехнологичный девайс расколупать отверткой не получится" ) 
+        SendMessage("messageWindow" , "сей высокотехнологичный девайс расколупать не получится" ) 
       elseif (toolboxfaze == "one") then
         toolboxfaze = "onetwo"
       elseif (toolboxfaze == "onetwo") then

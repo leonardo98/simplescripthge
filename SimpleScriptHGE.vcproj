@@ -217,6 +217,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Gamee\Button.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\Core.cpp"
 				>
 			</File>
@@ -313,6 +317,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\Gamee\Button.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Core\Core.h"
 				>
@@ -507,6 +515,10 @@
 			Name="TheGame"
 			>
 		</Filter>
+		<File
+			RelativePath=".\bin\settings.ini"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

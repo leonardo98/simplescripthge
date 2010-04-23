@@ -356,7 +356,7 @@ void VideoFrame::Update(float dt)
 		}
 		++current_frame;
 	}
-	PutDataToTexture();
+	PutDataToTextureIntPre();
 	while (waitFrame > deltaFps) {
 		waitFrame -= deltaFps;
 	}
@@ -475,7 +475,7 @@ void VideoFrame::PutDataToTextureIntPre()
 	{
 	  b3_[cc] = ( 113508 * (cc-128) + 32768 ) >> 16;
 	}
-	register DWORD *frame = hge->Texture_Lock(hTexture, false);
+	frame = hge->Texture_Lock(hTexture, false);
 	unsigned int width = hge->Texture_GetWidth(hTexture, false);
 	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
 	{

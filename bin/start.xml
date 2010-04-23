@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 <fileroot>
-	<Resources fileName="GUI_textures.xml"/>
+<!--	<Resources fileName="GUI_textures.xml"/>
 	<script name="onLoad">
     SendMessage("Core", "load xml Level1.xml");
   </script>
+  -->
+  <Resources fileName="GUI_textures.xml"/>
+  <script name="onLoad">
+    --SendMessage("video", "play");
+  </script>
+  <VideoFrame fileName="data\test_big.ogg" x="0" y="0">
+    <messager name="video"/>
+  </VideoFrame>
+  <Button x="300" y="400" normal="button_up" pressed="button_down">
+    SendMessage("video", "stop");
+    SendMessage("video", "play");
+  </Button>
+  <FpsCounter/>
 </fileroot>
