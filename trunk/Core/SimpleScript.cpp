@@ -38,17 +38,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 {
 	// инициализируем HGE
 	hge = hgeCreate(HGE_VERSION);
-	hge->System_SetState(HGE_LOGFILE, "log.txt");
+	hge->System_SetState(HGE_INIFILE, "settings.ini");
+	hge->System_SetState(HGE_LOGFILE, hge->Ini_GetString("system", "logfile", "log.txt"));
 	hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
 	hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
-	hge->System_SetState(HGE_WINDOWED, true);
-	hge->System_SetState(HGE_SCREENWIDTH, 800);
-	hge->System_SetState(HGE_SCREENHEIGHT, 600);
+	hge->System_SetState(HGE_WINDOWED, hge->Ini_GetInt("system", "fullscreen", 0) == 0);
+	hge->System_SetState(HGE_SCREENWIDTH, hge->Ini_GetInt("system", "width", 800));
+	hge->System_SetState(HGE_SCREENHEIGHT, hge->Ini_GetInt("system", "height", 600));
 	hge->System_SetState(HGE_SCREENBPP, 32);
-	hge->System_SetState(HGE_FPS, HGEFPS_VSYNC);	
+	hge->System_SetState(HGE_FPS, hge->Ini_GetInt("system", "vsync", 0) == 0?0:HGEFPS_VSYNC);	
 	hge->System_SetState(HGE_USESOUND, false);
 	hge->System_SetState(HGE_SHOWSPLASH, false);
 	hge->System_SetState(HGE_HIDEMOUSE, false);
+	hge->System_SetState(HGE_ZBUFFER, false);
 	hge->System_SetState(HGE_TITLE, "Simple script HGE application");
 
 	if(hge->System_Initiate()) {

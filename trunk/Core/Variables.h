@@ -19,6 +19,7 @@ private:
 	static lua_State *l;
 	friend class Mask;
 	friend class MultiTexture;
+	friend class Button;
 	friend class TestObject;
 };
 
