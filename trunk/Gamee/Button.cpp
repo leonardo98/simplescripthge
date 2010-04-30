@@ -47,6 +47,8 @@ void Button::OnMouseUp() {
 		_current = _normal;
 		_down = false;
 		_luaScript->Execute();
+	} else if (_down) {
+		_down = false;
 	}
 }
 

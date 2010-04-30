@@ -26,6 +26,8 @@ public:
 	void Update(float deltaTime);
 	void Release();
 	static Texture * getTexture(std::string textureId);
+	static HGE *GetDC();
+	static void SetDC(HGE *hge);
 	virtual void OnMessage(std::string message); 
 	typedef std::vector<Object *> Objects;
 protected:
@@ -35,6 +37,7 @@ protected:
 	std::list<std::string> _messages;
 	lua_State *lua;
 	LuaScript *_luaScript;
+	static HGE *_hge;
 };
 
 #endif // !defined(_CORE_INCLUDED_)

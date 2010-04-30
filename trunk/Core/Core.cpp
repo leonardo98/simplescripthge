@@ -14,11 +14,60 @@ static int LuaSendMessage(lua_State *L) {
 	return 0;
 }
 
+static int LuaOpenFile(lua_State *L) {
+	int err = lua_gettop(L);
+	const char *path = lua_tostring(L, 1);
+	const char *mask = lua_tostring(L, 2);
+	std::string file;
+	OPENFILENAME fn;
+	fn.lStructSize = sizeof(fn);
+	fn.hInstance = 0;
+	fn.hwndOwner = Core::GetDC()->System_GetState(HGE_HWND);
+	fn.lpstrInitialDir = path;
+	fn.lpstrFilter = mask;
+	fn.nFilterIndex = 0;
+	fn.lpstrFile = new char[1024];
+	fn.lpstrFile[0] = 0;
+	fn.nMaxFile = 1024 - 1;
+	fn.lpstrFileTitle = NULL;
+	fn.nMaxFileTitle = NULL;
+	fn.lpstrTitle = NULL;
+	fn.Flags = OFN_FILEMUSTEXIST;
+	fn.lpstrCustomFilter = NULL;
+	fn.nMaxCustFilter = 0;
+	fn.nFileOffset = 0;
+	fn.nFileExtension = 0;
+	fn.lpstrDefExt = NULL;
+	fn.lCustData = NULL;
+	fn.lpfnHook = NULL;
+	fn.FlagsEx = 0;
+	fn.lpTemplateName = "";
+	fn.dwReserved = 0;
+	fn.pvReserved = 0;
+	char currentDirectory[1024];
+	currentDirectory[0] = 0;
+	DWORD cdres = GetCurrentDirectory(1024, currentDirectory);
+	bool res = GetOpenFileName(&fn);
+	assert(err == lua_gettop(L));
+	if (res) {
+		lua_pushstring(L, fn.lpstrFile);
+	} else {
+		lua_pushstring(L, "null");
+	}
+	if (cdres) {
+		SetCurrentDirectory(currentDirectory);
+	}
+	return 1;
+}
+
+HGE *Core::_hge;
+
 Core::Core()
 	: Messager("Core")
 {
 	lua = lua_open();
 	lua_register(lua, "SendMessage", LuaSendMessage);
+	lua_register(lua, "OpenFile", LuaOpenFile);
 	Variables::Init(lua);
 }
 
@@ -99,4 +148,11 @@ void Core::Release()
 	}
 	_objects.clear();
 	_scripts.clear();
+}
+
+HGE *Core::GetDC() {
+	return _hge;
+}
+void Core::SetDC(HGE *hge) {
+	_hge = hge;
 }

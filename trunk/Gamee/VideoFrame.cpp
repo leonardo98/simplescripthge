@@ -329,6 +329,9 @@ void VideoFrame::OnMessage(std::string message)
 		TheoraInit();
 	} else if (message == "stop") {
 		TheoraClose();
+	} else if (message.find("set ") == 0) {
+		TheoraClose();
+		fileName = message.substr(std::string("set ").length());
 	}
 }
 
