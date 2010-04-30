@@ -16,6 +16,7 @@
 #include "..\Core\Messager.h"
 #include "VideoFrame.h"
 #include "Button.h"
+#include "..\Core\IButton.h"
 
 #define REG_TYPE(a, b) if (name == a) return new b(xe)
 
@@ -34,6 +35,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("StarsRect", StarsRect);
 	REG_TYPE("Tester", Tester);
 	REG_TYPE("Button", Button);
+	REG_TYPE("IButton", IButton);
 	if(name == "FpsCounter") {
 		return new FpsCounter();
 	}

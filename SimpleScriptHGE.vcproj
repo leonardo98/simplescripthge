@@ -237,7 +237,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Core\IButton.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\InputSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Core\Interface.cpp"
 				>
 			</File>
 			<File
@@ -335,6 +343,10 @@
 			</File>
 			<File
 				RelativePath=".\Helpers\FpsCounter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Core\IButton.h"
 				>
 			</File>
 			<File

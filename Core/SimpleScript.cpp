@@ -1,8 +1,8 @@
-// SimpleScript.cpp : Defines the entry point for the console application.
 #include "Variables.h"
 #include "Messager.h"
 #include "Core.h"
 #include "InputSystem.h"
+#include "Interface.h"
 
 HGE *hge;
 
@@ -55,10 +55,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 
 	if(hge->System_Initiate()) {
 		Log log;
+		Interface::Init(hge);
 		// запускаем ядро
 		core.Load("start.xml");
+		core.SetDC(hge);
 		hge->System_Log("hge start");
 		hge->System_Start();
+		Interface::Release();
 	} else {	
 		MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
 	}

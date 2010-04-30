@@ -20,6 +20,7 @@ private:
 	friend class Mask;
 	friend class MultiTexture;
 	friend class Button;
+	friend class IButton;
 	friend class TestObject;
 };
 
