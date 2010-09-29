@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 <fileroot>
-<!--	<Resources fileName="GUI_textures.xml"/>
+ <!--<Resources fileName="GUI_textures.xml"/>
 	<script name="onLoad">
-    SendMessage("Core", "load xml Level1.xml");
-  </script>
+   		SendMessage("Core", "load xml Level1.xml");
+ 	</script>
   -->
-  <Resources fileName="GUI_textures.xml"/>
+	<Resources fileName="GUI_textures.xml"/>
   <script name="onLoad">
-    --SendMessage("video", "play");
+    SendMessage("video", "play");
   </script>
   <VideoFrame fileName="data\test.ogg" x="0" y="0">
     <messager name="video"/>
@@ -17,9 +17,15 @@
     SendMessage("video", "play");
   </IButton>
   <IButton x="50" y="340" width="100" height="40" caption="Open...">
-    local file = OpenFile("C:\\", "Images: OGG files\0*.ogg\0Images: PNG files\0*.png\0Images: JPG files\0*.jpg\0All files\0*.*\0\0")
-    SendMessage("video", "set "..file)
-    SendMessage("video", "play");
+    local file = OpenFile("C:\\", "Images: OGG files\0*.ogg\0Images: PNG files\0*.png\0Images: JPG files\0*.jpg\0All files\0*.*\0\0");
+    if file ~= "null" then
+		SendMessage("video", "set "..file);
+    	SendMessage("video", "play");
+	end
   </IButton>
+  <Button x="400" y="340" normal="button_up" pressed="button_down">
+	SendMessage("video", "stop");
+	SendMessage("video", "play");
+  </Button>
   <FpsCounter/>
 </fileroot>
