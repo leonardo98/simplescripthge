@@ -1,6 +1,11 @@
 #include "VideoFrame.h"
 #include "Ogg\Ogg.h"
 
+#include <iostream>
+
+using namespace std;
+
+
 void VideoFrame::TheoraInit()
 {
 	//очищаем все структуры ogg/theora:
@@ -13,6 +18,7 @@ void VideoFrame::TheoraInit()
 	memset(&THEORA_STATE, 0x00, sizeof(theora_state));
 	memset(&YUV_BUFFER, 0x00, sizeof(yuv_buffer));
 	//видео файл
+	
 	currentfile=fopen(fileName.c_str(),"rb");
 	if(currentfile==NULL)
 		throw std::runtime_error("cannot open ogg-file");
@@ -35,8 +41,10 @@ void VideoFrame::TheoraInit()
 		// get_data_from_physical_stream - читает данные из FILE*
 		// и передает их в буфер приема ogg
 		if( get_data_from_physical_stream(currentfile, &OGG_SYNC_STATE) ==0)
+		{
 			// кончился файл, на данном этапе это ошибка
-			throw std::runtime_error("eof searched, terminate...");  
+			throw std::runtime_error("eof searched, terminate...");
+		}
 		// ogg_sync_pageout - формирует страницу
 		while( ogg_sync_pageout(&OGG_SYNC_STATE, &OGG_PAGE) >0)
 			// 1-больше данных не требуется
@@ -272,10 +280,13 @@ void VideoFrame::TheoraClose()
 	currentfile = NULL;
 	current_frame = 0;
 
-	delete sprite;
-	// удаляем буфер кадра
-	hge->Texture_Free(hTexture);
-	hTexture = 0;
+
+	if(hTexture) {
+		delete sprite;
+		// удаляем буфер кадра
+		hge->Texture_Free(hTexture);
+		hTexture = 0;
+	}
 }
 
 __forceinline BYTE VideoFrame::ClampFloatToByte(const float &value)
@@ -326,7 +337,14 @@ void VideoFrame::Draw()
 void VideoFrame::OnMessage(std::string message) 
 {
 	if (message == "play") {
-		TheoraInit();
+		try {
+			TheoraInit();
+		}
+		catch ( exception &e ) {
+			MessageBox(hge->System_GetState(HGE_HWND),e.what(),"Runtime Error in Theora!", MB_ICONERROR);
+			TheoraClose();
+		};
+
 	} else if (message == "stop") {
 		TheoraClose();
 	} else if (message.find("set ") == 0) {

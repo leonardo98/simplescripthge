@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 <Resources>
-  <texture id="button_up" path="data\interface\up.png"/>
-  <texture id="button_down" path="data\interface\down.png"/>
-
-
-  <texture id="banki_mask" path="data\banki_mask.png"/>
-  <texture id="boxes_mask" path="data\boxes_mask.png"/>
-  <texture id="box_faze1" path="data\box_faze1.png"/>
-  <texture id="box_faze2" path="data\box_faze2.png"/>
-  <texture id="firesafe_mask" path="data\firesafe_mask.png"/>
+	<texture id="button_up" path="data\interface\up.png"/>
+	<texture id="button_down" path="data\interface\down.png"/>
+	<texture id="banki_mask" path="data\banki_mask.png"/>
+	<texture id="boxes_mask" path="data\boxes_mask.png"/>
+	<texture id="box_faze1" path="data\box_faze1.png"/>
+	<texture id="box_faze2" path="data\box_faze2.png"/>
+	<texture id="firesafe_mask" path="data\firesafe_mask.png"/>
 	<texture id="closed_vent" path="data\closed_vent.png"/>
 	<texture id="closed_vent_mask" path="data\closed_vent_mask.png"/>
 	<texture id="comp_mask" path="data\comp_mask.png"/>
@@ -28,10 +26,10 @@
 	<texture id="shkaf_open" path="data\shkaf_open.png"/>
 	<texture id="svet_mask" path="data\svet_mask.png"/>
 	<texture id="star" path="data\star.png"/>
-  <texture id="switch_mask" path="data\switch_mask.png"/>
-  <texture id="key" path="data\key.png"/>
-  <texture id="key_icon" path="data\key_icon.png"/>
-  <texture id="textback" path="data\textback.png"/>
+	<texture id="switch_mask" path="data\switch_mask.png"/>
+	<texture id="key" path="data\key.png"/>
+	<texture id="key_icon" path="data\key_icon.png"/>
+	<texture id="textback" path="data\textback.png"/>
 	<texture id="toolbox_faze1" path="data\toolbox_faze1.png"/>
 	<texture id="toolbox_faze12" path="data\toolbox_faze12.png"/>
 	<texture id="toolbox_faze2" path="data\toolbox_faze2.png"/>
