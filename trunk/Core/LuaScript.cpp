@@ -62,6 +62,6 @@ void LuaScript::Execute()
 	if (code == NULL) {
 		return;
 	}
-	int lua_dostring_result = lua_dostring(l, code);
+	int lua_dostring_result = luaL_dostring(l, code);
 	report(l, lua_dostring_result);
 }
