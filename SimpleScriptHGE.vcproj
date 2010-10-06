@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib lualib.lib hgehelp.lib libogg_static.lib libtheora_static.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib lua51.lib hgehelp.lib libogg_static.lib libtheora_static.lib tinyxml_STL.lib"
 				OutputFile=".\bin\SimpleScriptHGE.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -171,7 +171,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="false"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib hgehelp.lib lualibd.lib libogg_staticd.lib libtheora_staticd.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib hgehelp.lib lua51.lib libogg_staticd.lib libtheora_staticd.lib tinyxmld_STL.lib"
 				OutputFile=".\bin\SimpleScriptHGE_D.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -430,98 +430,6 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
-		</Filter>
-		<Filter
-			Name="TinyXml"
-			>
-			<File
-				RelativePath="..\..\CppLib\tinyxml\tinystr.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\CppLib\tinyxml\tinystr.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\CppLib\tinyxml\tinyxml.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\CppLib\tinyxml\tinyxml.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\CppLib\tinyxml\tinyxmlerror.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\CppLib\tinyxml\tinyxmlparser.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="TheGame"
