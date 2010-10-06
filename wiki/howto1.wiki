@@ -1,4 +1,4 @@
- * [howto1#Test]
+ * [howto1#TEST]
  * <a href="#What do you need to build?">Что нужно для сборки?"</a>
  * [howto1#Сборка и подключение библиотек]
   # [howto1#TinyXML 2.6.1]
