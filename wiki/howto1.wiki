@@ -1,19 +1,10 @@
- * [howto1#TEST Вступление]
- * [#ank Вступление]
+<wiki:toc max_depth="1" />
 
+= Вступление =
+same text here 
 
+= Вступление2 =
+or here
 
-
-
-
-
-
-= TEST =
-
-
-
-
-
-
-
-= ank =
+= Вступление3 =
+the end
