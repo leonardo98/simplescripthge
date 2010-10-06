@@ -1,5 +1,5 @@
- * [howto1#TEST Introduction]
- * [howto1#Тест Вступление]
+ * [howto1#TEST Вступление]
+ * [#ank Вступление]
 
 
 
@@ -16,4 +16,4 @@
 
 
 
-= Тест =
+= ank =
