@@ -5,16 +5,16 @@
 
 = Что нужно для сборки? =
 Перед тем как собирать сам проект нужно скачать и собрать библиотеки, которые он использует:
- # TinyXML (2.6.1) – маленький, простой XML парсер для языка С++. [http://sourceforge.net/projects/tinyxml/files/tinyxml/2.6.1/tinyxml_2_6_1.zip/download Скачать] 
- # Lua (5.1.4) – мощный, быстрый, легкий, встраиваемый скриптовый язык. [http://www.lua.org/ftp/lua-5.1.4.tar.gz Скачать] 
- # !LibTheora (1.1.1) – свободный и открытый формат сжатия видео. [http://downloads.xiph.org/releases/theora/libtheora-1.1.1.zip Скачать]
- # !LibOgg (1.2.0) – открытый стандарт формата мультимедиаконтейнера. [http://downloads.xiph.org/releases/ogg/libogg-1.2.0.zip Скачать]
- # HGE (1.81) – простой в использовании 2D движок основанный на DirectX 8.0. [http://hge.relishgames.com/files/hge.zip Скачать]
+ # _*TinyXML 2.6.1*_ – маленький, простой XML парсер для языка С++. [http://sourceforge.net/projects/tinyxml/files/tinyxml/2.6.1/tinyxml_2_6_1.zip/download Скачать] 
+ # _*Lua 5.1.4*_ – мощный, быстрый, легкий, встраиваемый скриптовый язык. [http://www.lua.org/ftp/lua-5.1.4.tar.gz Скачать] 
+ # _*!LibTheora 1.1.1*_ – свободный и открытый формат сжатия видео. [http://downloads.xiph.org/releases/theora/libtheora-1.1.1.zip Скачать]
+ # _*!LibOgg 1.2.0*_ – открытый стандарт формата мультимедиаконтейнера. [http://downloads.xiph.org/releases/ogg/libogg-1.2.0.zip Скачать]
+ # _*HGE 1.81*_ – простой в использовании 2D движок основанный на DirectX 8.0. [http://hge.relishgames.com/files/hge.zip Скачать]
 
 = Сборка и подключение библиотек =
 После того как вы скачали все нужные библиотеки (см. раздел [http://code.google.com/p/simplescripthge/wiki/howto1#Что_нужно_для_сборки? Что нужно для сборки?]) можно приступать к их сборке.
 
-Примечание: Все сборки проводились в MVS 2008 Professional Edition, под который и компилировался проект. При использовании другого IDE или другой версии MVS возможны проблемы.
+Примечание: Все сборки проводились в MSVS 2008 Professional Edition, под который и компилировался проект. При использовании другого IDE или другой версии MSVS возможны проблемы.
 
  
 == TinyXML 2.6.1 ==
@@ -23,24 +23,24 @@
 Для удобства можно зайти в опции проекта (выделить проект и Alt+F7), перейти к разделу Librarian, и изменить строку Output File на lib_STL\ tinyxml_STL.lib для Release версии и на lib_STL\ tinyxmld_STL.lib для Debug. Можно строить проект (ПКМ на проекте -> Build для Release и Debug) .
 Так же создайте папку Include в корневом каталоге и скопируйте туда файлы tinystr.h и tinyxml.h.
 
-После всего этого в опциях MVS (Tools->Options->Projects and Solutions->VC++ Directiries) нужно добавить наши новоиспеченные папки lib_STL, include для поиска в них файлов студией. Для этого установим Show Directiries for на Library files и добавим путь к папке lib_STL, Show Directiries for на Include files – путь к Include.
+После всего этого в опциях MSVS (Tools->Options->Projects and Solutions->VC++ Directiries) нужно добавить наши новоиспеченные папки lib_STL, include для поиска в них файлов студией. Для этого установим Show Directiries for на Library files и добавим путь к папке lib_STL, Show Directiries for на Include files – путь к Include.
 
 == Lua 5.1.4 ==
 В корневом каталоге создайте 2 папки: Lib и Include. В папке etc есть батник luavs.bat который и создаст нам либу.
 Открываем Command Window и переходим в корневой каталог Lua (используем команду cd или ПКМ на папке Lua -> Open Command Window Here). Пишем etc\luavs.bat – в папке src должен появиться файл lua51.lib (и некоторые другие). Копируем его в папку Lib, а также из папки src скопируйте файлы lua.h luaconf.h lualib.h lauxlib.h и из папки etc lua.hpp в папку Include.
-Теперь добавьте эти папки к директориям MSV.
+Теперь добавьте эти папки к директориям MSVS.
 
 == !LibOgg 1.2.0 ==
 В корневом каталоге открываем файл win32\VS2008\ libogg_static.sln. Далее опции проекта -> Librarian -> Output File изменяем на ..\..\Lib\libogg_static.lib, ..\..\Lib\libogg_staticd.lib для Release и Debug версии соответственно. Теперь можно строить проект.
-Добавляем папки Lib и Include к директориям MSV.
+Добавляем папки Lib и Include к директориям MSVS.
 
 == !LibTheora 1.1.1 ==
 В корневом каталоге открываем файл win32\VS2008\ libtheora_static.sln.
 Далее опции проекта -> Librarian -> Output File изменяем на ..\..\..\Lib\libogg_static.lib, ..\..\..\Lib\libogg_staticd.lib для Release и Debug версии соответственно. Теперь можно строить проект.
-Добавляем папки Lib и Include к директориям MSV.
+Добавляем папки Lib и Include к директориям MSVS.
 
 == HGE 1.81 ==
-Библиотеки уже готовы, нужно просто указать к ним путь для MVS.
+Библиотеки уже готовы, нужно просто указать к ним путь для MSVS.
 Путь к lib: Корневой_Каталог\lib\vc
 Путь к Include: Корневой_Каталог\include
 
@@ -49,4 +49,4 @@
 = Компиляция проекта =
 Скачиваем проект из репозитория http://simplescripthge.googlecode.com/svn/trunk/ при помощи любого svn клиента (например TortoiseSVN). Открываем в корневом каталоге файл SimpleScriptHGE.sln и жмем F5. Если вы все сделали правильно то программа скомпилируется и запустится. Если же есть ошибки смотрим раздел [http://code.google.com/p/simplescripthge/wiki/howto1#Сборка_и_подключение_библиотек Сборка и подключение библиотек].
 
-Приятного кодинга.
+_*Приятного кодинга.*_
