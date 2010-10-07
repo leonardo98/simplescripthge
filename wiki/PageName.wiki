@@ -1,7 +1,7 @@
 === что и как ===
 
-[http://code.google.com/p/simplescripthge/wiki/howto1 как собрать и скомпилировать]
+[http://code.google.com/p/simplescripthge/wiki/howto1 Как собрать и скомпилировать]
 
-[howto2  как писать на этом игру]
+[howto2 Как писать на этом игру]
 
-[Idias  Идеи и предложения]
+[IdieasPage Идеи и предложения]
