@@ -26,7 +26,7 @@
 После всего этого в опциях MSVS (Tools->Options->Projects and Solutions->VC++ Directiries) нужно добавить наши новоиспеченные папки lib_STL, include для поиска в них файлов студией. Для этого установим Show Directiries for на Library files и добавим путь к папке lib_STL, Show Directiries for на Include files – путь к Include.
 
 == Lua 5.1.4 ==
-В MSVS создаем проект static library. Добавляем в проект файлы из Lua_корневой_каталог\src (все кроме lua.c, luac.c и print.c). Build'им Release версию проекта.
+В MSVS создаем проект static library с именем lua51. Добавляем в проект файлы из Lua_корневой_каталог\src (все кроме lua.c, luac.c и print.c). Build'им Release версию проекта.
 
 В Lua_корневой_каталог создайте 2 папки Include и Lib. В Include скопируйте файлы из папки src: lua.h luaconf.h lualib.h lauxlib.h. В Lib поместите библиотеку которую вы скомпилировали.
 
