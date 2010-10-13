@@ -26,9 +26,11 @@
 После всего этого в опциях MSVS (Tools->Options->Projects and Solutions->VC++ Directiries) нужно добавить наши новоиспеченные папки lib_STL, include для поиска в них файлов студией. Для этого установим Show Directiries for на Library files и добавим путь к папке lib_STL, Show Directiries for на Include files – путь к Include.
 
 == Lua 5.1.4 ==
-В корневом каталоге создайте 2 папки: Lib и Include. В папке etc есть батник luavs.bat который и создаст нам либу.
-Открываем Command Window и переходим в корневой каталог Lua (используем команду cd или ПКМ на папке Lua -> Open Command Window Here). Пишем etc\luavs.bat – в папке src должен появиться файл lua51.lib (и некоторые другие). Копируем его в папку Lib, а также из папки src скопируйте файлы lua.h luaconf.h lualib.h lauxlib.h и из папки etc lua.hpp в папку Include.
-Теперь добавьте эти папки к директориям MSVS.
+В MSVS cоздаем проект static library. Добавляем в проект файлы из Lua_корневой_каталок\src (все кроме lua.c, luac.c и print.c). Build'им Release версию проекта.
+
+В Lua_корневой_каталог создайте 2 папки Include и Lib. В Include скопируйте файлы из папки src: lua.h luaconf.h lualib.h lauxlib.h. В Lib поместите библиотеку которую вы скомпилировали.
+
+Вуаля! Осталось добавить эти папки к директориям MSVS.
 
 == !LibOgg 1.2.0 ==
 В корневом каталоге открываем файл win32\VS2008\ libogg_static.sln. Далее опции проекта -> Librarian -> Output File изменяем на ..\..\Lib\libogg_static.lib, ..\..\Lib\libogg_staticd.lib для Release и Debug версии соответственно. Теперь можно строить проект.
