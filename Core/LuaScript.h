@@ -1,6 +1,8 @@
 #pragma once
 
 #include "types.h"
+#include <string>
+using std::string;
 
 class LuaScript
 {
@@ -13,4 +15,5 @@ public:
 private:
 	lua_State *l;
 	char *code;
+	string scriptfile;
 };
