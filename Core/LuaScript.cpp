@@ -23,12 +23,33 @@ LuaScript::LuaScript(lua_State *L, TiXmlElement *script)
 	} 
 }
 
+//Сохраняем совместимость со старыми версиями :)
 void LuaScript::Read(char *text)
 {
 	if (text != NULL) {
 		unsigned int size = strlen(text);
 		code = new char[size + 1];
 		strcpy(code, text);
+	}
+}
+
+//Юзать если хотим считывать как с отдельного файла так и с ХМЛ
+void LuaScript::Read(TiXmlElement *script)
+{
+	if (script != NULL) {
+		scriptfile.clear();
+		if(script->QueryStringAttribute("scriptfile", &scriptfile)==TIXML_NO_ATTRIBUTE)
+		{
+			TiXmlText *text = (TiXmlText *)script->FirstChild();
+			if (text != NULL) {
+				unsigned int size = strlen((char *)text->Value());
+				//В старом варианте функции проверки нет, но будет лик если во время жизни обьекта
+				//будут вызывать эту функцию более 1го раза (или даже если 1 раз при исплользовании 2го конструктора)
+				if(code!=NULL) delete code;
+				code = new char[size + 1];
+				strcpy(code, (char *)text->Value());
+			}
+		}
 	}
 }
 
@@ -64,6 +85,7 @@ void LuaScript::Execute()
 {
 	int lua_dostring_result;
 
+	//Выполняем с файла?
 	if(!scriptfile.empty())
 	{
 		lua_dostring_result = luaL_dofile(l, scriptfile.c_str());
@@ -71,10 +93,12 @@ void LuaScript::Execute()
 		return;
 	}
 
+	//Есть ли в ХМЛ вообще код для скрипта?
 	if (code == NULL) {
 		return;
 	}
 
+	//Выполняем строку из ХМЛ
 	lua_dostring_result = luaL_dostring(l, code);
 	report(l, lua_dostring_result);
 }
