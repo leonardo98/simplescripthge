@@ -436,6 +436,10 @@
 			>
 		</Filter>
 		<File
+			RelativePath=".\ClassDiagram1.cd"
+			>
+		</File>
+		<File
 			RelativePath=".\bin\settings.ini"
 			>
 		</File>

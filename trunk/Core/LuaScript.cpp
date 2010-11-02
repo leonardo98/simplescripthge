@@ -11,11 +11,14 @@ LuaScript::LuaScript(lua_State *L, TiXmlElement *script)
 {
 	l = L;
 	if (script != NULL) {
-		TiXmlText *text = (TiXmlText *)script->FirstChild();
-		if (text != NULL) {
-			unsigned int size = strlen((char *)text->Value());
-			code = new char[size + 1];
-			strcpy(code, (char *)text->Value());
+		if(script->QueryStringAttribute("scriptfile", &scriptfile)==TIXML_NO_ATTRIBUTE)
+		{
+			TiXmlText *text = (TiXmlText *)script->FirstChild();
+			if (text != NULL) {
+				unsigned int size = strlen((char *)text->Value());
+				code = new char[size + 1];
+				strcpy(code, (char *)text->Value());
+			}
 		}
 	} 
 }
@@ -59,9 +62,19 @@ static int report (lua_State *l, int status) {
 
 void LuaScript::Execute() 
 {
+	int lua_dostring_result;
+
+	if(!scriptfile.empty())
+	{
+		lua_dostring_result = luaL_dofile(l, scriptfile.c_str());
+		report(l, lua_dostring_result);
+		return;
+	}
+
 	if (code == NULL) {
 		return;
 	}
-	int lua_dostring_result = luaL_dostring(l, code);
+
+	lua_dostring_result = luaL_dostring(l, code);
 	report(l, lua_dostring_result);
 }
