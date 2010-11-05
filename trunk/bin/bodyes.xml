@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- for the test size=1 is 10 pixels, it must be fixed late -->
+<Definitions>
+  <bodyDef type="unbrakeable" shape="box" width="1" height="1" restitution="0.0" friction="1"/>
+  <bodyDef type="blue" shape="box" width="1" height="1" restitution="0.0" friction="0.1"/>
+  <bodyDef type="explosion" shape="box" width="1" height="1" restitution="0.0" friction="0.7"/>
+  <bodyDef type="ball" shape="circle" diameter="1" restitution="0.65" friction="0.1"/>
+</Definitions>
