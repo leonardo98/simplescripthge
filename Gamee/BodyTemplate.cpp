@@ -16,7 +16,7 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 		_width = atof(xe->Attribute("width"));
 		_height = atof(xe->Attribute("height"));
 	} else if (_shape == "circle") {
-		_radius = atof(xe->Attribute("diameter")) / 2.f;
+		_radius = atof(xe->Attribute("radius"));
 	} else {
 		// unknown type
 	}	

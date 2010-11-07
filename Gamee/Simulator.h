@@ -96,64 +96,28 @@ struct ContactPoint
 	b2PointState state;
 };
 
+// класс описывающий физическую сцену и ее отображение
 class Simulator 
 	: public b2ContactListener
 	, public InputSystem
 {
 public:
 	
-	Texture *_blue_box;
-	Texture *_red_box;
-	Texture *_ball;
-	Texture *_wall;
-
 	Simulator(TiXmlElement *xe);
 	virtual ~Simulator();
 
-	void SetTextLine(int32 line) { m_textLine = line; }
-    //void DrawTitle(int x, int y, const char *string);
 	virtual void Step(Settings* settings);
 	virtual void OnKeyDown(int key);
-	void ShiftMouseDown(const b2Vec2& p);
 	virtual void OnMouseDown(hgeVector mousePos);
 	virtual void OnMouseUp();
 	void OnMouseMove(hgeVector mousePos);
-	//void LaunchBomb();
-	//void LaunchBomb(const b2Vec2& position, const b2Vec2& velocity);
-	
-	//void SpawnBomb(const b2Vec2& worldPt);
-	//void CompleteBombSpawn(const b2Vec2& p);
-
-	// Let derived tests know that a joint was destroyed.
 	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
 
 	// Callbacks for derived classes.
 	virtual void BeginContact(b2Contact* contact) { B2_NOT_USED(contact); }
 	virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
 	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
-	virtual void PostSolve(const b2Contact* contact, const b2ContactImpulse* impulse)
-	{
-		/*if (m_broke)
-		{
-			// The body already broke.
-			return;
-		}
-
-		// Should the body break?
-		int32 count = contact->GetManifold()->pointCount;
-
-		float32 maxImpulse = 0.0f;
-		for (int32 i = 0; i < count; ++i)
-		{
-			maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-		}
-
-		if (maxImpulse > 40.0f)
-		{
-			// Flag the body for breaking.
-			m_break = true;
-		}*/
-	}
+	virtual void PostSolve(const b2Contact* contact, const b2ContactImpulse* impulse);
 	virtual bool IsMouseOver(hgeVector mousePos);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
@@ -187,6 +151,21 @@ protected:
 
 	hgeVector lastMousePos;
 	Settings settings;
+
+
+	Texture *_allElements;
+	//Elements
+	struct UV {
+		float u, v;
+	};
+	UV _blue_box[4];
+	UV _red_box[4];
+	UV _ball[4];
+	UV _wall[4];
+	inline void DrawElement(hgeVertex *&buf, const UV *uv, const FPoint2D &pos, float angle, float size);
+
+	float _viewScale; // масштаб всей —цены
+	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
 };
 
 #endif //SIMULATOR_H
