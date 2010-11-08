@@ -21,7 +21,7 @@ void Simulator::LoadTemplates(const std::string &filename) {
 	}
 	TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement();
 	while (bodyDef) {
-		_templates.push_back(new BodyTemplate(bodyDef));
+		BodyTemplate *bt = new BodyTemplate(bodyDef);
 		bodyDef = bodyDef->NextSiblingElement();
 	}
 }
@@ -29,26 +29,27 @@ void Simulator::LoadTemplates(const std::string &filename) {
 Simulator::Simulator(TiXmlElement *xe)
 	: _viewScale(100.f)
 	, _worldCenter(400.f, 300.f)
+	, _groundType(BODY_TYPE_GROUND)
 {
 	_allElements = Core::getTexture("allElements");
 	
 	// синий €щик
-	_blue_box[0].u = 0.75f; _blue_box[0].v =   1.f;
-	_blue_box[1].u =   1.f; _blue_box[1].v =   1.f;
-	_blue_box[2].u =   1.f; _blue_box[2].v = 0.75f;
-	_blue_box[3].u = 0.75f; _blue_box[3].v = 0.75f;
+	_blue_box[0].u = 0.75f; _blue_box[0].v = 0.25f;
+	_blue_box[1].u =   1.f; _blue_box[1].v = 0.25f;
+	_blue_box[2].u =   1.f; _blue_box[2].v = 0.0f;
+	_blue_box[3].u = 0.75f; _blue_box[3].v = 0.0f;
 
 	// красный €щик
-	_red_box[0].u =  0.5f; _red_box[0].v =   1.f;
-	_red_box[1].u = 0.75f; _red_box[1].v =   1.f;
-	_red_box[2].u = 0.75f; _red_box[2].v = 0.75f;
-	_red_box[3].u =  0.5f; _red_box[3].v = 0.75f;
+	_red_box[0].u =  0.5f; _red_box[0].v = 0.25f;
+	_red_box[1].u = 0.75f; _red_box[1].v = 0.25f;
+	_red_box[2].u = 0.75f; _red_box[2].v = 0.0f;
+	_red_box[3].u =  0.5f; _red_box[3].v = 0.0f;
 
 	// серый €щик
-	_wall[0].u = 0.25f; _wall[0].v =   1.f;
-	_wall[1].u =  0.5f; _wall[1].v =   1.f;
-	_wall[2].u =  0.5f; _wall[2].v = 0.75f;
-	_wall[3].u = 0.25f; _wall[3].v = 0.75f;
+	_wall[0].u = 0.25f; _wall[0].v = 0.25f;
+	_wall[1].u =  0.5f; _wall[1].v = 0.25f;
+	_wall[2].u =  0.5f; _wall[2].v = 0.0f;
+	_wall[3].u = 0.25f; _wall[3].v = 0.0f;
 
 	// м€ч
 	_ball[0].u =   0.f; _ball[0].v = 0.25f;
@@ -75,12 +76,13 @@ Simulator::Simulator(TiXmlElement *xe)
 
 	m_stepCount = 0;
 
-	b2BodyDef bodyDef;
-	m_groundBody = m_world->CreateBody(&bodyDef);
+	//b2BodyDef bodyDef;
+	//m_groundBody = m_world->CreateBody(&bodyDef);
 
 	{
 		b2BodyDef bd;
 		b2Body* ground = m_world->CreateBody(&bd);
+		ground->SetUserData((BodyTypes *)&_groundType);
 
 		b2PolygonShape shape;
 		shape.SetAsEdge(b2Vec2(-10.0f, 0.0f), b2Vec2(0.0f, -2.5f));
@@ -96,8 +98,8 @@ Simulator::~Simulator()
 	// By deleting the world, we delete the bomb, mouse joint, etc.
 	delete m_world;
 	m_world = NULL;
-	for (unsigned int i = 0; i < _templates.size(); i++) {
-		delete _templates[i];
+	for (BodyTemplate::Collection::iterator i = BodyTemplate::_collection.end(), e = BodyTemplate::_collection.end(); i != e; i++) {
+		delete i->second;
 	}
 }
 
@@ -171,34 +173,34 @@ void Simulator::OnKeyDown(int key){
 
 	b2Body* body = m_world->CreateBody(&bd);
 
-	int index;
+	BodyTypes index;
 
 	if (key == HGEK_1) {
-		index = 0;
+		index = BODY_TYPE_UNBREAKABLE;
 	} else if (key == HGEK_2) {
-		index = 1;
+		index = BODY_TYPE_BLUE;
 	} else if (key == HGEK_3) {
-		index = 2;
+		index = BODY_TYPE_EXPLOSION;
 	} else if (key == HGEK_4) {
-		index = 3;
+		index = BODY_TYPE_BALL;
 	} else {
 		m_world->DestroyBody(body);
 		return;
 	}
 
 	b2FixtureDef fd;
-	fd.restitution = _templates[index]->_restitution;
-	fd.friction = _templates[index]->_friction;
+	fd.restitution = BodyTemplate::_collection[index]->_restitution;
+	fd.friction = BodyTemplate::_collection[index]->_friction;
 	fd.density = 1.0f;
 
-	if (_templates[index]->_shape == "circle") {
+	if (BodyTemplate::_collection[index]->_shape == "circle") {
 		b2CircleShape shape;
-		shape.m_radius = _templates[index]->_radius;
+		shape.m_radius = BodyTemplate::_collection[index]->_radius;
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
-	} else if (_templates[index]->_shape == "box") {
+	} else if (BodyTemplate::_collection[index]->_shape == "box") {
 		b2PolygonShape shape;
-		shape.SetAsBox(_templates[index]->_width, _templates[index]->_height);
+		shape.SetAsBox(BodyTemplate::_collection[index]->_width / 2.f, BodyTemplate::_collection[index]->_height / 2.f);
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
 	} else {
@@ -206,14 +208,13 @@ void Simulator::OnKeyDown(int key){
 		return;
 	}
 
-	body->SetUserData((void *)&(_templates[index]->_type));
-	bodyes.push_back(body);
+	body->SetUserData((void *)&(BodyTemplate::_collection[index]->_type));
 }
 
 void Simulator::OnMouseDown(hgeVector mousePos)
 {
-/*	b2Vec2 p(mousePos.x, mousePos.y); // нужен дл€ выбора объекта по которому кликнули
-	m_mouseWorld = p;
+	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
+	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен дл€ выбора объекта по которому кликнули
 	
 	if (m_mouseJoint != NULL)
 	{
@@ -234,14 +235,20 @@ void Simulator::OnMouseDown(hgeVector mousePos)
 	if (callback.m_fixture)
 	{
 		b2Body* body = callback.m_fixture->GetBody();
-		b2MouseJointDef md;
+		if (*(BodyTypes *)(body->GetUserData()) == BODY_TYPE_EXPLOSION) {
+			//Explode(true);
+			m_world->DestroyBody(body);
+			//_worldCenter
+		}
+		/*b2MouseJointDef md;
 		md.bodyA = m_groundBody;
 		md.bodyB = body;
 		md.target = p;
 		md.maxForce = 1000.0f * body->GetMass();
 		m_mouseJoint = (b2MouseJoint*)m_world->CreateJoint(&md);
 		body->SetAwake(true);
-	}*/
+		*/
+	}
 }
 
 void Simulator::OnMouseUp()
@@ -348,39 +355,26 @@ void Simulator::Draw() {
 	int max;
 	hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
-	for (unsigned int i = 0; i < bodyes.size(); i++) {
-		const b2Transform& xf = bodyes[i]->GetTransform();
-		for (b2Fixture* f = bodyes[i]->GetFixtureList(); f; f = f->GetNext()){
-			if (f->GetType() == b2Shape::e_circle) {
-				b2CircleShape* circle = (b2CircleShape*)f->GetShape();
-
-				b2Vec2 center = b2Mul(xf, circle->m_p);
-				float32 radius = circle->m_radius;
-				b2Vec2 axis = xf.R.col1;
-
-				//_ball->RenderEx(center.x, center.y, -atan2(axis.y, axis.x), 20.f / 64);
-				DrawElement(buffer, _ball, FPoint2D(center.x, center.y), -atan2(axis.y, axis.x), 2 * radius);
-			} else if (f->GetType() == b2Shape::e_polygon) {
-				/*b2PolygonShape* box = (b2PolygonShape*)f->GetShape();
-
-				b2Vec2 center = b2Mul(xf, box->m_p);
-				float32 radius = circle->m_radius;
-				b2Vec2 axis = xf.R.col1;
-				*/
-				//_ball->RenderEx(10*center.x + 400.f, 400.f - 10*center.y, -atan2(axis.y, axis.x), 20.f / 64);
-			}
-		}
-		b2Vec2 position = 10 * bodyes[i]->GetPosition();
-		position.x += 400.f;
-		position.y = 400 - position.y;
-		float32 angle = - bodyes[i]->GetAngle();
-		BodyTemplate::Types type = *(BodyTemplate::Types *)(bodyes[i]->GetUserData());
+	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+		const b2Transform & xf = body->GetTransform();
+		BodyTypes type = *(BodyTypes *)(body->GetUserData());
+		const BodyTemplate *bt = BodyTemplate::_collection[type];
+	
 		switch (type) {
-			//case BodyTemplate::TYPE_UNBREAKABLE: {_wall->RenderEx(position.x, position.y, angle, 20.f / 64); break;}
-			//case BodyTemplate::TYPE_BLUE: {_blue_box->RenderEx(position.x, position.y, angle, 20.f / 64); break;}
-			//case BodyTemplate::TYPE_EXPLOSION: {_red_box->RenderEx(position.x, position.y, angle, 20.f / 64); break;}
-			//case BodyTemplate::TYPE_BALL: {_ball->RenderEx(position.x, position.y, angle, 20.f / 64); break;}
+			case BODY_TYPE_UNBREAKABLE: {
+				DrawElement(buffer, _wall, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width);
+				break; }
+			case BODY_TYPE_BLUE: {
+				DrawElement(buffer, _blue_box, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width);
+				break; }
+			case BODY_TYPE_EXPLOSION: {
+				DrawElement(buffer, _red_box, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width);
+				break; }
+			case BODY_TYPE_BALL: {
+				DrawElement(buffer, _ball, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), 2 * bt->_radius);
+				break; }
 		};
+		
 		++counter;
 		if (counter > max) {
 			assert(false);

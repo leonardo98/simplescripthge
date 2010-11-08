@@ -126,9 +126,8 @@ public:
 
 protected:
 	
-	std::vector<BodyTemplate *> _templates;
-	//std::list<Body> _bodyes;
-	std::vector<b2Body *> bodyes;
+	/*typedef std::list<b2Body *> Bodyes;
+	Bodyes _bodyes;*/
 
 	friend class DestructionListener;
 	friend class BoundaryListener;
@@ -164,6 +163,7 @@ protected:
 	UV _wall[4];
 	inline void DrawElement(hgeVertex *&buf, const UV *uv, const FPoint2D &pos, float angle, float size);
 
+	BodyTypes _groundType; // тут храним только одно значение всегда - BODY_TYPE_GROUND
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
 };
