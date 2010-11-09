@@ -35,9 +35,9 @@ inline float32 RandomFloat(float32 lo, float32 hi)
 struct Settings
 {
 	Settings() :
-		hz(60.0f),
+		hz(30.0f),
 		velocityIterations(8),
-		positionIterations(3),
+		positionIterations(4),
 		drawStats(0),
 		drawShapes(1),
 		drawJoints(1),
@@ -48,7 +48,7 @@ struct Settings
 		drawContactForces(0),
 		drawFrictionForces(0),
 		drawCOMs(0),
-		enableWarmStarting(1),
+		enableWarmStarting(0),
 		enableContinuous(1),
 		pause(0),
 		singleStep(0)
@@ -148,7 +148,7 @@ protected:
 	b2Vec2 m_mouseWorld;
 	int32 m_stepCount;
 
-	hgeVector lastMousePos;
+	hgeVector _lastMousePos;
 	Settings settings;
 
 
@@ -166,6 +166,8 @@ protected:
 	BodyTypes _groundType; // тут храним только одно значение всегда - BODY_TYPE_GROUND
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
+
+	void Explosion(b2Vec2 pos, float radius, float maxForce);
 };
 
 #endif //SIMULATOR_H

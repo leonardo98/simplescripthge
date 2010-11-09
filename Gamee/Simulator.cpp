@@ -27,8 +27,8 @@ void Simulator::LoadTemplates(const std::string &filename) {
 }
 
 Simulator::Simulator(TiXmlElement *xe)
-	: _viewScale(100.f)
-	, _worldCenter(400.f, 300.f)
+	: _viewScale(200.f)
+	, _worldCenter(400.f, 400.f)
 	, _groundType(BODY_TYPE_GROUND)
 {
 	_allElements = Core::getTexture("allElements");
@@ -85,10 +85,13 @@ Simulator::Simulator(TiXmlElement *xe)
 		ground->SetUserData((BodyTypes *)&_groundType);
 
 		b2PolygonShape shape;
-		shape.SetAsEdge(b2Vec2(-10.0f, 0.0f), b2Vec2(0.0f, -2.5f));
+		shape.SetAsEdge(b2Vec2(-5.0f, 0.0f), b2Vec2(5.0f, 0.f));
 		ground->CreateFixture(&shape, 0.0f);
 
-		shape.SetAsEdge(b2Vec2(0.0f, -2.5f), b2Vec2(10.0f, 0.f));
+		shape.SetAsEdge(b2Vec2(-5.0f, 5.f), b2Vec2(-5.0f, 0.f));
+		ground->CreateFixture(&shape, 0.0f);
+
+		shape.SetAsEdge(b2Vec2(5.0f, 5.f), b2Vec2(5.0f, 0.f));
 		ground->CreateFixture(&shape, 0.0f);
 	}
 }
@@ -167,6 +170,11 @@ public:
 
 void Simulator::OnKeyDown(int key){ 
 
+	if (key == HGEK_MINUS) {
+		_viewScale *= 0.9;
+	} else if (key == HGEK_EQUALS) {
+		_viewScale *= 1.09;
+	}
 	b2BodyDef bd;
 	bd.type = b2_dynamicBody;
 	bd.position.Set(RandomFloat(-2.f, 2.f), 3);
@@ -212,7 +220,7 @@ void Simulator::OnKeyDown(int key){
 }
 
 void Simulator::OnMouseDown(hgeVector mousePos)
-{
+{	
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
 	
@@ -236,9 +244,11 @@ void Simulator::OnMouseDown(hgeVector mousePos)
 	{
 		b2Body* body = callback.m_fixture->GetBody();
 		if (*(BodyTypes *)(body->GetUserData()) == BODY_TYPE_EXPLOSION) {
-			//Explode(true);
 			m_world->DestroyBody(body);
-			//_worldCenter
+			Explosion(body->GetPosition(), 1.f, 0.3f);
+		}
+		if (Core::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+			m_world->DestroyBody(body);
 		}
 		/*b2MouseJointDef md;
 		md.bodyA = m_groundBody;
@@ -258,7 +268,10 @@ void Simulator::OnMouseUp()
 void Simulator::OnMouseMove(hgeVector mousePos)
 {
 	b2Vec2 p(mousePos.x, mousePos.y);
-	lastMousePos = mousePos;
+	if (Core::GetDC()->Input_GetKeyState(HGEK_RBUTTON)) {
+		_worldCenter += (mousePos - _lastMousePos);
+	}
+	_lastMousePos = mousePos;
 	m_mouseWorld = p;
 	
 	if (m_mouseJoint)
@@ -344,10 +357,16 @@ inline void Simulator::DrawElement(hgeVertex *&buf, const UV *uv, const FPoint2D
 	// пока предполагаем, что все элементы имеют квадратные текстуры
 	float vs = size * sin(angle + M_PI / 4);
 	float vc = size * cos(angle + M_PI / 4);
-	buf[0].x = x - vs; buf[0].y = y + vc; buf[0].tx = uv[0].u; buf[0].ty = uv[0].v; buf[0].col = 0xFFFFFFFF;
-	buf[1].x = x + vc; buf[1].y = y + vs; buf[1].tx = uv[1].u; buf[1].ty = uv[1].v; buf[1].col = 0xFFFFFFFF;
-	buf[2].x = x + vs; buf[2].y = y - vc; buf[2].tx = uv[2].u; buf[2].ty = uv[2].v; buf[2].col = 0xFFFFFFFF;
-	buf[3].x = x - vc; buf[3].y = y - vs; buf[3].tx = uv[3].u; buf[3].ty = uv[3].v; buf[3].col = 0xFFFFFFFF;
+	buf[0].x = x - vs; buf[0].y = y + vc; 
+	buf[1].x = x + vc; buf[1].y = y + vs; 
+	buf[2].x = x + vs; buf[2].y = y - vc; 
+	buf[3].x = x - vc; buf[3].y = y - vs; 
+
+	buf[0].tx = uv[0].u; buf[0].ty = uv[0].v; buf[0].col = 0xFFFFFFFF;
+	buf[1].tx = uv[1].u; buf[1].ty = uv[1].v; buf[1].col = 0xFFFFFFFF;
+	buf[2].tx = uv[2].u; buf[2].ty = uv[2].v; buf[2].col = 0xFFFFFFFF;
+	buf[3].tx = uv[3].u; buf[3].ty = uv[3].v; buf[3].col = 0xFFFFFFFF;
+
 	buf += 4;
 }
 
@@ -362,13 +381,13 @@ void Simulator::Draw() {
 	
 		switch (type) {
 			case BODY_TYPE_UNBREAKABLE: {
-				DrawElement(buffer, _wall, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width);
+				DrawElement(buffer, _wall, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width * 1.068f);
 				break; }
 			case BODY_TYPE_BLUE: {
-				DrawElement(buffer, _blue_box, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width);
+				DrawElement(buffer, _blue_box, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width * 1.068f);
 				break; }
 			case BODY_TYPE_EXPLOSION: {
-				DrawElement(buffer, _red_box, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width);
+				DrawElement(buffer, _red_box, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), bt->_width * 1.068f);
 				break; }
 			case BODY_TYPE_BALL: {
 				DrawElement(buffer, _ball, FPoint2D(xf.position.x, xf.position.y), -xf.GetAngle(), 2 * bt->_radius);
@@ -384,6 +403,27 @@ void Simulator::Draw() {
 }
 
 void Simulator::Update(float deltaTime) {	
-	settings.hz = 60;
 	Step(&settings);
+}
+
+void Simulator::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
+{
+	b2Vec2 b2TouchPosition = b2Vec2(pos.x, pos.y);
+	b2Vec2 b2BodyPosition;
+	float distance; 
+	float strength;
+	float force;
+	float angle;
+	for (b2Body* b = m_world->GetBodyList(); b; b = b->GetNext())
+	{
+		b2BodyPosition = b2Vec2(b->GetPosition().x, b->GetPosition().y);
+		distance = b2Distance(b2BodyPosition, b2TouchPosition);
+		if(distance < maxDistance - 0.01) {
+			strength = (maxDistance - distance) / maxDistance; 
+			force = sqrt(strength) * maxForce;
+			angle = atan2f(b2BodyPosition.y - b2TouchPosition.y, b2BodyPosition.x - b2TouchPosition.x);
+			// Apply an impulse to the body, using the angle
+			b->ApplyLinearImpulse(b2Vec2(cosf(angle) * force, sinf(angle) * force), b->GetPosition());
+		}
+	}
 }

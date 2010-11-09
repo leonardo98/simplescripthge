@@ -31,3 +31,5 @@ extern "C"
 
 #define LOG_NOTE 1
 #define LOG_STRING(note, msg) Messager::SendMessage("Core", msg)
+
+typedef hgeVector FPoint2D;
