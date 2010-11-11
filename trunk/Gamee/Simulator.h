@@ -124,6 +124,9 @@ public:
 
 	void LoadTemplates(const std::string &filename);
 
+	typedef std::vector<BodyTemplate *> Collection;
+	Collection _collection;
+
 protected:
 	
 	/*typedef std::list<b2Body *> Bodyes;
@@ -153,21 +156,18 @@ protected:
 
 
 	Texture *_allElements;
-	//Elements
-	struct UV {
-		float u, v;
-	};
-	UV _blue_box[4];
-	UV _red_box[4];
-	UV _ball[4];
-	UV _wall[4];
-	inline void DrawElement(hgeVertex *&buf, const UV *uv, const FPoint2D &pos, float angle, float size);
+	inline void DrawElement(hgeVertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 
 	BodyTypes _groundType; // тут храним только одно значение всегда - BODY_TYPE_GROUND
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
 
+	float _angleMultiplier;
+	//b2Body *_selectedBody;
+
 	void Explosion(b2Vec2 pos, float radius, float maxForce);
+
+	int round(float a);
 };
 
 #endif //SIMULATOR_H
