@@ -2,6 +2,8 @@
 
 [http://code.google.com/p/simplescripthge/wiki/howto1 Как собрать и скомпилировать]
 
+[scheme Структура движка]
+
 [howto2 Как писать на этом игру]
 
 [IdieasPage Идеи и предложения]
