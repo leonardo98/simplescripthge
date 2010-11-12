@@ -28,12 +28,13 @@ Inventory::~Inventory()
 	_hge->Release();
 }
 
-void Inventory::OnMessage(std::string message) {
-	if (CanCut(message, "add ")) {
+void Inventory::OnMessage(const std::string &message) {
+	std::string msg = message;
+	if (CanCut(msg, "add ")) {
 		_tools.push_back(Tool());
-		_tools.back().id = message;
-		_tools.back().texture = Core::getTexture(message + "_icon");
-	} if (message == "remove from hand") {
+		_tools.back().id = msg;
+		_tools.back().texture = Core::getTexture(msg + "_icon");
+	} if (msg == "remove from hand") {
 		for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
 			if (i->id == Variables::Get("inHand")) {
 				_tools.erase(i);

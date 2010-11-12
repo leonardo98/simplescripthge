@@ -61,7 +61,9 @@ LuaScript::~LuaScript(void)
 	}
 }
 
-static int report (lua_State *l, int status) {
+int LuaScript::report(lua_State *l, int status) {
+	const char *msg;
+	msg = lua_tostring(l, -1);
 	if (status == LUA_ERRRUN) {
 		MessageBox(0, "ошибка при управлении chunk", "Error!", MB_OK);
 	} else if (status == LUA_ERRSYNTAX) {
@@ -73,8 +75,6 @@ static int report (lua_State *l, int status) {
 	} else if (status == LUA_ERRFILE) {
 		MessageBox(0, "ошибка открытия файла", "Error!", MB_OK);
 	} else if (status) {
-		const char *msg;
-		msg = lua_tostring(l, -1);
 			if (msg == NULL) msg = "(error with no message)";
 		MessageBox(0, msg, "Error!", MB_OK);
 	}

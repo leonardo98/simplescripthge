@@ -9,12 +9,9 @@ int Simulator::round(float a) {
 
 void DestructionListener::SayGoodbye(b2Joint* joint)
 {
-	if (test->m_mouseJoint == joint)
-	{
+	if (test->m_mouseJoint == joint) {
 		test->m_mouseJoint = NULL;
-	}
-	else
-	{
+	} else {
 		test->JointDestroyed(joint);
 	}
 }
@@ -90,8 +87,7 @@ void Simulator::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 {
 	const b2Manifold* manifold = contact->GetManifold();
 
-	if (manifold->pointCount == 0)
-	{
+	if (manifold->pointCount == 0) {
 		return;
 	}
 
@@ -131,19 +127,16 @@ public:
 		if (body->GetType() == b2_dynamicBody)
 		{
 			bool inside = fixture->TestPoint(m_point);
-			if (inside)
-			{
+			if (inside) {
 				m_fixture = fixture;
 
 				// We are done, terminate the query.
 				return false;
 			}
 		}
-
 		// Continue the query.
 		return true;
 	}
-
 	b2Vec2 m_point;
 	b2Fixture* m_fixture;
 };
@@ -158,11 +151,9 @@ void Simulator::OnKeyDown(int key){
 	b2BodyDef bd;
 	bd.type = b2_dynamicBody;
 	bd.position.Set(RandomFloat(-2.f, 2.f), 3);
-
 	b2Body* body = m_world->CreateBody(&bd);
 
 	int index = 0;
-
 	if (key == HGEK_1) {
 		while (_collection[index]->_type != BODY_TYPE_UNBREAKABLE && index < _collection.size()) {++index;};
 	} else if (key == HGEK_2) {
@@ -178,7 +169,6 @@ void Simulator::OnKeyDown(int key){
 		m_world->DestroyBody(body);
 		return;
 	}
-
 	b2FixtureDef fd;
 	fd.restitution = _collection[index]->_restitution;
 	fd.friction = _collection[index]->_friction;
@@ -227,7 +217,7 @@ void Simulator::OnMouseDown(hgeVector mousePos)
 	{
 		b2Body* body = callback.m_fixture->GetBody();
 		BodyTemplate *bt = (BodyTemplate *)(body->GetUserData());
-		if (Core::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+		if (Core::GetDC()->Input_GetKeyState(HGEK_ALT)) {
 			m_world->DestroyBody(body);
 			return;
 		} else if (bt->_type == BODY_TYPE_EXPLOSION && Core::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
@@ -268,11 +258,27 @@ void Simulator::OnMouseMove(hgeVector mousePos)
 	if (Core::GetDC()->Input_GetKeyState(HGEK_RBUTTON)) {
 		_worldCenter += (mousePos - _lastMousePos);
 	}
-	
 	if (m_mouseJoint)
 	{
-		//_selectedBody->SetP
 		m_mouseJoint->SetTarget(p);
+	} else {		
+		// Make a small box.
+		b2AABB aabb;
+		b2Vec2 d;
+		d.Set(0.001f, 0.001f);
+		aabb.lowerBound = p - d;
+		aabb.upperBound = p + d;
+		// Query the world for overlapping shapes.
+		QueryCallback callback(p);
+		m_world->QueryAABB(&callback, aabb);
+		if (callback.m_fixture)
+		{
+			b2Body* body = callback.m_fixture->GetBody();
+			BodyTemplate *bt = (BodyTemplate *)(body->GetUserData());
+			if (Core::GetDC()->Input_GetKeyState(HGEK_ALT)) {
+				m_world->DestroyBody(body);
+			}
+		}
 	}
 	_lastMousePos = mousePos;
 	m_mouseWorld = p;
@@ -365,14 +371,43 @@ inline void Simulator::DrawElement(hgeVertex *&buf, const BodyTemplate::UV *uv, 
 	buf += 4;
 }
 
+/// DrawLine
+inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
+{
+	Core::GetDC()->Gfx_RenderLine(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
+}
+
 void Simulator::Draw() {
+
+	for(b2Fixture *f = m_groundBody->GetFixtureList(); f; f = f->GetNext()) {
+		b2PolygonShape *s = (b2PolygonShape *)f->GetShape();
+		DrawLine(s->GetVertex(0), s->GetVertex(1));
+	}
+
 	int max;
 	hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
+
+	if (Core::GetDC()->Input_GetKeyState(HGEK_SHIFT)) { // рисуем интерфейс
+		FPoint2D oldWC = _worldCenter;
+		_worldCenter = FPoint2D(25, 25);
+		float oldScale = _viewScale;
+		_viewScale = 100.f;
+		for (unsigned int i = 0; i < _collection.size(); i++) {
+			const BodyTemplate *bt = _collection[i];
+			DrawElement(buffer, bt->_uv, b2Vec2(i * 0.5f, 0), bt->_positions[0]);
+			++counter;
+		}
+		_worldCenter = oldWC;
+		_viewScale = oldScale;
+	}
+
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
 		const b2Transform & xf = body->GetTransform();
 		int type = *(int *)(body->GetUserData());
-		if (type == BODY_TYPE_GROUND) {continue;}
+		if (type == BODY_TYPE_GROUND) {
+			continue;
+		}
 		const BodyTemplate *bt = (BodyTemplate *)(body->GetUserData());
 		int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
 		assert(0 <= angle && angle <= BodyTemplate::MAX);
@@ -401,6 +436,7 @@ void Simulator::Draw() {
 }
 
 void Simulator::Update(float deltaTime) {	
+	if (Core::GetDC()->Input_GetKeyState(HGEK_SHIFT) || Core::GetDC()->Input_GetKeyState(HGEK_ALT)) {return;}
 	Step(&settings);
 }
 

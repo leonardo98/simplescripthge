@@ -21,14 +21,18 @@ class Core
 public:
 	Core();
 	~Core();
-	void Load(std::string fileName);
+	void Load(const std::string &fileName);
 	void Draw();
 	void Update(float deltaTime);
 	void Release();
-	static Texture * getTexture(std::string textureId);
+	bool DoLua(char *code);
+	bool DoScript(const std::string &name);
+	static Texture * getTexture(const std::string &textureId);
+	static DWORD getKeyCode(const std::string &id);
 	static HGE *GetDC();
+	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	static void SetDC(HGE *hge);
-	virtual void OnMessage(std::string message); 
+	virtual void OnMessage(const std::string &message); 
 	typedef std::vector<Object *> Objects;
 protected:
 	Objects _objects;
@@ -36,8 +40,8 @@ protected:
 	ScriptMap _scripts;
 	std::list<std::string> _messages;
 	lua_State *lua;
-	LuaScript *_luaScript;
 	static HGE *_hge;
+	static std::map<std::string, DWORD> _keyCodes;
 };
 
 #endif // !defined(_CORE_INCLUDED_)

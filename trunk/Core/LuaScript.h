@@ -13,6 +13,7 @@ public:
 	void Read(char *text);
 	void Read(TiXmlElement *script);
 	void Execute();
+	static int report(lua_State *l, int status);
 private:
 	lua_State *l;
 	char *code;

@@ -17,6 +17,9 @@
 #include "VideoFrame.h"
 #include "Button.h"
 #include "..\Core\IButton.h"
+#include "..\Core\IPanel.h"
+#include "..\Core\IPanel.h"
+#include "Simulator.h"
 
 #define REG_TYPE(a, b) if (name == a) return new b(xe)
 
@@ -24,6 +27,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 {
 	std::string name = xe->Value();
 	REG_TYPE("TestObject", TestObject);
+	REG_TYPE("Simulator", Simulator);
 	REG_TYPE("StaticTexture", StaticTexture);
 	REG_TYPE("Mask", Mask);
 	REG_TYPE("TextBox", TextBox);
@@ -36,6 +40,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("Tester", Tester);
 	REG_TYPE("Button", Button);
 	REG_TYPE("IButton", IButton);
+	REG_TYPE("IPanel", IPanel);
 	if(name == "FpsCounter") {
 		return new FpsCounter();
 	}

@@ -14,15 +14,15 @@ enum BodyTypes{
 struct BodyTemplate 
 {
 public:
-	static const int MAX = 200;
+	static const int MAX = 300;
 	std::string _id;
-	//Elements
 	struct UV {
 		float u, v;
 	};
 	UV _uv[4];
-	FPoint2D _positions[MAX][4]; //позже можно соптимизировать для iphone 
-	// записать все положения под разными углами в массив
+	FPoint2D _positions[MAX][4]; 
+	// соптимизируем для iphone, чтобы не тратить время на расчеты в реальном времени
+	// запишем все координаты вершин элемента под разными углами в массив
 	BodyTypes _type;
 	float _restitution;
 	float _friction;

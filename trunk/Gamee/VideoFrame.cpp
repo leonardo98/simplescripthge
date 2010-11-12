@@ -334,7 +334,7 @@ void VideoFrame::Draw()
 	sprite->Render(pos.x, pos.y);
 }
 
-void VideoFrame::OnMessage(std::string message) 
+void VideoFrame::OnMessage(const std::string &message) 
 {
 	if (message == "play") {
 		try {
@@ -347,6 +347,8 @@ void VideoFrame::OnMessage(std::string message)
 
 	} else if (message == "stop") {
 		TheoraClose();
+	} else if (message == "pause") {
+		_pause = !_pause;
 	} else if (message.find("set ") == 0) {
 		TheoraClose();
 		fileName = message.substr(std::string("set ").length());
@@ -363,6 +365,9 @@ VideoFrame::~VideoFrame(void)
 
 void VideoFrame::Update(float dt)
 {
+	if (_pause) {
+		return;
+	}
 	if (!currentfile || !hTexture) {
 		return;
 	}

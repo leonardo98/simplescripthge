@@ -43,7 +43,7 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 	_uv[2].u = u2; _uv[2].v = v2;
 	_uv[3].u = u1; _uv[3].v = v2;
 
-	for (unsigned int i = 0; i < MAX; i++) {
+	for (unsigned int i = 0; i < MAX; i++) {//1.04f - дополнительный множитель масшатаба для коробок
 		FPoint2D p0(-_width/2,  _height/2);
 		FPoint2D p1( _width/2,  _height/2);
 		FPoint2D p2( _width/2, -_height/2);

@@ -24,7 +24,7 @@ class Inventory
 public:
 	Inventory(TiXmlElement *xe);
 	virtual ~Inventory();
-	virtual void OnMessage(std::string message);
+	virtual void OnMessage(const std::string &message);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
 	virtual bool IsMouseOver(hgeVector mousePos);

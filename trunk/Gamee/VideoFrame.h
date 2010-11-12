@@ -10,7 +10,7 @@ class VideoFrame
 {
 public:
 	VideoFrame(TiXmlElement *xe);
-	virtual void OnMessage(std::string message);
+	virtual void OnMessage(const std::string &message);
 	virtual void Draw();
 	virtual void Update(float dt);
 	virtual ~VideoFrame(void);
@@ -55,4 +55,5 @@ private:
 
 	HTEXTURE hTexture;
 	hgeSprite *sprite;
+	bool _pause;
 };
