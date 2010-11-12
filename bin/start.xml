@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 <fileroot>
- <!--<Resources fileName="GUI_textures.xml"/>
-	<script name="onLoad">
-   		SendMessage("Core", "load xml Level1.xml");
- 	</script>
-  -->
-	<Resources fileName="GUI_textures.xml"/>
-  <script name="onLoad">
-    SendMessage("video", "play");
-  </script>
-  <VideoFrame fileName="data\test.ogg" x="0" y="0">
-    <messager name="video"/>
-  </VideoFrame>
-  <IButton x="250" y="340" width="100" height="40" caption="Play!">
-    SendMessage("video", "stop");
-    SendMessage("video", "play");
-  </IButton>
-  <IButton x="50" y="340" width="100" height="40" caption="Open..." scriptfile="OpenVideo_button.lua"/>
-  <Button x="400" y="340" normal="button_up" pressed="button_down" scriptfile="StopVideo_button.lua">
-  Так как есть атрибут scriptfile
-  все что здесь не выполняеться
-  </Button>
-  <FpsCounter/>
+  <Resources fileName="GUI_textures_test.xml"/>
+  <Simulator/>
 </fileroot>

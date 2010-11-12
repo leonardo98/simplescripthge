@@ -68,7 +68,7 @@ void TextBox::Update(float deltaTime) {
 	_show.Update(deltaTime);
 }
 
-void TextBox::OnMessage(std::string message) {
+void TextBox::OnMessage(const std::string &message) {
 	if (_text.size() == 0 || _hide.Action()) {
 		_show.Init(0.25f);
 	}

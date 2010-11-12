@@ -37,10 +37,15 @@ public:
 	virtual void OnMouseMove(hgeVector mousePos);
 	// об€зательно нужно определить дл€ корректной работы OnMouseDown() - ""
 	virtual bool IsMouseOver(hgeVector mousePos) = 0;
+	
+protected:
+	// дл€ сложных(вложенных) элементов ввода - может понадобитьс€, переписать общий способ
+	void RemoveFromList(InputSystem *listener); 
 
 private:
 	typedef std::list<InputSystem *> Listeners;
 	static Listeners _listeners;
+	static void KeyDown(int key);
 	static void MouseDown(hgeVector mousePos);
 	static void MouseUp();
 	static void MouseMove(hgeVector mousePos);

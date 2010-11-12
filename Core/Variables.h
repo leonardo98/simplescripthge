@@ -21,6 +21,7 @@ private:
 	friend class MultiTexture;
 	friend class Button;
 	friend class IButton;
+	friend class IPanel;
 	friend class TestObject;
 };
 

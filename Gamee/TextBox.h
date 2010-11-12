@@ -23,7 +23,7 @@ public:
 	virtual ~TextBox();
 	virtual void Draw();
 	virtual void Update(float deltaTime);
-	virtual void OnMessage(std::string message);
+	virtual void OnMessage(const std::string &message);
 	virtual bool IsMouseOver(hgeVector mousePos);
 	virtual void OnMouseMove(hgeVector mousePos);
 private:

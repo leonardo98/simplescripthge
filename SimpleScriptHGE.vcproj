@@ -23,6 +23,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -47,8 +48,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="1"
 				InlineFunctionExpansion="1"
+				FavorSizeOrSpeed="2"
+				WholeProgramOptimization="false"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;TIXML_USE_STL"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -58,8 +61,9 @@
 				ObjectFile=".\bin\Release/"
 				ProgramDataBaseFileName=".\bin\Release/"
 				BrowseInformation="1"
+				WarningLevel="0"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -74,7 +78,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib lua51.lib hgehelp.lib libogg_static.lib libtheora_static.lib tinyxml_STL.lib"
+				AdditionalOptions="/LTCG"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib tinyxml_STL.lib lua51.lib hgehelp.lib libogg_static.lib libtheora_static.lib Box2D.lib"
 				OutputFile=".\bin\SimpleScriptHGE.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -171,7 +176,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="false"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib hgehelp.lib lua51.lib libogg_staticd.lib libtheora_staticd.lib tinyxmld_STL.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib tinyxmld_STL.lib hgehelp.lib lua51.lib libogg_staticd.lib libtheora_staticd.lib dbox2d.lib"
 				OutputFile=".\bin\SimpleScriptHGE_D.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -217,6 +222,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Gamee\BodyTemplate.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Gamee\Button.cpp"
 				>
 			</File>
@@ -257,6 +266,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Core\IPanel.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\LuaScript.cpp"
 				>
 			</File>
@@ -282,6 +295,10 @@
 			</File>
 			<File
 				RelativePath=".\Core\SimpleScript.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Gamee\Simulator.cpp"
 				>
 			</File>
 			<File
@@ -326,6 +343,10 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\Gamee\BodyTemplate.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Gamee\Button.h"
 				>
 			</File>
@@ -362,6 +383,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Core\IPanel.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\LuaScript.h"
 				>
 			</File>
@@ -383,6 +408,10 @@
 			</File>
 			<File
 				RelativePath=".\Gamee\ObjectFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Gamee\Simulator.h"
 				>
 			</File>
 			<File
@@ -432,13 +461,13 @@
 			>
 		</Filter>
 		<Filter
+			Name="TinyXml"
+			>
+		</Filter>
+		<Filter
 			Name="TheGame"
 			>
 		</Filter>
-		<File
-			RelativePath=".\ClassDiagram1.cd"
-			>
-		</File>
 		<File
 			RelativePath=".\bin\settings.ini"
 			>

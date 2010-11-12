@@ -36,8 +36,8 @@ struct Settings
 {
 	Settings() :
 		hz(30.0f),
-		velocityIterations(8),
-		positionIterations(4),
+		velocityIterations(9),
+		positionIterations(5),
 		drawStats(0),
 		drawShapes(1),
 		drawJoints(1),
@@ -141,7 +141,6 @@ protected:
 	ContactPoint m_points[k_maxContactPoints];
 	int32 m_pointCount;
 	DestructionListener m_destructionListener;
-	//DebugDraw m_debugDraw;
 	int32 m_textLine;
 	b2World* m_world;
 	b2Body* m_bomb;
@@ -166,6 +165,7 @@ protected:
 	//b2Body *_selectedBody;
 
 	void Explosion(b2Vec2 pos, float radius, float maxForce);
+	inline void DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color = 0xFFFFF0F0);
 
 	int round(float a);
 };

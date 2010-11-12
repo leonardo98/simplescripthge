@@ -1,6 +1,6 @@
 #include "IButton.h"
-#include "..\Core\Core.h"
-#include "..\Core\Variables.h"
+#include "Core.h"
+#include "Variables.h"
 
 IButton::IButton(TiXmlElement *xe)
 	: _luaScript(new LuaScript(Variables::l, xe))
@@ -15,25 +15,8 @@ IButton::IButton(TiXmlElement *xe)
 }
 
 void IButton::Draw() {
-	hgeQuad quad;
-	quad.blend = BLEND_ALPHABLEND;
-	quad.tex = NULL;
-	quad.v[0].x = _pos.x;
-	quad.v[0].y = _pos.y;
-	quad.v[1].x = _pos.x + _width;
-	quad.v[1].y = _pos.y;
-	quad.v[2].x = _pos.x + _width;
-	quad.v[2].y = _pos.y + _height;
-	quad.v[3].x = _pos.x;
-	quad.v[3].y = _pos.y + _height;
 	if (_state == BUTTON_RELEASED) {
-		for (int i = 0; i < 4; i++) {
-			quad.v[i].col = Interface::BACKGROUND_NORMAL;
-			quad.v[i].tx = 0;
-			quad.v[i].ty = 0;
-			quad.v[i].z = 0;
-		}
-		Core::GetDC()->Gfx_RenderQuad(&quad);
+		Core::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_NORMAL);
 		Core::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
 		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
 		Core::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
@@ -41,13 +24,7 @@ void IButton::Draw() {
 		Interface::Font()->SetColor(Interface::BUTTON_TEXT);
 		Interface::Font()->Render(_pos.x + _width / 2, _pos.y + _height / 2 - Interface::Font()->GetHeight() / 2, HGETEXT_CENTER, _caption.c_str());
 	} else if (_state == BUTTON_PRESSED) {
-		for (int i = 0; i < 4; i++) {
-			quad.v[i].col = Interface::BACKGROUND_PRESSED;
-			quad.v[i].tx = 0;
-			quad.v[i].ty = 0;
-			quad.v[i].z = 0;
-		}
-		Core::GetDC()->Gfx_RenderQuad(&quad);
+		Core::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_PRESSED);
 		Core::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_LOW);
 		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_LOW);
 		Core::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);

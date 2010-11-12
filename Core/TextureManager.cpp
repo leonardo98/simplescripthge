@@ -33,6 +33,10 @@ void TextureManager::ReadDescriptions(std::string fileName)
 			ts.group = "";
 			ts.path = element->Attribute( "path" );
 			ts.hTexture = _hge->Texture_Load(ts.path.c_str());
+			if (ts.hTexture == NULL) {
+				Messager::SendMessage("log", "Не могу открыть файл " + ts.path);
+				exit(-7);
+			}
 			ts.texture = new Texture(ts.hTexture, 0, 0, _hge->Texture_GetWidth(ts.hTexture), _hge->Texture_GetHeight(ts.hTexture));
 			_texturesMap[element->Attribute( "id" )] = ts;
 		}

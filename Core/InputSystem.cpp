@@ -20,9 +20,9 @@ InputSystem::~InputSystem()
 	for (i = _listeners.begin(); i != _listeners.end() && *i != this; i++);
 	if (i == _listeners.end()) {// нет в списке (уже удален)
 		Messager::SendMessage("log", "удален уже Listener - деструктор вызван второй раз???");
-		exit(-4);
+	} else {
+		_listeners.erase(i);
 	}
-	_listeners.erase(i);
 }
 
 void InputSystem::OnKeyDown(int key) {}
@@ -42,6 +42,12 @@ void InputSystem::MouseDown(hgeVector mousePos) {
 	}
 }
 
+void InputSystem::KeyDown(int key) {
+	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
+		(*i)->OnKeyDown(key);
+	}
+}
+
 void InputSystem::MouseUp() {
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
 		(*i)->OnMouseUp();
@@ -56,6 +62,16 @@ void InputSystem::MouseMove(hgeVector mousePos) {
 
 InputSystem::Listeners InputSystem::_listeners;
 
+void InputSystem::RemoveFromList(InputSystem *listener) {
+	Listeners::iterator i;
+	for (i = _listeners.begin(); i != _listeners.end() && *i != listener; i++);
+	if (i == _listeners.end()) {// нет в списке (уже удален)
+		Messager::SendMessage("log", "удален уже Listener");
+		exit(-4);
+	}
+	_listeners.erase(i);
+}
+
 bool CheckForInputEvent(HGE *hge) {
 	hgeInputEvent event;
 	while (hge->Input_GetEvent(&event)) {
@@ -67,7 +83,10 @@ bool CheckForInputEvent(HGE *hge) {
 			InputSystem::MouseMove(hgeVector(event.x, event.y));
 		} else if (event.type == INPUT_KEYDOWN && event.key == HGEK_ESCAPE) {
 			return true;
+		} else if (event.type == INPUT_KEYDOWN) {
+			InputSystem::KeyDown(event.key);
 		}
 	}
 	return false;
 }
+
