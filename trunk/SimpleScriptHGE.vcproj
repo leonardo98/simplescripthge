@@ -178,7 +178,7 @@
 				IgnoreImportLibrary="false"
 				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib tinyxmld_STL.lib hgehelp.lib lua51.lib libogg_staticd.lib libtheora_staticd.lib dbox2d.lib"
 				OutputFile=".\bin\SimpleScriptHGE_D.exe"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libc.lib;libcmtd.lib"
@@ -230,6 +230,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gamee\ButtonList.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\Core.cpp"
 				>
 			</File>
@@ -267,6 +271,14 @@
 			</File>
 			<File
 				RelativePath=".\Core\IPanel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Core\IRadioBtns.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Core\ISlider.cpp"
 				>
 			</File>
 			<File
@@ -351,6 +363,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gamee\ButtonList.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\Core.h"
 				>
 			</File>
@@ -384,6 +400,14 @@
 			</File>
 			<File
 				RelativePath=".\Core\IPanel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Core\IRadioBtns.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Core\ISlider.h"
 				>
 			</File>
 			<File

@@ -18,8 +18,10 @@
 #include "Button.h"
 #include "..\Core\IButton.h"
 #include "..\Core\IPanel.h"
-#include "..\Core\IPanel.h"
+#include "..\Core\ISlider.h"
+#include "..\Core\IRadioBtns.h"
 #include "Simulator.h"
+#include "ButtonList.h"
 
 #define REG_TYPE(a, b) if (name == a) return new b(xe)
 
@@ -41,6 +43,9 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("Button", Button);
 	REG_TYPE("IButton", IButton);
 	REG_TYPE("IPanel", IPanel);
+	REG_TYPE("ButtonList", ButtonList);
+	REG_TYPE("ISlider", ISlider);
+	REG_TYPE("IRadioBtns", IRadioBtns);
 	if(name == "FpsCounter") {
 		return new FpsCounter();
 	}

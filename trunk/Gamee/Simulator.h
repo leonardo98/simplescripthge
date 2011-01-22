@@ -1,6 +1,7 @@
 #pragma once
 
 #include "..\Core\InputSystem.h"
+#include "..\Core\Messager.h"
 #include "Box2D\Box2D.h"
 #include <cstdlib>
 #include "BodyTemplate.h"
@@ -100,6 +101,7 @@ struct ContactPoint
 class Simulator 
 	: public b2ContactListener
 	, public InputSystem
+	, public Messager
 {
 public:
 	
@@ -107,7 +109,7 @@ public:
 	virtual ~Simulator();
 
 	virtual void Step(Settings* settings);
-	virtual void OnKeyDown(int key);
+	virtual b2Body * AddElement(BodyTypes type);
 	virtual void OnMouseDown(hgeVector mousePos);
 	virtual void OnMouseUp();
 	void OnMouseMove(hgeVector mousePos);
@@ -119,6 +121,7 @@ public:
 	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
 	virtual void PostSolve(const b2Contact* contact, const b2ContactImpulse* impulse);
 	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual bool OnMouseWheel(int direction);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
 
@@ -157,17 +160,38 @@ protected:
 	Texture *_allElements;
 	inline void DrawElement(hgeVertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 
-	BodyTypes _groundType; // тут храним только одно значение всегда - BODY_TYPE_GROUND
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
 
 	float _angleMultiplier;
-	//b2Body *_selectedBody;
+	b2Body *_selectedBody;
+	bool _editor;
 
 	void Explosion(b2Vec2 pos, float radius, float maxForce);
 	inline void DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color = 0xFFFFF0F0);
+	virtual void OnMessage(const std::string &message);
+	virtual void OnDoubleClick(hgeVector mousePos);
+
+	struct BodyState {
+		BodyTypes type;
+		b2Vec2 pos;
+		float angle;
+	};
+	std::vector<BodyState> _state;
+	TiXmlDocument _doc;
+	std::string _currentLevel;
+	enum {
+		WaitNone,
+		WaitForLevelOpen,
+		WaitForLevelSave
+	} _waitState;
+
+	void SaveState();
+	void ResetState();
 
 	int round(float a);
+
+	float _signal;
 };
 
 #endif //SIMULATOR_H

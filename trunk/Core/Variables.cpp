@@ -4,12 +4,12 @@
 
 lua_State *Variables::l;
 
-void Variables ::Init(lua_State *L)
+void Variables::Init(lua_State *L)
 {
 	l = L;
 }
 
-void Variables ::Set(const char *variableName, const char *value)
+void Variables::Set(const char *variableName, const char *value)
 {
 	int err = lua_gettop(l);
 	lua_pushstring(l, variableName);
@@ -18,7 +18,7 @@ void Variables ::Set(const char *variableName, const char *value)
 	assert(err == lua_gettop(l));
 }
 
-std::string Variables ::Get(const char *variableName)
+std::string Variables::Get(const char *variableName)
 {
 	int err = lua_gettop(l);
 	lua_getglobal(l, variableName);
