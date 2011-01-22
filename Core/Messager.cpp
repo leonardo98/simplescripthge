@@ -17,7 +17,7 @@ Messager::Messager(std::string receiverName)
 
 Messager::Messager(TiXmlElement *xe)
 {
-	std::string receiverName = xe->FirstChildElement("messager")->Attribute("name");
+	std::string receiverName = xe->Attribute("name");
 
 	_name = receiverName;
 	List::iterator i;
@@ -36,15 +36,26 @@ Messager::~Messager()
 	_receiver.erase(i);
 }
 
-int Messager::SendMessage(const std::string &receiverName, const std::string &message)
+std::vector<std::pair<std::string, std::string> > Messager::_messages;
+
+void Messager::SendMessage(const std::string &receiverName, const std::string &message)
 {
-	List::iterator i, e;
-	for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != receiverName; i++);
-	if (i == e) {
-		return -1;// нет получателя в списке
+	_messages.push_back(std::make_pair<std::string, std::string>(receiverName, message));
+}
+
+void Messager::CoreSendMessages() 
+{
+	AllMessages tmp = _messages;
+	_messages.clear();
+	for (unsigned int q = 0; q < tmp.size(); q++) {
+		List::iterator i, e;
+		for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != tmp[q].first; i++);
+		if (i != e) {
+			(*i)->OnMessage(tmp[q].second);
+		} else {
+			// нет получателя в списке
+		}		
 	}
-	(*i)->OnMessage(message);
-	return 0;
 }
 
 int Messager::SetValue(const std::string &receiverName, const std::string &variableName, const float &value) {
@@ -104,12 +115,12 @@ std::string Messager::GetValue(const std::string &receiverName, const std::strin
 	return (*i)->GetValue(variableName);
 }
 
-bool Messager::CanCut(std::string &message, const std::string &substr)
+bool Messager::CanCut(const std::string &message, const std::string &substr, std::string &result)
 {
-	if (message.find(substr) == std::string::npos) {
+	if (message.find(substr) != 0) {
 		return false;
 	} else {
-		message.replace(0, substr.size(), "");
+		result = message.substr(substr.size());
 		return true;
 	}
 }

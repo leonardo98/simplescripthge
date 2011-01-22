@@ -32,8 +32,9 @@ bool RenderFunc()
 
 bool FrameFunc()
 {
-	core.Update(hge->Timer_GetDelta());
-	return CheckForInputEvent(hge);
+	float dt = hge->Timer_GetDelta();
+	core.Update(dt);
+	return CheckForInputEvent(hge, dt);
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
@@ -62,6 +63,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 		core.Load("start.xml");
 		core.SetDC(hge);
 		hge->System_Log("hge start");
+		InitInputEvent();
 		hge->System_Start();
 		Interface::Release();
 	} else {	

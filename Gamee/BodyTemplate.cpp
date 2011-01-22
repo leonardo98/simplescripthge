@@ -11,6 +11,8 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 		_type = BODY_TYPE_EXPLOSION;
 	} else if (type == "ball") {
 		_type = BODY_TYPE_BALL;
+	} else if (type == "ground") {
+		_type = BODY_TYPE_GROUND;
 	} else {
 		assert(false);
 	}

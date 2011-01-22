@@ -28,13 +28,16 @@ public:
 	virtual bool GetBoolValue(const std::string &variableName){return false;};
 	virtual std::string GetValue(const std::string &variableName){return "-1";};
 
+	virtual std::string GetMyName(){return _name;};
+
 	// определяем свое имя получателя через конструктор ...
 	Messager(std::string receiverName);
 	// ... или имя должно быть задано в xml так <messager name="[ имя получателя ]"/>
 	Messager(TiXmlElement *xe);
 
 	~Messager();
-	static int SendMessage(const std::string &receiverName, const std::string &message);
+	static void SendMessage(const std::string &receiverName, const std::string &message);
+	static void CoreSendMessages(); // только для вызова из ядра
 
 	static int SetValue(const std::string &receiverName, const std::string &variableName, const float &value);
 	static int SetValue(const std::string &receiverName, const std::string &variableName, const bool &value);
@@ -44,12 +47,14 @@ public:
 	static bool GetBoolValue(const std::string &receiverName, const std::string &variableName);
 	static std::string GetValue(const std::string &receiverName, const std::string &variableName);
 
-	static bool CanCut(std::string &message, const std::string &substr);
+	static bool CanCut(const std::string &message, const std::string &substr, std::string &result);
 
 private:
 	typedef std::list<Messager *> List;
 	static List _receiver;
 	std::string _name;
+	typedef std::vector<std::pair<std::string, std::string> > AllMessages;
+	static AllMessages _messages;
 };
 
 #endif // !defined(_Messager_INCLUDED_)

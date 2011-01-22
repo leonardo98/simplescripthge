@@ -29,12 +29,12 @@ Inventory::~Inventory()
 }
 
 void Inventory::OnMessage(const std::string &message) {
-	std::string msg = message;
-	if (CanCut(msg, "add ")) {
+	std::string msg;
+	if (CanCut(message, "add ", msg)) {
 		_tools.push_back(Tool());
 		_tools.back().id = msg;
 		_tools.back().texture = Core::getTexture(msg + "_icon");
-	} if (msg == "remove from hand") {
+	} if (message == "remove from hand") {
 		for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
 			if (i->id == Variables::Get("inHand")) {
 				_tools.erase(i);

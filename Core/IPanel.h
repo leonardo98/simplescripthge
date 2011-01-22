@@ -35,5 +35,6 @@ private:
 	int _width;
 	int _height;
 	bool _visible;
+	bool _needDraw;
 	std::vector<InputSystem *> _objects;
 };

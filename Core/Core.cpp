@@ -184,17 +184,18 @@ void Core::Draw()
 
 void Core::Update(float deltaTime)
 {
+	Messager::CoreSendMessages();
 	for (unsigned int i = 0; i < _objects.size(); i++) {
 		_objects[i]->Update(deltaTime);
 	}
 	while (_messages.begin() != _messages.end()) {
 		std::string message = *_messages.begin();
 		_messages.pop_front();
-		if (CanCut(message, "loadGroup ")) {
+		if (CanCut(message, "loadGroup ", message)) {
 			LoadGroup(message);
-		} else if (CanCut(message, "UnloadGroup ")) {
+		} else if (CanCut(message, "UnloadGroup ", message)) {
 			UnloadGroup(message);
-		} else if (CanCut(message, "load xml ")) {
+		} else if (CanCut(message, "load xml ", message)) {
 			Load(message);
 		}
 	}

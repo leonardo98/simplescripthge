@@ -12,32 +12,36 @@ IPanel::IPanel(TiXmlElement *xe)
 	_width = atoi(xe->Attribute("width"));
 	_height = atoi(xe->Attribute("height"));
 	_visible = xe->Attribute("visible") == NULL?true:atoi(xe->Attribute("visible"))!=0;
+	_needDraw = xe->Attribute("needDraw") == NULL?true:atoi(xe->Attribute("needDraw"))!=0;
 	TiXmlElement *element = xe->FirstChildElement("gui")->FirstChildElement();
 	while (element != NULL) {
 		_objects.push_back((InputSystem *)ObjectFactory::Create(element));
 		RemoveFromList(_objects.back());
 		element = element->NextSiblingElement();
 	}
-	TiXmlElement *keys = xe->FirstChildElement("keys")->FirstChildElement();
-	while (keys!= NULL) {
-		int key = Core::getKeyCode(keys->Attribute("key"));
-		KeyState k;
-		TiXmlText *text = (TiXmlText *)keys->FirstChild();
-		if (text != NULL) {
-			unsigned int size = strlen((char *)text->Value());
-			k.code = new char[size + 1];
-			strcpy(k.code, (char *)text->Value());
-		} else {
-			k.code = NULL;
+	TiXmlElement *keysXml = xe->FirstChildElement("keys");
+	if (keysXml) {
+		TiXmlElement *keys = keysXml->FirstChildElement();
+		while (keys!= NULL) {
+			int key = Core::getKeyCode(keys->Attribute("key"));
+			KeyState k;
+			TiXmlText *text = (TiXmlText *)keys->FirstChild();
+			if (text != NULL) {
+				unsigned int size = strlen((char *)text->Value());
+				k.code = new char[size + 1];
+				strcpy(k.code, (char *)text->Value());
+			} else {
+				k.code = NULL;
+			}
+			if (keys->Attribute("msg")) {
+				k.msg = keys->Attribute("msg");
+			}
+			if (keys->Attribute("rsvr")) {
+				k.rsvr = keys->Attribute("rsvr");
+			}
+			_keyStates[key] = k;
+			keys = keys->NextSiblingElement();
 		}
-		if (keys->Attribute("msg")) {
-			k.msg = keys->Attribute("msg");
-		}
-		if (keys->Attribute("rsvr")) {
-			k.rsvr = keys->Attribute("rsvr");
-		}
-		_keyStates[key] = k;
-		keys = keys->NextSiblingElement();
 	}
 }
 
@@ -53,28 +57,13 @@ void IPanel::Draw() {
 	if (!_visible) {
 		return;
 	}
-	hgeQuad quad;
-	quad.blend = BLEND_ALPHABLEND;
-	quad.tex = NULL;
-	quad.v[0].x = _pos.x;
-	quad.v[0].y = _pos.y;
-	quad.v[1].x = _pos.x + _width;
-	quad.v[1].y = _pos.y;
-	quad.v[2].x = _pos.x + _width;
-	quad.v[2].y = _pos.y + _height;
-	quad.v[3].x = _pos.x;
-	quad.v[3].y = _pos.y + _height;
-	for (int i = 0; i < 4; i++) {
-		quad.v[i].col = Interface::BACKGROUND;
-		quad.v[i].tx = 0;
-		quad.v[i].ty = 0;
-		quad.v[i].z = 0;
+	if (_needDraw) {
+		Core::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND);
+		Core::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Core::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
+		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
 	}
-	Core::GetDC()->Gfx_RenderQuad(&quad);
-	Core::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-	Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-	Core::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
-	Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
 	for (std::vector<InputSystem *>::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		(*i)->Draw();
 	}

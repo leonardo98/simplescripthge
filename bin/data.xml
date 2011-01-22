@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<list>
+    <level id="1">
+        <element type="-1" x="0.000000" y="2.000000" angle="0.000000" />
+        <element type="-1" x="-1.478992" y="2.511110" angle="0.000000" />
+        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
+        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
+        <element type="3" x="-0.526629" y="2.422221" angle="0.000000" />
+    </level>
+    <level id="2">
+        <element type="-1" x="0.000000" y="2.000000" angle="0.000000" />
+        <element type="-1" x="-1.478992" y="2.511110" angle="0.000000" />
+        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
+        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
+        <element type="3" x="-0.526629" y="2.422221" angle="0.000000" />
+    </level>
+    <level id="3" />
+    <level id="4" />
+</list>
