@@ -164,7 +164,6 @@ protected:
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
 
 	float _angleMultiplier;
-	b2Body *_selectedBody;
 	bool _editor;
 
 	void Explosion(b2Vec2 pos, float radius, float maxForce);
@@ -192,6 +191,9 @@ protected:
 	int round(float a);
 
 	float _signal;
+
+	b2Body *_selectedBody;
+	void InitParams(b2Body *body);
 };
 
 #endif //SIMULATOR_H

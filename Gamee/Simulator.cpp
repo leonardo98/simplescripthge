@@ -237,7 +237,7 @@ void Simulator::OnDoubleClick(hgeVector mousePos) {
 
 void Simulator::OnMouseDown(hgeVector mousePos)
 {	
-	_selectedBody = NULL;
+	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
 	
@@ -262,8 +262,7 @@ void Simulator::OnMouseDown(hgeVector mousePos)
 		b2Body* body = callback.m_fixture->GetBody();
 		BodyTemplate *bt = (BodyTemplate *)(body->GetUserData());
 		if (_editor) {
-			_selectedBody = body;
-			InitParams();
+			InitParams(body);
 
 			//if (Core::GetDC()->Input_GetKeyState(HGEK_ALT)) {
 			//	m_world->DestroyBody(body);
@@ -298,7 +297,28 @@ void Simulator::OnMouseUp()
 		m_world->DestroyJoint(m_mouseJoint);
 		m_mouseJoint = NULL;
 	}
-	//_selectedBody = NULL;
+}
+
+void Simulator::InitParams(b2Body *body) 
+{
+	_selectedBody = body;
+	if (body == NULL) {
+		SendMessage("radio", "clear");
+		SetValue("sliderpanel", "visible", false);
+		return;
+	} if (body != NULL) {
+		const BodyTemplate *bt = (BodyTemplate *)(body->GetUserData());
+		if (bt->_type == BODY_TYPE_GROUND) {
+			SendMessage("radio", "clear");
+			SendMessage("radio", "add angle");
+			SendMessage("radio", "add size");
+			SetValue("sliderpanel", "visible", true);
+		} else {
+			SendMessage("radio", "clear");
+			SendMessage("radio", "add angle");
+			SetValue("sliderpanel", "visible", true);
+		}
+	}
 }
 
 void Simulator::OnMouseMove(hgeVector mousePos)
@@ -542,7 +562,7 @@ void Simulator::SaveState() {
 }
 
 void Simulator::ResetState() {
-	_selectedBody = NULL;
+	InitParams(NULL);
 	_editor = true;
 	for (b2Body *body = m_world->GetBodyList(); body; ) {
 		b2Body *remove = body;
@@ -572,7 +592,7 @@ void Simulator::OnMessage(const std::string &message) {
 			SetValue("big", "visible", false);
 			SetValue("small", "visible", true);
 			_editor = false;
-			_selectedBody = NULL;
+			InitParams(NULL);
 			SaveState();
 		} else {
 			ResetState();
@@ -582,15 +602,15 @@ void Simulator::OnMessage(const std::string &message) {
 			ResetState();
 		}
 		if (msg == "wall") {
-			_selectedBody = AddElement(BODY_TYPE_UNBREAKABLE);
+			InitParams(AddElement(BODY_TYPE_UNBREAKABLE));
 		} else if (msg == "explosion") {
-			_selectedBody = AddElement(BODY_TYPE_EXPLOSION);
+			InitParams(AddElement(BODY_TYPE_EXPLOSION));
 		} else if (msg == "box") {
-			_selectedBody = AddElement(BODY_TYPE_BLUE);
+			InitParams(AddElement(BODY_TYPE_BLUE));
 		} else if (msg == "ball") {
-			_selectedBody = AddElement(BODY_TYPE_BALL);
+			InitParams(AddElement(BODY_TYPE_BALL));
 		} else if (msg == "ground") {
-			_selectedBody = AddElement(BODY_TYPE_GROUND);
+			InitParams(AddElement(BODY_TYPE_GROUND));
 		}
 	} else if (message == "left") {
 	} else if (message == "right") {
@@ -598,7 +618,7 @@ void Simulator::OnMessage(const std::string &message) {
 	} else if (message == "down") {
 	} else if (message == "new") {
 		if (MessageBox(0, "Delete all objects?", "Are you sure?", MB_YESNO | MB_ICONQUESTION) == IDYES) {
-			_selectedBody = NULL;
+			InitParams(NULL);
 			_currentLevel = "";
 			_state.clear();
 			for (b2Body *body = m_world->GetBodyList(); body; ) {
