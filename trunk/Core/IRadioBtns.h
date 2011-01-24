@@ -12,7 +12,7 @@ public:
 	virtual void OnMouseDown(hgeVector mousePos);
 	virtual bool IsMouseOver(hgeVector mousePos);
 
-	virtual void OnMessage(const std::string &message);\
+	virtual void OnMessage(const std::string &message);
 
 	virtual void SetValue(const std::string &variableName, const float &value);
 	virtual float GetNumberValue(const std::string &variableName);

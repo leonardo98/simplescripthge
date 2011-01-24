@@ -88,7 +88,7 @@ int Messager::SetValue(const std::string &receiverName, const std::string &varia
 	return 0;
 }
 
-int Messager::GetNumberValue(const std::string &receiverName, const std::string &variableName) {
+float Messager::GetNumberValue(const std::string &receiverName, const std::string &variableName) {
 	List::iterator i, e;
 	for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != receiverName; i++);
 	if (i == e) {

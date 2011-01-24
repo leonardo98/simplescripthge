@@ -29,6 +29,7 @@ private:
 	static bool _longTap; // true - если ловим событие "ƒлинный “ап"
 	static bool _doubleClick; // true - если ловим это событие "ƒвойной клик"
 	static FPoint2D _longTapPos;
+	static InputSystem *_locked;// пишу того кто вз€лс€ обрабатывать клик(нажатие/отпускание) - остальным не делаю MouseMove
 public:
 	InputSystem();
 	virtual ~InputSystem();

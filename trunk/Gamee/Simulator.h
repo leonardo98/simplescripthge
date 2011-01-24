@@ -175,6 +175,7 @@ protected:
 		BodyTypes type;
 		b2Vec2 pos;
 		float angle;
+		float width;
 	};
 	std::vector<BodyState> _state;
 	TiXmlDocument _doc;

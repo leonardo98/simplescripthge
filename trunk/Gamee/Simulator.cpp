@@ -42,7 +42,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	, _waitState(WaitNone)
 {
 	if (!_doc.LoadFile()) {
-		MessageBox(0, "Levels file not found!", "Error!", MB_OK | MB_ICONERROR);
+		MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Levels file not found!", "Error!", MB_OK | MB_ICONERROR);
 	} 
 
 	_allElements = Core::getTexture("allElements");
@@ -301,22 +301,53 @@ void Simulator::OnMouseUp()
 
 void Simulator::InitParams(b2Body *body) 
 {
-	_selectedBody = body;
 	if (body == NULL) {
+		_selectedBody = NULL;
 		SendMessage("radio", "clear");
 		SetValue("sliderpanel", "visible", false);
 		return;
-	} if (body != NULL) {
+	} 
+	if (body != NULL && body != _selectedBody) {
+		_selectedBody = body;
 		const BodyTemplate *bt = (BodyTemplate *)(body->GetUserData());
 		if (bt->_type == BODY_TYPE_GROUND) {
 			SendMessage("radio", "clear");
 			SendMessage("radio", "add angle");
 			SendMessage("radio", "add size");
 			SetValue("sliderpanel", "visible", true);
+			// set up angle to normal
+			float angle = body->GetAngle();
+			while (angle > 0.f) {angle -= (2 * M_PI);} 
+			while (angle < 0.f) {angle += (2 * M_PI);} 
+			SetValue("slider", "", angle / (2 * M_PI) );
 		} else {
 			SendMessage("radio", "clear");
 			SendMessage("radio", "add angle");
 			SetValue("sliderpanel", "visible", true);
+			float angle = body->GetAngle();
+			while (angle > 0.f) {angle -= (2 * M_PI);} 
+			while (angle < 0.f) {angle += (2 * M_PI);} 
+			SetValue("slider", "", angle / (2 * M_PI) );
+		}
+	} else if (body != NULL && body == _selectedBody) {
+		const BodyTemplate *bt = (BodyTemplate *)(body->GetUserData());
+		if (bt->_type == BODY_TYPE_GROUND) {
+			int radio = GetNumberValue("radio", "");
+			if (radio == 0) {
+				// set up angle to normal
+				float angle = body->GetAngle();
+				while (angle > 0.f) {angle -= (2 * M_PI);} 
+				while (angle < 0.f) {angle += (2 * M_PI);} 
+				SetValue("slider", "", angle / (2 * M_PI) );
+			} else if (radio == 1) {
+				// set up size
+				float size = body->GetAngle();
+				SetValue("slider", "", size / (2 * M_PI) );
+			} else {
+				assert(false);	
+			}
+		} else {
+			assert(false);	
 		}
 	}
 }
@@ -517,6 +548,19 @@ void Simulator::Update(float deltaTime) {
 		while (_signal > 1.f) {
 			_signal -= 1.f;
 		}
+		if (_selectedBody != NULL) {
+			const BodyTemplate *bt = (BodyTemplate *)(_selectedBody->GetUserData());
+			int radio = GetNumberValue("radio", "");
+			if (radio == 0) { // angle
+				float angle = GetNumberValue("slider", "");
+				_selectedBody->SetTransform(_selectedBody->GetPosition(), angle * (2 * M_PI));
+			} else if (radio == 1 && bt->_type == BODY_TYPE_GROUND) { // size
+				float size = GetNumberValue("slider", "");
+				//_selectedBody->SetAngle(angle * (2 * M_PI));
+			} else {
+				assert(false);
+			}
+		}
 		return;
 	}
 	Step(&settings);
@@ -587,7 +631,9 @@ void Simulator::ResetState() {
 
 void Simulator::OnMessage(const std::string &message) {
 	std::string msg;
-	if (message == "play") {
+	if (message == "changes") {
+		InitParams(_selectedBody);
+	} else if (message == "play") {
 		if (_editor) {
 			SetValue("big", "visible", false);
 			SetValue("small", "visible", true);
@@ -617,7 +663,7 @@ void Simulator::OnMessage(const std::string &message) {
 	} else if (message == "up") {
 	} else if (message == "down") {
 	} else if (message == "new") {
-		if (MessageBox(0, "Delete all objects?", "Are you sure?", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+		if (MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Delete all objects?", "Are you sure?", MB_YESNO | MB_ICONQUESTION) == IDYES) {
 			InitParams(NULL);
 			_currentLevel = "";
 			_state.clear();
@@ -680,6 +726,9 @@ void Simulator::OnMessage(const std::string &message) {
 				s.pos.x = atof(elem->Attribute("x"));
 				s.pos.y = atof(elem->Attribute("y"));
 				s.angle = atof(elem->Attribute("angle"));
+				/*if (s.type == BODY_TYPE_GROUND && elem->Attribute("width")) {
+					s.width = atof(elem->Attribute("width"));
+				}*/
 				_state.push_back(s);
 				elem = elem->NextSiblingElement();
 			}
@@ -708,7 +757,7 @@ void Simulator::OnMessage(const std::string &message) {
 				msg = buff;
 			} else if (_currentLevel != msg) {
 				std::string s = "Do you want overwrite " + msg + "?";
-				if (MessageBox(0, s.c_str(), "Are you sure?", MB_YESNO | MB_ICONQUESTION) != IDYES) {
+				if (MessageBox(Core::GetDC()->System_GetState(HGE_HWND), s.c_str(), "Are you sure?", MB_YESNO | MB_ICONQUESTION) != IDYES) {
 					return;
 				}
 			}
