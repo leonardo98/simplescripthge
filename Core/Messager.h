@@ -43,7 +43,7 @@ public:
 	static int SetValue(const std::string &receiverName, const std::string &variableName, const bool &value);
 	static int SetValue(const std::string &receiverName, const std::string &variableName, const std::string &value);
 
-	static int GetNumberValue(const std::string &receiverName, const std::string &variableName);
+	static float GetNumberValue(const std::string &receiverName, const std::string &variableName);
 	static bool GetBoolValue(const std::string &receiverName, const std::string &variableName);
 	static std::string GetValue(const std::string &receiverName, const std::string &variableName);
 

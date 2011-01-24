@@ -17,6 +17,7 @@ float InputSystem::_timeCounter; // счетчик времени(отсчитывает время либо с пос
 bool InputSystem::_longTap; // true - если ловим событие "Длинный Тап"
 bool InputSystem::_doubleClick; // true - если ловим это событие "Двойной клик"
 FPoint2D InputSystem::_longTapPos;
+InputSystem *InputSystem::_locked;
 
 InputSystem::InputSystem()
 {
@@ -52,6 +53,7 @@ void InputSystem::MouseDown(hgeVector mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
+			_locked = *i;
 			return;
 		}
 	}
@@ -61,6 +63,7 @@ void InputSystem::LongTap() {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(_longTapPos)) {
 			(*i)->OnLongTap(_longTapPos);
+			_locked = *i;
 			return;
 		}
 	}
@@ -70,12 +73,17 @@ void InputSystem::DoubleClick(hgeVector mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
 			(*i)->OnDoubleClick(mousePos);
+			_locked = *i;
 			return;
 		}
 	}
 }
 
 void InputSystem::MouseWheel(int direction) {
+	if (_locked != NULL) {
+		_locked->OnMouseWheel(direction);
+		return;
+	}
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->OnMouseWheel(direction)) {
 			return;
@@ -93,9 +101,14 @@ void InputSystem::MouseUp() {
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
 		(*i)->OnMouseUp();
 	}
+	_locked = NULL;
 }
 
 void InputSystem::MouseMove(hgeVector mousePos) {
+	if (_locked != NULL) {
+		_locked->OnMouseMove(mousePos);
+		return;
+	}
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
 		(*i)->OnMouseMove(mousePos);
 	}
@@ -163,4 +176,5 @@ void InitInputEvent() {
 	InputSystem::_timeCounter = 0.f;
 	InputSystem::_longTap = false;
 	InputSystem::_doubleClick = false; 
+	InputSystem::_locked = NULL;
 }
