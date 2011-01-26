@@ -109,7 +109,20 @@ public:
 	virtual ~Simulator();
 
 	virtual void Step(Settings* settings);
+
+	struct MyBody { // структура которая прикрепляется к b2Body для идентификации
+					// для "земли" отдельно храню тут ширину(у остальных тел эти данные беруться из BodyTemplate)
+		BodyTemplate *base;
+		float width;
+	};
+	struct BodyState : public MyBody
+	{ // структура для хранения начального положения элементов на уровне
+	  // используется для чтения их из файла, для записи обратно
+		b2Vec2 pos;
+		float angle;
+	};
 	virtual b2Body * AddElement(BodyTypes type);
+	virtual b2Body * AddElement(const BodyState &bodyState);
 	virtual void OnMouseDown(hgeVector mousePos);
 	virtual void OnMouseUp();
 	void OnMouseMove(hgeVector mousePos);
@@ -171,15 +184,11 @@ protected:
 	virtual void OnMessage(const std::string &message);
 	virtual void OnDoubleClick(hgeVector mousePos);
 
-	struct BodyState {
-		BodyTypes type;
-		b2Vec2 pos;
-		float angle;
-		float width;
-	};
 	std::vector<BodyState> _state;
 	TiXmlDocument _doc;
 	std::string _currentLevel;
+	void EraseBody(b2Body *body);
+	void EraseAllBodyes();
 	enum {
 		WaitNone,
 		WaitForLevelOpen,

@@ -11,7 +11,7 @@ enum BodyTypes{
 	BODY_TYPE_EXPLOSION = 3
 };
 
-struct BodyTemplate 
+struct BodyTemplate // описание базового элемента - все исходные параметры тут и только они см. MyBody, BodyState
 {
 public:
 	static const int MAX = 300;

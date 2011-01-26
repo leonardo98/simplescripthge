@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 <list>
     <level id="1">
-        <element type="-1" x="0.000000" y="2.000000" angle="0.000000" />
-        <element type="-1" x="-1.478992" y="2.511110" angle="0.000000" />
-        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
-        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
         <element type="3" x="-0.526629" y="2.422221" angle="0.000000" />
+        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
+        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
+        <element type="-1" x="-1.478992" y="2.511110" angle="-2.647914" width="0.000000" />
+        <element type="-1" x="0.000000" y="2.000000" angle="0.000000" width="0.000000" />
     </level>
     <level id="2">
-        <element type="3" x="-0.526629" y="2.422221" angle="2.393595" />
-        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
-        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
-        <element type="-1" x="-1.478992" y="2.511110" angle="-0.673199" />
-        <element type="-1" x="0.000000" y="2.000000" angle="0.000000" />
-        <element type="-1" x="1.451987" y="2.644443" angle="0.807838" />
-        <element type="2" x="1.435774" y="3.022222" angle="0.000000" />
-        <element type="2" x="1.153117" y="3.622223" angle="0.000000" />
-        <element type="2" x="0.965251" y="4.355556" angle="0.000000" />
+        <element type="-1" x="2.020766" y="4.133334" angle="1.600716" width="0.000000" />
         <element type="2" x="0.571535" y="2.533332" angle="0.000000" />
-        <element type="-1" x="2.020766" y="4.133334" angle="1.600716" />
+        <element type="2" x="0.965251" y="4.355556" angle="0.000000" />
+        <element type="2" x="1.153117" y="3.622223" angle="0.000000" />
+        <element type="2" x="1.435774" y="3.022222" angle="0.000000" />
+        <element type="-1" x="1.451987" y="2.644443" angle="0.807838" width="0.000000" />
+        <element type="-1" x="0.000000" y="2.000000" angle="0.000000" width="0.000000" />
+        <element type="-1" x="-1.478992" y="2.511110" angle="-0.673199" width="0.000000" />
+        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
+        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
+        <element type="3" x="-0.526629" y="2.422221" angle="2.393595" />
     </level>
     <level id="3">
         <element type="2" x="0.571535" y="2.533332" angle="0.000000" />
@@ -33,17 +33,31 @@
         <element type="3" x="-0.526629" y="2.422221" angle="2.393595" />
     </level>
     <level id="4">
-        <element type="-1" x="1.887432" y="3.800001" angle="1.600716" />
-        <element type="2" x="0.571535" y="2.533332" angle="0.000000" />
-        <element type="2" x="0.965251" y="4.355556" angle="0.000000" />
-        <element type="2" x="1.153117" y="3.622223" angle="0.000000" />
-        <element type="2" x="1.435774" y="3.022222" angle="0.000000" />
-        <element type="-1" x="1.051987" y="2.355554" angle="0.373999" />
-        <element type="-1" x="-0.288889" y="2.088889" angle="0.000000" />
-        <element type="-1" x="-1.478992" y="2.511110" angle="-0.673199" />
-        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
-        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
+        <element type="-1" x="-2.670819" y="3.155553" angle="2.812474" width="0.000000" />
         <element type="3" x="-0.526629" y="2.422221" angle="2.393595" />
-        <element type="-1" x="-2.670819" y="3.155553" angle="2.812474" />
+        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
+        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
+        <element type="-1" x="-1.478992" y="2.511110" angle="-0.673199" width="0.000000" />
+        <element type="-1" x="-0.288889" y="2.088889" angle="0.000000" width="0.000000" />
+        <element type="-1" x="1.051987" y="2.355554" angle="0.373999" width="0.000000" />
+        <element type="2" x="1.435774" y="3.022222" angle="0.000000" />
+        <element type="2" x="1.153117" y="3.622223" angle="0.000000" />
+        <element type="2" x="0.965251" y="4.355556" angle="0.000000" />
+        <element type="2" x="0.571535" y="2.533332" angle="0.000000" />
+        <element type="-1" x="1.798543" y="3.177777" angle="1.600716" width="0.000000" />
+    </level>
+    <level id="5">
+        <element type="-1" x="-2.670819" y="3.155553" angle="2.812474" width="0.000000" />
+        <element type="3" x="-0.526629" y="2.422221" angle="2.393595" />
+        <element type="0" x="-0.542816" y="4.955554" angle="0.000000" />
+        <element type="0" x="-0.960116" y="2.844444" angle="0.000000" />
+        <element type="-1" x="-1.478992" y="2.511110" angle="-0.673199" width="0.000000" />
+        <element type="-1" x="-0.288889" y="2.088889" angle="0.000000" width="0.000000" />
+        <element type="-1" x="1.051987" y="2.355554" angle="0.373999" width="0.000000" />
+        <element type="2" x="1.435774" y="3.022222" angle="0.000000" />
+        <element type="2" x="1.153117" y="3.622223" angle="0.000000" />
+        <element type="2" x="0.965251" y="4.355556" angle="0.000000" />
+        <element type="2" x="0.571535" y="2.533332" angle="0.000000" />
+        <element type="-1" x="1.798543" y="3.177777" angle="1.600716" width="0.000000" />
     </level>
 </list>
