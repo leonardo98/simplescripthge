@@ -19,7 +19,7 @@ static int LuaSetNumberValue(lua_State *L) {
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	float value = lua_tonumber(L, 1);
-	int result = Messager::SetValue(name, variableName, value);
+	int result = Messager::SetValueF(name, variableName, value);
 	lua_pushnumber(L, result);
 	return 1;
 }
@@ -29,7 +29,7 @@ static int LuaSetStringValue(lua_State *L) {
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	std::string value = lua_tostring(L, 3);
-	int result = Messager::SetValue(name, variableName, value);
+	int result = Messager::SetValueS(name, variableName, value);
 	lua_pushnumber(L, result);
 	return 1;
 }
@@ -39,7 +39,7 @@ static int LuaSetBoolValue(lua_State *L) {
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	bool value = lua_toboolean(L, 3);
-	int result = Messager::SetValue(name, variableName, value);
+	int result = Messager::SetValueB(name, variableName, value);
 	lua_pushnumber(L, result);
 	return 1;
 }

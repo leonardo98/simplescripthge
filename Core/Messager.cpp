@@ -58,7 +58,7 @@ void Messager::CoreSendMessages()
 	}
 }
 
-int Messager::SetValue(const std::string &receiverName, const std::string &variableName, const float &value) {
+int Messager::SetValueF(const std::string &receiverName, const std::string &variableName, const float &value) {
 	List::iterator i, e;
 	for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != receiverName; i++);
 	if (i == e) {
@@ -68,7 +68,7 @@ int Messager::SetValue(const std::string &receiverName, const std::string &varia
 	return 0;
 }
 
-int Messager::SetValue(const std::string &receiverName, const std::string &variableName, const std::string &value) {
+int Messager::SetValueS(const std::string &receiverName, const std::string &variableName, const std::string &value) {
 	List::iterator i, e;
 	for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != receiverName; i++);
 	if (i == e) {
@@ -78,7 +78,7 @@ int Messager::SetValue(const std::string &receiverName, const std::string &varia
 	return 0;
 }
 
-int Messager::SetValue(const std::string &receiverName, const std::string &variableName, const bool &value) {
+int Messager::SetValueB(const std::string &receiverName, const std::string &variableName, const bool &value) {
 	List::iterator i, e;
 	for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != receiverName; i++);
 	if (i == e) {

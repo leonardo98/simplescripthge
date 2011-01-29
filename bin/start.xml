@@ -2,12 +2,12 @@
 <fileroot>
   <Resources fileName="GUI_textures_test.xml"/>
   <Simulator/>
-  <IButton x="440" y="0" width="40" height="40" caption=">">
+  <IButton name="play" x="440" y="0" width="40" height="40" caption=">">
     SendMessage("simulator", "play");
   </IButton>
   <IPanel name="small" x="0" y="0" width="20" height="40" visible="1" needDraw="0">
     <gui>
-      <IButton x="0" y="0" width="20" height="40" caption=">>">
+      <IButton name="show" x="0" y="0" width="20" height="40" caption=">>">
         SetBoolValue("big", "visible", true);
         SetBoolValue("small", "visible", false);
       </IButton>
@@ -15,32 +15,32 @@
   </IPanel>
   <IPanel name="big" x="0" y="0" width="370" height="40" visible="0" needDraw="0">
     <gui>
-      <IButton x="0" y="0" width="40" height="40" caption="New">
+      <IButton name="new" x="0" y="0" width="40" height="40" caption="New">
         SendMessage("simulator", "new");
       </IButton>
-      <IButton x="45" y="0" width="40" height="40" caption="Load">
+      <IButton name="load" x="45" y="0" width="40" height="40" caption="Load">
         SendMessage("simulator", "open");
       </IButton>
-      <IButton x="90" y="0" width="40" height="40" caption="Save">
+      <IButton name="save" x="90" y="0" width="40" height="40" caption="Save">
         SendMessage("simulator", "save");
       </IButton>
 
-      <IButton x="140" y="0" width="39" height="40" caption="Ground">
+      <IButton name="addGround" x="140" y="0" width="39" height="40" caption="Ground">
         SendMessage("simulator", "add ground");
       </IButton>
-      <IButton x="180" y="0" width="39" height="40" caption="Wall">
+      <IButton name="addWall" x="180" y="0" width="39" height="40" caption="Wall">
         SendMessage("simulator", "add wall");
       </IButton>
-      <IButton x="220" y="0" width="39" height="40" caption="TNT">
+      <IButton name="addExpl" x="220" y="0" width="39" height="40" caption="TNT">
         SendMessage("simulator", "add explosion");
       </IButton>
-      <IButton x="260" y="0" width="39" height="40" caption="Box">
+      <IButton name="addBox" x="260" y="0" width="39" height="40" caption="Box">
         SendMessage("simulator", "add box");
       </IButton>
-      <IButton x="300" y="0" width="39" height="40" caption="Ball">
+      <IButton name="addBall" x="300" y="0" width="39" height="40" caption="Ball">
         SendMessage("simulator", "add ball");
       </IButton>
-      <IButton x="350" y="0" width="20" height="40" caption="<<">
+      <IButton name="hide" x="350" y="0" width="20" height="40" caption="<<">
         SetBoolValue("big", "visible", false);
         SetBoolValue("small", "visible", true);
       </IButton>

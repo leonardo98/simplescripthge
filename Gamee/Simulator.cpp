@@ -177,11 +177,15 @@ b2Body * Simulator::AddElement(BodyTypes type) {
 b2Body * Simulator::AddElement(const BodyState &bodyState){ 
 
 	b2BodyDef bd;
+	float width;
 	if (bodyState.base->_type == BODY_TYPE_GROUND) {
 		//bd.type = b2_staticBody;);// ХАК - QueryAABB не работает со статичными объктами, 
-		bd.type = b2_dynamicBody;   // т.е. иначе их нельзя будет двигать в редакторе
+									// т.е. иначе их нельзя будет двигать в редакторе
+		bd.type = b2_dynamicBody;  
+		width = bodyState.width;
 	} else {
 		bd.type = b2_dynamicBody;
+		width = bodyState.base->_width;
 	}
 	bd.position.Set(bodyState.pos.x, bodyState.pos.y);
 	bd.angle = bodyState.angle;
@@ -200,7 +204,7 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 		body->CreateFixture(&fd);
 	} else if (bodyState.base->_shape == "box") {
 		b2PolygonShape shape;
-		shape.SetAsBox(bodyState.base->_width / 2.f, bodyState.base->_height / 2.f);
+		shape.SetAsBox(width / 2.f, bodyState.base->_height / 2.f);
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
 	} else {
@@ -314,7 +318,7 @@ void Simulator::InitParams(b2Body *body)
 	if (body == NULL) {
 		_selectedBody = NULL;
 		SendMessage("radio", "clear");
-		SetValue("sliderpanel", "visible", false);
+		SetValueB("sliderpanel", "visible", false);
 		return;
 	} 
 	if (body != NULL && body != _selectedBody) {
@@ -324,35 +328,35 @@ void Simulator::InitParams(b2Body *body)
 			SendMessage("radio", "clear");
 			SendMessage("radio", "add angle");
 			SendMessage("radio", "add size");
-			SetValue("sliderpanel", "visible", true);
+			SetValueB("sliderpanel", "visible", true);
 			// set up angle to normal
 			float angle = body->GetAngle();
 			while (angle > 0.f) {angle -= (2 * M_PI);} 
 			while (angle < 0.f) {angle += (2 * M_PI);} 
-			SetValue("slider", "", angle / (2 * M_PI) );
+			SetValueF("slider", "", angle / (2 * M_PI) );
 		} else {
 			SendMessage("radio", "clear");
 			SendMessage("radio", "add angle");
-			SetValue("sliderpanel", "visible", true);
+			SetValueB("sliderpanel", "visible", true);
 			float angle = body->GetAngle();
 			while (angle > 0.f) {angle -= (2 * M_PI);} 
 			while (angle < 0.f) {angle += (2 * M_PI);} 
-			SetValue("slider", "", angle / (2 * M_PI) );
+			SetValueF("slider", "", angle / (2 * M_PI) );
 		}
 	} else if (body != NULL && body == _selectedBody) {
-		const BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
-		if (bt->_type == BODY_TYPE_GROUND) {
+		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
+		if (myBody->base->_type == BODY_TYPE_GROUND) {
 			int radio = GetNumberValue("radio", "");
 			if (radio == 0) {
 				// set up angle to normal
 				float angle = body->GetAngle();
 				while (angle > 0.f) {angle -= (2 * M_PI);} 
 				while (angle < 0.f) {angle += (2 * M_PI);} 
-				SetValue("slider", "", angle / (2 * M_PI) );
+				SetValueF("slider", "", angle / (2 * M_PI) );
 			} else if (radio == 1) {
 				// set up size
-				float size = body->GetAngle();
-				SetValue("slider", "", size / (2 * M_PI) );
+				float width = (myBody->width - 0.2f) / 10.f;
+				SetValueF("slider", "", width );
 			} else {
 				assert(false);	
 			}
@@ -503,6 +507,8 @@ void Simulator::Draw() {
 	int max;
 	hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
+	bool exception = false;
+	FPoint2D pselect[4];
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
 		const b2Transform & xf = body->GetTransform();
 		int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
@@ -528,6 +534,10 @@ void Simulator::Draw() {
 			p[2] = *p[2].Rotate(angle);
 			p[3] = *p[3].Rotate(angle);
 			DrawElement(buffer, bt->_uv, xf.position, p);
+			if (_selectedBody == body) {
+				exception = true;
+				for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
+			}
 		}
 		/*switch (bt->_type) {
 			case BODY_TYPE_UNBREAKABLE: {
@@ -543,8 +553,7 @@ void Simulator::Draw() {
 				DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
 				break; }
 			default : continue;
-		};*/
-		
+		};*/		
 		++counter;
 		if (counter > max) {
 			assert(false);
@@ -556,9 +565,14 @@ void Simulator::Draw() {
 		hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
 		const b2Transform & xf = _selectedBody->GetTransform();
-		int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
-		assert(0 <= angle && angle <= BodyTemplate::MAX);
-		DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
+		if (exception) {
+			DrawElement(buffer, bt->_uv, xf.position, pselect);
+		} else {
+			int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
+			assert(0 <= angle && angle <= BodyTemplate::MAX);
+			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
+		}
+
 		Core::GetDC()->Gfx_FinishBatch(1);
 	}
 }
@@ -576,10 +590,11 @@ void Simulator::Update(float deltaTime) {
 				float angle = GetNumberValue("slider", "");
 				_selectedBody->SetTransform(_selectedBody->GetPosition(), angle * (2 * M_PI));
 			} else if (radio == 1 && myBody->base->_type == BODY_TYPE_GROUND) { // size
-				float size = GetNumberValue("slider", "") * 10 + 0.2f;
-				myBody->width = size;
+				float width = GetNumberValue("slider", "") * 10 + 0.2f;
+				myBody->width = width;
 				// конкретно для земли мы в редакторе точно знаем - один Fixture и один Shape
 				static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f, myBody->base->_height / 2.f);
+				_selectedBody->ResetMassData();
 			} else {
 				assert(false);
 			}
@@ -645,12 +660,14 @@ void Simulator::OnMessage(const std::string &message) {
 		InitParams(_selectedBody);
 	} else if (message == "play") {
 		if (_editor) {
-			SetValue("big", "visible", false);
-			SetValue("small", "visible", true);
+			SetValueB("big", "visible", false);
+			SetValueB("small", "visible", true);
+			SetValueS("play", "", "stop");
 			_editor = false;
 			InitParams(NULL);
 			SaveState();
 		} else {
+			SetValueS("play", "", ">>");
 			ResetState();
 		}
 	} else if (CanCut(message, "add ", msg)) {		
