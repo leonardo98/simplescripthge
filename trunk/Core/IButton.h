@@ -2,6 +2,7 @@
 #include "InputSystem.h"
 #include "Interface.h"
 #include "LuaScript.h"
+#include "Messager.h"
 
 // класс кнопки(по нажатию выполняется скрипт)
 // рисуется примитивами без текстур
@@ -9,6 +10,7 @@
 class IButton
 	: public Interface
 	, public InputSystem
+	, public Messager
 {
 public:
 	IButton(TiXmlElement *xe);
@@ -20,6 +22,9 @@ public:
 
 	virtual void OnMouseIn();
 	virtual void OnMouseOut();
+
+	virtual void SetValue(const std::string &variableName, const std::string &value);
+
 private:
 	hgeVector _pos;
 	hgeVector _oldMousePos;

@@ -4,6 +4,7 @@
 
 IButton::IButton(TiXmlElement *xe)
 	: _luaScript(new LuaScript(Variables::l, xe))
+	, Messager(xe)
 {
 	_pos.x = atoi(xe->Attribute("x"));
 	_pos.y = atoi(xe->Attribute("y"));
@@ -80,4 +81,8 @@ void IButton::OnMouseOut() {
 	if (_down) {
 		_state = BUTTON_RELEASED;
 	}
+}
+
+void IButton::SetValue(const std::string &variableName, const std::string &value) {
+	_caption = value;
 }

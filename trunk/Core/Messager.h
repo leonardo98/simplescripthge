@@ -39,9 +39,9 @@ public:
 	static void SendMessage(const std::string &receiverName, const std::string &message);
 	static void CoreSendMessages(); // только для вызова из ядра
 
-	static int SetValue(const std::string &receiverName, const std::string &variableName, const float &value);
-	static int SetValue(const std::string &receiverName, const std::string &variableName, const bool &value);
-	static int SetValue(const std::string &receiverName, const std::string &variableName, const std::string &value);
+	static int SetValueF(const std::string &receiverName, const std::string &variableName, const float &value);
+	static int SetValueB(const std::string &receiverName, const std::string &variableName, const bool &value);
+	static int SetValueS(const std::string &receiverName, const std::string &variableName, const std::string &value);
 
 	static float GetNumberValue(const std::string &receiverName, const std::string &variableName);
 	static bool GetBoolValue(const std::string &receiverName, const std::string &variableName);
