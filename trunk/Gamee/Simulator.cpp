@@ -326,6 +326,7 @@ void Simulator::InitParams(b2Body *body)
 		const BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
 		if (bt->_type == BODY_TYPE_GROUND) {
 			SendMessage("radio", "clear");
+			SendMessage("radio", "add del");
 			SendMessage("radio", "add angle");
 			SendMessage("radio", "add size");
 			SetValueB("sliderpanel", "visible", true);
@@ -336,6 +337,7 @@ void Simulator::InitParams(b2Body *body)
 			SetValueF("slider", "", angle / (2 * M_PI) );
 		} else {
 			SendMessage("radio", "clear");
+			SendMessage("radio", "add del");
 			SendMessage("radio", "add angle");
 			SetValueB("sliderpanel", "visible", true);
 			float angle = body->GetAngle();
@@ -345,26 +347,46 @@ void Simulator::InitParams(b2Body *body)
 		}
 	} else if (body != NULL && body == _selectedBody) {
 		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
-		if (myBody->base->_type == BODY_TYPE_GROUND) {
-			int radio = GetNumberValue("radio", "");
-			if (radio == 0) {
-				// set up angle to normal
-				float angle = body->GetAngle();
-				while (angle > 0.f) {angle -= (2 * M_PI);} 
-				while (angle < 0.f) {angle += (2 * M_PI);} 
-				SetValueF("slider", "", angle / (2 * M_PI) );
-			} else if (radio == 1) {
-				// set up size
-				float width = (myBody->width - 0.2f) / 10.f;
-				SetValueF("slider", "", width );
-			} else {
-				assert(false);	
+		int radio = GetNumberValue("radio", "");
+		if (radio == 0) {
+			if (MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Delete selected object?", "Are you sure?", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+				EraseBody(_selectedBody);
+				InitParams(NULL);
 			}
-		} else {
-			assert(false);	
+		} else if (radio == 1) {
+			// set up angle to normal
+			float angle = body->GetAngle();
+			while (angle > 0.f) {angle -= (2 * M_PI);} 
+			while (angle < 0.f) {angle += (2 * M_PI);} 
+			SetValueF("slider", "", angle / (2 * M_PI) );
+		} else if (radio == 2) {
+			assert(myBody->base->_type == BODY_TYPE_GROUND);
+			// set up size
+			float width = (myBody->width - 0.2f) / 10.f;
+			SetValueF("slider", "", width );
 		}
 	}
 }
+
+bool Simulator::CanLevelStart() { // если в уровне есть "динамит" и синие коробки - в него можно играть
+	bool tnt = false;
+	bool blue = false;
+	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+		const BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;		
+		if (!tnt && bt->_type == BODY_TYPE_EXPLOSION) {
+			tnt = true;
+		}
+		if (!blue && bt->_type == BODY_TYPE_BLUE) {
+			blue = true;
+		}
+	}
+	return (tnt && blue);
+}
+
+bool Simulator::IsLevelFinish() {
+	return _finish != 0x3;
+}
+
 
 void Simulator::OnMouseMove(hgeVector mousePos)
 {
@@ -463,7 +485,8 @@ void Simulator::PostSolve(const b2Contact* contact, const b2ContactImpulse* impu
 	{
 		// The body already broke.
 		return;
-	}
+	}*/
+
 
 	// Should the body break?
 	int32 count = contact->GetManifold()->pointCount;
@@ -477,8 +500,11 @@ void Simulator::PostSolve(const b2Contact* contact, const b2ContactImpulse* impu
 	if (maxImpulse > 40.0f)
 	{
 		// Flag the body for breaking.
-		m_break = true;
-	}*/
+		//m_break = true;
+		if (static_cast<MyBody *>((contact->GetFixtureB()->GetBody()->GetUserData()))->base->_type == BODY_TYPE_BLUE) {
+		}
+		//EraseBody(contact->GetFixtureA()->GetBody());
+	}
 }
 
 inline void Simulator::DrawElement(hgeVertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
@@ -504,6 +530,9 @@ inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
 }
 
 void Simulator::Draw() {
+	bool tnt = false;
+	bool blue = false;
+	_finish = 0x0;
 	int max;
 	hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
@@ -516,8 +545,16 @@ void Simulator::Draw() {
 		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
 		const BodyTemplate *bt = myBody->base;
 		assert(0 <= angle && angle <= BodyTemplate::MAX);
-		
+
 		if (bt->_type != BODY_TYPE_GROUND) {
+			if (!tnt && bt->_type == BODY_TYPE_EXPLOSION) {
+				tnt = true;
+				_finish |= 0x1;
+			}
+			if (!blue && bt->_type == BODY_TYPE_BLUE) {
+				blue = true;
+				_finish |= 0x2;
+			}
 			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
 		} else {
 			FPoint2D p[4];
@@ -586,10 +623,11 @@ void Simulator::Update(float deltaTime) {
 		if (_selectedBody != NULL) {
 			MyBody *myBody = static_cast<MyBody *>(_selectedBody->GetUserData());
 			int radio = GetNumberValue("radio", "");
-			if (radio == 0) { // angle
+			if (radio == 0) { // удаляем - ничего не делаем в Update
+			} else if (radio == 1) { // angle
 				float angle = GetNumberValue("slider", "");
 				_selectedBody->SetTransform(_selectedBody->GetPosition(), angle * (2 * M_PI));
-			} else if (radio == 1 && myBody->base->_type == BODY_TYPE_GROUND) { // size
+			} else if (radio == 2 && myBody->base->_type == BODY_TYPE_GROUND) { // size
 				float width = GetNumberValue("slider", "") * 10 + 0.2f;
 				myBody->width = width;
 				// конкретно для земли мы в редакторе точно знаем - один Fixture и один Shape
@@ -600,6 +638,15 @@ void Simulator::Update(float deltaTime) {
 			}
 		}
 		return;
+	} else {
+		if (IsLevelFinish()) {
+			if (_finish & 0x2) { // остались синие
+				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "You lose!", "Game over!", MB_OK);
+			} else {
+				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "You win!", "Congratulation!", MB_OK);				
+			}
+			OnMessage("play");
+		}
 	}
 	Step(&settings);
 }
@@ -659,19 +706,25 @@ void Simulator::OnMessage(const std::string &message) {
 	if (message == "changes") {
 		InitParams(_selectedBody);
 	} else if (message == "play") {
-		if (_editor) {
-			SetValueB("big", "visible", false);
-			SetValueB("small", "visible", true);
-			SetValueS("play", "", "stop");
-			_editor = false;
-			InitParams(NULL);
-			SaveState();
-		} else {
+		if (_editor) { // переходим в режим игры
+			if (CanLevelStart()) {
+				SetValueB("big", "visible", false);
+				SetValueB("small", "visible", true);
+				SetValueS("play", "", "stop");
+				_editor = false;
+				InitParams(NULL);
+				SaveState();
+				_finish = 0x3;
+			} else {
+				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Level must have TNT and BLUE boxes!", "Error!", MB_OK);
+			}
+		} else { // в редактор
 			SetValueS("play", "", ">>");
 			ResetState();
 		}
 	} else if (CanCut(message, "add ", msg)) {		
 		if (!_editor) {
+			SetValueS("play", "", ">>");
 			ResetState();
 		}
 		if (msg == "wall") {
@@ -766,6 +819,7 @@ void Simulator::OnMessage(const std::string &message) {
 				_state.push_back(s);
 				elem = elem->NextSiblingElement();
 			}
+			SetValueS("play", "", ">>");
 			ResetState();
 			_currentLevel = msg;
 		} else if (_waitState == WaitForLevelSave) {

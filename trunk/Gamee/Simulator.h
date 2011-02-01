@@ -179,6 +179,9 @@ protected:
 	float _angleMultiplier;
 	bool _editor;
 
+	int _finish;// ==0 - закончились и бомбы и синие; &1 - еще есть динамит; &2 - еще есть синие
+	bool CanLevelStart();
+	bool IsLevelFinish();
 	void Explosion(b2Vec2 pos, float radius, float maxForce);
 	inline void DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color = 0xFFFFF0F0);
 	virtual void OnMessage(const std::string &message);
