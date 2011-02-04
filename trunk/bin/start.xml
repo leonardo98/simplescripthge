@@ -47,9 +47,9 @@
     </gui>
   </IPanel>
   <IRadioBtns name="radio" receiver="simulator" x="20" y="200" width="30" height="30" stepDown="40" itemsInRow="1"/>
-  <IPanel name="sliderpanel" x="15" y="275" width="450" height="30" visible="0" needDraw="0">
+  <IPanel name="sliderpanel" x="65" y="275" width="400" height="30" visible="0" needDraw="0">
     <gui>
-      <ISlider x="30" y="290" length="420" width="30" name="slider" horizontal="1"/>
+      <ISlider x="80" y="290" length="370" width="30" name="slider" horizontal="1"/>
     </gui>
   </IPanel>  
   <ButtonList name="BigList" receiver="simulator" x="20" y="45" width="40" height="40" stepDown="50" stepRight="50" itemsInRow="8"/>

@@ -5,6 +5,7 @@
 #include "Box2D\Box2D.h"
 #include <cstdlib>
 #include "BodyTemplate.h"
+#include "..\Helpers\Counter.h"
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
@@ -36,9 +37,9 @@ inline float32 RandomFloat(float32 lo, float32 hi)
 struct Settings
 {
 	Settings() :
-		hz(30.0f),
-		velocityIterations(9),
-		positionIterations(5),
+		hz(50.0f),
+		velocityIterations(8),
+		positionIterations(3),
 		drawStats(0),
 		drawShapes(1),
 		drawJoints(1),
@@ -114,6 +115,7 @@ public:
 					// для "земли" отдельно храню тут ширину(у остальных тел эти данные беруться из BodyTemplate)
 		BodyTemplate *base;
 		float width;
+		bool broken;
 	};
 	struct BodyState : public MyBody
 	{ // структура для хранения начального положения элементов на уровне
@@ -132,7 +134,7 @@ public:
 	virtual void BeginContact(b2Contact* contact) { B2_NOT_USED(contact); }
 	virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
 	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
-	virtual void PostSolve(const b2Contact* contact, const b2ContactImpulse* impulse);
+	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
 	virtual bool IsMouseOver(hgeVector mousePos);
 	virtual bool OnMouseWheel(int direction);
 	virtual void Draw();
@@ -204,6 +206,8 @@ protected:
 	int round(float a);
 
 	float _signal;
+	Counter _lastTimer;
+	Counter _startLevel; // ждем пока устаканиться уровень
 
 	b2Body *_selectedBody;
 	void InitParams(b2Body *body);
