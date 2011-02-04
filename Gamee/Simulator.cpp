@@ -105,6 +105,41 @@ void Simulator::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 	}
 }
 
+void Simulator::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+{
+	if (_startLevel.Action()) {
+		return;
+	}
+	BodyTemplate *btA = static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->base;
+	BodyTemplate *btB = static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->base;
+	if (btA->_type != BODY_TYPE_BLUE && btB->_type != BODY_TYPE_BLUE)
+	{
+		return;
+	}
+
+	// Should the body break?
+	int32 count = contact->GetManifold()->pointCount;
+
+	float32 maxImpulse = 0.0f;
+	for (int32 i = 0; i < count; ++i)
+	{
+		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+	}
+
+	if (maxImpulse > 0.1f)
+	{
+		// Flag the body for breaking.
+		if (btA->_type == BODY_TYPE_BLUE)
+		{
+			static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->broken = true;
+		}
+		if (btB->_type == BODY_TYPE_BLUE)
+		{
+			static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->broken = true;
+		}
+	}
+}
+
 class QueryCallback : public b2QueryCallback
 {
 public:
@@ -213,6 +248,7 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 	}
 	MyBody *myBody = new MyBody();
 	myBody->base = bodyState.base;
+	myBody->broken = false;
 	if (bodyState.base->_type == BODY_TYPE_GROUND) {
 		myBody->width = bodyState.width;		
 	}
@@ -399,24 +435,6 @@ void Simulator::OnMouseMove(hgeVector mousePos)
 		b2Vec2 pos = _selectedBody->GetPosition();
 		pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
 		_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
-	} else if (false) {// если в режиме удаления - пока не реализован
-		// Make a small box.
-		b2AABB aabb;
-		b2Vec2 d;
-		d.Set(0.001f, 0.001f);
-		aabb.lowerBound = p - d;
-		aabb.upperBound = p + d;
-		// Query the world for overlapping shapes.
-		QueryCallback callback(p);
-		m_world->QueryAABB(&callback, aabb);
-		if (callback.m_fixture)
-		{
-			b2Body* body = callback.m_fixture->GetBody();
-			BodyState *bt = (BodyState *)(body->GetUserData());
-			if (Core::GetDC()->Input_GetKeyState(HGEK_ALT)) {
-				EraseBody(body);
-			}
-		}
 	} else if (Core::GetDC()->Input_GetKeyState(HGEK_LBUTTON)) {
 		_worldCenter += (mousePos - _lastMousePos);
 	}
@@ -479,34 +497,6 @@ bool Simulator::IsMouseOver(hgeVector mousePos) {
 	return true;
 }
 
-void Simulator::PostSolve(const b2Contact* contact, const b2ContactImpulse* impulse)
-{
-	/*if (m_broke)
-	{
-		// The body already broke.
-		return;
-	}*/
-
-
-	// Should the body break?
-	int32 count = contact->GetManifold()->pointCount;
-
-	float32 maxImpulse = 0.0f;
-	for (int32 i = 0; i < count; ++i)
-	{
-		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-	}
-
-	if (maxImpulse > 40.0f)
-	{
-		// Flag the body for breaking.
-		//m_break = true;
-		if (static_cast<MyBody *>((contact->GetFixtureB()->GetBody()->GetUserData()))->base->_type == BODY_TYPE_BLUE) {
-		}
-		//EraseBody(contact->GetFixtureA()->GetBody());
-	}
-}
-
 inline void Simulator::DrawElement(hgeVertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
 	float x =   _viewScale * pos.x + _worldCenter.x;
 	float y = - _viewScale * pos.y + _worldCenter.y;
@@ -530,6 +520,8 @@ inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
 }
 
 void Simulator::Draw() {
+	bool oldTnt = (_finish & 0x1) != 0;
+	bool oldBlue = (_finish & 0x2) != 0;
 	bool tnt = false;
 	bool blue = false;
 	_finish = 0x0;
@@ -538,12 +530,15 @@ void Simulator::Draw() {
 	unsigned int counter = 0;
 	bool exception = false;
 	FPoint2D pselect[4];
+	std::vector<b2Body *> remove;
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
+		if (myBody->broken) {
+			remove.push_back(body);
+		}
+		const BodyTemplate *bt = myBody->base;
 		const b2Transform & xf = body->GetTransform();
 		int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
-
-		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
-		const BodyTemplate *bt = myBody->base;
 		assert(0 <= angle && angle <= BodyTemplate::MAX);
 
 		if (bt->_type != BODY_TYPE_GROUND) {
@@ -597,6 +592,14 @@ void Simulator::Draw() {
 		}
 	}
 	Core::GetDC()->Gfx_FinishBatch(counter);
+	for (unsigned int i = 0; i < remove.size(); i++) {
+		EraseBody(remove[i]);
+	}
+	if (oldTnt && !tnt) {
+		_lastTimer.Init(4.f);
+	} else if (oldBlue && !blue) {
+		_lastTimer.Init(2.f);
+	}
 	if (_selectedBody && _signal > 0.5f) {
 		max = 1;
 		hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
@@ -639,6 +642,14 @@ void Simulator::Update(float deltaTime) {
 		}
 		return;
 	} else {
+		Step(&settings);
+		if (_startLevel.Action()) {
+			_startLevel.Update(deltaTime);
+		}
+		if (_lastTimer.Action()) {
+			_lastTimer.Update(deltaTime);
+			return;
+		}
 		if (IsLevelFinish()) {
 			if (_finish & 0x2) { // остались синие
 				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "You lose!", "Game over!", MB_OK);
@@ -648,7 +659,6 @@ void Simulator::Update(float deltaTime) {
 			OnMessage("play");
 		}
 	}
-	Step(&settings);
 }
 
 void Simulator::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
@@ -715,6 +725,7 @@ void Simulator::OnMessage(const std::string &message) {
 				InitParams(NULL);
 				SaveState();
 				_finish = 0x3;
+				_startLevel.Init(2.f);
 			} else {
 				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Level must have TNT and BLUE boxes!", "Error!", MB_OK);
 			}
