@@ -256,35 +256,6 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 	return body;
 }
 
-void Simulator::OnDoubleClick(hgeVector mousePos) {
-	if (_editor){
-		return;
-	}
-	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
-	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
-	
-	// Make a small box.
-	b2AABB aabb;
-	b2Vec2 d;
-	d.Set(0.001f, 0.001f);
-	aabb.lowerBound = p - d;
-	aabb.upperBound = p + d;
-
-	// Query the world for overlapping shapes.
-	QueryCallback callback(p);
-	m_world->QueryAABB(&callback, aabb);
-
-	if (callback.m_fixture)
-	{
-		b2Body* body = callback.m_fixture->GetBody();
-		BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
-		if (bt->_type == BODY_TYPE_EXPLOSION) {
-			EraseBody(body);
-			Explosion(body->GetPosition(), bt->_radius, bt->_maxForce);
-		}
-	}
-}
-
 void Simulator::OnMouseDown(hgeVector mousePos)
 {	
 	InitParams(NULL);
@@ -346,6 +317,32 @@ void Simulator::OnMouseUp()
 		m_mouseJoint->GetBodyB()->ResetMassData();
 		m_world->DestroyJoint(m_mouseJoint);
 		m_mouseJoint = NULL;
+	}
+	if (_editor){
+		return;
+	}
+	FPoint2D fp = 1.f / _viewScale * (_lastMousePos - _worldCenter);
+	b2Vec2 p(1.f / _viewScale * (_lastMousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - _lastMousePos.y)); // нужен для выбора объекта по которому кликнули
+	
+	// Make a small box.
+	b2AABB aabb;
+	b2Vec2 d;
+	d.Set(0.001f, 0.001f);
+	aabb.lowerBound = p - d;
+	aabb.upperBound = p + d;
+
+	// Query the world for overlapping shapes.
+	QueryCallback callback(p);
+	m_world->QueryAABB(&callback, aabb);
+
+	if (callback.m_fixture)
+	{
+		b2Body* body = callback.m_fixture->GetBody();
+		BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
+		if (bt->_type == BODY_TYPE_EXPLOSION) {
+			EraseBody(body);
+			Explosion(body->GetPosition(), bt->_radius, bt->_maxForce);
+		}
 	}
 }
 

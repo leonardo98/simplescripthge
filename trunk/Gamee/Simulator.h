@@ -187,7 +187,6 @@ protected:
 	void Explosion(b2Vec2 pos, float radius, float maxForce);
 	inline void DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color = 0xFFFFF0F0);
 	virtual void OnMessage(const std::string &message);
-	virtual void OnDoubleClick(hgeVector mousePos);
 
 	std::vector<BodyState> _state;
 	TiXmlDocument _doc;
