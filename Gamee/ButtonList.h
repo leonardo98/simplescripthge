@@ -11,16 +11,16 @@ public:
 	ButtonList(TiXmlElement *xe);
 	void Draw();
 	void Update(float dt);
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(hgeVector mousePos);
+	virtual void OnMouseMove(FPoint2D mousePos);
 
 	virtual void OnMessage(const std::string &message);
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	float _slideDown;
-	hgeVector _oldMousePos;
+	FPoint2D _oldMousePos;
 	bool _down;
 	bool _moving;
 	float _stepRight;

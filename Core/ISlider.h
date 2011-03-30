@@ -14,13 +14,13 @@ class ISlider
 public:
 	ISlider(TiXmlElement *xe);
 	void Draw();
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(hgeVector mousePos);
+	virtual void OnMouseMove(FPoint2D mousePos);
 
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	bool _down;
 	bool _horizontal;
 	float _length;

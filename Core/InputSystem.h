@@ -39,20 +39,20 @@ public:
 	// нажали клавишу на клавиатуре(еще не реализован)
 	virtual void OnKeyDown(int key);
 	// клик по элементу(нажатие левой кнопки мыши)
-	virtual void OnMouseDown(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
 	// отпустили кнопку мыши(неважно где)
 	virtual void OnMouseUp();
 	// движение мыши
-	virtual void OnMouseMove(hgeVector mousePos);
+	virtual void OnMouseMove(FPoint2D mousePos);
 	// колесико мыши
 	virtual bool OnMouseWheel(int direction);
 	// длительное нажатие и удержание
-	virtual void OnLongTap(hgeVector mousePos);
+	virtual void OnLongTap(FPoint2D mousePos);
 	// двойной клик
-	virtual void OnDoubleClick(hgeVector mousePos);
+	virtual void OnDoubleClick(FPoint2D mousePos);
 
 	// ќЅя«ј≈Ћ№Ќќ нужно определить дл€ корректной работы OnMouseDown() и прочих функций
-	virtual bool IsMouseOver(hgeVector mousePos) = 0;
+	virtual bool IsMouseOver(FPoint2D mousePos) = 0;
 	
 protected:
 	// дл€ сложных(вложенных) элементов ввода - может понадобитьс€, переписать общий способ
@@ -62,14 +62,14 @@ private:
 	typedef std::list<InputSystem *> Listeners;
 	static Listeners _listeners;
 	static void KeyDown(int key);
-	static void MouseDown(hgeVector mousePos);
+	static void MouseDown(FPoint2D mousePos);
 	static void MouseUp();
-	static void MouseMove(hgeVector mousePos);
+	static void MouseMove(FPoint2D mousePos);
 	static void MouseWheel(int direction);
 	static void LongTap();
-	static void DoubleClick(hgeVector mousePos);
+	static void DoubleClick(FPoint2D mousePos);
 	friend void InitInputEvent();
-	friend bool CheckForInputEvent(HGE *hge, float dt);
+	friend bool CheckForInputEvent(DeviceContext dc, float dt);
 };
 
 #endif // !defined(_INPUTSYSTEM_INCLUDED_)

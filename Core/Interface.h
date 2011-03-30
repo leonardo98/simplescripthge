@@ -18,7 +18,7 @@ public:
 	static DWORD BACKGROUND_PRESSED;
 	static DWORD BUTTON_TEXT;
 	static DWORD Parse(const std::string &s);
-	static void Init(HGE *hge);
+	static void Init(DeviceContext dc);
 	static void Release();
 	static hgeFont *Font();
 private:

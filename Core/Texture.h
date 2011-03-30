@@ -9,8 +9,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "hgeSprite.h"
-#include "hgeVector.h"
+#include "types.h"
+//#include "hgeSprite.h"
+//#include "FPoint2D.h"
 
 class Texture 
 	: public  hgeSprite  
@@ -20,10 +21,10 @@ public:
 	Texture(HTEXTURE h, int x, int y, int width, int height);
 	virtual ~Texture();
 	bool IsNotTransparent(int x, int y);
-	void Render(const hgeVector &pos);
+	void Render(const FPoint2D &pos);
 	void Render(float x, float y);
 private:
-	HGE *_hge;
+	DeviceContext _dc;
 };
 
 #endif // !defined(_TEXTURE_INCLUDED_)

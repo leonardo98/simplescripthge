@@ -21,14 +21,14 @@ Mask::~Mask()
 	delete _luaScript;
 }
 
-void Mask::OnMouseDown(hgeVector mousePos) {
+void Mask::OnMouseDown(FPoint2D mousePos) {
 	mousePos -= _pos;
 	if (_texture->IsNotTransparent((int)mousePos.x, (int)mousePos.y)) {
 		_luaScript->Execute();
 	}
 }
 
-bool Mask::IsMouseOver(hgeVector mousePos) {
+bool Mask::IsMouseOver(FPoint2D mousePos) {
 	mousePos -= _pos;
 	return _texture->IsNotTransparent((int)mousePos.x, (int)mousePos.y);
 }

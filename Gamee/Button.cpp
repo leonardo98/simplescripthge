@@ -19,19 +19,19 @@ void Button::Draw() {
 	_current->Render(_pos);
 }
 
-bool Button::IsMouseOver(hgeVector mousePos) {
+bool Button::IsMouseOver(FPoint2D mousePos) {
 	mousePos -= _pos;
 	return _normal->IsNotTransparent((int)mousePos.x, (int)mousePos.y);
 }
 
-void Button::OnMouseDown(hgeVector mousePos) {
+void Button::OnMouseDown(FPoint2D mousePos) {
 	if (IsMouseOver(mousePos)) {
 		_current = _pressed;
 		_down = true;
 	}
 }
 
-void Button::OnMouseMove(hgeVector mousePos) {
+void Button::OnMouseMove(FPoint2D mousePos) {
 	bool oldValue = IsMouseOver(_oldMousePos);
 	_oldMousePos = mousePos;
 	bool newValue = IsMouseOver(_oldMousePos);

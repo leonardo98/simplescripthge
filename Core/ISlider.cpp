@@ -34,7 +34,7 @@ void ISlider::Draw() {
 	}
 }
 
-bool ISlider::IsMouseOver(hgeVector mousePos) {
+bool ISlider::IsMouseOver(FPoint2D mousePos) {
 	mousePos -= _pos;
 	if (_horizontal) {
 		return ((- _width / 2) <= mousePos.x && mousePos.x < (_length + _width / 2)
@@ -45,11 +45,11 @@ bool ISlider::IsMouseOver(hgeVector mousePos) {
 	}
 }
 
-void ISlider::OnMouseDown(hgeVector mousePos) {
+void ISlider::OnMouseDown(FPoint2D mousePos) {
 	_down = true;
 }
 
-void ISlider::OnMouseMove(hgeVector mousePos) {
+void ISlider::OnMouseMove(FPoint2D mousePos) {
 	if (_down) {
 		if (_horizontal) {
 			_value = min(1.f, max(0.f, (mousePos.x - _pos.x) / _length));

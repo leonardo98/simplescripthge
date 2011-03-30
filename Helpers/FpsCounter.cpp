@@ -10,16 +10,16 @@
 
 FpsCounter::FpsCounter()
 {
-	_hge = hgeCreate(HGE_VERSION);
+	_dc = hgeCreate(HGE_VERSION);
 	_font = new hgeFont("data\\font1.fnt");
 }
 
 FpsCounter::~FpsCounter()
 {
 	delete _font;
-	_hge->Release();
+	_dc->Release();
 }
 
 void FpsCounter::Draw() {
-	_font->printf(0, 0, HGETEXT_LEFT, "fps: %d", _hge->Timer_GetFPS());
+	_font->printf(0, 0, HGETEXT_LEFT, "fps: %d", _dc->Timer_GetFPS());
 }

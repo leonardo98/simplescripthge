@@ -19,15 +19,15 @@ Tester::Tester(TiXmlElement *xe) {
 	_acc = 0;
 	_speed = 0;
 	_x = 0;
-	_hge = hgeCreate(HGE_VERSION);
+	_dc = hgeCreate(HGE_VERSION);
 }
 
 Tester::~Tester() {
-	_hge->Release();
+	_dc->Release();
 }
 
 void Tester::Draw() {
-	_texture->Render(_pos - hgeVector(_x, 0));
+	_texture->Render(_pos - FPoint2D(_x, 0));
 }
 
 void Tester::Update(float deltaTime) {
@@ -35,7 +35,7 @@ void Tester::Update(float deltaTime) {
 		_speed += _acc * deltaTime;
 		_x -= _speed * deltaTime;
 	}
-	if (_hge->Input_KeyDown(HGEK_SPACE)) {
+	if (_dc->Input_KeyDown(HGEK_SPACE)) {
  		_speed = 200;
 		_x = 400;
 		float k = _x / _speed;

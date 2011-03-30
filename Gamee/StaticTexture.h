@@ -17,7 +17,7 @@ public:
 	StaticTexture(TiXmlElement *xe);
 	void Draw();
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	Texture *_texture;
 };
 

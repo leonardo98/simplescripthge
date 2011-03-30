@@ -125,9 +125,9 @@ public:
 	};
 	virtual b2Body * AddElement(BodyTypes type);
 	virtual b2Body * AddElement(const BodyState &bodyState);
-	virtual void OnMouseDown(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
 	virtual void OnMouseUp();
-	void OnMouseMove(hgeVector mousePos);
+	void OnMouseMove(FPoint2D mousePos);
 	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
 
 	// Callbacks for derived classes.
@@ -135,7 +135,7 @@ public:
 	virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
 	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
 	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
-	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
 	virtual bool OnMouseWheel(int direction);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
@@ -168,7 +168,7 @@ protected:
 	b2Vec2 m_mouseWorld;
 	int32 m_stepCount;
 
-	hgeVector _lastMousePos;
+	FPoint2D _lastMousePos;
 	Settings settings;
 
 

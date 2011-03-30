@@ -4,7 +4,7 @@
 #include "InputSystem.h"
 #include "Interface.h"
 
-HGE *hge;
+DeviceContext dc;
 
 Core core;
 
@@ -15,63 +15,67 @@ public:
 	Log() : Messager("log") {
 	}
 	virtual void OnMessage(const std::string &message) {
-		hge->System_Log(("message : " + message + "\n").c_str());
+		dc->System_Log(("message : " + message + "\n").c_str());
 	}
 };
 
 bool RenderFunc()
 {
-	hge->Gfx_BeginScene();
-	hge->Gfx_Clear(0);
+	dc->Gfx_BeginScene();
+	dc->Gfx_Clear(0);
 	if (core.GetDC()) {
 		core.Draw();
 	}
-	hge->Gfx_EndScene();
+	dc->Gfx_EndScene();
 	return false;
 }
 
 bool FrameFunc()
 {
-	float dt = hge->Timer_GetDelta();
+	float dt = dc->Timer_GetDelta();
 	core.Update(dt);
-	return CheckForInputEvent(hge, dt);
+	return CheckForInputEvent(dc, dt);
+}
+
+void InitApplication_WIN()
+{
+	dc = hgeCreate(HGE_VERSION);
+	dc->System_SetState(HGE_INIFILE, "settings.ini");
+	dc->System_SetState(HGE_LOGFILE, dc->Ini_GetString("system", "logfile", "log.txt"));
+	dc->System_SetState(HGE_FRAMEFUNC, FrameFunc);
+	dc->System_SetState(HGE_RENDERFUNC, RenderFunc);
+	dc->System_SetState(HGE_WINDOWED, dc->Ini_GetInt("system", "fullscreen", 0) == 0);
+	dc->System_SetState(HGE_SCREENWIDTH, dc->Ini_GetInt("system", "width", 800));
+	dc->System_SetState(HGE_SCREENHEIGHT, dc->Ini_GetInt("system", "height", 600));
+	dc->System_SetState(HGE_SCREENBPP, 32);
+	dc->System_SetState(HGE_FPS, dc->Ini_GetInt("system", "vsync", 0) == 0?dc->Ini_GetInt("system", "fps", 0):HGEFPS_VSYNC);	
+	dc->System_SetState(HGE_USESOUND, false);
+	dc->System_SetState(HGE_SHOWSPLASH, false);
+	dc->System_SetState(HGE_HIDEMOUSE, false);
+	dc->System_SetState(HGE_ZBUFFER, false);
+	dc->System_SetState(HGE_TITLE, "Simple script HGE application");
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 {
 	// инициализируем HGE
-	hge = hgeCreate(HGE_VERSION);
-	hge->System_SetState(HGE_INIFILE, "settings.ini");
-	hge->System_SetState(HGE_LOGFILE, hge->Ini_GetString("system", "logfile", "log.txt"));
-	hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
-	hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
-	hge->System_SetState(HGE_WINDOWED, hge->Ini_GetInt("system", "fullscreen", 0) == 0);
-	hge->System_SetState(HGE_SCREENWIDTH, hge->Ini_GetInt("system", "width", 800));
-	hge->System_SetState(HGE_SCREENHEIGHT, hge->Ini_GetInt("system", "height", 600));
-	hge->System_SetState(HGE_SCREENBPP, 32);
-	hge->System_SetState(HGE_FPS, hge->Ini_GetInt("system", "vsync", 0) == 0?hge->Ini_GetInt("system", "fps", 0):HGEFPS_VSYNC);	
-	hge->System_SetState(HGE_USESOUND, false);
-	hge->System_SetState(HGE_SHOWSPLASH, false);
-	hge->System_SetState(HGE_HIDEMOUSE, false);
-	hge->System_SetState(HGE_ZBUFFER, false);
-	hge->System_SetState(HGE_TITLE, "Simple script HGE application");
-
-	if(hge->System_Initiate()) {
+	InitApplication_WIN();
+	if(dc->System_Initiate()) {
 		Log log;
-		Interface::Init(hge);
+		Interface::Init(dc);
 		// запускаем ядро
 		core.Load("start.xml");
-		core.SetDC(hge);
-		hge->System_Log("hge start");
+		core.SetDC(dc);
+		dc->System_Log("hge start");
 		InitInputEvent();
-		hge->System_Start();
+		dc->System_Start();
 		Interface::Release();
 	} else {	
-		MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+		MessageBox(NULL, dc->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
 	}
 	core.Release();
-	hge->System_Shutdown();
-	hge->Release();
+	dc->System_Shutdown();
+	dc->Release();
 
 	return 0;
 }

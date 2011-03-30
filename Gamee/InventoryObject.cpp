@@ -30,7 +30,7 @@ void InventoryObject::Draw() {
 	_texture->Render(_pos);
 }
 
-void InventoryObject::OnMouseDown(hgeVector mousePos) {
+void InventoryObject::OnMouseDown(FPoint2D mousePos) {
 	if (_found) {
 		return;
 	}
@@ -41,7 +41,7 @@ void InventoryObject::OnMouseDown(hgeVector mousePos) {
 	}
 }
 
-bool InventoryObject::IsMouseOver(hgeVector mousePos) {
+bool InventoryObject::IsMouseOver(FPoint2D mousePos) {
 	if (_found) {
 		return false;
 	}

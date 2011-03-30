@@ -19,13 +19,13 @@ Inventory::Inventory(TiXmlElement *xe)
 	_texture = Core::getTexture(texture);
 	//Variables::Set("inHand", "None");
 	//_variableInHand->SetValue("None");
-	_hge = hgeCreate(HGE_VERSION);
+	_dc = hgeCreate(HGE_VERSION);
 	_active = NULL;
 }
 
 Inventory::~Inventory()
 {
-	_hge->Release();
+	_dc->Release();
 }
 
 void Inventory::OnMessage(const std::string &message) {
@@ -47,7 +47,7 @@ void Inventory::OnMessage(const std::string &message) {
 
 void Inventory::Draw() {
 	_texture->Render(_pos);
-	hgeVector iconPressed(35, 13);
+	FPoint2D iconPressed(35, 13);
 	iconPressed += _pos;
 	std::string inHand_value = Variables::Get("inHand");
 	for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
@@ -62,19 +62,19 @@ void Inventory::Draw() {
 }
 
 void Inventory::Update(float deltaTime) {
-	if (_hge->Input_KeyDown(HGEK_RBUTTON)) {
+	if (_dc->Input_KeyDown(HGEK_RBUTTON)) {
 		Variables::Set("inHand", "None");
 		_active = NULL;
 	}
 }
 
-bool Inventory::IsMouseOver(hgeVector mousePos) {
-	hgeVector local = mousePos - _pos;
+bool Inventory::IsMouseOver(FPoint2D mousePos) {
+	FPoint2D local = mousePos - _pos;
 	return _texture->IsNotTransparent(int(local.x), int(local.y));
 }
 
-void Inventory::OnMouseDown(hgeVector mousePos) {
-	hgeVector local = mousePos - (_pos + hgeVector(35, 13));
+void Inventory::OnMouseDown(FPoint2D mousePos) {
+	FPoint2D local = mousePos - (_pos + FPoint2D(35, 13));
 	int width = 70;
 	for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
 		if (local.x > 0 && local.x < width && Variables::Get("inHand") != i->id) {
@@ -88,6 +88,6 @@ void Inventory::OnMouseDown(hgeVector mousePos) {
 	_active = NULL;
 }
 
-void Inventory::OnMouseMove(hgeVector mousePos) {
+void Inventory::OnMouseMove(FPoint2D mousePos) {
 	_lastMousePos = mousePos;
 }

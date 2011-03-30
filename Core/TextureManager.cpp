@@ -32,12 +32,12 @@ void TextureManager::ReadDescriptions(std::string fileName)
 			TextureState ts;
 			ts.group = "";
 			ts.path = element->Attribute( "path" );
-			ts.hTexture = _hge->Texture_Load(ts.path.c_str());
+			ts.hTexture = _dc->Texture_Load(ts.path.c_str());
 			if (ts.hTexture == NULL) {
 				Messager::SendMessage("log", "Не могу открыть файл " + ts.path);
 				exit(-7);
 			}
-			ts.texture = new Texture(ts.hTexture, 0, 0, _hge->Texture_GetWidth(ts.hTexture), _hge->Texture_GetHeight(ts.hTexture));
+			ts.texture = new Texture(ts.hTexture, 0, 0, _dc->Texture_GetWidth(ts.hTexture), _dc->Texture_GetHeight(ts.hTexture));
 			_texturesMap[element->Attribute( "id" )] = ts;
 		}
 		element = element->NextSiblingElement();
@@ -48,8 +48,8 @@ void TextureManager::LoadGroup(std::string groupId)
 {
 	for (TextureMap::iterator i = _texturesMap.begin(), e = _texturesMap.end(); i != e; i++) {
 		if (i->second.group == groupId && i->second.hTexture == 0) {
-			i->second.hTexture = _hge->Texture_Load(i->second.path.c_str());
-			i->second.texture = new Texture(i->second.hTexture, 0, 0, _hge->Texture_GetWidth(i->second.hTexture), _hge->Texture_GetHeight(i->second.hTexture));
+			i->second.hTexture = _dc->Texture_Load(i->second.path.c_str());
+			i->second.texture = new Texture(i->second.hTexture, 0, 0, _dc->Texture_GetWidth(i->second.hTexture), _dc->Texture_GetHeight(i->second.hTexture));
 		}
 	}
 }
@@ -60,7 +60,7 @@ void TextureManager::UnloadGroup(std::string groupId)
 		if (i->first == groupId && i->second.hTexture != 0) {
 			delete i->second.texture;
 			i->second.texture = NULL;
-			_hge->Texture_Free(i->second.hTexture);
+			_dc->Texture_Free(i->second.hTexture);
 			i->second.hTexture = 0;
 		}
 	}
@@ -77,12 +77,12 @@ Texture * TextureManager::GetTexture(std::string textureId)
 
 TextureManager::TextureManager()
 {
-	_hge = hgeCreate(HGE_VERSION);
+	_dc = hgeCreate(HGE_VERSION);
 }
 
 TextureManager::~TextureManager()
 {
-	_hge->Release();
+	_dc->Release();
 }
 
 TextureManager::TextureMap TextureManager::_texturesMap;

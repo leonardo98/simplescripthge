@@ -21,12 +21,12 @@ public:
 	~TestObject();
 	virtual void Draw();
 	virtual void Update(float);
-	virtual bool IsMouseOver(hgeVector mousePos);
-	virtual void OnMouseDown(hgeVector mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	Texture *_texture;
-	HGE *_hge;
+	DeviceContext _dc;
 	std::string _visibleVariableName;
 	LuaScript *_luaScript;
 };

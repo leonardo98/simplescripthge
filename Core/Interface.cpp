@@ -42,19 +42,19 @@ DWORD Interface::Parse(const std::string &s) {
 	return 0;
 }
 
-void Interface::Init(HGE *hge)
+void Interface::Init(DeviceContext dc)
 {
-	BACKGROUND = Parse(hge->Ini_GetString("interface_common", "background", "0xFFFFFF"));
-	TEXT = Parse(hge->Ini_GetString("interface_common", "text", "0x000000"));
-	STYLE = hge->Ini_GetString("interface_common", "style", "none");
-	BORDER_HIGH = Parse(hge->Ini_GetString("interface_common", "border_hight", "0x000000"));
-	BORDER_LOW = Parse(hge->Ini_GetString("interface_common", "border_low", "0xFFFFFF"));
-	std::string font = hge->Ini_GetString("interface_common", "font", "");
+	BACKGROUND = Parse(dc->Ini_GetString("interface_common", "background", "0xFFFFFF"));
+	TEXT = Parse(dc->Ini_GetString("interface_common", "text", "0x000000"));
+	STYLE = dc->Ini_GetString("interface_common", "style", "none");
+	BORDER_HIGH = Parse(dc->Ini_GetString("interface_common", "border_hight", "0x000000"));
+	BORDER_LOW = Parse(dc->Ini_GetString("interface_common", "border_low", "0xFFFFFF"));
+	std::string font = dc->Ini_GetString("interface_common", "font", "");
 	_font = new hgeFont(font.c_str());
 
-	BACKGROUND_NORMAL = Parse(hge->Ini_GetString("interface_buttons", "normal", "0xFFFFFF"));
-	BACKGROUND_PRESSED = Parse(hge->Ini_GetString("interface_buttons", "pressed", "0xFFFFFF"));
-	BUTTON_TEXT = Parse(hge->Ini_GetString("interface_buttons", "text", "0xFFFFFF"));
+	BACKGROUND_NORMAL = Parse(dc->Ini_GetString("interface_buttons", "normal", "0xFFFFFF"));
+	BACKGROUND_PRESSED = Parse(dc->Ini_GetString("interface_buttons", "pressed", "0xFFFFFF"));
+	BUTTON_TEXT = Parse(dc->Ini_GetString("interface_buttons", "text", "0xFFFFFF"));
 }
 
 void Interface::Release() {

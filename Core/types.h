@@ -8,16 +8,18 @@
 
 extern "C" 
 {
-  #include <lua.h>
-  #include <lualib.h>
-  #include <lauxlib.h>
+  #include "C:\CppLib\lua\include\lua.h"
+  #include "C:\CppLib\lua\include\lualib.h"
+  #include "C:\CppLib\lua\include\lauxlib.h"
 }
+
+#define IOS_COMPILE_KEY
 
 #include "hge.h"
 #include "hgesprite.h"
-#include "hgevector.h"
+#include "hgeVector.h"
 #include "hgefont.h"
-#include "hgeparticle.h"
+//#include "hgeparticle.h"
 
 #include "tinyxml.h"
 #include "tinystr.h"
@@ -33,3 +35,4 @@ extern "C"
 #define LOG_STRING(note, msg) Messager::SendMessage("Core", msg)
 
 typedef hgeVector FPoint2D;
+typedef HGE * DeviceContext;

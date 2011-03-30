@@ -27,16 +27,16 @@ public:
 	virtual void OnMessage(const std::string &message);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
-	virtual bool IsMouseOver(hgeVector mousePos);
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual void OnMouseMove(hgeVector mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual void OnMouseMove(FPoint2D mousePos);
 private:
-	hgeVector _pos;
-	hgeVector _lastMousePos;
+	FPoint2D _pos;
+	FPoint2D _lastMousePos;
 	Texture *_texture;
 	typedef std::list<Tool> Tools;
 	Tools _tools;
-	HGE *_hge;
+	DeviceContext _dc;
 	Texture *_active;
 };
 

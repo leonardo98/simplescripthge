@@ -19,7 +19,7 @@ public:
 	void Draw();
 	void Update(float deltaTime);
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	float _time;
 	float _timeCounter;
 	float _acc;
@@ -27,7 +27,7 @@ private:
 	float _x;
 	float _x0;
 	Texture *_texture;
-	HGE *_hge;
+	DeviceContext _dc;
 };
 
 #endif // !defined(_Tester_INCLUDED_)

@@ -112,7 +112,7 @@ static int LuaOpenFile(lua_State *L) {
 	return 1;
 }
 
-HGE *Core::_hge;
+DeviceContext Core::_dc;
 
 Core::Core()
 	: Messager("Core")
@@ -220,11 +220,11 @@ void Core::Release()
 	_scripts.clear();
 }
 
-HGE *Core::GetDC() {
-	return _hge;
+DeviceContext Core::GetDC() {
+	return _dc;
 }
-void Core::SetDC(HGE *hge) {
-	_hge = hge;
+void Core::SetDC(DeviceContext dc) {
+	_dc = dc;
 }
 
 bool Core::DoLua(char *code) {

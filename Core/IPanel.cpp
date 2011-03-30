@@ -78,7 +78,7 @@ void IPanel::Update(float deltaTime) {
 	}
 }
 
-bool IPanel::IsMouseOver(hgeVector mousePos) {
+bool IPanel::IsMouseOver(FPoint2D mousePos) {
 	if (!_visible) {
 		return false;
 	}
@@ -98,7 +98,7 @@ void IPanel::OnKeyDown(int key) {
 	}
 }
 
-void IPanel::OnMouseDown(hgeVector mousePos) {
+void IPanel::OnMouseDown(FPoint2D mousePos) {
 	if (!_visible) {
 		return;
 	}
@@ -119,7 +119,7 @@ void IPanel::OnMouseUp() {
 	}
 }
 
-void IPanel::OnMouseMove(hgeVector mousePos) {
+void IPanel::OnMouseMove(FPoint2D mousePos) {
 	if (!_visible) {
 		return;
 	}

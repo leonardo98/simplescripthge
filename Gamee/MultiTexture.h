@@ -14,7 +14,7 @@
 #include "..\Core\LuaScript.h"
 
 struct State {
-	hgeVector pos;
+	FPoint2D pos;
 	Texture *texture;
 	std::string name;
 	bool visible;
@@ -31,8 +31,8 @@ public:
 	virtual ~MultiTexture();
 	virtual void Draw();
 	virtual void Update(float deltaTime);
-	virtual bool IsMouseOver(hgeVector mousePos);
-	virtual void OnMouseDown(hgeVector mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
 private:
 	typedef std::vector<State> States;
 	States _states;

@@ -18,7 +18,7 @@ public:
 	virtual ~FpsCounter();
 	virtual void Draw();
 private:
-	HGE *_hge;
+	DeviceContext _dc;
 	hgeFont *_font;
 };
 
