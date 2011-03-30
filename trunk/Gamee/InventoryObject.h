@@ -19,10 +19,10 @@ public:
 	InventoryObject(TiXmlElement *xe);
 	virtual ~InventoryObject();
 	virtual void Draw();
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	Texture *_texture;
 	bool _found;
 	std::string _id;

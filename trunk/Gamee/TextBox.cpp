@@ -62,7 +62,7 @@ void TextBox::Update(float deltaTime) {
 		_hide.Update(deltaTime);
 		if (_hide.Done()) {
 			_text.clear();
-			_clickMousePos = hgeVector(-100, -100);
+			_clickMousePos = FPoint2D(-100, -100);
 		}
 	}
 	_show.Update(deltaTime);
@@ -92,10 +92,10 @@ void TextBox::OnMessage(const std::string &message) {
 	}
 }
 
-bool TextBox::IsMouseOver(hgeVector mousePos) {
+bool TextBox::IsMouseOver(FPoint2D mousePos) {
 	return false;
 }
 
-void TextBox::OnMouseMove(hgeVector mousePos) {
+void TextBox::OnMouseMove(FPoint2D mousePos) {
 	_lastMousePos = mousePos;
 }

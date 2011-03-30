@@ -44,7 +44,7 @@ void IRadioBtns::OnMessage(const std::string &message) {
 	}
 }
 
-bool IRadioBtns::IsMouseOver(hgeVector mousePos) {
+bool IRadioBtns::IsMouseOver(FPoint2D mousePos) {
 	for (unsigned int i = 0; i < _items.size(); ++i) {
 		FPoint2D pos = _pos;
 		pos.x += _stepRight * (i % _itemsInRow);
@@ -57,7 +57,7 @@ bool IRadioBtns::IsMouseOver(hgeVector mousePos) {
 	return false;
 }
 
-void IRadioBtns::OnMouseDown(hgeVector mousePos) {
+void IRadioBtns::OnMouseDown(FPoint2D mousePos) {
 	int old = _selected;
 	for (unsigned int i = 0; i < _items.size(); ++i) {
 		FPoint2D pos = _pos;

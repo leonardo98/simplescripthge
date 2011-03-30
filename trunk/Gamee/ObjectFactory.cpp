@@ -14,7 +14,6 @@
 #include "StarsRect.h"
 #include "..\Helpers\Tester.h"
 #include "..\Core\Messager.h"
-#include "VideoFrame.h"
 #include "Button.h"
 #include "..\Core\IButton.h"
 #include "..\Core\IPanel.h"
@@ -37,7 +36,6 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("InventoryObject", InventoryObject);
 	REG_TYPE("MultiTexture", MultiTexture);
 	REG_TYPE("StarsRect", StarsRect);
-	REG_TYPE("VideoFrame", VideoFrame);
 	REG_TYPE("StarsRect", StarsRect);
 	REG_TYPE("Tester", Tester);
 	REG_TYPE("Button", Button);

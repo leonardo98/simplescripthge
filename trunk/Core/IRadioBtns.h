@@ -9,8 +9,8 @@ class IRadioBtns :
 public:
 	IRadioBtns(TiXmlElement *xe);
 	void Draw();
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
 
 	virtual void OnMessage(const std::string &message);
 
@@ -18,7 +18,7 @@ public:
 	virtual float GetNumberValue(const std::string &variableName);
 
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	float _stepRight;
 	float _stepDown;
 	int _itemsInRow;

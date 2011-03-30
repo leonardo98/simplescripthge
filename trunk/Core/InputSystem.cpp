@@ -37,19 +37,19 @@ InputSystem::~InputSystem()
 
 void InputSystem::OnKeyDown(int key) {}
 
-void InputSystem::OnMouseDown(hgeVector mousePos) {}
+void InputSystem::OnMouseDown(FPoint2D mousePos) {}
 
 void InputSystem::OnMouseUp() {}
 
-void InputSystem::OnMouseMove(hgeVector mousePos) {}
+void InputSystem::OnMouseMove(FPoint2D mousePos) {}
 
-void InputSystem::OnLongTap(hgeVector mousePos) {}
+void InputSystem::OnLongTap(FPoint2D mousePos) {}
 
-void InputSystem::OnDoubleClick(hgeVector mousePos) {}
+void InputSystem::OnDoubleClick(FPoint2D mousePos) {}
 
 bool InputSystem::OnMouseWheel(int direction) {return false;}
 
-void InputSystem::MouseDown(hgeVector mousePos) {
+void InputSystem::MouseDown(FPoint2D mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
@@ -69,7 +69,7 @@ void InputSystem::LongTap() {
 	}
 }
 
-void InputSystem::DoubleClick(hgeVector mousePos) {
+void InputSystem::DoubleClick(FPoint2D mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
 			(*i)->OnDoubleClick(mousePos);
@@ -104,7 +104,7 @@ void InputSystem::MouseUp() {
 	_locked = NULL;
 }
 
-void InputSystem::MouseMove(hgeVector mousePos) {
+void InputSystem::MouseMove(FPoint2D mousePos) {
 	if (_locked != NULL) {
 		_locked->OnMouseMove(mousePos);
 		return;
@@ -132,13 +132,13 @@ void OnLongTap(int direction) {
 void OnDoubleClick(int direction) {
 }
 
-bool CheckForInputEvent(HGE *hge, float dt) {
+bool CheckForInputEvent(DeviceContext dc, float dt) {
 	hgeInputEvent event;
 	InputSystem::_timeCounter += dt;
 	InputSystem::_doubleClick &= (InputSystem::_timeCounter < InputSystem::DOUBLE_CLICK_TIME);
-	while (hge->Input_GetEvent(&event)) {
+	while (dc->Input_GetEvent(&event)) {
 		if (event.type == INPUT_MBUTTONDOWN && event.key == HGEK_LBUTTON) {
-			InputSystem::_longTapPos = hgeVector(event.x, event.y);
+			InputSystem::_longTapPos = FPoint2D(event.x, event.y);
 			InputSystem::MouseDown(InputSystem::_longTapPos);
 			if (InputSystem::_doubleClick) {
 				InputSystem::DoubleClick(InputSystem::_longTapPos);
@@ -151,7 +151,7 @@ bool CheckForInputEvent(HGE *hge, float dt) {
 			InputSystem::MouseUp();
 			InputSystem::_longTap = false;
 		} else if (event.type == INPUT_MOUSEMOVE) {
-			FPoint2D pos = hgeVector(event.x, event.y);
+			FPoint2D pos = FPoint2D(event.x, event.y);
 			InputSystem::MouseMove(pos);
 			InputSystem::_longTap &= (InputSystem::_longTapPos - pos).Length() > InputSystem::LONG_TAP_EPS;
 		} else if (event.type == INPUT_MOUSEWHEEL) {

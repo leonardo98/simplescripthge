@@ -256,7 +256,7 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 	return body;
 }
 
-void Simulator::OnMouseDown(hgeVector mousePos)
+void Simulator::OnMouseDown(FPoint2D mousePos)
 {	
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
@@ -421,7 +421,7 @@ bool Simulator::IsLevelFinish() {
 }
 
 
-void Simulator::OnMouseMove(hgeVector mousePos)
+void Simulator::OnMouseMove(FPoint2D mousePos)
 {
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
@@ -490,7 +490,7 @@ void Simulator::Step(Settings* settings)
 	}
 }
 
-bool Simulator::IsMouseOver(hgeVector mousePos) {
+bool Simulator::IsMouseOver(FPoint2D mousePos) {
 	return true;
 }
 

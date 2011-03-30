@@ -11,18 +11,18 @@
 Texture::Texture(hgeSprite &sprite)
 	: hgeSprite(sprite)
 {
-	_hge = hgeCreate(HGE_VERSION);
+	_dc = hgeCreate(HGE_VERSION);
 }
 
 Texture::Texture(HTEXTURE h, int x, int y, int width, int height)
 	: hgeSprite(h, x, y, width, height)
 {
-	_hge = hgeCreate(HGE_VERSION);
+	_dc = hgeCreate(HGE_VERSION);
 }
 
 Texture::~Texture()
 {
-	_hge->Release();
+	_dc->Release();
 }
 
 bool Texture::IsNotTransparent(int x, int y)
@@ -32,17 +32,17 @@ bool Texture::IsNotTransparent(int x, int y)
 	}
 	HTEXTURE h;
 	h = GetTexture();
-	if (x >= _hge->Texture_GetWidth(h) || y >= _hge->Texture_GetHeight(h)) {
+	if (x >= _dc->Texture_GetWidth(h) || y >= _dc->Texture_GetHeight(h)) {
 		return false;
 	}
 	DWORD *dw;
-	dw = _hge->Texture_Lock(h, true, x, y, 1, 1);
+	dw = _dc->Texture_Lock(h, true, x, y, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;
-	_hge->Texture_Unlock(h);
+	_dc->Texture_Unlock(h);
 	return result;
 }
 
-void Texture::Render(const hgeVector &pos) {
+void Texture::Render(const FPoint2D &pos) {
 	Render(pos.x, pos.y);
 }
 

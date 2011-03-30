@@ -8,16 +8,16 @@ class Button :
 public:
 	Button(TiXmlElement *xe);
 	void Draw();
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(hgeVector mousePos);
+	virtual void OnMouseMove(FPoint2D mousePos);
 
 	virtual void OnMouseIn();
 	virtual void OnMouseOut();
 private:
-	hgeVector _pos;
-	hgeVector _oldMousePos;
+	FPoint2D _pos;
+	FPoint2D _oldMousePos;
 	bool _down;
 	Texture *_normal;
 	Texture *_pressed;

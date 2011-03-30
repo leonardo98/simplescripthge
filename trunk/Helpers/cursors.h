@@ -15,7 +15,7 @@ class cursors
 {
 public:
 	static void Init(std::string fileName);
-	static void Draw(hgeVector pos);
+	static void Draw(FPoint2D pos);
 	static void Set(std::string type);
 private:
 	static std::map<std::string, Texture *> _names;

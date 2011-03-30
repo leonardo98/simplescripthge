@@ -37,20 +37,20 @@ void IButton::Draw() {
 	}
 }
 
-bool IButton::IsMouseOver(hgeVector mousePos) {
+bool IButton::IsMouseOver(FPoint2D mousePos) {
 	mousePos -= _pos;
 	return (0 <= mousePos.x && mousePos.x < _width 
 			&& 0 <= mousePos.y && mousePos.y < _height);
 }
 
-void IButton::OnMouseDown(hgeVector mousePos) {
+void IButton::OnMouseDown(FPoint2D mousePos) {
 	if (IsMouseOver(mousePos)) {
 		_state = BUTTON_PRESSED;
 		_down = true;
 	}
 }
 
-void IButton::OnMouseMove(hgeVector mousePos) {
+void IButton::OnMouseMove(FPoint2D mousePos) {
 	bool oldValue = IsMouseOver(_oldMousePos);
 	_oldMousePos = mousePos;
 	bool newValue = IsMouseOver(_oldMousePos);

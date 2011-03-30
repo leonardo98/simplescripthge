@@ -30,7 +30,7 @@ protected:
 	virtual ~TextureManager();
 private:
 	static TextureMap _texturesMap;
-	HGE *_hge;
+	DeviceContext _dc;
 };
 
 #endif // !defined(_TEXTUREMANAGER_INCLUDED_)

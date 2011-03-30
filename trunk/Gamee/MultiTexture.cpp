@@ -72,10 +72,10 @@ void MultiTexture::Draw() {
 	}
 }
 
-bool MultiTexture::IsMouseOver(hgeVector mousePos) {
+bool MultiTexture::IsMouseOver(FPoint2D mousePos) {
 	std::string varvalue = Variables::Get(_stateVariableName.c_str());
 	for (int i = _states.size() - 1; i >= 0; i--) {
-		hgeVector t = mousePos - _states[i].pos;
+		FPoint2D t = mousePos - _states[i].pos;
 		if (_states[i].name == varvalue) {			
 			return (_states[i].texture != NULL && _states[i].texture->IsNotTransparent((int)t.x, (int)t.y)); 
 		}
@@ -83,10 +83,10 @@ bool MultiTexture::IsMouseOver(hgeVector mousePos) {
 	return false;
 }
 
-void MultiTexture::OnMouseDown(hgeVector mousePos) {
+void MultiTexture::OnMouseDown(FPoint2D mousePos) {
 	std::string varvalue = Variables::Get(_stateVariableName.c_str());
 	for (int i = _states.size() - 1; i >= 0; i--) {
-		hgeVector t = mousePos - _states[i].pos;
+		FPoint2D t = mousePos - _states[i].pos;
 		if (_states[i].name == varvalue && _states[i].texture != NULL && _states[i].texture->IsNotTransparent((int)t.x, (int)t.y)) 
 		{
 			_luaScript->Execute();

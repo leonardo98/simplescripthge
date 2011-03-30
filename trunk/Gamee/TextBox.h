@@ -24,18 +24,18 @@ public:
 	virtual void Draw();
 	virtual void Update(float deltaTime);
 	virtual void OnMessage(const std::string &message);
-	virtual bool IsMouseOver(hgeVector mousePos);
-	virtual void OnMouseMove(hgeVector mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseMove(FPoint2D mousePos);
 private:
 	float _hideTime;
 	float _width;
 	std::vector<std::string> _text;
-	hgeVector _pos;
-	hgeVector _lastMousePos;
-	hgeVector _clickMousePos;
+	FPoint2D _pos;
+	FPoint2D _lastMousePos;
+	FPoint2D _clickMousePos;
 	hgeFont *_font;
 	Texture *_background;
-	hgeVector _backgroundPos;
+	FPoint2D _backgroundPos;
 	Counter _show;
 	Counter _hide;
 };

@@ -13,7 +13,7 @@ TestObject::TestObject(TiXmlElement* xe)
 	: Object()
 {
 	_visibleVariableName = xe->Attribute("variableName");
-	_hge = hgeCreate(HGE_VERSION);
+	_dc = hgeCreate(HGE_VERSION);
 	_pos.x = atoi(xe->Attribute("x"));
 	_pos.y = atoi(xe->Attribute("y"));
 	std::string texture = xe->Attribute("texture"); 
@@ -35,16 +35,16 @@ void TestObject::Update(float) {}
 
 TestObject::~TestObject() 
 {
-	_hge->Release();
+	_dc->Release();
 	delete _luaScript;
 }
 
-bool TestObject::IsMouseOver(hgeVector mousePos)
+bool TestObject::IsMouseOver(FPoint2D mousePos)
 {
 	return false;
 }
 
-void TestObject::OnMouseDown(hgeVector mousePos)
+void TestObject::OnMouseDown(FPoint2D mousePos)
 {
 	//_pos = mousePos;
 	_luaScript->Execute();

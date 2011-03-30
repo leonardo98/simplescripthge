@@ -20,20 +20,20 @@ public:
 	virtual void Draw();
 	virtual void Update(float deltaTime);
 private:
-	hgeVector _pos;
+	FPoint2D _pos;
 	int _width;
 	int _height;
 	int _number;
 	Texture *_texture;
 	struct Star 
 	{
-		hgeVector getPos();
-		Star(hgeVector pos, int width, int height);
+		FPoint2D getPos();
+		Star(FPoint2D pos, int width, int height);
 		void Update(float deltaTime);
 		float pos;
 	private:
-		hgeVector start;
-		hgeVector end;
+		FPoint2D start;
+		FPoint2D end;
 		float speed;
 	};
 	std::list<Star> _stars;

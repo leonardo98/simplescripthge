@@ -52,11 +52,11 @@ void ButtonList::OnMessage(const std::string &message) {
 }
 
 
-bool ButtonList::IsMouseOver(hgeVector mousePos) {
+bool ButtonList::IsMouseOver(FPoint2D mousePos) {
 	return _items.size() > 0;
 }
 
-void ButtonList::OnMouseDown(hgeVector mousePos) {
+void ButtonList::OnMouseDown(FPoint2D mousePos) {
 	if (IsMouseOver(mousePos)) {
 		_down = true;
 		_timer = 0.f;
@@ -65,7 +65,7 @@ void ButtonList::OnMouseDown(hgeVector mousePos) {
 	_counter.Init(0.f);
 }
 
-void ButtonList::OnMouseMove(hgeVector mousePos) {
+void ButtonList::OnMouseMove(FPoint2D mousePos) {
 	if (_down && (_moving || (!_moving && abs(mousePos.y - _oldMousePos.y) > 15.f) || _timer > MOVE_ACTION_TIME)) {
 		_moving = true;
 		_slideDown += (mousePos.y - _oldMousePos.y);

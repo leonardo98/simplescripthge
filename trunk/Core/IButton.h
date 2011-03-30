@@ -15,10 +15,10 @@ class IButton
 public:
 	IButton(TiXmlElement *xe);
 	void Draw();
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual bool IsMouseOver(hgeVector mousePos);
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(hgeVector mousePos);
+	virtual void OnMouseMove(FPoint2D mousePos);
 
 	virtual void OnMouseIn();
 	virtual void OnMouseOut();
@@ -26,8 +26,8 @@ public:
 	virtual void SetValue(const std::string &variableName, const std::string &value);
 
 private:
-	hgeVector _pos;
-	hgeVector _oldMousePos;
+	FPoint2D _pos;
+	FPoint2D _oldMousePos;
 	bool _down;
 	unsigned int _width;
 	unsigned int _height;

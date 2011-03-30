@@ -47,9 +47,9 @@ void StarsRect::Update(float deltaTime)
 	}
 }
 
-StarsRect::Star::Star(hgeVector pos, int width, int height) {
-	start = pos + hgeVector(width * (rand() / 32768.f), height * (rand() / 32768.f));
-	end = pos + hgeVector(width * (rand() / 32768.f), height * (rand() / 32768.f));
+StarsRect::Star::Star(FPoint2D pos, int width, int height) {
+	start = pos + FPoint2D(width * (rand() / 32768.f), height * (rand() / 32768.f));
+	end = pos + FPoint2D(width * (rand() / 32768.f), height * (rand() / 32768.f));
 	if (rand() % 2 == 1) {
 		start.x = pos.x + width * (rand() % 2);
 		end.x = pos.x + width * (rand() % 2);
@@ -65,6 +65,6 @@ void StarsRect::Star::Update(float deltaTime) {
 	pos += speed * deltaTime / (end - start).Length();
 }
 
-hgeVector StarsRect::Star::getPos() {
+FPoint2D StarsRect::Star::getPos() {
 	return start + (end - start) * pos;
 }

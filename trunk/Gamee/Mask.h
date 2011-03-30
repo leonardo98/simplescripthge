@@ -20,9 +20,9 @@ public:
 	Mask(TiXmlElement *xe);
 	~Mask();
 private:
-	virtual void OnMouseDown(hgeVector mousePos);
-	virtual bool IsMouseOver(hgeVector mousePos);
-	hgeVector _pos;
+	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(FPoint2D mousePos);
+	FPoint2D _pos;
 	Texture *_texture;
 	LuaScript *_luaScript;
 };
