@@ -1,5 +1,6 @@
 #include "types.h"
 #include "IPanel.h"
+#include "Render.h"
 #include "Variables.h"
 #include "..\Gamee\ObjectFactory.h"
 
@@ -19,30 +20,6 @@ IPanel::IPanel(TiXmlElement *xe)
 		RemoveFromList(_objects.back());
 		element = element->NextSiblingElement();
 	}
-	TiXmlElement *keysXml = xe->FirstChildElement("keys");
-	if (keysXml) {
-		TiXmlElement *keys = keysXml->FirstChildElement();
-		while (keys!= NULL) {
-			int key = Core::getKeyCode(keys->Attribute("key"));
-			KeyState k;
-			TiXmlText *text = (TiXmlText *)keys->FirstChild();
-			if (text != NULL) {
-				unsigned int size = strlen((char *)text->Value());
-				k.code = new char[size + 1];
-				strcpy(k.code, (char *)text->Value());
-			} else {
-				k.code = NULL;
-			}
-			if (keys->Attribute("msg")) {
-				k.msg = keys->Attribute("msg");
-			}
-			if (keys->Attribute("rsvr")) {
-				k.rsvr = keys->Attribute("rsvr");
-			}
-			_keyStates[key] = k;
-			keys = keys->NextSiblingElement();
-		}
-	}
 }
 
 IPanel::~IPanel(void)
@@ -58,11 +35,11 @@ void IPanel::Draw() {
 		return;
 	}
 	if (_needDraw) {
-		Core::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND);
-		Core::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
-		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
+		Render::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND);
+		Render::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
+		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
 	}
 	for (std::vector<InputSystem *>::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		(*i)->Draw();
@@ -83,19 +60,6 @@ bool IPanel::IsMouseOver(FPoint2D mousePos) {
 		return false;
 	}
 	return (_visible && _pos.x < mousePos.x && mousePos.x < _pos.x + _width && _pos.y < mousePos.y && mousePos.y < _pos.y + _height);
-}
-
-void IPanel::OnKeyDown(int key) {
-	if (_keyStates.find(key) != _keyStates.end()) {
-		if (_keyStates[key].code) {
-			Read(_keyStates[key].code);
-			Execute();
-		} else if (_keyStates[key].rsvr.size() > 0) {
-			Messager::SendMessage(_keyStates[key].rsvr, _keyStates[key].msg);
-		} else {
-			OnMessage(_keyStates[key].msg);
-		}
-	}
 }
 
 void IPanel::OnMouseDown(FPoint2D mousePos) {

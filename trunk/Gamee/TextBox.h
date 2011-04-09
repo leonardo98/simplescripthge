@@ -33,7 +33,8 @@ private:
 	FPoint2D _pos;
 	FPoint2D _lastMousePos;
 	FPoint2D _clickMousePos;
-	hgeFont *_font;
+	std::string _font;
+	DWORD _fontColor;
 	Texture *_background;
 	FPoint2D _backgroundPos;
 	Counter _show;

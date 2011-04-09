@@ -4,6 +4,7 @@
 
 #include "Inventory.h"
 #include "..\Core\Core.h"
+#include "..\Core\Render.h"
 #include "..\Core\Variables.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -19,13 +20,11 @@ Inventory::Inventory(TiXmlElement *xe)
 	_texture = Core::getTexture(texture);
 	//Variables::Set("inHand", "None");
 	//_variableInHand->SetValue("None");
-	_dc = hgeCreate(HGE_VERSION);
 	_active = NULL;
 }
 
 Inventory::~Inventory()
 {
-	_dc->Release();
 }
 
 void Inventory::OnMessage(const std::string &message) {
@@ -62,7 +61,7 @@ void Inventory::Draw() {
 }
 
 void Inventory::Update(float deltaTime) {
-	if (_dc->Input_KeyDown(HGEK_RBUTTON)) {
+	if (Render::IsRightMouseButton()) {
 		Variables::Set("inHand", "None");
 		_active = NULL;
 	}

@@ -3,26 +3,20 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Texture.h"
+#include "Render.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Texture::Texture(hgeSprite &sprite)
-	: hgeSprite(sprite)
-{
-	_dc = hgeCreate(HGE_VERSION);
-}
 
 Texture::Texture(HTEXTURE h, int x, int y, int width, int height)
 	: hgeSprite(h, x, y, width, height)
 {
-	_dc = hgeCreate(HGE_VERSION);
 }
 
 Texture::~Texture()
 {
-	_dc->Release();
 }
 
 bool Texture::IsNotTransparent(int x, int y)
@@ -32,13 +26,13 @@ bool Texture::IsNotTransparent(int x, int y)
 	}
 	HTEXTURE h;
 	h = GetTexture();
-	if (x >= _dc->Texture_GetWidth(h) || y >= _dc->Texture_GetHeight(h)) {
+	if (x >= Render::GetDC()->Texture_GetWidth(h) || y >= Render::GetDC()->Texture_GetHeight(h)) {
 		return false;
 	}
 	DWORD *dw;
-	dw = _dc->Texture_Lock(h, true, x, y, 1, 1);
+	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;
-	_dc->Texture_Unlock(h);
+	Render::GetDC()->Texture_Unlock(h);
 	return result;
 }
 

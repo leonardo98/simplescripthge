@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "InputSystem.h"
+#include "Render.h"
 #include "Messager.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -34,8 +35,6 @@ InputSystem::~InputSystem()
 		_listeners.erase(i);
 	}
 }
-
-void InputSystem::OnKeyDown(int key) {}
 
 void InputSystem::OnMouseDown(FPoint2D mousePos) {}
 
@@ -91,12 +90,6 @@ void InputSystem::MouseWheel(int direction) {
 	}
 }
 
-void InputSystem::KeyDown(int key) {
-	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
-		(*i)->OnKeyDown(key);
-	}
-}
-
 void InputSystem::MouseUp() {
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
 		(*i)->OnMouseUp();
@@ -132,11 +125,11 @@ void OnLongTap(int direction) {
 void OnDoubleClick(int direction) {
 }
 
-bool CheckForInputEvent(DeviceContext dc, float dt) {
+bool CheckForInputEvent(float dt) {
 	hgeInputEvent event;
 	InputSystem::_timeCounter += dt;
 	InputSystem::_doubleClick &= (InputSystem::_timeCounter < InputSystem::DOUBLE_CLICK_TIME);
-	while (dc->Input_GetEvent(&event)) {
+	while (Render::GetDC()->Input_GetEvent(&event)) {
 		if (event.type == INPUT_MBUTTONDOWN && event.key == HGEK_LBUTTON) {
 			InputSystem::_longTapPos = FPoint2D(event.x, event.y);
 			InputSystem::MouseDown(InputSystem::_longTapPos);
@@ -158,8 +151,6 @@ bool CheckForInputEvent(DeviceContext dc, float dt) {
 			InputSystem::MouseWheel(event.wheel);
 		} else if (event.type == INPUT_KEYDOWN && event.key == HGEK_ESCAPE) {
 			return true;
-		} else if (event.type == INPUT_KEYDOWN) {
-			InputSystem::KeyDown(event.key);
 		}
 	}
 	if (InputSystem::_longTap) {

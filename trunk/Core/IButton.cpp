@@ -1,3 +1,4 @@
+#include "Render.h"
 #include "IButton.h"
 #include "Core.h"
 #include "Variables.h"
@@ -17,21 +18,19 @@ IButton::IButton(TiXmlElement *xe)
 
 void IButton::Draw() {
 	if (_state == BUTTON_RELEASED) {
-		Core::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_NORMAL);
-		Core::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
-		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
-		Interface::Font()->SetColor(Interface::BUTTON_TEXT);
-		Interface::Font()->Render(_pos.x + _width / 2, _pos.y + _height / 2 - Interface::Font()->GetHeight() / 2, HGETEXT_CENTER, _caption.c_str());
+		Render::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_NORMAL);
+		Render::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
+		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
+		Render::PrintString(_pos.x + _width / 2, _pos.y + _height / 2/* - Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
 	} else if (_state == BUTTON_PRESSED) {
-		Core::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_PRESSED);
-		Core::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Interface::Font()->SetColor(Interface::BUTTON_TEXT);
-		Interface::Font()->Render(_pos.x + _width / 2, _pos.y + _height / 2 - Interface::Font()->GetHeight() / 2, HGETEXT_CENTER, _caption.c_str());
+		Render::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_PRESSED);
+		Render::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::PrintString(_pos.x + _width / 2, _pos.y + _height / 2 /*- Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
 	} else {
 		assert(false);
 	}

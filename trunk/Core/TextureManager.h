@@ -17,7 +17,11 @@ public:
 	{
 		std::string path;
 		std::string group;
+#ifndef IOS_COMPILE_KEY
 		HTEXTURE hTexture;
+#else
+		CIwImage image;
+#endif //IOS_COMPILE_KEY
 		Texture *texture;
 	};
 	typedef std::map<std::string, TextureState> TextureMap;
@@ -30,7 +34,6 @@ protected:
 	virtual ~TextureManager();
 private:
 	static TextureMap _texturesMap;
-	DeviceContext _dc;
 };
 
 #endif // !defined(_TEXTUREMANAGER_INCLUDED_)

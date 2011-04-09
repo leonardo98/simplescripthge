@@ -1,7 +1,10 @@
 #pragma once
 
 #include "types.h"
+
+#ifndef IOS_COMPILE_KEY
 #include "hgeFont.h"
+#endif // IOS_COMPILE_KEY
 
 class Interface
 {
@@ -18,9 +21,5 @@ public:
 	static DWORD BACKGROUND_PRESSED;
 	static DWORD BUTTON_TEXT;
 	static DWORD Parse(const std::string &s);
-	static void Init(DeviceContext dc);
-	static void Release();
-	static hgeFont *Font();
-private:
-	static hgeFont *_font;
+	static void Init();
 };

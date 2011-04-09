@@ -1,5 +1,6 @@
 #include "Simulator.h"
 #include "..\Core\Core.h"
+#include "..\Core\Render.h"
 #include <cstdio>
 #define LEVELS_FILE "data.xml"
 
@@ -42,7 +43,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	, _waitState(WaitNone)
 {
 	if (!_doc.LoadFile()) {
-		MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Levels file not found!", "Error!", MB_OK | MB_ICONERROR);
+		Render::ShowMessage("Levels file not found!", "Error!");
 	} 
 
 	_allElements = Core::getTexture("allElements");
@@ -284,29 +285,7 @@ void Simulator::OnMouseDown(FPoint2D mousePos)
 		BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
 		if (_editor) {
 			InitParams(body);
-
-			//if (Core::GetDC()->Input_GetKeyState(HGEK_ALT)) {
-			//	EraseBody(body);
-			//}
 			return;
-		}
-		if (bt->_type == BODY_TYPE_EXPLOSION) {
-//			EraseBody(body);
-//			Explosion(body->GetPosition(), bt->_radius, bt->_maxForce);
-//		} else {
-			/*b2MassData m;
-			m.center = b2Vec2(0,0);
-			m.mass = 0.00001f;
-			m.I = 0.00001f;
-			body->SetMassData(&m);
-
-			b2MouseJointDef md;
-			md.bodyA = m_groundBody;
-			md.bodyB = body;
-			md.target = p;
-			md.maxForce = 1000.0f;
-			m_mouseJoint = (b2MouseJoint*)m_world->CreateJoint(&md);
-			body->SetAwake(true);*/
 		}
 	}
 }
@@ -382,7 +361,7 @@ void Simulator::InitParams(b2Body *body)
 		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
 		int radio = GetNumberValue("radio", "");
 		if (radio == 0) {
-			if (MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Delete selected object?", "Are you sure?", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+			if (Render::ShowAskMessage("Delete selected object?", "Are you sure?")) {
 				EraseBody(_selectedBody);
 				InitParams(NULL);
 			}
@@ -428,11 +407,11 @@ void Simulator::OnMouseMove(FPoint2D mousePos)
 
 	if (m_mouseJoint) {
 		m_mouseJoint->SetTarget(p);
-	} else if (_editor && Core::GetDC()->Input_GetKeyState(HGEK_LBUTTON) && _selectedBody) {
+	} else if (_editor && Render::IsLeftMouseButton() && _selectedBody) {
 		b2Vec2 pos = _selectedBody->GetPosition();
 		pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
 		_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
-	} else if (Core::GetDC()->Input_GetKeyState(HGEK_LBUTTON)) {
+	} else if (Render::IsLeftMouseButton()) {
 		_worldCenter += (mousePos - _lastMousePos);
 	}
 	_lastMousePos = mousePos;
@@ -494,7 +473,7 @@ bool Simulator::IsMouseOver(FPoint2D mousePos) {
 	return true;
 }
 
-inline void Simulator::DrawElement(hgeVertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
+inline void Simulator::DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
 	float x =   _viewScale * pos.x + _worldCenter.x;
 	float y = - _viewScale * pos.y + _worldCenter.y;
 	buf[0].x = x + _viewScale * angles[0].x; buf[0].y = y + _viewScale * angles[0].y; 
@@ -513,7 +492,7 @@ inline void Simulator::DrawElement(hgeVertex *&buf, const BodyTemplate::UV *uv, 
 /// DrawLine
 inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
 {
-	Core::GetDC()->Gfx_RenderLine(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
+	Render::GetDC()->Gfx_RenderLine(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
 }
 
 void Simulator::Draw() {
@@ -523,7 +502,7 @@ void Simulator::Draw() {
 	bool blue = false;
 	_finish = 0x0;
 	int max;
-	hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
+	Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
 	bool exception = false;
 	FPoint2D pselect[4];
@@ -588,7 +567,7 @@ void Simulator::Draw() {
 			assert(false);
 		}
 	}
-	Core::GetDC()->Gfx_FinishBatch(counter);
+	Render::GetDC()->Gfx_FinishBatch(counter);
 	for (unsigned int i = 0; i < remove.size(); i++) {
 		EraseBody(remove[i]);
 	}
@@ -599,7 +578,7 @@ void Simulator::Draw() {
 	}
 	if (_selectedBody && _signal > 0.5f) {
 		max = 1;
-		hgeVertex *buffer = Core::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
+		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
 		const b2Transform & xf = _selectedBody->GetTransform();
 		if (exception) {
@@ -610,7 +589,7 @@ void Simulator::Draw() {
 			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
 		}
 
-		Core::GetDC()->Gfx_FinishBatch(1);
+		Render::GetDC()->Gfx_FinishBatch(1);
 	}
 }
 
@@ -649,9 +628,9 @@ void Simulator::Update(float deltaTime) {
 		}
 		if (IsLevelFinish()) {
 			if (_finish & 0x2) { // остались синие
-				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "You lose!", "Game over!", MB_OK);
+				Render::ShowMessage("You lose!", "Game over!");
 			} else {
-				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "You win!", "Congratulation!", MB_OK);				
+				Render::ShowMessage("You win!", "Congratulation!");				
 			}
 			OnMessage("play");
 		}
@@ -724,7 +703,7 @@ void Simulator::OnMessage(const std::string &message) {
 				_finish = 0x3;
 				_startLevel.Init(2.f);
 			} else {
-				MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Level must have TNT and BLUE boxes!", "Error!", MB_OK);
+				Render::ShowMessage("Level must have TNT and BLUE boxes!", "Error!");
 			}
 		} else { // в редактор
 			SetValueS("play", "", ">>");
@@ -751,7 +730,7 @@ void Simulator::OnMessage(const std::string &message) {
 	} else if (message == "up") {
 	} else if (message == "down") {
 	} else if (message == "new") {
-		if (MessageBox(Core::GetDC()->System_GetState(HGE_HWND), "Delete all objects?", "Are you sure?", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+		if (Render::ShowAskMessage("Delete all objects?", "Are you sure?")) {
 			InitParams(NULL);
 			_currentLevel = "";
 			_state.clear();
@@ -853,7 +832,7 @@ void Simulator::OnMessage(const std::string &message) {
 				msg = buff;
 			} else if (_currentLevel != msg) {
 				std::string s = "Do you want overwrite " + msg + "?";
-				if (MessageBox(Core::GetDC()->System_GetState(HGE_HWND), s.c_str(), "Are you sure?", MB_YESNO | MB_ICONQUESTION) != IDYES) {
+				if (Render::ShowAskMessage(s.c_str(), "Are you sure?")) {
 					return;
 				}
 			}

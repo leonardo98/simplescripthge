@@ -1,4 +1,5 @@
 #include "IRadioBtns.h"
+#include "Render.h"
 #include "..\Core\Core.h"
 #include "..\Core\Interface.h"
 
@@ -20,17 +21,16 @@ IRadioBtns::IRadioBtns(TiXmlElement *xe)
 }
 
 void IRadioBtns::Draw() {
-	Interface::Font()->SetColor(Interface::BUTTON_TEXT);
 	for (unsigned int i = 0; i < _items.size(); ++i) {
 		FPoint2D pos = _pos;
 		pos.x += _stepRight * (i % _itemsInRow);
 		pos.y += _stepDown * (i / _itemsInRow);
 		if (i == _selected) {
-			Core::DrawBar(pos.x, pos.y, _width, _height, 0xFFFF9F9F);
+			Render::DrawBar(pos.x, pos.y, _width, _height, 0xFFFF9F9F);
 		} else {
-			Core::DrawBar(pos.x, pos.y, _width, _height, 0xFF7F7F7F);
+			Render::DrawBar(pos.x, pos.y, _width, _height, 0xFF7F7F7F);
 		}
-		Interface::Font()->Render(pos.x + _width / 2, pos.y + _height / 2 - Interface::Font()->GetHeight() / 2, HGETEXT_CENTER, _items[i].c_str());		
+		Render::PrintString(pos.x + _width / 2, pos.y + _height / 2/* - Interface::Font()->GetHeight() / 2*/, "",_items[i].c_str(), Interface::BUTTON_TEXT);		
 	}
 }
 

@@ -27,7 +27,6 @@ private:
 	float _x;
 	float _x0;
 	Texture *_texture;
-	DeviceContext _dc;
 };
 
 #endif // !defined(_Tester_INCLUDED_)

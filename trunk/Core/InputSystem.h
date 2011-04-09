@@ -36,8 +36,6 @@ public:
 	// эти методы класса переопределяем 
 	// если хотим обрабатывать соотвествующее событие
 
-	// нажали клавишу на клавиатуре(еще не реализован)
-	virtual void OnKeyDown(int key);
 	// клик по элементу(нажатие левой кнопки мыши)
 	virtual void OnMouseDown(FPoint2D mousePos);
 	// отпустили кнопку мыши(неважно где)
@@ -61,7 +59,6 @@ protected:
 private:
 	typedef std::list<InputSystem *> Listeners;
 	static Listeners _listeners;
-	static void KeyDown(int key);
 	static void MouseDown(FPoint2D mousePos);
 	static void MouseUp();
 	static void MouseMove(FPoint2D mousePos);
@@ -69,7 +66,7 @@ private:
 	static void LongTap();
 	static void DoubleClick(FPoint2D mousePos);
 	friend void InitInputEvent();
-	friend bool CheckForInputEvent(DeviceContext dc, float dt);
+	friend bool CheckForInputEvent(float dt);
 };
 
 #endif // !defined(_INPUTSYSTEM_INCLUDED_)

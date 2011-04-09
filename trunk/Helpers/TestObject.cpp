@@ -13,7 +13,6 @@ TestObject::TestObject(TiXmlElement* xe)
 	: Object()
 {
 	_visibleVariableName = xe->Attribute("variableName");
-	_dc = hgeCreate(HGE_VERSION);
 	_pos.x = atoi(xe->Attribute("x"));
 	_pos.y = atoi(xe->Attribute("y"));
 	std::string texture = xe->Attribute("texture"); 
@@ -35,7 +34,6 @@ void TestObject::Update(float) {}
 
 TestObject::~TestObject() 
 {
-	_dc->Release();
 	delete _luaScript;
 }
 
