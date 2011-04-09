@@ -18,8 +18,6 @@ public:
 	virtual ~FpsCounter();
 	virtual void Draw();
 private:
-	DeviceContext _dc;
-	hgeFont *_font;
 };
 
 #endif // !defined(_FPSCOUNTER_INCLUDED_)

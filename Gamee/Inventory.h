@@ -36,7 +36,6 @@ private:
 	Texture *_texture;
 	typedef std::list<Tool> Tools;
 	Tools _tools;
-	DeviceContext _dc;
 	Texture *_active;
 };
 

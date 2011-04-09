@@ -307,6 +307,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Core\Render.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\SimpleScript.cpp"
 				>
 			</File>
@@ -433,6 +437,10 @@
 			</File>
 			<File
 				RelativePath=".\Gamee\ObjectFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Core\Render.h"
 				>
 			</File>
 			<File

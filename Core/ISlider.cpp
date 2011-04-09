@@ -1,5 +1,6 @@
 #include "ISlider.h"
 #include "Core.h"
+#include "Render.h"
 #include "Variables.h"
 
 ISlider::ISlider(TiXmlElement *xe)
@@ -14,23 +15,23 @@ ISlider::ISlider(TiXmlElement *xe)
 
 void ISlider::Draw() {
 	if (_horizontal) {
-		Core::DrawBar(_pos.x, _pos.y, _length, 1, Interface::BORDER_LOW);
+		Render::DrawBar(_pos.x, _pos.y, _length, 1, Interface::BORDER_LOW);
 		FPoint2D pos(_pos);
 		pos.x += _value * _length;
-		Core::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
-		Core::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
-		Core::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
+		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
 	} else {
-		Core::DrawBar(_pos.x, _pos.y, 1, _length, Interface::BORDER_LOW);
+		Render::DrawBar(_pos.x, _pos.y, 1, _length, Interface::BORDER_LOW);
 		FPoint2D pos(_pos);
 		pos.y += _value * _length;
-		Core::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
-		Core::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
-		Core::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Core::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
+		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
 	}
 }
 

@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "FpsCounter.h"
+#include "..\Core\Render.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -10,16 +11,14 @@
 
 FpsCounter::FpsCounter()
 {
-	_dc = hgeCreate(HGE_VERSION);
-	_font = new hgeFont("data\\font1.fnt");
 }
 
 FpsCounter::~FpsCounter()
 {
-	delete _font;
-	_dc->Release();
 }
 
 void FpsCounter::Draw() {
-	_font->printf(0, 0, HGETEXT_LEFT, "fps: %d", _dc->Timer_GetFPS());
+	char buff[10];
+	sprintf(buff, "fps: %d", Render::GetDC()->Timer_GetFPS());
+	Render::PrintString(0, 0, "", buff, 0xFFFFFFFF);
 }

@@ -1,4 +1,5 @@
 #include "LuaScript.h"
+#include "Render.h"
 
 LuaScript::LuaScript(lua_State *L)
 	: code(NULL)
@@ -65,18 +66,18 @@ int LuaScript::report(lua_State *l, int status) {
 	const char *msg;
 	msg = lua_tostring(l, -1);
 	if (status == LUA_ERRRUN) {
-		MessageBox(0, "ошибка при управлении chunk", "Error!", MB_OK);
+		Render::ShowMessage("ошибка при управлении chunk", "Error!");
 	} else if (status == LUA_ERRSYNTAX) {
-		MessageBox(0, "ошибка синтаксиса в течение прекомпил€ции", "Error!", MB_OK);
+		Render::ShowMessage("ошибка синтаксиса в течение прекомпил€ции", "Error!");
 	} else if (status == LUA_ERRMEM) {
-		MessageBox(0, "ошибка распределени€ пам€ти", "Error!", MB_OK);
+		Render::ShowMessage("ошибка распределени€ пам€ти", "Error!");
 	} else if (status == LUA_ERRERR) {
-		MessageBox(0, "ошибка при управлении _ERRORMESSAGE", "Error!", MB_OK);
+		Render::ShowMessage("ошибка при управлении _ERRORMESSAGE", "Error!");
 	} else if (status == LUA_ERRFILE) {
-		MessageBox(0, "ошибка открыти€ файла", "Error!", MB_OK);
+		Render::ShowMessage("ошибка открыти€ файла", "Error!");
 	} else if (status) {
 			if (msg == NULL) msg = "(error with no message)";
-		MessageBox(0, msg, "Error!", MB_OK);
+		Render::ShowMessage(msg, "Error!");
 	}
 	return status;
 }

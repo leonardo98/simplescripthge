@@ -26,7 +26,6 @@ public:
 private:
 	FPoint2D _pos;
 	Texture *_texture;
-	DeviceContext _dc;
 	std::string _visibleVariableName;
 	LuaScript *_luaScript;
 };

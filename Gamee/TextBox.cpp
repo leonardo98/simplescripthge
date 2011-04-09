@@ -4,6 +4,7 @@
 
 #include "TextBox.h"
 #include "..\Core\Core.h"
+#include "..\Core\Render.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -17,7 +18,7 @@ TextBox::TextBox(TiXmlElement *xe)
 	_pos.y = atoi(xe->Attribute("y"));
 	_width = atoi(xe->Attribute("width"));
 	_hideTime = atof(xe->Attribute("hideTime"));
-	_font = new hgeFont(xe->Attribute("font"));
+	_font = xe->Attribute("font");
 	TiXmlElement *background = xe->FirstChildElement("background");
 	_background = Core::getTexture(background->Attribute("texture"));
 	_backgroundPos.x = atoi(background->Attribute("x"));
@@ -26,7 +27,6 @@ TextBox::TextBox(TiXmlElement *xe)
 
 TextBox::~TextBox()
 {
-	delete _font;
 }
 
 void TextBox::Draw() {
@@ -36,24 +36,24 @@ void TextBox::Draw() {
 		y = y * f * f;
 		DWORD alpha = DWORD(255 * (1 - f)) << 24;
 		_background->SetColor(alpha | 0x00FFFFFF);
-		_font->SetColor(alpha | 0x00FFFFFF);
+		_fontColor = (alpha | 0x00FFFFFF);
 	} else if (_text.size() > 0 && !_hide.Action()) {
 		y = 0;
 		_background->SetColor(0xFFFFFFFF);
-		_font->SetColor(0xFFFFFFFF);
+		_fontColor = 0xFFFFFFFF;
 	} else if (_hide.Action()) {
 		y = 0;
 		y = 10 * _hide.Progress();
 		DWORD alpha = DWORD(255 * (1  - _hide.Progress())) << 24;
 		_background->SetColor(alpha | 0x00FFFFFF);
-		_font->SetColor(alpha | 0x00FFFFFF);
+		_fontColor = alpha | 0x00FFFFFF;
 	} else {
 		return;
 	}
 	_background->Render(_backgroundPos.x, _backgroundPos.y + y);
 	for (unsigned int i = 0; i < _text.size(); i++) {
-		_font->Render(_pos.x, _pos.y + y, HGETEXT_CENTER, _text[i].c_str());
-		y += _font->GetHeight();
+		Render::PrintString(_pos.x, _pos.y + y, _font, _text[i].c_str(), _fontColor);
+		y += Render::GetFontHeight(_font);
 	}
 }
 
@@ -78,14 +78,14 @@ void TextBox::OnMessage(const std::string &message) {
 	std::string temp(message);
 	_text.push_back("");
 	while (temp.find(' ') != std::string::npos) {
-		if (_font->GetStringWidth((_text.back() + temp.substr(0, temp.find(' '))).c_str()) <= _width) {
+		if (Render::GetStringWidth(_font, (_text.back() + temp.substr(0, temp.find(' '))).c_str()) <= _width) {
 			_text.back() += temp.substr(0, temp.find(' ') + 1);
 			temp = temp.substr(temp.find(' ') + 1);
 		} else {
 			_text.push_back("");
 		}
 	}
-	if (_font->GetStringWidth((_text.back() + temp).c_str()) <= _width) {
+	if (Render::GetStringWidth(_font, (_text.back() + temp).c_str()) <= _width) {
 		_text.back() += temp;
 	} else {
 		_text.push_back(temp);

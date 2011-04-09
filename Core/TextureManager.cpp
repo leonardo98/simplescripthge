@@ -2,6 +2,7 @@
 
 #include "TextureManager.h"
 #include "Messager.h"
+#include "Render.h"
 
 void TextureManager::ReadDescriptions(std::string fileName)
 {
@@ -32,12 +33,16 @@ void TextureManager::ReadDescriptions(std::string fileName)
 			TextureState ts;
 			ts.group = "";
 			ts.path = element->Attribute( "path" );
-			ts.hTexture = _dc->Texture_Load(ts.path.c_str());
+#ifndef IOS_COMPILE_KEY
+			ts.hTexture = Render::GetDC()->Texture_Load(ts.path.c_str());
 			if (ts.hTexture == NULL) {
 				Messager::SendMessage("log", "Не могу открыть файл " + ts.path);
 				exit(-7);
 			}
-			ts.texture = new Texture(ts.hTexture, 0, 0, _dc->Texture_GetWidth(ts.hTexture), _dc->Texture_GetHeight(ts.hTexture));
+			ts.texture = new Texture(ts.hTexture, 0, 0, Render::GetDC()->Texture_GetWidth(ts.hTexture), Render::GetDC()->Texture_GetHeight(ts.hTexture));
+#else
+			ts.image.LoadFromFile(ts.path.c_str());
+#endif
 			_texturesMap[element->Attribute( "id" )] = ts;
 		}
 		element = element->NextSiblingElement();
@@ -48,8 +53,8 @@ void TextureManager::LoadGroup(std::string groupId)
 {
 	for (TextureMap::iterator i = _texturesMap.begin(), e = _texturesMap.end(); i != e; i++) {
 		if (i->second.group == groupId && i->second.hTexture == 0) {
-			i->second.hTexture = _dc->Texture_Load(i->second.path.c_str());
-			i->second.texture = new Texture(i->second.hTexture, 0, 0, _dc->Texture_GetWidth(i->second.hTexture), _dc->Texture_GetHeight(i->second.hTexture));
+			i->second.hTexture = Render::GetDC()->Texture_Load(i->second.path.c_str());
+			i->second.texture = new Texture(i->second.hTexture, 0, 0, Render::GetDC()->Texture_GetWidth(i->second.hTexture), Render::GetDC()->Texture_GetHeight(i->second.hTexture));
 		}
 	}
 }
@@ -60,7 +65,7 @@ void TextureManager::UnloadGroup(std::string groupId)
 		if (i->first == groupId && i->second.hTexture != 0) {
 			delete i->second.texture;
 			i->second.texture = NULL;
-			_dc->Texture_Free(i->second.hTexture);
+			Render::GetDC()->Texture_Free(i->second.hTexture);
 			i->second.hTexture = 0;
 		}
 	}
@@ -77,12 +82,10 @@ Texture * TextureManager::GetTexture(std::string textureId)
 
 TextureManager::TextureManager()
 {
-	_dc = hgeCreate(HGE_VERSION);
 }
 
 TextureManager::~TextureManager()
 {
-	_dc->Release();
 }
 
 TextureManager::TextureMap TextureManager::_texturesMap;

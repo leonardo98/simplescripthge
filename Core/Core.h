@@ -28,10 +28,7 @@ public:
 	bool DoLua(char *code);
 	bool DoScript(const std::string &name);
 	static Texture * getTexture(const std::string &textureId);
-	static DWORD getKeyCode(const std::string &id);
-	static DeviceContext GetDC();
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
-	static void SetDC(DeviceContext dc);
 	virtual void OnMessage(const std::string &message); 
 	typedef std::vector<Object *> Objects;
 protected:
@@ -40,8 +37,6 @@ protected:
 	ScriptMap _scripts;
 	std::list<std::string> _messages;
 	lua_State *lua;
-	static DeviceContext _dc;
-	static std::map<std::string, DWORD> _keyCodes;
 };
 
 #endif // !defined(_CORE_INCLUDED_)

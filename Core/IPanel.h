@@ -11,17 +11,9 @@ class IPanel
 	, public LuaScript
 {
 public:
-	struct KeyState{
-		std::string msg;
-		std::string rsvr;
-		char *code;
-	};
-	std::map<DWORD, KeyState> _keyStates;
 	IPanel(TiXmlElement *xe);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
-	// нажали клавишу на клавиатуре(еще не реализован)
-	virtual void OnKeyDown(int key);
 	virtual void OnMouseDown(FPoint2D mousePos);
 	virtual void OnMouseUp();
 	virtual void OnMouseMove(FPoint2D mousePos);
