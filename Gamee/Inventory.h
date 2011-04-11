@@ -11,10 +11,11 @@
 
 #include "..\Core\Messager.h"
 #include "..\Core\InputSystem.h"
+#include "..\Core\Render.h"
 
 struct Tool {
 	std::string id;
-	Texture *texture;
+	PTexture texture;
 };
 
 class Inventory 
@@ -33,10 +34,10 @@ public:
 private:
 	FPoint2D _pos;
 	FPoint2D _lastMousePos;
-	Texture *_texture;
+	PTexture _texture;
 	typedef std::list<Tool> Tools;
 	Tools _tools;
-	Texture *_active;
+	PTexture _active;
 };
 
 #endif // !defined(_INVENTORY_INCLUDED_)

@@ -21,6 +21,8 @@ extern "C"
 	#include "tinyxml.h"
 	typedef hgeVector FPoint2D;
 	typedef hgeVertex Vertex;
+	#define LOG(a) Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str())
+	#define PTexture Render::Texture *
 #else
 	#include "Iw2D.h"
 	#define TIXML_USE_STL
@@ -30,9 +32,3 @@ extern "C"
 #endif //IOS_COMPILE_KEY
 
 #include "Object.h"
-#include "Texture.h"
-
-#pragma 
-
-#define LOG_NOTE 1
-#define LOG_STRING(note, msg) Messager::SendMessage("Core", msg)

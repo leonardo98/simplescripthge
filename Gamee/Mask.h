@@ -12,6 +12,7 @@
 #include "..\Core\InputSystem.h"
 #include "..\Core\LuaScript.h"
 #include "..\Core\Variables.h"
+#include "..\Core\Render.h"
 
 class Mask 
 	: public InputSystem  
@@ -23,7 +24,7 @@ private:
 	virtual void OnMouseDown(FPoint2D mousePos);
 	virtual bool IsMouseOver(FPoint2D mousePos);
 	FPoint2D _pos;
-	Texture *_texture;
+	PTexture _texture;
 	LuaScript *_luaScript;
 };
 

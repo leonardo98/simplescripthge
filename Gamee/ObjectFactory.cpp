@@ -21,6 +21,7 @@
 #include "..\Core\IRadioBtns.h"
 #include "Simulator.h"
 #include "ButtonList.h"
+#include "..\Core\Render.h"
 
 #define REG_TYPE(a, b) if (name == a) return new b(xe)
 
@@ -47,7 +48,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	if(name == "FpsCounter") {
 		return new FpsCounter();
 	}
-	Messager::SendMessage("log", "Неизвестный тип данных в XML файле");
+	LOG("Неизвестный тип данных в XML файле");
 	exit(-5);
 	return NULL;
 }

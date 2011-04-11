@@ -8,7 +8,7 @@
 #endif // _MSC_VER > 1000
 
 #include "types.h"
-
+#include "Render.h"
 
 class TextureManager  
 {
@@ -17,19 +17,14 @@ public:
 	{
 		std::string path;
 		std::string group;
-#ifndef IOS_COMPILE_KEY
-		HTEXTURE hTexture;
-#else
-		CIwImage image;
-#endif //IOS_COMPILE_KEY
-		Texture *texture;
+		PTexture texture;
 	};
 	typedef std::map<std::string, TextureState> TextureMap;
 protected:
 	void ReadDescriptions(std::string fileName);
 	void LoadGroup(std::string groupId);
 	void UnloadGroup(std::string groupId);
-	static Texture * GetTexture(std::string textureId);
+	static PTexture GetTexture(std::string textureId);
 	TextureManager();
 	virtual ~TextureManager();
 private:

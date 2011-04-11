@@ -1,7 +1,7 @@
 // Messager.cpp: implementation of the Messager class.
 
 #include "Messager.h"
-
+#include "Render.h"
 
 Messager::Messager(std::string receiverName)
 {
@@ -9,7 +9,7 @@ Messager::Messager(std::string receiverName)
 	List::iterator i;
 	for (i = _receiver.begin(); i != _receiver.end() && (*i)->_name != receiverName; i++);
 	if (i != _receiver.end()) {// уже есть с таким именем в списке
-		Messager::SendMessage("log", "есть уже Messager с таким именем");
+		LOG("есть уже Messager с таким именем");
 		exit(-2);
 	}
 	_receiver.push_back(this);
@@ -23,7 +23,7 @@ Messager::Messager(TiXmlElement *xe)
 	List::iterator i;
 	for (i = _receiver.begin(); i != _receiver.end() && (*i)->_name != receiverName; i++);
 	if (i != _receiver.end()) {// уже есть с таким именем в списке
-		Messager::SendMessage("log", "есть уже Messager с таким именем");
+		LOG("есть уже Messager с таким именем");
 		exit(-2);
 	}
 	_receiver.push_back(this);

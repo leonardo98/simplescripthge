@@ -1,6 +1,7 @@
 #pragma once
 #include "..\Core\InputSystem.h"
 #include "..\Core\LuaScript.h"
+#include "..\Core\Render.h"
 
 class Button :
 	public InputSystem
@@ -19,8 +20,8 @@ private:
 	FPoint2D _pos;
 	FPoint2D _oldMousePos;
 	bool _down;
-	Texture *_normal;
-	Texture *_pressed;
-	Texture *_current;
+	PTexture _normal;
+	PTexture _pressed;
+	PTexture _current;
 	LuaScript *_luaScript;
 };

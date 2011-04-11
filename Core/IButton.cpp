@@ -19,17 +19,17 @@ IButton::IButton(TiXmlElement *xe)
 void IButton::Draw() {
 	if (_state == BUTTON_RELEASED) {
 		Render::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_NORMAL);
-		Render::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
-		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
+		Render::Line(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::Line(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::Line(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
+		Render::Line(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
 		Render::PrintString(_pos.x + _width / 2, _pos.y + _height / 2/* - Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
 	} else if (_state == BUTTON_PRESSED) {
 		Render::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND_PRESSED);
-		Render::GetDC()->Gfx_RenderLine(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::Line(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_LOW);
+		Render::Line(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_LOW);
+		Render::Line(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
+		Render::Line(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
 		Render::PrintString(_pos.x + _width / 2, _pos.y + _height / 2 /*- Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
 	} else {
 		assert(false);

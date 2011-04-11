@@ -1,5 +1,6 @@
 #include "VideoFrame.h"
 #include "Ogg\Ogg.h"
+#include "..\Core\Render.h"
 
 #include <iostream>
 
@@ -201,14 +202,14 @@ void VideoFrame::report_colorspace(theora_info *ti)
 		// nothing to report
 		break;
 	case OC_CS_ITU_REC_470M:
-		LOG_STRING(LOG_NOTE, "Encoder specified ITU Rec 470M (NTSC) color.");
+		LOG("Encoder specified ITU Rec 470M (NTSC) color.");
 		// выводим в лог информацию о цветовом пространстве
 		break;
 	case OC_CS_ITU_REC_470BG:
-		LOG_STRING(LOG_NOTE, "Encoder specified ITU Rec 470BG (PAL) color.");
+		LOG("Encoder specified ITU Rec 470BG (PAL) color.");
 		break;
 	default:
-		LOG_STRING(LOG_NOTE, "Warning: encoder specified unknown colorspace.");
+		LOG("Warning: encoder specified unknown colorspace.");
 		break;
 	}
 }
@@ -217,12 +218,12 @@ int VideoFrame::dump_comments(theora_comment *tc)
 {
 	std::string vendor("Encoded by ");
 	vendor+=tc->vendor;
-	LOG_STRING(LOG_NOTE, vendor);
+	LOG(vendor);
 
 	for(int cc=0; cc<tc->comments; cc++)
 	{
 		std::string usercomments=tc->user_comments[cc];
-		LOG_STRING(LOG_NOTE, usercomments);
+		LOG(usercomments);
 	}
 
 	return 0;

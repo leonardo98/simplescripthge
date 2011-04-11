@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "..\Core\Object.h"
+#include "..\Core\Render.h"
 
 class StaticTexture : public Object  
 {
@@ -18,7 +19,7 @@ public:
 	void Draw();
 private:
 	FPoint2D _pos;
-	Texture *_texture;
+	PTexture _texture;
 };
 
 #endif // !defined(_STATICTEXTURE_INCLUDED_)

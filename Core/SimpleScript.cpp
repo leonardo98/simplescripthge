@@ -7,17 +7,6 @@
 
 Core core;
 
-class Log
-	: public Messager
-{
-public:
-	Log() : Messager("log") {
-	}
-	virtual void OnMessage(const std::string &message) {
-		Render::GetDC()->System_Log(("message : " + message + "\n").c_str());
-	}
-};
-
 bool RenderFunc()
 {
 	Render::GetDC()->Gfx_BeginScene();
@@ -41,7 +30,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 	// инициализируем 
 	Render::InitApplication(FrameFunc, RenderFunc);
 	if(Render::GetDC()->System_Initiate()) {
-		Log log;
 		Interface::Init();
 		// запускаем ядро
 		core.Load("start.xml");

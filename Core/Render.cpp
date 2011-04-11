@@ -37,11 +37,22 @@ DWORD Render::Parse(const std::string &s) {
 }
 
 Render::Texture::Texture(HTEXTURE h, int x, int y, int width, int height)
-	: hgeSprite(h, x, y, width, height)
 {
+	assert(false);
+}
+
+Render::Texture::Texture(const std::string &fileName) {
+	hTexture = GetDC()->Texture_Load(fileName.c_str());
+	if (hTexture == NULL) {
+//		LOG("Не могу открыть файл " + fileName);
+		exit(-7);
+	}
+	texture = new hgeSprite(hTexture, 0, 0, GetDC()->Texture_GetWidth(hTexture), GetDC()->Texture_GetHeight(hTexture));
 }
 
 Render::Texture::~Texture() {
+	delete texture;
+	GetDC()->Texture_Free(hTexture);
 }
 
 bool Render::Texture::IsNotTransparent(int x, int y) {
@@ -49,19 +60,35 @@ bool Render::Texture::IsNotTransparent(int x, int y) {
 		return false;
 	}
 	HTEXTURE h;
-	h = GetTexture();
-	if (x >= Render::GetDC()->Texture_GetWidth(h) || y >= Render::GetDC()->Texture_GetHeight(h)) {
+	h = texture->GetTexture();
+	if (x >= GetDC()->Texture_GetWidth(h) || y >= GetDC()->Texture_GetHeight(h)) {
 		return false;
 	}
 	DWORD *dw;
-	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
+	dw = GetDC()->Texture_Lock(h, true, x, y, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;
-	Render::GetDC()->Texture_Unlock(h);
+	GetDC()->Texture_Unlock(h);
 	return result;
 }
 
 void Render::Texture::Render(float x, float y) {
-	hgeSprite::Render(x, y);
+	texture->Render(x, y);
+}
+
+void Render::Texture::Render(const FPoint2D &pos)  {
+	texture->Render(pos.x, pos.y);
+}
+
+HTEXTURE Render::Texture::GetTexture() {
+	return texture->GetTexture();
+}
+
+void Render::Texture::SetBlendMode(DWORD mode) {
+	texture->SetBlendMode(mode);
+}
+
+void Render::Texture::SetColor(DWORD color) {
+	texture->SetColor(color);
 }
 
 void Render::IniFile(const std::string &fileName) {
@@ -159,5 +186,9 @@ void Render::DrawBar(float x, float y, float width, float height, DWORD color) {
 		quad.v[i].ty = 0;
 		quad.v[i].z = 0;
 	}
-	Render::GetDC()->Gfx_RenderQuad(&quad);
+	GetDC()->Gfx_RenderQuad(&quad);
+}
+
+void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
+	GetDC()->Gfx_RenderLine(x1, y1, x2, y2, color);
 }

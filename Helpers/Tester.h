@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "..\Core\Object.h"
+#include "..\Core\Render.h"
 
 class Tester : public Object  
 {
@@ -26,7 +27,7 @@ private:
 	float _speed;
 	float _x;
 	float _x0;
-	Texture *_texture;
+	PTexture _texture;
 };
 
 #endif // !defined(_Tester_INCLUDED_)

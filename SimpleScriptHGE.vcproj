@@ -339,10 +339,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Core\Texture.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Core\TextureManager.cpp"
 				>
 			</File>
@@ -465,10 +461,6 @@
 			</File>
 			<File
 				RelativePath=".\Gamee\TextBox.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Core\Texture.h"
 				>
 			</File>
 			<File

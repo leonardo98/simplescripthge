@@ -27,7 +27,7 @@ public:
 	void Release();
 	bool DoLua(char *code);
 	bool DoScript(const std::string &name);
-	static Texture * getTexture(const std::string &textureId);
+	static PTexture getTexture(const std::string &textureId);
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	virtual void OnMessage(const std::string &message); 
 	typedef std::vector<Object *> Objects;

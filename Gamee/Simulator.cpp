@@ -492,7 +492,7 @@ inline void Simulator::DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, con
 /// DrawLine
 inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
 {
-	Render::GetDC()->Gfx_RenderLine(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
+	Render::Line(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
 }
 
 void Simulator::Draw() {
