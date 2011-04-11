@@ -12,10 +12,11 @@
 #include "..\Core\InputSystem.h"
 #include "..\Helpers\Counter.h"
 #include "..\Core\LuaScript.h"
+#include "..\Core\Render.h"
 
 struct State {
 	FPoint2D pos;
-	Texture *texture;
+	PTexture texture;
 	std::string name;
 	bool visible;
 	State(TiXmlElement *xe);

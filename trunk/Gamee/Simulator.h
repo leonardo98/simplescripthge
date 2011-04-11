@@ -2,6 +2,7 @@
 
 #include "..\Core\InputSystem.h"
 #include "..\Core\Messager.h"
+#include "..\Core\Render.h"
 #include "Box2D\Box2D.h"
 #include <cstdlib>
 #include "BodyTemplate.h"
@@ -172,7 +173,7 @@ protected:
 	Settings settings;
 
 
-	Texture *_allElements;
+	PTexture _allElements;
 	inline void DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 
 	float _viewScale; // масштаб всей —цены

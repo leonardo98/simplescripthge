@@ -112,7 +112,7 @@ void Core::Load(const std::string &fileName)
 	}
 }
 
-Texture * Core::getTexture(const std::string &textureId)
+PTexture Core::getTexture(const std::string &textureId)
 {
 	return TextureManager::GetTexture(textureId);
 }

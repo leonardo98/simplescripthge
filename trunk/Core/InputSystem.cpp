@@ -30,7 +30,7 @@ InputSystem::~InputSystem()
 	Listeners::iterator i;
 	for (i = _listeners.begin(); i != _listeners.end() && *i != this; i++);
 	if (i == _listeners.end()) {// нет в списке (уже удален)
-		Messager::SendMessage("log", "удален уже Listener - деструктор вызван второй раз???");
+		LOG("удален уже Listener - деструктор вызван второй раз???");
 	} else {
 		_listeners.erase(i);
 	}
@@ -113,7 +113,7 @@ void InputSystem::RemoveFromList(InputSystem *listener) {
 	Listeners::iterator i;
 	for (i = _listeners.begin(); i != _listeners.end() && *i != listener; i++);
 	if (i == _listeners.end()) {// нет в списке (уже удален)
-		Messager::SendMessage("log", "удален уже Listener");
+		LOG("удален уже Listener");
 		exit(-4);
 	}
 	_listeners.erase(i);

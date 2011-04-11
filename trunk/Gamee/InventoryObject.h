@@ -11,6 +11,7 @@
 
 #include "..\Core\Messager.h"
 #include "..\Core\InputSystem.h"
+#include "..\Core\Render.h"
 
 class InventoryObject : 
 	public InputSystem 
@@ -23,7 +24,7 @@ public:
 	virtual bool IsMouseOver(FPoint2D mousePos);
 private:
 	FPoint2D _pos;
-	Texture *_texture;
+	PTexture _texture;
 	bool _found;
 	std::string _id;
 };

@@ -45,7 +45,7 @@ void Inventory::OnMessage(const std::string &message) {
 }
 
 void Inventory::Draw() {
-	_texture->Render(_pos);
+	_texture->Render(_pos.x, _pos.y);
 	FPoint2D iconPressed(35, 13);
 	iconPressed += _pos;
 	std::string inHand_value = Variables::Get("inHand");

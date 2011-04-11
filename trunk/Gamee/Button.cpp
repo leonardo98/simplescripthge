@@ -16,7 +16,7 @@ Button::Button(TiXmlElement *xe)
 }
 
 void Button::Draw() {
-	_current->Render(_pos);
+	_current->Render(_pos.x, _pos.y);
 }
 
 bool Button::IsMouseOver(FPoint2D mousePos) {

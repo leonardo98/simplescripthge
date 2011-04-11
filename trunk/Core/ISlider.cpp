@@ -19,19 +19,19 @@ void ISlider::Draw() {
 		FPoint2D pos(_pos);
 		pos.x += _value * _length;
 		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
-		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
-		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::Line(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::Line(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::Line(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::Line(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
 	} else {
 		Render::DrawBar(_pos.x, _pos.y, 1, _length, Interface::BORDER_LOW);
 		FPoint2D pos(_pos);
 		pos.y += _value * _length;
 		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
-		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
-		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
-		Render::GetDC()->Gfx_RenderLine(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::Line(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
+		Render::Line(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::Line(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
+		Render::Line(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
 	}
 }
 

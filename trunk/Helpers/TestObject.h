@@ -12,6 +12,7 @@
 #include "..\Core\types.h"
 #include "..\Core\Variables.h"
 #include "..\Core\LuaScript.h"
+#include "..\Core\Render.h"
 
 class TestObject  
 	: public Object	
@@ -25,7 +26,7 @@ public:
 	virtual void OnMouseDown(FPoint2D mousePos);
 private:
 	FPoint2D _pos;
-	Texture *_texture;
+	PTexture _texture;
 	std::string _visibleVariableName;
 	LuaScript *_luaScript;
 };

@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "..\Core\Object.h"
+#include "..\Core\Render.h"
 
 class StarsRect  
 	: public Object
@@ -24,7 +25,7 @@ private:
 	int _width;
 	int _height;
 	int _number;
-	Texture *_texture;
+	PTexture _texture;
 	struct Star 
 	{
 		FPoint2D getPos();

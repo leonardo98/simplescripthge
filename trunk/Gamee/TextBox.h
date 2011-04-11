@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "..\Core\Object.h"
+#include "..\Core\Render.h"
 #include "..\Core\Messager.h"
 #include "..\Core\InputSystem.h"
 #include "..\Helpers\Counter.h"
@@ -35,7 +36,7 @@ private:
 	FPoint2D _clickMousePos;
 	std::string _font;
 	DWORD _fontColor;
-	Texture *_background;
+	PTexture _background;
 	FPoint2D _backgroundPos;
 	Counter _show;
 	Counter _hide;
