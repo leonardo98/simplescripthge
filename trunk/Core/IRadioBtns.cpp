@@ -8,29 +8,31 @@ IRadioBtns::IRadioBtns(TiXmlElement *xe)
 	, _selected(0)
 {
 	_receiver = xe->Attribute("receiver");
-	_pos.x = atoi(xe->Attribute("x"));
-	_pos.y = atoi(xe->Attribute("y"));
-	_width = atoi(xe->Attribute("width"));
-	_height = atoi(xe->Attribute("height"));
-	_stepDown = atoi(xe->Attribute("stepDown"));
+	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
+	_width = static_cast<float>(atoi(xe->Attribute("width")));
+	_height = static_cast<float>(atoi(xe->Attribute("height")));
+	_stepDown = static_cast<float>(atoi(xe->Attribute("stepDown")));
 	_itemsInRow = atoi(xe->Attribute("itemsInRow"));
 	assert(_itemsInRow > 0);
 	if (_itemsInRow > 1) {
-		_stepRight = atoi(xe->Attribute("stepRight"));
+		_stepRight = static_cast<float>(atoi(xe->Attribute("stepRight")));
 	}
 }
 
 void IRadioBtns::Draw() {
-	for (unsigned int i = 0; i < _items.size(); ++i) {
+	int counter = 0;
+	for (Items::iterator i = _items.begin(), e = _items.end(); i != e; ++i) {
 		FPoint2D pos = _pos;
-		pos.x += _stepRight * (i % _itemsInRow);
-		pos.y += _stepDown * (i / _itemsInRow);
-		if (i == _selected) {
+		pos.x += _stepRight * (counter % _itemsInRow);
+		pos.y += _stepDown * (counter / _itemsInRow);
+		if (counter == _selected) {
 			Render::DrawBar(pos.x, pos.y, _width, _height, 0xFFFF9F9F);
 		} else {
 			Render::DrawBar(pos.x, pos.y, _width, _height, 0xFF7F7F7F);
 		}
-		Render::PrintString(pos.x + _width / 2, pos.y + _height / 2/* - Interface::Font()->GetHeight() / 2*/, "",_items[i].c_str(), Interface::BUTTON_TEXT);		
+		Render::PrintString(static_cast<int>(pos.x + _width / 2), static_cast<int>(pos.y + _height / 2)/* - Interface::Font()->GetHeight() / 2*/, "",i->c_str(), Interface::BUTTON_TEXT);		
+		++counter;
 	}
 }
 
@@ -58,7 +60,7 @@ bool IRadioBtns::IsMouseOver(FPoint2D mousePos) {
 }
 
 void IRadioBtns::OnMouseDown(FPoint2D mousePos) {
-	int old = _selected;
+	unsigned int old = _selected;
 	for (unsigned int i = 0; i < _items.size(); ++i) {
 		FPoint2D pos = _pos;
 		pos.x += _stepRight * (i % _itemsInRow);
@@ -75,9 +77,9 @@ void IRadioBtns::OnMouseDown(FPoint2D mousePos) {
 }
 
 void IRadioBtns::SetValue(const std::string &variableName, const float &value) {
-	_selected = value;
+	_selected = static_cast<int>(value);
 }
 
 float IRadioBtns::GetNumberValue(const std::string &variableName){
-	return _selected;
+	return static_cast<float>(_selected);
 }

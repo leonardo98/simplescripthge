@@ -19,7 +19,7 @@ void DestructionListener::SayGoodbye(b2Joint* joint)
 }
 
 void Simulator::LoadTemplates(const std::string &filename) {
-	TiXmlDocument doc(filename);
+	TiXmlDocument doc(filename.c_str());
 	if (!doc.LoadFile()) {
 		return;
 	}
@@ -31,7 +31,7 @@ void Simulator::LoadTemplates(const std::string &filename) {
 }
 
 Simulator::Simulator(TiXmlElement *xe)
-	: _viewScale(45.f)
+	: _viewScale(100.f)
 	, _worldCenter(240.f, 290.f)
 	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
 	, Messager("simulator")
@@ -171,21 +171,17 @@ public:
 };
 
 void Simulator::EraseBody(b2Body *body) {
-	delete static_cast<MyBody *>(body->GetUserData());
-	m_world->DestroyBody(body);
+	if (body->GetUserData() != NULL) {
+		MyBody *t = static_cast<MyBody *>(body->GetUserData());
+		delete t;
+		body->SetUserData(NULL);
+		m_world->DestroyBody(body);
+	}
 }
 
 void Simulator::EraseAllBodyes() {
 	for (b2Body *body = m_world->GetBodyList(); body; ) {
 		b2Body *remove = body;
-		/*b2Body *remove = NULL;
-		BodyTypes type = *(BodyTypes *)(body->GetUserData());
-		if (type != BODY_TYPE_GROUND) {
-			remove = body;
-		} else {
-			body->SetType(b2_dynamicBody);// ХАК - QueryAABB не работает со статичными объктами, 
-										  // т.е. иначе их нельзя будет двигать в редакторе
-		}*/
 		body = body->GetNext();
 		if (remove) {
 			EraseBody(remove);
@@ -193,14 +189,14 @@ void Simulator::EraseAllBodyes() {
 	}
 }
 
-// добавляем новый элемент в "случайное" место на эфране
+// добавляем новый элемент в "случайное" место на экране
 b2Body * Simulator::AddElement(BodyTypes type) {
-	int index = 0;
-	while (_collection[index]->_type != type && index < _collection.size()) {index++;}
-	assert(index < _collection.size());
+	Collection::iterator index = _collection.begin();
+	while ((*index)->_type != type && index != _collection.end()) {index++;}
+	assert(index != _collection.end());
 
 	BodyState bs;
-	bs.base = _collection[index];	
+	bs.base = (*index);	
 	bs.angle = 0;
 	bs.pos = b2Vec2(RandomFloat(-2.f, 2.f), 3);
 	bs.width = bs.base->_width;
@@ -259,6 +255,7 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 
 void Simulator::OnMouseDown(FPoint2D mousePos)
 {	
+	_lastMousePos = mousePos;
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
@@ -319,8 +316,9 @@ void Simulator::OnMouseUp()
 		b2Body* body = callback.m_fixture->GetBody();
 		BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
 		if (bt->_type == BODY_TYPE_EXPLOSION) {
+			b2Vec2 pos = body->GetPosition();
 			EraseBody(body);
-			Explosion(body->GetPosition(), bt->_radius, bt->_maxForce);
+			Explosion(pos, bt->_radius, bt->_maxForce);
 		}
 	}
 }
@@ -359,7 +357,7 @@ void Simulator::InitParams(b2Body *body)
 		}
 	} else if (body != NULL && body == _selectedBody) {
 		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
-		int radio = GetNumberValue("radio", "");
+		int radio = static_cast<int>(GetNumberValue("radio", ""));
 		if (radio == 0) {
 			if (Render::ShowAskMessage("Delete selected object?", "Are you sure?")) {
 				EraseBody(_selectedBody);
@@ -420,9 +418,9 @@ void Simulator::OnMouseMove(FPoint2D mousePos)
 
 bool Simulator::OnMouseWheel(int direction) {
 	if (direction > 0) {
-		_viewScale *= 1.09 * direction;
+		_viewScale *= 1.09f * direction;
 	} else if (direction < 0) {
-		_viewScale *= 0.9 * abs(direction);
+		_viewScale *= 0.9f * abs(direction);
 	}
 	return true;
 }
@@ -473,6 +471,24 @@ bool Simulator::IsMouseOver(FPoint2D mousePos) {
 	return true;
 }
 
+#ifdef IOS_COMPILE_KEY
+inline void Simulator::DrawElement(CIwSVec2 *&bufVert, CIwSVec2 *&bufUV, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
+	float x =   _viewScale * pos.x + _worldCenter.x;
+	float y = - _viewScale * pos.y + _worldCenter.y;
+#define INT(a) static_cast<int16>(a)
+	bufVert[0].x = INT(x + _viewScale * angles[0].x); bufVert[0].y = INT(y + _viewScale * angles[0].y); 
+	bufVert[1].x = INT(x + _viewScale * angles[1].x); bufVert[1].y = INT(y + _viewScale * angles[1].y); 
+	bufVert[2].x = INT(x + _viewScale * angles[2].x); bufVert[2].y = INT(y + _viewScale * angles[2].y); 
+	bufVert[3].x = INT(x + _viewScale * angles[3].x); bufVert[3].y = INT(y + _viewScale * angles[3].y); 
+	bufVert += 4;
+
+	bufUV[0].x = uv[0].u; bufUV[0].y = uv[0].v;// buf[0].col = 0xFFFFFFFF;
+	bufUV[1].x = uv[1].u; bufUV[1].y = uv[1].v;// buf[1].col = 0xFFFFFFFF;
+	bufUV[2].x = uv[2].u; bufUV[2].y = uv[2].v;// buf[2].col = 0xFFFFFFFF;
+	bufUV[3].x = uv[3].u; bufUV[3].y = uv[3].v;// buf[3].col = 0xFFFFFFFF;
+	bufUV += 4;
+}
+#else
 inline void Simulator::DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
 	float x =   _viewScale * pos.x + _worldCenter.x;
 	float y = - _viewScale * pos.y + _worldCenter.y;
@@ -485,9 +501,9 @@ inline void Simulator::DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, con
 	buf[1].tx = uv[1].u; buf[1].ty = uv[1].v; buf[1].col = 0xFFFFFFFF;
 	buf[2].tx = uv[2].u; buf[2].ty = uv[2].v; buf[2].col = 0xFFFFFFFF;
 	buf[3].tx = uv[3].u; buf[3].ty = uv[3].v; buf[3].col = 0xFFFFFFFF;
-
 	buf += 4;
 }
+#endif
 
 /// DrawLine
 inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
@@ -501,12 +517,20 @@ void Simulator::Draw() {
 	bool tnt = false;
 	bool blue = false;
 	_finish = 0x0;
-	int max;
-	Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
+	int max = 1;
+#ifdef IOS_COMPILE_KEY
+	CIwSVec2 *bufferVert = _xy;
+	CIwSVec2 *bufferUV = _uvs;
+	Render::StartVertexBuffer(_allElements);
+#else
+	Vertex *buffer;
+	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
+#endif
 	unsigned int counter = 0;
 	bool exception = false;
 	FPoint2D pselect[4];
-	std::vector<b2Body *> remove;
+	typedef std::list<b2Body *> Remove;
+	Remove remove;
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
 		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
 		if (myBody->broken) {
@@ -526,7 +550,11 @@ void Simulator::Draw() {
 				blue = true;
 				_finish |= 0x2;
 			}
+#ifdef IOS_COMPILE_KEY
+			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, bt->_positions[angle]);
+#else
 			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
+#endif
 		} else {
 			FPoint2D p[4];
 			float width2 = myBody->width / 2;
@@ -541,35 +569,30 @@ void Simulator::Draw() {
 			p[1] = *p[1].Rotate(angle);
 			p[2] = *p[2].Rotate(angle);
 			p[3] = *p[3].Rotate(angle);
+#ifdef IOS_COMPILE_KEY
+			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, p);
+#else
 			DrawElement(buffer, bt->_uv, xf.position, p);
+#endif
 			if (_selectedBody == body) {
 				exception = true;
 				for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
 			}
 		}
-		/*switch (bt->_type) {
-			case BODY_TYPE_UNBREAKABLE: {
-				DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
-				break; }
-			case BODY_TYPE_BLUE: {
-				DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
-				break; }
-			case BODY_TYPE_EXPLOSION: {
-				DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
-				break; }
-			case BODY_TYPE_BALL: {
-				DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
-				break; }
-			default : continue;
-		};*/		
 		++counter;
-		if (counter > max) {
+#ifdef IOS_COMPILE_KEY
+	}
+	Render::FinishVertexBuffer(_xy, _uvs, counter);
+#else
+		if (static_cast<int>(counter) > max) {
 			assert(false);
 		}
 	}
 	Render::GetDC()->Gfx_FinishBatch(counter);
-	for (unsigned int i = 0; i < remove.size(); i++) {
-		EraseBody(remove[i]);
+#endif
+	for (;remove.begin() != remove.end();) {
+		EraseBody(*remove.begin());
+		remove.erase(remove.begin());
 	}
 	if (oldTnt && !tnt) {
 		_lastTimer.Init(4.f);
@@ -578,18 +601,30 @@ void Simulator::Draw() {
 	}
 	if (_selectedBody && _signal > 0.5f) {
 		max = 1;
+#ifndef IOS_COMPILE_KEY
 		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
+#endif
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
 		const b2Transform & xf = _selectedBody->GetTransform();
 		if (exception) {
+#ifdef IOS_COMPILE_KEY
+			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, pselect);
+#else
 			DrawElement(buffer, bt->_uv, xf.position, pselect);
+#endif
 		} else {
 			int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
 			assert(0 <= angle && angle <= BodyTemplate::MAX);
+#ifdef IOS_COMPILE_KEY
+			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, bt->_positions[angle]);
+#else
 			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
+#endif
 		}
 
+#ifndef IOS_COMPILE_KEY
 		Render::GetDC()->Gfx_FinishBatch(1);
+#endif
 	}
 }
 
@@ -601,7 +636,7 @@ void Simulator::Update(float deltaTime) {
 		}
 		if (_selectedBody != NULL) {
 			MyBody *myBody = static_cast<MyBody *>(_selectedBody->GetUserData());
-			int radio = GetNumberValue("radio", "");
+			int radio = static_cast<int>(GetNumberValue("radio", ""));
 			if (radio == 0) { // удаляем - ничего не делаем в Update
 			} else if (radio == 1) { // angle
 				float angle = GetNumberValue("slider", "");
@@ -651,7 +686,7 @@ void Simulator::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 		distance = b2Distance(b2BodyPosition, b2TouchPosition);
 		if(distance < maxDistance - 0.01) {
 			strength = (maxDistance - distance) / maxDistance; 
-			force = sqrt(strength) * maxForce;
+			force = sqrtf(strength) * maxForce;
 			angle = atan2f(b2BodyPosition.y - b2TouchPosition.y, b2BodyPosition.x - b2TouchPosition.x);
 			// Apply an impulse to the body, using the angle
 			b->ApplyLinearImpulse(b2Vec2(cosf(angle) * force, sinf(angle) * force), b->GetPosition());
@@ -681,8 +716,8 @@ void Simulator::ResetState() {
 	InitParams(NULL);
 	_editor = true;
 	EraseAllBodyes();
-	for (unsigned int i = 0; i < _state.size(); i++) {
-		b2Body *b = AddElement(_state[i]);
+	for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
+		b2Body *b = AddElement(*i);
 		//b->SetTransform(_state[i].pos, _state[i].angle);
 	}
 }
@@ -787,18 +822,18 @@ void Simulator::OnMessage(const std::string &message) {
 				Simulator::BodyState s;
 				BodyTypes type = static_cast<BodyTypes>(atoi(elem->Attribute("type")));
 
-				int index = 0;
-				while (_collection[index]->_type != type && index < _collection.size()) {index++;}
-				assert(index < _collection.size());
+				Collection::iterator index = _collection.begin();
+				while ((*index)->_type != type && index != _collection.end()) {index++;}
+				assert(index != _collection.end());
 				
-				s.base = _collection[index];
-				s.pos.x = atof(elem->Attribute("x"));
-				s.pos.y = atof(elem->Attribute("y"));
-				s.angle = atof(elem->Attribute("angle"));
+				s.base = (*index);
+				s.pos.x = static_cast<float>(atof(elem->Attribute("x")));
+				s.pos.y = static_cast<float>(atof(elem->Attribute("y")));
+				s.angle = static_cast<float>(atof(elem->Attribute("angle")));
 				if (type == BODY_TYPE_GROUND) {
 					//assert(elem->Attribute("width"));
 					if (elem->Attribute("width")) {
-						s.width = atof(elem->Attribute("width"));
+						s.width = static_cast<float>(atof(elem->Attribute("width")));
 					} else {
 						s.width = 1.5f;
 					}
@@ -844,15 +879,15 @@ void Simulator::OnMessage(const std::string &message) {
 				elem = elem->NextSiblingElement();
 				xe->RemoveChild(remove);
 			}
-			for (unsigned int i = 0; i < _state.size(); i++) {
+			for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
 				TiXmlElement *elem = new TiXmlElement("element");
-				elem->SetAttribute("type", static_cast<int>(_state[i].base->_type));
+				elem->SetAttribute("type", static_cast<int>(i->base->_type));
 				char s[16];
-				sprintf(s, "%f", _state[i].pos.x); elem->SetAttribute("x", s);
-				sprintf(s, "%f", _state[i].pos.y); elem->SetAttribute("y", s);
-				sprintf(s, "%f", _state[i].angle); elem->SetAttribute("angle", s);
-				if (_state[i].base->_type == BODY_TYPE_GROUND) {
-					sprintf(s, "%f", _state[i].width); elem->SetAttribute("width", s);
+				sprintf(s, "%f", i->pos.x); elem->SetAttribute("x", s);
+				sprintf(s, "%f", i->pos.y); elem->SetAttribute("y", s);
+				sprintf(s, "%f", i->angle); elem->SetAttribute("angle", s);
+				if (i->base->_type == BODY_TYPE_GROUND) {
+					sprintf(s, "%f", i->width); elem->SetAttribute("width", s);
 				}
 				xe->LinkEndChild(elem);
 			}

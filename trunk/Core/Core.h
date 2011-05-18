@@ -21,7 +21,7 @@ class Core
 public:
 	Core();
 	~Core();
-	void Load(const std::string &fileName);
+	void Load(const char *fileName);
 	void Draw();
 	void Update(float deltaTime);
 	void Release();
@@ -30,7 +30,7 @@ public:
 	static PTexture getTexture(const std::string &textureId);
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	virtual void OnMessage(const std::string &message); 
-	typedef std::vector<Object *> Objects;
+	typedef std::list<Object *> Objects;
 protected:
 	Objects _objects;
 	typedef std::map<std::string, LuaScript *> ScriptMap;

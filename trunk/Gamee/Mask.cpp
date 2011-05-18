@@ -10,8 +10,8 @@
 Mask::Mask(TiXmlElement *xe)
 	: _luaScript(new LuaScript(Variables::l, xe->FirstChildElement("script")))
 {
-	_pos.x = atoi(xe->Attribute("x"));
-	_pos.y = atoi(xe->Attribute("y"));
+	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 	std::string texture = xe->Attribute("texture"); 
 	_texture = Core::getTexture(texture);
 }

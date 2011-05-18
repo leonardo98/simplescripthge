@@ -14,14 +14,14 @@ State::State(TiXmlElement *xe) {
 	name = xe->Attribute("value");
 	if (xe->Attribute("mask") != NULL) {
 		visible = false;
-		pos.x = atoi(xe->Attribute("x"));
-		pos.y = atoi(xe->Attribute("y"));
+		pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+		pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 		texture = Core::getTexture(xe->Attribute("mask"));
 		return;
 	} else if (xe->Attribute("texture") != NULL) {
 		visible = true;
-		pos.x = atoi(xe->Attribute("x"));
-		pos.y = atoi(xe->Attribute("y"));
+		pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+		pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 		texture = Core::getTexture(xe->Attribute("texture"));
 		return;
 	}
@@ -65,19 +65,19 @@ void MultiTexture::Update(float deltaTime) {
 
 void MultiTexture::Draw() {
 	std::string varvalue = Variables::Get(_stateVariableName.c_str());
-	for (int i = _states.size() - 1; i >= 0; i--) {
-		if (_states[i].name == varvalue) {
-			_states[i].Draw();
+	for (States::reverse_iterator i = _states.rbegin(), e = _states.rend(); i != e; i++) {
+		if (i->name == varvalue) {
+			i->Draw();
 		}
 	}
 }
 
 bool MultiTexture::IsMouseOver(FPoint2D mousePos) {
 	std::string varvalue = Variables::Get(_stateVariableName.c_str());
-	for (int i = _states.size() - 1; i >= 0; i--) {
-		FPoint2D t = mousePos - _states[i].pos;
-		if (_states[i].name == varvalue) {			
-			return (_states[i].texture != NULL && _states[i].texture->IsNotTransparent((int)t.x, (int)t.y)); 
+	for (States::reverse_iterator i = _states.rbegin(), e = _states.rend(); i != e; i++) {
+		FPoint2D t = mousePos - i->pos;
+		if (i->name == varvalue) {			
+			return (i->texture != NULL && i->texture->IsNotTransparent((int)t.x, (int)t.y)); 
 		}
 	}
 	return false;
@@ -85,9 +85,9 @@ bool MultiTexture::IsMouseOver(FPoint2D mousePos) {
 
 void MultiTexture::OnMouseDown(FPoint2D mousePos) {
 	std::string varvalue = Variables::Get(_stateVariableName.c_str());
-	for (int i = _states.size() - 1; i >= 0; i--) {
-		FPoint2D t = mousePos - _states[i].pos;
-		if (_states[i].name == varvalue && _states[i].texture != NULL && _states[i].texture->IsNotTransparent((int)t.x, (int)t.y)) 
+	for (States::reverse_iterator i = _states.rbegin(), e = _states.rend(); i != e; i++) {
+		FPoint2D t = mousePos - i->pos;
+		if (i->name == varvalue && i->texture != NULL && i->texture->IsNotTransparent((int)t.x, (int)t.y)) 
 		{
 			_luaScript->Execute();
 			return; 

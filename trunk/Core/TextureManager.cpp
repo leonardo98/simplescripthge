@@ -31,7 +31,7 @@ void TextureManager::ReadDescriptions(std::string fileName)
 			TextureState ts;
 			ts.group = "";
 			ts.path = element->Attribute( "path" );
-			ts.texture = new Render::Texture(ts.path);
+			ts.texture = new Render::Texture(ts.path.c_str());
 			_texturesMap[element->Attribute( "id" )] = ts;
 		}
 		element = element->NextSiblingElement();
@@ -42,7 +42,7 @@ void TextureManager::LoadGroup(std::string groupId)
 {
 	for (TextureMap::iterator i = _texturesMap.begin(), e = _texturesMap.end(); i != e; i++) {
 		if (i->second.group == groupId && i->second.texture == NULL) {
-			i->second.texture = new Render::Texture(i->second.path);
+			i->second.texture = new Render::Texture(i->second.path.c_str());
 		}
 	}
 }
@@ -66,12 +66,14 @@ PTexture TextureManager::GetTexture(std::string textureId)
 	}
 }
 
-TextureManager::TextureManager()
+void TextureManager::Release() 
 {
-}
-
-TextureManager::~TextureManager()
-{
+	for (;_texturesMap.begin() != _texturesMap.end();) {
+		if (_texturesMap.begin()->second.texture != NULL) {
+			delete _texturesMap.begin()->second.texture;
+		}
+		_texturesMap.erase(_texturesMap.begin());
+	}
 }
 
 TextureManager::TextureMap TextureManager::_texturesMap;

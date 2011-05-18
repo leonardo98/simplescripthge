@@ -35,7 +35,7 @@ public:
 	virtual bool IsMouseOver(FPoint2D mousePos);
 	virtual void OnMouseDown(FPoint2D mousePos);
 private:
-	typedef std::vector<State> States;
+	typedef std::list<State> States;
 	States _states;
 	std::string _stateVariableName;
 	LuaScript *_luaScript;

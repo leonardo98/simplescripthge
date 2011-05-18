@@ -25,8 +25,7 @@ protected:
 	void LoadGroup(std::string groupId);
 	void UnloadGroup(std::string groupId);
 	static PTexture GetTexture(std::string textureId);
-	TextureManager();
-	virtual ~TextureManager();
+	void Release();
 private:
 	static TextureMap _texturesMap;
 };

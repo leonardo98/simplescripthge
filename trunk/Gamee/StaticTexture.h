@@ -16,6 +16,7 @@ class StaticTexture : public Object
 {
 public:
 	StaticTexture(TiXmlElement *xe);
+	virtual ~StaticTexture();
 	void Draw();
 private:
 	FPoint2D _pos;

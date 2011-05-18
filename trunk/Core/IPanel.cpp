@@ -8,8 +8,8 @@ IPanel::IPanel(TiXmlElement *xe)
 	: Messager(xe)
 	, LuaScript(Variables::l)
 {
-	_pos.x = atoi(xe->Attribute("x"));
-	_pos.y = atoi(xe->Attribute("y"));
+	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 	_width = atoi(xe->Attribute("width"));
 	_height = atoi(xe->Attribute("height"));
 	_visible = xe->Attribute("visible") == NULL?true:atoi(xe->Attribute("visible"))!=0;
@@ -24,7 +24,7 @@ IPanel::IPanel(TiXmlElement *xe)
 
 IPanel::~IPanel(void)
 {
-	for (std::vector<InputSystem *>::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
+	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		delete (*i);
 		(*i) = NULL;
 	}
@@ -35,13 +35,13 @@ void IPanel::Draw() {
 		return;
 	}
 	if (_needDraw) {
-		Render::DrawBar(_pos.x, _pos.y, _width, _height, Interface::BACKGROUND);
+		Render::DrawBar(_pos.x, _pos.y, static_cast<float>(_width), static_cast<float>(_height), Interface::BACKGROUND);
 		Render::Line(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
 		Render::Line(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
 		Render::Line(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
 		Render::Line(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
 	}
-	for (std::vector<InputSystem *>::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
+	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		(*i)->Draw();
 	}
 }
@@ -50,7 +50,7 @@ void IPanel::Update(float deltaTime) {
 	if (!_visible) {
 		return;
 	}
-	for (std::vector<InputSystem *>::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
+	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		(*i)->Update(deltaTime);
 	}
 }
@@ -66,7 +66,7 @@ void IPanel::OnMouseDown(FPoint2D mousePos) {
 	if (!_visible) {
 		return;
 	}
-	for (std::vector<InputSystem *>::reverse_iterator i = _objects.rbegin(), e = _objects.rend(); i != e; i++) {
+	for (Objects::reverse_iterator i = _objects.rbegin(), e = _objects.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
 			return;
@@ -78,7 +78,7 @@ void IPanel::OnMouseUp() {
 	if (!_visible) {
 		return;
 	}
-	for (std::vector<InputSystem *>::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
+	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		(*i)->OnMouseUp();
 	}
 }
@@ -87,7 +87,7 @@ void IPanel::OnMouseMove(FPoint2D mousePos) {
 	if (!_visible) {
 		return;
 	}
-	for (std::vector<InputSystem *>::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
+	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		(*i)->OnMouseMove(mousePos);
 	}
 }

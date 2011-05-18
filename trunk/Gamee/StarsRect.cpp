@@ -11,15 +11,17 @@
 
 StarsRect::StarsRect(TiXmlElement *xe)
 {
-	_pos.x = atoi(xe->Attribute("x"));
-	_pos.y = atoi(xe->Attribute("y"));
+	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 	_width = atoi(xe->Attribute("width"));
 	_height = atoi(xe->Attribute("height"));
 	_number = atoi(xe->Attribute("number"));
 	std::string texture = xe->Attribute("texture"); 
 	_texture = Core::getTexture(texture);
+#ifndef IOS_COMPILE_KEY
 	_texture->SetBlendMode(BLEND_NOZWRITE);
-	for (unsigned int i = 0; i < _number; i++ ) {
+#endif
+	for (int i = 0; i < _number; i++ ) {
 		_stars.push_back(Star(_pos, _width, _height));
 		_stars.back().pos += (rand() / 32768.f);
 	}

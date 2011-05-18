@@ -78,18 +78,6 @@ void InputSystem::DoubleClick(FPoint2D mousePos) {
 	}
 }
 
-void InputSystem::MouseWheel(int direction) {
-	if (_locked != NULL) {
-		_locked->OnMouseWheel(direction);
-		return;
-	}
-	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if ((*i)->OnMouseWheel(direction)) {
-			return;
-		}
-	}
-}
-
 void InputSystem::MouseUp() {
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
 		(*i)->OnMouseUp();
@@ -125,10 +113,83 @@ void OnLongTap(int direction) {
 void OnDoubleClick(int direction) {
 }
 
+#ifdef IOS_COMPILE_KEY
+
+InputSystem::CTouch InputSystem::g_Touches[MAX_TOUCHES];
+
+InputSystem::CTouch* InputSystem::GetTouch(int32 id) {
+    CTouch* pInActive = NULL;
+    for(uint32 i = 0; i < MAX_TOUCHES; i++) {
+        if( id == g_Touches[i].id )
+            return &g_Touches[i];
+        if( !g_Touches[i].active )
+            pInActive = &g_Touches[i];
+    }
+    //Return first inactive touch
+    if( pInActive ) {
+        pInActive->id = id;
+        return pInActive;
+    }
+    //No more touches, give up.
+    return NULL;
+}
+
+void InputSystem::MultiTouchButtonCB(s3ePointerTouchEvent* event) {
+    CTouch* touch = GetTouch(event->m_TouchID);
+    if (touch) {
+        touch->active = event->m_Pressed != 0; 
+        touch->x = event->m_x;
+        touch->y = event->m_y;
+    }
+}
+
+void InputSystem::MultiTouchMotionCB(s3ePointerTouchMotionEvent* event) {
+    CTouch* touch = GetTouch(event->m_TouchID);
+    if (touch) {
+        touch->x = event->m_x;
+        touch->y = event->m_y;
+    }
+}
+
+#define FLOAT(a) static_cast<float>(a)
+
+void InputSystem::SingleTouchButtonCB(s3ePointerEvent* event) {
+	if (g_Touches[0].active = event->m_Pressed != 0) {
+		MouseDown(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
+	} else {
+		MouseUp();
+	}
+    g_Touches[0].x = event->m_x;
+    g_Touches[0].y = event->m_y;
+    //sprintf(g_TouchEventMsg, "`x666666Touch %s", event->m_Pressed ? "PRESSED" : "RELEASED" );
+}
+
+void InputSystem::SingleTouchMotionCB(s3ePointerMotionEvent* event) {
+	if (g_Touches[0].active) {
+		MouseMove(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
+	}
+    g_Touches[0].x = event->m_x;
+    g_Touches[0].y = event->m_y;
+}
+
+#else
+
+void InputSystem::MouseWheel(int direction) {
+	if (_locked != NULL) {
+		_locked->OnMouseWheel(direction);
+		return;
+	}
+	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
+		if ((*i)->OnMouseWheel(direction)) {
+			return;
+		}
+	}
+}
+
 bool CheckForInputEvent(float dt) {
-	hgeInputEvent event;
 	InputSystem::_timeCounter += dt;
 	InputSystem::_doubleClick &= (InputSystem::_timeCounter < InputSystem::DOUBLE_CLICK_TIME);
+	hgeInputEvent event;
 	while (Render::GetDC()->Input_GetEvent(&event)) {
 		if (event.type == INPUT_MBUTTONDOWN && event.key == HGEK_LBUTTON) {
 			InputSystem::_longTapPos = FPoint2D(event.x, event.y);
@@ -160,7 +221,19 @@ bool CheckForInputEvent(float dt) {
 	return false;
 }
 
+#endif//IOS_COMPILE_KEY
+
 void InitInputEvent() {
+#ifdef IOS_COMPILE_KEY
+    bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
+    if (g_UseMultiTouch) {
+		s3ePointerRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB, NULL);
+        s3ePointerRegister(S3E_POINTER_TOUCH_MOTION_EVENT, (s3eCallback)InputSystem::MultiTouchMotionCB, NULL);
+    } else {
+        s3ePointerRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)InputSystem::SingleTouchButtonCB, NULL);
+        s3ePointerRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)InputSystem::SingleTouchMotionCB, NULL);
+	}
+#else
 	InputSystem::LONG_TAP_EPS = 10.f;
 	InputSystem::LONG_TAP_TIME = 0.2f;
 	InputSystem::DOUBLE_CLICK_TIME = 0.2f;
@@ -168,4 +241,16 @@ void InitInputEvent() {
 	InputSystem::_longTap = false;
 	InputSystem::_doubleClick = false; 
 	InputSystem::_locked = NULL;
+#endif//IOS_COMPILE_KEY
+}
+
+void ReleaseInputEvent() {
+    bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
+    if (g_UseMultiTouch) {
+		s3ePointerUnRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB);
+        s3ePointerUnRegister(S3E_POINTER_TOUCH_MOTION_EVENT, (s3eCallback)InputSystem::MultiTouchMotionCB);
+    } else {
+        s3ePointerUnRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)InputSystem::SingleTouchButtonCB);
+        s3ePointerUnRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)InputSystem::SingleTouchMotionCB);
+	}
 }

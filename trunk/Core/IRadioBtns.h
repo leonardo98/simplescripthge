@@ -24,7 +24,8 @@ private:
 	int _itemsInRow;
 	float _height;
 	float _width;
-	int _selected;
-	std::vector<std::string> _items;
+	typedef std::list<std::string> Items;
+	Items _items;
+	unsigned int _selected;
 	std::string _receiver;
 };

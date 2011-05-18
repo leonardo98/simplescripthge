@@ -7,9 +7,9 @@ ISlider::ISlider(TiXmlElement *xe)
 	: Messager(xe)
 	, _value(0.f)
 	, _down(false)
-	, _pos(atoi(xe->Attribute("x")), atoi(xe->Attribute("y")))
+	, _pos(static_cast<float>(atoi(xe->Attribute("x"))), static_cast<float>(atoi(xe->Attribute("y"))))
 	, _horizontal(atoi(xe->Attribute("horizontal")) != 0)
-	, _length(atoi(xe->Attribute("length")))
+	, _length(static_cast<float>(atoi(xe->Attribute("length"))))
 	, _width(atoi(xe->Attribute("width")))	
 {}
 
@@ -18,16 +18,16 @@ void ISlider::Draw() {
 		Render::DrawBar(_pos.x, _pos.y, _length, 1, Interface::BORDER_LOW);
 		FPoint2D pos(_pos);
 		pos.x += _value * _length;
-		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
+		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, static_cast<float>(_width), static_cast<float>(_width), Interface::BACKGROUND_NORMAL);
 		Render::Line(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
 		Render::Line(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
 		Render::Line(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
 		Render::Line(pos.x - _width/2, pos.y + _width/2, pos.x - _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
 	} else {
-		Render::DrawBar(_pos.x, _pos.y, 1, _length, Interface::BORDER_LOW);
+		Render::DrawBar(_pos.x, _pos.y, 1.f, _length, Interface::BORDER_LOW);
 		FPoint2D pos(_pos);
 		pos.y += _value * _length;
-		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, _width, _width, Interface::BACKGROUND_NORMAL);
+		Render::DrawBar(pos.x - _width / 2, pos.y - _width / 2, static_cast<float>(_width), static_cast<float>(_width), Interface::BACKGROUND_NORMAL);
 		Render::Line(pos.x - _width/2, pos.y - _width/2, pos.x + _width/2, pos.y - _width/2, Interface::BORDER_HIGH);
 		Render::Line(pos.x + _width/2, pos.y - _width/2, pos.x + _width/2, pos.y + _width/2, Interface::BORDER_LOW);
 		Render::Line(pos.x + _width/2, pos.y + _width/2, pos.x - _width/2, pos.y + _width/2, Interface::BORDER_LOW);
@@ -52,11 +52,19 @@ void ISlider::OnMouseDown(FPoint2D mousePos) {
 
 void ISlider::OnMouseMove(FPoint2D mousePos) {
 	if (_down) {
+#ifdef IOS_COMPILE_KEY
+		if (_horizontal) {
+			_value = std::min(1.f, std::max(0.f, (mousePos.x - _pos.x) / _length));
+		} else {
+			_value = std::min(1.f, std::max(0.f, (mousePos.y - _pos.y) / _length));
+		}
+#else
 		if (_horizontal) {
 			_value = min(1.f, max(0.f, (mousePos.x - _pos.x) / _length));
 		} else {
 			_value = min(1.f, max(0.f, (mousePos.y - _pos.y) / _length));
 		}
+#endif // IOS_COMPILE_KEY
 	}
 }
 

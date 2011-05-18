@@ -1,13 +1,7 @@
 // device specified function
 
 #include "Render.h"
-
-HGE *Render::_hge = NULL;
-std::map<std::string, hgeFont*> Render::_fonts;
-
-HGE *Render::GetDC() {
-	return _hge;
-}
+#include "s3e.h"
 
 DWORD Render::Parse(const std::string &s) {
 	assert(s.size() <= 10);
@@ -34,6 +28,15 @@ DWORD Render::Parse(const std::string &s) {
 	}
 	assert(false);
 	return 0;
+}
+
+#ifndef IOS_COMPILE_KEY
+
+HGE *Render::_hge = NULL;
+std::map<std::string, hgeFont*> Render::_fonts;
+
+HGE *Render::GetDC() {
+	return _hge;
 }
 
 Render::Texture::Texture(HTEXTURE h, int x, int y, int width, int height)
@@ -95,14 +98,14 @@ void Render::IniFile(const std::string &fileName) {
 	_hge->System_SetState(HGE_INIFILE, fileName.c_str());
 }
 
-int Render::IniFileGetUnsignedInt(const std::string &section, const std::string &variable, unsigned int defaultValue) {
+int Render::IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue) {
 	char buff[10];
 	sprintf(buff, "%d", defaultValue);
-	return Parse(_hge->Ini_GetString(section.c_str(), variable.c_str(), buff));
+	return Parse(_hge->Ini_GetString(section, variable, buff));
 }
 
-std::string Render::IniFileGetString(const std::string &section, const std::string &variable, const std::string &defaultValue) {
-	return _hge->Ini_GetString(section.c_str(), variable.c_str(), defaultValue.c_str());
+std::string Render::IniFileGetString(const char *section, const char *variable, const char *defaultValue) {
+	return _hge->Ini_GetString(section, variable, defaultValue);
 }
 
 void Render::PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF) {
@@ -134,7 +137,7 @@ int Render::GetStringWidth(const std::string &fontName, const char *s) {
 	return font->GetStringWidth(s);
 }
 
-void Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc) {
+bool Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc) {
 	_hge = hgeCreate(HGE_VERSION);
 	_hge->System_SetState(HGE_INIFILE, "settings.ini");
 	_hge->System_SetState(HGE_LOGFILE, _hge->Ini_GetString("system", "logfile", "log.txt"));
@@ -150,6 +153,20 @@ void Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc) {
 	_hge->System_SetState(HGE_HIDEMOUSE, false);
 	_hge->System_SetState(HGE_ZBUFFER, false);
 	_hge->System_SetState(HGE_TITLE, "Simple script application");
+	return _hge->System_Initiate();
+}
+
+void Render::RunApplication() {
+	_hge->System_Start();
+}
+
+std::string Render::Error() {
+	return _hge->System_GetErrorMessage();
+}
+
+void Render::ExitApplication() {
+	_hge->System_Shutdown();
+	_hge->Release();
 }
 
 void Render::ShowMessage(const char *str, const char *caption) {
@@ -192,3 +209,148 @@ void Render::DrawBar(float x, float y, float width, float height, DWORD color) {
 void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
 	GetDC()->Gfx_RenderLine(x1, y1, x2, y2, color);
 }
+
+#else
+
+#include "Iw2D.h"
+#include "IwGxPrint.h"
+
+Render::Texture::Texture(const char *fileName) {
+	s_Texture = new CIwTexture();
+	s_Texture->LoadFromFile(fileName);
+	s_Texture->Upload();
+
+    // Set up screenspace vertex coords
+    int16 x1 = 0;
+    int16 x2 = (int16)s_Texture->GetWidth();
+    int16 y1 = 0;
+    int16 y2 = (int16)s_Texture->GetHeight();
+        
+    xy3[0].x = x1, xy3[0].y = y1;
+    xy3[1].x = x1, xy3[1].y = y2;
+    xy3[2].x = x2, xy3[2].y = y2;
+    xy3[3].x = x2, xy3[3].y = y1;
+
+    uvs[0] = CIwSVec2(0 << 12, 0 << 12);
+    uvs[1] = CIwSVec2(0 << 12, 1 << 12);
+    uvs[2] = CIwSVec2(1 << 12, 1 << 12);
+    uvs[3] = CIwSVec2(1 << 12, 0 << 12);
+}
+
+Render::Texture::~Texture() {
+	delete s_Texture;
+}
+
+bool Render::Texture::IsNotTransparent(int x, int y) {
+	assert(false);
+	return false;
+}
+
+void Render::Texture::Render(float x, float y) 
+{
+	for (int i = 0; i < 4; i++) {
+		xy[i].x = xy3[i].x + static_cast<int16>(x);
+		xy[i].y = xy3[i].y + static_cast<int16>(y);
+	}
+	// Allocate a material from the IwGx global cache
+    CIwMaterial *pMat = IW_GX_ALLOC_MATERIAL();
+    pMat->SetModulateMode(CIwMaterial::MODULATE_NONE);
+    // Use Texture on Material
+    pMat->SetTexture(s_Texture);
+	// Set this as the active material
+    IwGxSetMaterial(pMat);
+	IwGxSetVertStreamScreenSpace(xy, 4);
+    IwGxSetUVStream(uvs);
+    // Draw single triangle
+    IwGxDrawPrims(IW_GX_QUAD_LIST, NULL, 4);
+ }
+
+void Render::Texture::Render(const FPoint2D &pos)  {
+	Render(pos.x, pos.y);
+}
+
+void Render::Texture::SetBlendMode(DWORD mode) {
+	assert(false);
+}
+
+void Render::Texture::SetColor(DWORD color) {
+	assert(false);
+}
+
+void Render::PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF) {
+	int l = - int(text.length() * 6 / 2);
+	IwGxPrintString(x + l, y, text.c_str());
+}
+
+#define INT(a) static_cast<int>(a)
+
+void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
+	Iw2DSetColour(color);
+	Iw2DDrawLine(CIwSVec2(INT(x1), INT(y1)), CIwSVec2(INT(x2), INT(y2)));
+}
+
+void Render::DrawBar(float x, float y, float width, float height, DWORD color) {
+	Iw2DSetColour(color);
+	Iw2DFillRect(CIwSVec2(INT(x), INT(y)), CIwSVec2(INT(width), INT(height)));
+}
+
+bool Render::IsRightMouseButton() {
+	return false;
+}
+
+bool Render::IsLeftMouseButton() {
+	return true;
+}
+
+int Render::GetFontHeight(const std::string &fontName) {
+	assert(false);
+	return 0;
+}
+
+int Render::GetStringWidth(const std::string &fontName, const char *s) {
+	assert(false);
+	return 0;
+}
+
+int Render::IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue) {
+	int i = defaultValue;
+	assert(s3eConfigGetInt(section, variable, &i) != S3E_RESULT_ERROR);
+	return i;
+}
+
+std::string Render::IniFileGetString(const char *section, const char *variable, const char *defaultValue) {
+	char str[0x100];
+	strcpy(str, defaultValue);
+	assert(s3eConfigGetString(section, variable, str) != S3E_RESULT_ERROR);
+	return str;
+}
+
+void Render::ShowMessage(const char *str, const char *caption) {
+	//IwTrace(str);//assert(false);
+	//IwTrace(caption);
+	IwAssertMsg(MYAPP, caption, ("Error", str));
+}
+
+bool Render::ShowAskMessage(const char *str, const char *caption) {
+	assert(false);
+	return false;
+}
+
+CIwMaterial *Render::StartVertexBuffer(PTexture texture) {
+	// Allocate a material from the IwGx global cache
+    CIwMaterial *pMat = IW_GX_ALLOC_MATERIAL();
+    pMat->SetModulateMode(CIwMaterial::MODULATE_NONE);
+    // Use Texture on Material
+    pMat->SetTexture(texture->s_Texture);
+	// Set this as the active material
+    IwGxSetMaterial(pMat);
+	return pMat;
+}
+
+void Render::FinishVertexBuffer(CIwSVec2 *xy, CIwSVec2 *uvs, unsigned int counter) {
+	IwGxSetVertStreamScreenSpace(xy, counter * 4);
+    IwGxSetUVStream(uvs);
+    IwGxDrawPrims(IW_GX_QUAD_LIST, NULL, counter * 4);
+}
+
+#endif // IOS_COMPILE_KEY
