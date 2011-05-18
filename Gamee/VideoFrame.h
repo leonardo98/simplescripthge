@@ -16,9 +16,12 @@ public:
 	virtual ~VideoFrame(void);
 private:
 	std::string fileName;
-	hgeVector pos;
+	FPoint2D pos;
+#ifndef IOS_COMPILE_KEY
 	HGE *hge;
-
+	HTEXTURE hTexture;
+	hgeSprite *sprite;
+#endif
 	FILE *currentfile;
 	DWORD *frame;
 	UINT texture;
@@ -53,7 +56,5 @@ private:
 
 	bool ReadFrameFromFile();
 
-	HTEXTURE hTexture;
-	hgeSprite *sprite;
 	bool _pause;
 };

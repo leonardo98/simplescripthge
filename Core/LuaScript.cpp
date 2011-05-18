@@ -12,8 +12,10 @@ LuaScript::LuaScript(lua_State *L, TiXmlElement *script)
 {
 	l = L;
 	if (script != NULL) {
-		if(script->QueryStringAttribute("scriptfile", &scriptfile)==TIXML_NO_ATTRIBUTE)
-		{
+		const char *a = script->Attribute("scriptfile");
+		if (a) {
+			scriptfile = a;
+		} else {
 			TiXmlText *text = (TiXmlText *)script->FirstChild();
 			if (text != NULL) {
 				unsigned int size = strlen((char *)text->Value());
@@ -39,8 +41,10 @@ void LuaScript::Read(TiXmlElement *script)
 {
 	if (script != NULL) {
 		scriptfile.clear();
-		if(script->QueryStringAttribute("scriptfile", &scriptfile)==TIXML_NO_ATTRIBUTE)
-		{
+		const char *a = script->Attribute("scriptfile");
+		if (a) {
+			scriptfile = a;
+		} else {
 			TiXmlText *text = (TiXmlText *)script->FirstChild();
 			if (text != NULL) {
 				unsigned int size = strlen((char *)text->Value());

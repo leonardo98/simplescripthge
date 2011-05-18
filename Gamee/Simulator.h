@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIMULATOR_H
+#define SIMULATOR_H
 
 #include "..\Core\InputSystem.h"
 #include "..\Core\Messager.h"
@@ -7,9 +8,6 @@
 #include <cstdlib>
 #include "BodyTemplate.h"
 #include "..\Helpers\Counter.h"
-
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
 
 class Simulator;
 struct Settings;
@@ -143,7 +141,7 @@ public:
 
 	void LoadTemplates(const std::string &filename);
 
-	typedef std::vector<BodyTemplate *> Collection;
+	typedef std::list<BodyTemplate *> Collection;
 	Collection _collection;
 
 protected:
@@ -174,7 +172,6 @@ protected:
 
 
 	PTexture _allElements;
-	inline void DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
@@ -189,7 +186,8 @@ protected:
 	inline void DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color = 0xFFFFF0F0);
 	virtual void OnMessage(const std::string &message);
 
-	std::vector<BodyState> _state;
+	typedef std::list<BodyState> BodyStates;
+	BodyStates _state;
 	TiXmlDocument _doc;
 	std::string _currentLevel;
 	void EraseBody(b2Body *body);
@@ -211,6 +209,15 @@ protected:
 
 	b2Body *_selectedBody;
 	void InitParams(b2Body *body);
+#ifdef IOS_COMPILE_KEY
+#define MAX_ELEMENTS 200
+    CIwSVec2 _uvs[MAX_ELEMENTS * 4];
+    CIwSVec2 _xy[MAX_ELEMENTS * 4];
+	//CIwTexture *s_Texture;
+	inline void DrawElement(CIwSVec2 *&bufVert, CIwSVec2 *&bufUV, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
+#else
+	inline void DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
+#endif
 };
 
 #endif //SIMULATOR_H

@@ -36,7 +36,7 @@ Messager::~Messager()
 	_receiver.erase(i);
 }
 
-std::vector<std::pair<std::string, std::string> > Messager::_messages;
+Messager::AllMessages Messager::_messages;
 
 void Messager::SendMessage(const std::string &receiverName, const std::string &message)
 {
@@ -47,11 +47,11 @@ void Messager::CoreSendMessages()
 {
 	AllMessages tmp = _messages;
 	_messages.clear();
-	for (unsigned int q = 0; q < tmp.size(); q++) {
+	for (AllMessages::iterator q = tmp.begin(), w = tmp.end(); q != w; q++) {
 		List::iterator i, e;
-		for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != tmp[q].first; i++);
+		for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != q->first; i++);
 		if (i != e) {
-			(*i)->OnMessage(tmp[q].second);
+			(*i)->OnMessage(q->second);
 		} else {
 			// нет получателя в списке
 		}		

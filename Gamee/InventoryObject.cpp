@@ -11,8 +11,8 @@
 
 InventoryObject::InventoryObject(TiXmlElement *xe)
 {
-	_pos.x = atoi(xe->Attribute("x"));
-	_pos.y = atoi(xe->Attribute("y"));
+	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 	_id = xe->Attribute("id"); 
 	_texture = Core::getTexture(_id);
 	_found = false;

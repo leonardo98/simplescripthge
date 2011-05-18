@@ -53,7 +53,7 @@ private:
 	typedef std::list<Messager *> List;
 	static List _receiver;
 	std::string _name;
-	typedef std::vector<std::pair<std::string, std::string> > AllMessages;
+	typedef std::list<std::pair<std::string, std::string> > AllMessages;
 	static AllMessages _messages;
 };
 

@@ -28,7 +28,8 @@ private:
 	int _itemsInRow;
 	float _height;
 	float _width;
-	std::vector<std::pair<std::string, bool> > _items;
+	typedef std::list<std::pair<std::string, bool> > Items;
+	Items _items;
 	std::string _receiver;
 	Counter _counter;
 	float _timer;

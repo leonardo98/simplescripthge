@@ -30,7 +30,8 @@ public:
 private:
 	float _hideTime;
 	float _width;
-	std::vector<std::string> _text;
+	typedef std::list<std::string> Texts;
+	Texts _text;
 	FPoint2D _pos;
 	FPoint2D _lastMousePos;
 	FPoint2D _clickMousePos;

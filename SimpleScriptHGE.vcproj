@@ -52,6 +52,7 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="&quot;C:\Airplay SDK\4.2\s3e\h\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;TIXML_USE_STL"
 				StringPooling="true"
 				RuntimeLibrary="0"

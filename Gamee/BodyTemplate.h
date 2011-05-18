@@ -1,7 +1,7 @@
 #pragma once
 
 #include "..\Core\types.h"
-#include "Box2D\Box2D.h"
+#include "C:\CppLib\Box2D_v2.1.2\Box2D\Box2D\Box2D.h"
 
 enum BodyTypes{
 	BODY_TYPE_GROUND = -1,
@@ -17,7 +17,11 @@ public:
 	static const int MAX = 300;
 	std::string _id;
 	struct UV {
+#ifdef IOS_COMPILE_KEY
+		int16 u, v;
+#else
 		float u, v;
+#endif
 	};
 	UV _uv[4];
 	FPoint2D _positions[MAX][4]; 

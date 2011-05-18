@@ -1,4 +1,5 @@
 #pragma once
+
 #include "InputSystem.h"
 #include "Interface.h"
 #include "LuaScript.h"
@@ -14,6 +15,7 @@ class IButton
 {
 public:
 	IButton(TiXmlElement *xe);
+	~IButton();
 	void Draw();
 	virtual void OnMouseDown(FPoint2D mousePos);
 	virtual bool IsMouseOver(FPoint2D mousePos);

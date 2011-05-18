@@ -3,9 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ObjectFactory.h"
-#include "..\Helpers\TestObject.h"
+//#include "..\Helpers\TestObject.h"
 #include "..\Helpers\FpsCounter.h"
-#include "StaticTexture.h"
+/*#include "StaticTexture.h"
 #include "Mask.h"
 #include "TextBox.h"
 #include "Inventory.h"
@@ -13,8 +13,8 @@
 #include "MultiTexture.h"
 #include "StarsRect.h"
 #include "..\Helpers\Tester.h"
+#include "Button.h"*/
 #include "..\Core\Messager.h"
-#include "Button.h"
 #include "..\Core\IButton.h"
 #include "..\Core\IPanel.h"
 #include "..\Core\ISlider.h"
@@ -28,9 +28,9 @@
 Object * ObjectFactory::Create(TiXmlElement *xe)
 {
 	std::string name = xe->Value();
-	REG_TYPE("TestObject", TestObject);
+	//REG_TYPE("TestObject", TestObject);
 	REG_TYPE("Simulator", Simulator);
-	REG_TYPE("StaticTexture", StaticTexture);
+	/*REG_TYPE("StaticTexture", StaticTexture);
 	REG_TYPE("Mask", Mask);
 	REG_TYPE("TextBox", TextBox);
 	REG_TYPE("Inventory", Inventory);
@@ -39,7 +39,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("StarsRect", StarsRect);
 	REG_TYPE("StarsRect", StarsRect);
 	REG_TYPE("Tester", Tester);
-	REG_TYPE("Button", Button);
+	REG_TYPE("Button", Button);*/
 	REG_TYPE("IButton", IButton);
 	REG_TYPE("IPanel", IPanel);
 	REG_TYPE("ButtonList", ButtonList);

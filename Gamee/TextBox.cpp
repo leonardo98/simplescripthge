@@ -14,15 +14,15 @@ TextBox::TextBox(TiXmlElement *xe)
 	: Messager(xe)
 	, _clickMousePos(-100, -100) // за экраном
 {
-	_pos.x = atoi(xe->Attribute("x"));
-	_pos.y = atoi(xe->Attribute("y"));
-	_width = atoi(xe->Attribute("width"));
-	_hideTime = atof(xe->Attribute("hideTime"));
+	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
+	_width = static_cast<float>(atoi(xe->Attribute("width")));
+	_hideTime = static_cast<float>(atof(xe->Attribute("hideTime")));
 	_font = xe->Attribute("font");
 	TiXmlElement *background = xe->FirstChildElement("background");
 	_background = Core::getTexture(background->Attribute("texture"));
-	_backgroundPos.x = atoi(background->Attribute("x"));
-	_backgroundPos.y = atoi(background->Attribute("y"));
+	_backgroundPos.x = static_cast<float>(atof(background->Attribute("x")));
+	_backgroundPos.y = static_cast<float>(atof(background->Attribute("y")));
 }
 
 TextBox::~TextBox()
@@ -51,8 +51,8 @@ void TextBox::Draw() {
 		return;
 	}
 	_background->Render(_backgroundPos.x, _backgroundPos.y + y);
-	for (unsigned int i = 0; i < _text.size(); i++) {
-		Render::PrintString(_pos.x, _pos.y + y, _font, _text[i].c_str(), _fontColor);
+	for (Texts::iterator i = _text.begin(), e = _text.end(); i != e; i++) {
+		Render::PrintString(static_cast<int>(_pos.x), static_cast<int>(_pos.y + y), _font, i->c_str(), _fontColor);
 		y += Render::GetFontHeight(_font);
 	}
 }

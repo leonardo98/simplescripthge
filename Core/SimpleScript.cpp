@@ -7,6 +7,90 @@
 
 Core core;
 
+#ifdef IOS_COMPILE_KEY 
+
+#include <math.h>
+#include <GLES/egl.h>
+#include "SimpleScriptBase.h"
+
+// main file
+//-----------------------------------------------------------------------------
+
+#include "s3e.h"
+#include "IwDebug.h"
+#include "Iw2D.h"
+
+// Externs for functions which examples must implement
+void ExampleInit() {
+	//IwMemBucketInit();
+	Iw2DInit();
+	Interface::Init();
+	// запускаем ядро
+	core.Load("start.xml");
+	InitInputEvent();
+	LOG("application start");
+}
+void ExampleShutDown() {
+	core.Release();
+	ReleaseInputEvent();
+	Iw2DTerminate();
+	//IwMemBucketTerminate();
+}
+void ExampleRender() {
+	core.Draw();
+    Iw2DSurfaceShow();
+}
+bool ExampleUpdate() {
+	core.Update(1/25.f);
+	return true;
+}
+
+// Attempt to lock to 25 frames per second
+#define	MS_PER_FRAME (1000 / 30)
+
+//-----------------------------------------------------------------------------
+// Main global function
+//-----------------------------------------------------------------------------
+int main() {	
+	// Example main loop
+	ExampleInit();
+
+	while (1)
+	{
+		s3eDeviceYield(0);
+		s3eKeyboardUpdate();
+		s3ePointerUpdate();
+
+		int64 start = s3eTimerGetMs();
+
+		bool result = ExampleUpdate();
+		if	(
+			(result == false) ||
+			(s3eKeyboardGetState(s3eKeyEsc) & S3E_KEY_STATE_DOWN) ||
+			(s3eKeyboardGetState(s3eKeyAbsBSK) & S3E_KEY_STATE_DOWN) ||
+			(s3eDeviceCheckQuitRequest())
+			)
+			break;
+
+		// Clear the screen
+		Iw2DSurfaceClear(0xffffffff);
+		ExampleRender();
+
+		// Attempt frame rate
+		while ((s3eTimerGetMs() - start) < MS_PER_FRAME)
+		{
+			int32 yield = (int32) (MS_PER_FRAME - (s3eTimerGetMs() - start));
+			if (yield<0)
+				break;
+			s3eDeviceYield(yield);
+		}
+	}
+	ExampleShutDown();
+	return 0;
+}
+
+#else
+
 bool RenderFunc()
 {
 	Render::GetDC()->Gfx_BeginScene();
@@ -28,20 +112,20 @@ bool FrameFunc()
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 {
 	// инициализируем 
-	Render::InitApplication(FrameFunc, RenderFunc);
-	if(Render::GetDC()->System_Initiate()) {
+	if(Render::InitApplication(FrameFunc, RenderFunc)) {
 		Interface::Init();
 		// запускаем ядро
 		core.Load("start.xml");
-		Render::GetDC()->System_Log("application start");
+		LOG("application start");
 		InitInputEvent();
-		Render::GetDC()->System_Start();
+		Render::RunApplication();
+		core.Release();
 	} else {	
-		Render::ShowMessage(Render::GetDC()->System_GetErrorMessage(), "Error");
+		Render::ShowMessage(Render::Error().c_str(), "Error");
 	}
-	core.Release();
-	Render::GetDC()->System_Shutdown();
-	Render::GetDC()->Release();
+	Render::ExitApplication();
 
 	return 0;
 }
+
+#endif // IOS_COMPILE_KEY

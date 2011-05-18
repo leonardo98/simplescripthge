@@ -5,8 +5,8 @@
 Button::Button(TiXmlElement *xe)
 	: _luaScript(new LuaScript(Variables::l, xe))
 {
-	_pos.x = atoi(xe->Attribute("x"));
-	_pos.y = atoi(xe->Attribute("y"));
+	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
+	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 	std::string normal = xe->Attribute("normal"); 
 	_normal = Core::getTexture(normal);
 	std::string pressed = xe->Attribute("pressed"); 

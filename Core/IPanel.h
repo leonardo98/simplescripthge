@@ -28,5 +28,6 @@ private:
 	int _height;
 	bool _visible;
 	bool _needDraw;
-	std::vector<InputSystem *> _objects;
+	typedef std::list<InputSystem *> Objects;
+	Objects _objects;
 };

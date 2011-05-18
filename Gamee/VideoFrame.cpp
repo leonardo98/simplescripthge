@@ -189,8 +189,10 @@ void VideoFrame::TheoraInit()
 
 	ReadFrameFromFile();
 	waitFrame = 0;
+#ifndef IOS_COMPILE_KEY
 	hTexture = hge->Texture_Create(YUV_BUFFER.y_width, YUV_BUFFER.y_height);
 	sprite = new hgeSprite(hTexture, 0, 0, YUV_BUFFER.y_width, YUV_BUFFER.y_height);
+#endif
 	PutDataToTexture();
 }
 
@@ -281,13 +283,14 @@ void VideoFrame::TheoraClose()
 	currentfile = NULL;
 	current_frame = 0;
 
-
+#ifndef IOS_COMPILE_KEY
 	if(hTexture) {
 		delete sprite;
 		// удал€ем буфер кадра
 		hge->Texture_Free(hTexture);
 		hTexture = 0;
 	}
+#endif
 }
 
 __forceinline BYTE VideoFrame::ClampFloatToByte(const float &value)
@@ -319,9 +322,11 @@ VideoFrame::VideoFrame(TiXmlElement *xe)
 	, frame(NULL)
 	, texture(0)
 	, current_frame(0)
-	, hTexture(0)
 {
+#ifndef IOS_COMPILE_KEY
+	hTexture = 0;
 	hge = hgeCreate(HGE_VERSION);
+#endif
 	fileName = xe->Attribute("fileName");
 	pos.x = atoi(xe->Attribute("x"));
 	pos.y = atoi(xe->Attribute("y"));
@@ -329,10 +334,12 @@ VideoFrame::VideoFrame(TiXmlElement *xe)
 
 void VideoFrame::Draw()
 {
+#ifndef IOS_COMPILE_KEY
 	if (!currentfile || !hTexture) {
 		return;
 	}
 	sprite->Render(pos.x, pos.y);
+#endif
 }
 
 void VideoFrame::OnMessage(const std::string &message) 
@@ -342,7 +349,8 @@ void VideoFrame::OnMessage(const std::string &message)
 			TheoraInit();
 		}
 		catch ( exception &e ) {
-			MessageBox(hge->System_GetState(HGE_HWND),e.what(),"Runtime Error in Theora!", MB_ICONERROR);
+			LOG("next line is \"Runtime Error in Theora!\"");
+			LOG(e.what());
 			TheoraClose();
 		};
 
@@ -361,7 +369,9 @@ VideoFrame::~VideoFrame(void)
 	if (currentfile) {
 		TheoraClose();
 	}
+#ifndef IOS_COMPILE_KEY
 	hge->Release();
+#endif
 }
 
 void VideoFrame::Update(float dt)
@@ -369,9 +379,11 @@ void VideoFrame::Update(float dt)
 	if (_pause) {
 		return;
 	}
+#ifndef IOS_COMPILE_KEY
 	if (!currentfile || !hTexture) {
 		return;
 	}
+#endif
 	waitFrame += dt;
 	unsigned int mustBeFrame = (unsigned int)(current_frame + waitFrame / deltaFps);
 	if (current_frame == mustBeFrame) {
@@ -391,8 +403,13 @@ void VideoFrame::Update(float dt)
 
 void VideoFrame::PutDataToTexture()
 {
+	unsigned int width;
+
+#ifndef IOS_COMPILE_KEY
 	frame = hge->Texture_Lock(hTexture, false);
-	unsigned int width = hge->Texture_GetWidth(hTexture, false);
+	width = hge->Texture_GetWidth(hTexture, false);
+#endif
+
 	/*
 	theora, как и многие другие кодеки работает в цветовом пространстве YUV12, где Y Ц информаци€ о €ркости точки, а UV Ц цветоразностные характеристики, придающие картинке цветность. “аким образом, если вас устраивает черно-бела€ картинка, ничего преобразовывать не надо Ц просто используйте данные из сло€ Y. :)
 	‘ормула дл€ преобразовани€ yuv->rgb выгл€дит так: 
@@ -427,14 +444,21 @@ void VideoFrame::PutDataToTexture()
 							| 255 << 24;			
 		}
 	}
+#ifndef IOS_COMPILE_KEY
 	hge->Texture_Unlock(hTexture);
+#endif
 }
 
 // далее два варианта оптимизации, но они мне ничем не помогли потому без них пока
 void VideoFrame::PutDataToTextureInt()
 {
+	unsigned int width;
+
+#ifndef IOS_COMPILE_KEY
 	frame = hge->Texture_Lock(hTexture, false);
-	unsigned int width = hge->Texture_GetWidth(hTexture, false);
+	width = hge->Texture_GetWidth(hTexture, false);
+#endif
+
 	unsigned int index = 0;
 	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
 	{
@@ -473,7 +497,9 @@ void VideoFrame::PutDataToTextureInt()
 		}
 		index += width - YUV_BUFFER.y_width;
 	}
+#ifndef IOS_COMPILE_KEY
 	hge->Texture_Unlock(hTexture);
+#endif
 }
 
 void VideoFrame::PutDataToTextureIntPre()
@@ -502,8 +528,11 @@ void VideoFrame::PutDataToTextureIntPre()
 	{
 	  b3_[cc] = ( 113508 * (cc-128) + 32768 ) >> 16;
 	}
+	unsigned int width;
+#ifndef IOS_COMPILE_KEY
 	frame = hge->Texture_Lock(hTexture, false);
-	unsigned int width = hge->Texture_GetWidth(hTexture, false);
+	width = hge->Texture_GetWidth(hTexture, false);
+#endif
 	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
 	{
 		int nYShift = YUV_BUFFER.y_stride * nTempY;
@@ -527,7 +556,9 @@ void VideoFrame::PutDataToTextureIntPre()
 		} 
 		frame += (width - YUV_BUFFER.y_width);
 	}
+#ifndef IOS_COMPILE_KEY
 	hge->Texture_Unlock(hTexture);
+#endif
 }
 
 bool VideoFrame::ReadFrameFromFile()
