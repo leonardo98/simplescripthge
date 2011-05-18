@@ -5,8 +5,6 @@
 #include "Interface.h"
 #include "Render.h"
 
-Core core;
-
 #ifdef IOS_COMPILE_KEY 
 
 #include <math.h>
@@ -20,72 +18,59 @@ Core core;
 #include "IwDebug.h"
 #include "Iw2D.h"
 
-// Externs for functions which examples must implement
-void ExampleInit() {
-	//IwMemBucketInit();
-	Iw2DInit();
-	Interface::Init();
-	// запускаем ядро
-	core.Load("start.xml");
-	InitInputEvent();
-	LOG("application start");
-}
-void ExampleShutDown() {
-	core.Release();
-	ReleaseInputEvent();
-	Iw2DTerminate();
-	//IwMemBucketTerminate();
-}
-void ExampleRender() {
-	core.Draw();
-    Iw2DSurfaceShow();
-}
-bool ExampleUpdate() {
-	core.Update(1/25.f);
-	return true;
-}
-
-// Attempt to lock to 25 frames per second
+// Attempt to lock to 30 frames per second
 #define	MS_PER_FRAME (1000 / 30)
 
 //-----------------------------------------------------------------------------
 // Main global function
 //-----------------------------------------------------------------------------
 int main() {	
-	// Example main loop
-	ExampleInit();
 
-	while (1)
+	Iw2DInit();
 	{
-		s3eDeviceYield(0);
-		s3eKeyboardUpdate();
-		s3ePointerUpdate();
+		Interface::Init();
+		// запускаем ядро
+		Core core;
+		core.Load("start.xml");
+		InitInputEvent();
+		LOG("application start");
 
-		int64 start = s3eTimerGetMs();
-
-		bool result = ExampleUpdate();
-		if	(
-			(result == false) ||
-			(s3eKeyboardGetState(s3eKeyEsc) & S3E_KEY_STATE_DOWN) ||
-			(s3eKeyboardGetState(s3eKeyAbsBSK) & S3E_KEY_STATE_DOWN) ||
-			(s3eDeviceCheckQuitRequest())
-			)
-			break;
-
-		// Clear the screen
-		Iw2DSurfaceClear(0xffffffff);
-		ExampleRender();
-
-		// Attempt frame rate
-		while ((s3eTimerGetMs() - start) < MS_PER_FRAME)
+		while (1)
 		{
-			int32 yield = (int32) (MS_PER_FRAME - (s3eTimerGetMs() - start));
-			if (yield<0)
+			s3eDeviceYield(0);
+			s3eKeyboardUpdate();
+			s3ePointerUpdate();
+
+			int64 start = s3eTimerGetMs();
+
+			bool result = true;
+			core.Update(1/25.f);
+			if	(
+				(result == false) ||
+				(s3eKeyboardGetState(s3eKeyEsc) & S3E_KEY_STATE_DOWN) ||
+				(s3eKeyboardGetState(s3eKeyAbsBSK) & S3E_KEY_STATE_DOWN) ||
+				(s3eDeviceCheckQuitRequest())
+				)
 				break;
-			s3eDeviceYield(yield);
+
+			// Clear the screen & draw
+			Iw2DSurfaceClear(0xffffffff);
+			core.Draw();
+			Iw2DSurfaceShow();
+
+			// Attempt frame rate
+			while ((s3eTimerGetMs() - start) < MS_PER_FRAME)
+			{
+				int32 yield = (int32) (MS_PER_FRAME - (s3eTimerGetMs() - start));
+				if (yield<0)
+					break;
+				s3eDeviceYield(yield);
+			}
 		}
+		core.Release();
+		ReleaseInputEvent();
 	}
-	ExampleShutDown();
+	Iw2DTerminate();
 	return 0;
 }
 

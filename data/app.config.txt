@@ -8,12 +8,19 @@
 # e.g.
 # [MyApplicationGroup]
 # MySetting   Description of what MySetting is for, its default values, etc
+[2D]
+MaxBatch	Maximum batch length in vertices/inds. Increase this for performance improvement at the cost of some memory overhead (18 bytes per entry). If this value is set to zero, no batching will occur (i.e. MaxBatch=0 will preserve the 4.2 behaviour). Note if MaxBatch is non-zero it must be at least large enough to accomodate the single largest individual draw call. Default is 1000.
 [UTIL]
 NumMemBuckets		<Integer>			Maximum number of memory buckets allowed.
 MaxAllocationWarning	<0 or 1>			Whether to warn when the application exceeds the maximum number of track-able memory allocations. (Default to on)
 NumClassFactories <Integer>			Space reserved for class factories. Extra class factories will cause a reallocation. Defaults to 192.
 MemoryBreakpoint	<Integer>		Memory allocation number to break on.
 [GX]
+TBDR						<0 or 1>	PRIVATE. HW uses TBDR, so delay chromas to the end of opaques.
+PersistentDepth				<0 or 1> 	PRIVATE. Depth buffer persists between frames
+GL2FlatShading			<0 or 1>		Respect ShadeMode material property in GL2. This forces strict compliance with SW/GL1 but requires significant CPU work - this setting exists for unit testing. Default is 0 (ShadeMode is ignored).
+UnIndexedStreamMax			<Integer>	The maximum number of primitives that can be rendered without an explicit index stream. Default is 2048.
+ForceFloatTransform		<0 or 1>		Force all transforms to use floating point matrix stack (matrices will be coerced at the IwGx boundary)
 DisableSurfaces     <0 or 1>			Disable IwGxSurface. All calls to CreateSurface will fail and return false.
 Rasterisation       <String>			'SW', 'HW', 'SW/HW' or 'HW/SW', indicating support for software rasterisation only, hardware rasterisation, or both. If both are specified, both are supported, and the first indicates which mode is started in.
 Transform           <String>			'SW', 'HW', 'SW/HW' or 'HW/SW', indicating support for software transform only, hardware transform, or both. If both are specified, transform will begin in hardware can be dynamically switch to software.
@@ -115,8 +122,31 @@ BuildOnly				<String>			If set, build only groups appearing in this list. The li
 IgnoreInlining			<0 or 1>			If 1, ignore "inline" directives in group templates. Child groups will always be built as distinct binaries. Default 0 (obey inline directives)
 PatchBinariesInPlace	<0 or 1>			If 1, reloaded binaries replace the real binaries. By default groups are reloaded non-destructively to /debug_patches/
 LegacyIwResourceSerialiseBehaviour <0 or 1>			If 1, use legacy IwResource subclassing behaviour. Prior to 4.2 IwResource subclasses could get away without calling the base class Serialise function. This was never correct (and could lead to very strange behaviour). 4.2 is much stricter. This setting restores the 4.1 behaviour for legacy applications. Default is 0 (4.2 behaviour).
+[GxFont]
+TextureMaxSize		<Integer>			Maximum width & height of font texture pages
+CacheTextureMaxSize	<Integer>			Maximum width & height of glyph cache textures
+EnableTTFKerning	<0 or 1>			If 1, enable kerning of True Type fonts. This only applies to TTFs which contain kerning information.
 [FONT]
 FontCacheSize       <Integer>			Determines how many rendered true type font glyphs stay in the cache
+[GL]
+ForceConfigID	Integer Override gl config choice
+AlphaInFrameBuffer 0 or 1		Disable alpha channel. PRIVATE
+FinishOnFBOBind		0 or 1		glFinish when switching away from FBO. PRIVATE.
+RecreateGLSurfaceOnResize 0 or 1 Recreate GL surface on resize. PRIVATE.
+RecreateGLSurfaceOnResume 0 or 1 Recreate GL surface on resize. PRIVATE.
+VirtualWidth	Integer		virtual resolution in X
+VirtualHeight	Integer		virtual resolution in Y
+VirtualRotate	Integer		Base virtual rotation
+VirtualLetterbox	0 or 1		Maintain aspect ratio and letterbox
+VirtualResolution	0 or 1		Automatically scale and rotate gl projection matrix. GL1 only. (default on)		
+ConsistentHandles   0 or 1		Present application with consistent object handles (default on).
+CacheState			0 or 1		Record entire GL state, guard redundant calls (default on)
+CacheTextures		0 or 1		Cache textures and reupload if gl is suspended (default on if S3E_GL_MUST_SUSPEND is true)
+CacheVBOs			0 or 1		Cache vbos and reupload if gl is suspended (default on if S3E_GL_MUST_SUSPEND is true)
+CacheSurfaces		0 or 1		Cache surfaces and reupload if gl is suspended (default on if S3E_GL_MUST_SUSPEND is true)
+CacheShaders		0 or 1		Cache shaders and reupload if gl is suspended (default on if S3E_GL_MUST_SUSPEND is true)
+CacheVBOPointers	0 or 1		Cache VBO data pointers only (i.e. the application is keeping a copy) (default off)
+AllowTextureAllocInBind 0 or 1	Alloc glBindTexture with an unrecognised handle to allocate that handle.
 
 [system]
 width                        <Integer>
