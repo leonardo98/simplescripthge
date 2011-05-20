@@ -279,7 +279,7 @@ void Simulator::OnMouseDown(FPoint2D mousePos)
 	if (callback.m_fixture)
 	{
 		b2Body* body = callback.m_fixture->GetBody();
-		BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
+		//BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
 		if (_editor) {
 			InitParams(body);
 			return;
@@ -717,7 +717,8 @@ void Simulator::ResetState() {
 	_editor = true;
 	EraseAllBodyes();
 	for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
-		b2Body *b = AddElement(*i);
+
+		/*b2Body *b = */AddElement(*i);
 		//b->SetTransform(_state[i].pos, _state[i].angle);
 	}
 }

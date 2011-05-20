@@ -45,8 +45,8 @@ librarypath
 } 
 librarys
 { 
-        iwgxfont_d.lib
         iw2d_d.lib
+        iwgxfont_d.lib
         #vc6_compat.lib
         derbh_d.lib
         iwanim_d.lib

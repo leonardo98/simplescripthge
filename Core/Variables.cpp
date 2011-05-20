@@ -11,7 +11,9 @@ void Variables::Init(lua_State *L)
 
 void Variables::Set(const char *variableName, const char *value)
 {
+#ifdef DEBUG
 	int err = lua_gettop(l);
+#endif
 	lua_pushstring(l, variableName);
 	lua_pushstring(l, value);
 	lua_settable(l, LUA_GLOBALSINDEX);
@@ -20,7 +22,9 @@ void Variables::Set(const char *variableName, const char *value)
 
 std::string Variables::Get(const char *variableName)
 {
+#ifdef DEBUG
 	int err = lua_gettop(l);
+#endif
 	lua_getglobal(l, variableName);
 	const char *result = lua_tostring(l, -1);
 	// NULL - переменная не была определена в lua скрипте, а значение уже спрашивают

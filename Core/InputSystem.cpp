@@ -154,7 +154,7 @@ void InputSystem::MultiTouchMotionCB(s3ePointerTouchMotionEvent* event) {
 #define FLOAT(a) static_cast<float>(a)
 
 void InputSystem::SingleTouchButtonCB(s3ePointerEvent* event) {
-	if (g_Touches[0].active = event->m_Pressed != 0) {
+	if ((g_Touches[0].active = (event->m_Pressed != 0))) {
 		MouseDown(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
 	} else {
 		MouseUp();

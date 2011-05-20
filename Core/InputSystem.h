@@ -96,4 +96,7 @@ private:
 #endif//IOS_COMPLILE_KEY
 };
 
+void InitInputEvent();
+void ReleaseInputEvent();
+
 #endif // !defined(_INPUTSYSTEM_INCLUDED_)
