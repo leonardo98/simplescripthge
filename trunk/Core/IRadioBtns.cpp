@@ -21,7 +21,7 @@ IRadioBtns::IRadioBtns(TiXmlElement *xe)
 }
 
 void IRadioBtns::Draw() {
-	int counter = 0;
+	unsigned int counter = 0;
 	for (Items::iterator i = _items.begin(), e = _items.end(); i != e; ++i) {
 		FPoint2D pos = _pos;
 		pos.x += _stepRight * (counter % _itemsInRow);

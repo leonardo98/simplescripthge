@@ -115,6 +115,8 @@ public:
 		BodyTemplate *base;
 		float width;
 		bool broken;
+		MyBody() : width(0.f), broken(false) {
+		}
 	};
 	struct BodyState : public MyBody
 	{ // структура для хранения начального положения элементов на уровне
