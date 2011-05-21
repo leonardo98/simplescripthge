@@ -30,7 +30,7 @@ DWORD Render::Parse(const std::string &s) {
 	return 0;
 }
 
-#ifndef IOS_COMPILE_KEY
+#ifdef HGE_COMPILE_KEY
 
 HGE *Render::_hge = NULL;
 std::map<std::string, hgeFont*> Render::_fonts;
@@ -353,4 +353,4 @@ void Render::FinishVertexBuffer(CIwSVec2 *xy, CIwSVec2 *uvs, unsigned int counte
     IwGxDrawPrims(IW_GX_QUAD_LIST, NULL, counter * 4);
 }
 
-#endif // IOS_COMPILE_KEY
+#endif // HGE_COMPILE_KEY

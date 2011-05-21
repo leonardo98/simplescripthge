@@ -471,7 +471,7 @@ bool Simulator::IsMouseOver(FPoint2D mousePos) {
 	return true;
 }
 
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 inline void Simulator::DrawElement(CIwSVec2 *&bufVert, CIwSVec2 *&bufUV, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
 	float x =   _viewScale * pos.x + _worldCenter.x;
 	float y = - _viewScale * pos.y + _worldCenter.y;
@@ -518,7 +518,7 @@ void Simulator::Draw() {
 	bool blue = false;
 	_finish = 0x0;
 	int max = 1;
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 	CIwSVec2 *bufferVert = _xy;
 	CIwSVec2 *bufferUV = _uvs;
 	Render::StartVertexBuffer(_allElements);
@@ -550,7 +550,7 @@ void Simulator::Draw() {
 				blue = true;
 				_finish |= 0x2;
 			}
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, bt->_positions[angle]);
 #else
 			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
@@ -569,7 +569,7 @@ void Simulator::Draw() {
 			p[1] = *p[1].Rotate(angle);
 			p[2] = *p[2].Rotate(angle);
 			p[3] = *p[3].Rotate(angle);
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, p);
 #else
 			DrawElement(buffer, bt->_uv, xf.position, p);
@@ -580,7 +580,7 @@ void Simulator::Draw() {
 			}
 		}
 		++counter;
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 	}
 	Render::FinishVertexBuffer(_xy, _uvs, counter);
 #else
@@ -601,13 +601,13 @@ void Simulator::Draw() {
 	}
 	if (_selectedBody && _signal > 0.5f) {
 		max = 1;
-#ifndef IOS_COMPILE_KEY
+#ifdef HGE_COMPILE_KEY
 		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
 #endif
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
 		const b2Transform & xf = _selectedBody->GetTransform();
 		if (exception) {
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, pselect);
 #else
 			DrawElement(buffer, bt->_uv, xf.position, pselect);
@@ -615,14 +615,14 @@ void Simulator::Draw() {
 		} else {
 			int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
 			assert(0 <= angle && angle <= BodyTemplate::MAX);
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, bt->_positions[angle]);
 #else
 			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
 #endif
 		}
 
-#ifndef IOS_COMPILE_KEY
+#ifdef HGE_COMPILE_KEY
 		Render::GetDC()->Gfx_FinishBatch(1);
 #endif
 	}

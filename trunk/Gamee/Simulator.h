@@ -211,7 +211,7 @@ protected:
 
 	b2Body *_selectedBody;
 	void InitParams(b2Body *body);
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 #define MAX_ELEMENTS 200
     CIwSVec2 _uvs[MAX_ELEMENTS * 4];
     CIwSVec2 _xy[MAX_ELEMENTS * 4];

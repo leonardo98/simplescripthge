@@ -40,7 +40,7 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 	float v1 = static_cast<float>(atof(uvdesc->Attribute("v1")));
 	float v2 = static_cast<float>(atof(uvdesc->Attribute("v2")));
 
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 #define UV16(a) static_cast<int16>(a * (1 << 12));
 	_uv[0].u = UV16(u1); _uv[0].v = UV16(v1);
 	_uv[1].u = UV16(u2); _uv[1].v = UV16(v1);

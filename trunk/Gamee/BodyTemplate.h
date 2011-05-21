@@ -17,7 +17,7 @@ public:
 	static const int MAX = 300;
 	std::string _id;
 	struct UV {
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 		int16 u, v;
 #else
 		float u, v;

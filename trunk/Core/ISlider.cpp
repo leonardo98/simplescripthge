@@ -52,7 +52,7 @@ void ISlider::OnMouseDown(FPoint2D mousePos) {
 
 void ISlider::OnMouseMove(FPoint2D mousePos) {
 	if (_down) {
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 		if (_horizontal) {
 			_value = std::min(1.f, std::max(0.f, (mousePos.x - _pos.x) / _length));
 		} else {
@@ -64,7 +64,7 @@ void ISlider::OnMouseMove(FPoint2D mousePos) {
 		} else {
 			_value = min(1.f, max(0.f, (mousePos.y - _pos.y) / _length));
 		}
-#endif // IOS_COMPILE_KEY
+#endif // HGE_COMPILE_KEY
 	}
 }
 

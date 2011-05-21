@@ -2,9 +2,9 @@
 
 #include "types.h"
 
-#ifndef IOS_COMPILE_KEY
+#ifdef HGE_COMPILE_KEY
 #include "hgeFont.h"
-#endif // IOS_COMPILE_KEY
+#endif // HGE_COMPILE_KEY
 
 class Interface
 {

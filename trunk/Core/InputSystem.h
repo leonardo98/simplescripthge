@@ -11,7 +11,7 @@
 
 #include "types.h"
 #include "Object.h"
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 #include "s3ePointer.h"
 #endif
 //
@@ -61,7 +61,7 @@ protected:
 private:
 	typedef std::list<InputSystem *> Listeners;
 	static Listeners _listeners;
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 	//Simple structure to track touches
 	struct CTouch
 	{

@@ -1,12 +1,14 @@
 #!/usr/bin/env mkb
 options
 {
-	strict
 }
-#// Preprocessor Definitions
-defines 
+deployments 
 { 
-        IOS_COMPILE_KEY
+	uid=0x12345678 
+	  
+	["iOS demo build"] 
+	iphone 
+	uid=0x24681012 
 } 
 #// Additional Include Directories
 includepaths
@@ -30,37 +32,84 @@ includepaths
 #//  Additional Library Directories
 librarypath 
 { 
-        "c:/airplay sdk/update/modules/derbh/lib/x86"
-        "c:/airplay sdk/update/modules/iwanim/lib/x86"
-        "c:/airplay sdk/update/modules/iwgraphics/lib/x86"
-        "c:/airplay sdk/update/modules/iwutil/lib/x86"
-        "c:/airplay sdk/update/modules/iwgeom/lib/x86"
-        "c:/airplay sdk/update/modules/iwresmanager/lib/x86"
-        "c:/airplay sdk/update/modules/iwgx/atitools"
-        "c:/airplay sdk/update/modules/iw2d/lib/x86"
-        "c:/airplay sdk/update/modules/iwgx/lib/x86"
-        "c:/airplay sdk/update/modules/iwgl/lib/x86"
-        "c:/airplay sdk/update/s3e/lib/x86"
-        "c:/airplay sdk/update/modules/iwgxfont/lib/x86"
-} 
+    "c:/airplay sdk/update/modules/derbh/lib/x86"
+    "c:/airplay sdk/update/modules/iwanim/lib/x86"
+    "c:/airplay sdk/update/modules/iwgraphics/lib/x86"
+    "c:/airplay sdk/update/modules/iwutil/lib/x86"
+    "c:/airplay sdk/update/modules/iwgeom/lib/x86"
+    "c:/airplay sdk/update/modules/iwresmanager/lib/x86"
+    "c:/airplay sdk/update/modules/iwgx/atitools"
+    "c:/airplay sdk/update/modules/iw2d/lib/x86"
+    "c:/airplay sdk/update/modules/iwgx/lib/x86"
+    "c:/airplay sdk/update/modules/iwgl/lib/x86"
+    "c:/airplay sdk/update/s3e/lib/x86"
+    "c:/airplay sdk/update/modules/iwgxfont/lib/x86"
+}
+
+subproject "$AIRPLAY_ROOT/modules/iw2d"
+subproject "$AIRPLAY_ROOT/modules/iwgxfont"
+subproject "$AIRPLAY_ROOT/modules/derbh"
+subproject "$AIRPLAY_ROOT/modules/iwanim"
+subproject "$AIRPLAY_ROOT/modules/iwgraphics"
+subproject "$AIRPLAY_ROOT/modules/iwutil"
+subproject "$AIRPLAY_ROOT/modules/iwgeom"
+subproject "$AIRPLAY_ROOT/modules/iwresmanager"
+subproject "$AIRPLAY_ROOT/modules/iwgx"
+subproject "$AIRPLAY_ROOT/modules/iwgl"
+#subproject "$AIRPLAY_ROOT/s3e"
+
+librarys
+{
+#    iw2d
+#   iwgxfont
+#	derbh
+#	iwanim
+#	iwgraphics
+#	iwutil
+#	iwgeom
+#	iwresmanager
+#	iwgx
+#	iwgl
+}
+
 librarys
 { 
-        iw2d_d.lib
-        iwgxfont_d.lib
-        #vc6_compat.lib
-        derbh_d.lib
-        iwanim_d.lib
-        iwgraphics_d.lib
-        iwutil_d.lib
-        iwgeom_d.lib
-        iwresmanager_d.lib
-        ATI_Compress_MT_VC7.lib
-        iwgx_d.lib
-        iwgl_d.lib
-        s3e_cpp_vc8_d.lib
-        s3e_d.lib
-        s3e_api.lib
+	#iw2d_d.lib
+	#iw2d_d.lib
+	#iwgxfont_d.lib
+	#vc6_compat.lib
+	#derbh_d.lib
+	#iwanim_d.lib
+	#c:/airplay%20sdk/update/modules/iwanim/lib/x86/iwanim
+	#iwgraphics_d.lib
+	#"c:/airplay%20sdk/update/modules/iwgraphics/lib/x86/iwgraphics.lib"
+	#iwutil_d.lib
+	#"c:/airplay%20sdk/update/modules/iwutil/lib/x86/iwutil.lib"
+	#iwgeom_d.lib
+	#"c:/airplay%20sdk/update/modules/iwgeom/lib/x86/iwgeom.lib"
+	#iwresmanager_d.lib
+	#"c:/airplay%20sdk/update/modules/iwresmanager/lib/x86/iwresmanager.lib"
+	#ATI_Compress_MT_VC7.lib
+	#iwgx_d.lib
+	#"c:/airplay%20sdk/update/modules/iwgx/lib/x86/iwgx.lib"
+	#iwgl_d.lib
+	#"c:/airplay%20sdk/update/modules/iwgl/lib/x86/iwgl.lib"
+	#s3e_d.lib
+	#"c:/airplay%20sdk/update/s3e/lib/x86/s3e.lib"
+	#"c:/airplay%20sdk/update/s3e/lib/x86/s3e_api.lib"
+	#s3e_cpp_vc8_d.lib
+	#s3e_cpp_vc8.lib
 } 
+
+if {{defined I3D_OS_WINDOWS}}
+{
+    librarys
+    {
+		s3e.lib
+		s3e_api.lib
+		s3e_cpp_vc8.lib
+    }
+}
 
 files
 {

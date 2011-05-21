@@ -8,7 +8,7 @@
 #include <list>
 #include <map>
 
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 	extern "C" 
 	{
 	  #include "C:\Airplay SDK\update\modules\third_party\lua\modified\src\lua.h"
@@ -40,7 +40,7 @@ extern "C"
 	typedef hgeVector FPoint2D;
 	typedef hgeVertex Vertex;
 	#define LOG(a) Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str())
-#endif //IOS_COMPILE_KEY
+#endif //HGE_COMPILE_KEY
 
 #define PTexture Render::Texture *
 

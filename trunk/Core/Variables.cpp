@@ -11,7 +11,7 @@ void Variables::Init(lua_State *L)
 
 void Variables::Set(const char *variableName, const char *value)
 {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(l);
 #endif
 	lua_pushstring(l, variableName);
@@ -22,7 +22,7 @@ void Variables::Set(const char *variableName, const char *value)
 
 std::string Variables::Get(const char *variableName)
 {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(l);
 #endif
 	lua_getglobal(l, variableName);
