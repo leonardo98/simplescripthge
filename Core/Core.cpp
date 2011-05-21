@@ -7,7 +7,7 @@
 #include "Variables.h"
 
 static int LuaSendMessage(lua_State *L) {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(L);
 #endif
 	const char *name = lua_tostring(L, 1);
@@ -18,7 +18,7 @@ static int LuaSendMessage(lua_State *L) {
 }
 
 static int LuaSetNumberValue(lua_State *L) {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(L);
 #endif
 	assert(err == 0);
@@ -31,7 +31,7 @@ static int LuaSetNumberValue(lua_State *L) {
 }
 
 static int LuaSetStringValue(lua_State *L) {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(L);
 #endif
 	assert(err == 0);
@@ -44,7 +44,7 @@ static int LuaSetStringValue(lua_State *L) {
 }
 
 static int LuaSetBoolValue(lua_State *L) {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(L);
 #endif
 	assert(err != 0);
@@ -57,7 +57,7 @@ static int LuaSetBoolValue(lua_State *L) {
 }
 
 static int LuaGetBoolValue(lua_State *L) {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(L);
 #endif
 	assert(err == 0);
@@ -69,7 +69,7 @@ static int LuaGetBoolValue(lua_State *L) {
 }
 
 static int LuaGetNumberValue(lua_State *L) {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(L);
 #endif
 	assert(err == 0);
@@ -81,13 +81,13 @@ static int LuaGetNumberValue(lua_State *L) {
 }
 
 static int LuaGetStringValue(lua_State *L) {
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	int err = lua_gettop(L);
 #endif
 	assert(err == 0);
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 1);
-#ifdef DEBUG
+#ifdef IW_DEBUG
 	const char *value = lua_tostring(L, 2);// не помню для чего это сделано - может это и лишнее????
 #endif
 	assert(value != 0);

@@ -8,7 +8,7 @@
 #include "IwTexture.h "
 #include "IwMaterial.h"
 
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 
 class Render
 {
@@ -20,7 +20,7 @@ public:
 	static DWORD Parse(const std::string &s);	
 	class Texture 
 	{
-#ifndef IOS_COMPILE_KEY
+#ifdef HGE_COMPILE_KEY
 	public:
 		//Texture(HTEXTURE h, int x, int y, int width, int height);
 		//HTEXTURE GetTexture();
@@ -113,4 +113,4 @@ public:
 	static void Line(float x1, float y1, float x2, float y2, DWORD color);
 };
 
-#endif // IOS_COMPILE_KEY
+#endif // HGE_COMPILE_KEY

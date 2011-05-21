@@ -18,7 +18,7 @@ StarsRect::StarsRect(TiXmlElement *xe)
 	_number = atoi(xe->Attribute("number"));
 	std::string texture = xe->Attribute("texture"); 
 	_texture = Core::getTexture(texture);
-#ifndef IOS_COMPILE_KEY
+#ifdef HGE_COMPILE_KEY
 	_texture->SetBlendMode(BLEND_NOZWRITE);
 #endif
 	for (int i = 0; i < _number; i++ ) {

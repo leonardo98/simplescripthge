@@ -5,7 +5,7 @@
 #include "Interface.h"
 #include "Render.h"
 
-#ifdef IOS_COMPILE_KEY 
+#ifndef HGE_COMPILE_KEY 
 
 #include <math.h>
 #include <GLES/egl.h>
@@ -113,4 +113,4 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 	return 0;
 }
 
-#endif // IOS_COMPILE_KEY
+#endif // HGE_COMPILE_KEY

@@ -113,7 +113,7 @@ void OnLongTap(int direction) {
 void OnDoubleClick(int direction) {
 }
 
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
 
 InputSystem::CTouch InputSystem::g_Touches[MAX_TOUCHES];
 
@@ -221,10 +221,10 @@ bool CheckForInputEvent(float dt) {
 	return false;
 }
 
-#endif//IOS_COMPILE_KEY
+#endif//HGE_COMPILE_KEY
 
 void InitInputEvent() {
-#ifdef IOS_COMPILE_KEY
+#ifndef HGE_COMPILE_KEY
     bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
     if (g_UseMultiTouch) {
 		s3ePointerRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB, NULL);
@@ -241,7 +241,7 @@ void InitInputEvent() {
 	InputSystem::_longTap = false;
 	InputSystem::_doubleClick = false; 
 	InputSystem::_locked = NULL;
-#endif//IOS_COMPILE_KEY
+#endif//HGE_COMPILE_KEY
 }
 
 void ReleaseInputEvent() {
