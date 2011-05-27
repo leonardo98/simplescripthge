@@ -15,17 +15,18 @@
 #
 # Some conditional operations are also permitted, see the
 # S3E documentation for details.
+[S3E]
+FixScreenOrientation=1
 [GX]
 DataCacheSize=128000
 [system]
 width=480
 height=320
-fullscreen=0
 fps=30
 logfile=log.log
 [interface_common]
 background=0xFFD0D0D0
-text=0x000000
+text=0xFF000000
 style=none
 border_hight=0xFFFFFFFF
 border_low=0xFF707070

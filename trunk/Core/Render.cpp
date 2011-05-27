@@ -314,14 +314,16 @@ int Render::GetStringWidth(const std::string &fontName, const char *s) {
 
 int Render::IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue) {
 	int i = defaultValue;
-	assert(s3eConfigGetInt(section, variable, &i) != S3E_RESULT_ERROR);
+	int res = s3eConfigGetInt(section, variable, &i);
+	assert(res != S3E_RESULT_ERROR);
 	return i;
 }
 
 std::string Render::IniFileGetString(const char *section, const char *variable, const char *defaultValue) {
 	char str[0x100];
 	strcpy(str, defaultValue);
-	assert(s3eConfigGetString(section, variable, str) != S3E_RESULT_ERROR);
+	int res = s3eConfigGetString(section, variable, str);
+	assert(res != S3E_RESULT_ERROR);
 	return str;
 }
 

@@ -54,7 +54,7 @@ int main() {
 				break;
 
 			// Clear the screen & draw
-			Iw2DSurfaceClear(0xffffffff);
+			Iw2DSurfaceClear(0xff2f4f2f);
 			core.Draw();
 			Iw2DSurfaceShow();
 
