@@ -134,10 +134,16 @@ InputSystem::CTouch* InputSystem::GetTouch(int32 id) {
     return NULL;
 }
 
+#define FLOAT(a) static_cast<float>(a)
+
 void InputSystem::MultiTouchButtonCB(s3ePointerTouchEvent* event) {
     CTouch* touch = GetTouch(event->m_TouchID);
     if (touch) {
-        touch->active = event->m_Pressed != 0; 
+		if (touch->active = (event->m_Pressed != 0)) {
+			MouseDown(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
+		} else {
+			MouseUp();
+		}
         touch->x = event->m_x;
         touch->y = event->m_y;
     }
@@ -146,12 +152,13 @@ void InputSystem::MultiTouchButtonCB(s3ePointerTouchEvent* event) {
 void InputSystem::MultiTouchMotionCB(s3ePointerTouchMotionEvent* event) {
     CTouch* touch = GetTouch(event->m_TouchID);
     if (touch) {
+		if (touch->active) {
+			MouseMove(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
+		}
         touch->x = event->m_x;
         touch->y = event->m_y;
     }
 }
-
-#define FLOAT(a) static_cast<float>(a)
 
 void InputSystem::SingleTouchButtonCB(s3ePointerEvent* event) {
 	if ((g_Touches[0].active = (event->m_Pressed != 0))) {

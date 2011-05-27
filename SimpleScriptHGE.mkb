@@ -1,6 +1,7 @@
 #!/usr/bin/env mkb
 options
 {
+	s3e-data-dir=bin
 }
 deployments 
 { 
@@ -351,4 +352,15 @@ files
     lauxlib.h
     lua.h
     lualib.h
+}
+#### AUTO GENERATED deployment settings from DeployTool.exe. Do not edit below this line ####
+deployments
+{
+	["Default"]
+	caption='Big BOOM Editor'
+	iphone-backgroundmode-audio=1
+	iphone-disable-ipad=1
+	iphone-nosign=1
+	iphone-splash=present.png
+	["iOS demo build"]
 }

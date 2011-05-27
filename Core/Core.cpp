@@ -131,6 +131,8 @@ void Core::Load(const char *fileName)
 			}
 			element = element->NextSiblingElement();
 		}
+	} else {
+		IwAssert(0, "file not found");
 	}
 	if (_scripts.find("onLoad") != _scripts.end()) {
 		_scripts["onLoad"]->Execute();

@@ -16,15 +16,15 @@ DWORD Interface::BUTTON_TEXT;
 
 void Interface::Init()
 {
-	BACKGROUND = Render::IniFileGetUnsignedInt("interface_common", "background", 0xFFFFFF);
-	TEXT = Render::IniFileGetUnsignedInt("interface_common", "text", 0x000000);
+	BACKGROUND = Render::IniFileGetUnsignedInt("interface_common", "background", 0xFFFFFFFF);
+	TEXT = Render::IniFileGetUnsignedInt("interface_common", "text", 0xFF000000);
 	STYLE = Render::IniFileGetString("interface_common", "style", "none");
-	BORDER_HIGH = Render::IniFileGetUnsignedInt("interface_common", "border_hight", 0x000000);
-	BORDER_LOW = Render::IniFileGetUnsignedInt("interface_common", "border_low", 0xFFFFFF);
+	BORDER_HIGH = Render::IniFileGetUnsignedInt("interface_common", "border_hight", 0xFF000000);
+	BORDER_LOW = Render::IniFileGetUnsignedInt("interface_common", "border_low", 0xFFFFFFFF);
 
-	BACKGROUND_NORMAL = Render::IniFileGetUnsignedInt("interface_buttons", "normal", 0xFFFFFF);
-	BACKGROUND_PRESSED = Render::IniFileGetUnsignedInt("interface_buttons", "pressed", 0xFFFFFF);
-	BUTTON_TEXT = Render::IniFileGetUnsignedInt("interface_buttons", "text", 0xFFFFFF);
+	BACKGROUND_NORMAL = Render::IniFileGetUnsignedInt("interface_buttons", "normal", 0xFFFFFFFF);
+	BACKGROUND_PRESSED = Render::IniFileGetUnsignedInt("interface_buttons", "pressed", 0xFFFFFFFF);
+	BUTTON_TEXT = Render::IniFileGetUnsignedInt("interface_buttons", "text", 0xFFFFFFFF);
 
 	/*
 	BACKGROUND = 0xFFFFFF;
