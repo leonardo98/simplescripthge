@@ -1,0 +1,26 @@
+// StaticTexture.h: interface for the StaticTexture class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(_STATICTEXTURE_INCLUDED_)
+#define _STATICTEXTURE_INCLUDED_
+
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
+#include "..\Core\Object.h"
+#include "..\Core\Render.h"
+
+class StaticTexture : public Object  
+{
+public:
+	StaticTexture(TiXmlElement *xe);
+	virtual ~StaticTexture();
+	void Draw();
+private:
+	FPoint2D _pos;
+	PTexture _texture;
+};
+
+#endif // !defined(_STATICTEXTURE_INCLUDED_)
