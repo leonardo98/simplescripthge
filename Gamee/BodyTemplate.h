@@ -1,7 +1,7 @@
 #pragma once
 
 #include "..\Core\types.h"
-#include "C:\CppLib\Box2D_v2.1.2\Box2D\Box2D\Box2D.h"
+#include <Box2D/Box2D.h>
 
 enum BodyTypes{
 	BODY_TYPE_GROUND = -1,

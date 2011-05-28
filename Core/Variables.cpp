@@ -17,7 +17,9 @@ void Variables::Set(const char *variableName, const char *value)
 	lua_pushstring(l, variableName);
 	lua_pushstring(l, value);
 	lua_settable(l, LUA_GLOBALSINDEX);
+#ifdef IW_DEBUG
 	assert(err == lua_gettop(l));
+#endif
 }
 
 std::string Variables::Get(const char *variableName)
@@ -31,6 +33,8 @@ std::string Variables::Get(const char *variableName)
 	assert(result != NULL); 
 	std::string value(result);
 	lua_pop(l, 1);
+#ifdef IW_DEBUG
 	assert(err == lua_gettop(l));
+#endif
 	return value;
 }

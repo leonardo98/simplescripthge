@@ -75,6 +75,7 @@ int main() {
 }
 
 #else
+Core core;
 
 bool RenderFunc()
 {
