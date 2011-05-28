@@ -13,15 +13,17 @@ static int LuaSendMessage(lua_State *L) {
 	const char *name = lua_tostring(L, 1);
 	const char *message = lua_tostring(L, 2);
 	Messager::SendMessage(name, message);
+#ifdef IW_DEBUG
 	assert(err == lua_gettop(L));
+#endif
 	return 0;
 }
 
 static int LuaSetNumberValue(lua_State *L) {
 #ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
+#endif
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	float value = static_cast<float>(lua_tonumber(L, 1));
@@ -33,8 +35,8 @@ static int LuaSetNumberValue(lua_State *L) {
 static int LuaSetStringValue(lua_State *L) {
 #ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
+#endif
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	std::string value = lua_tostring(L, 3);
@@ -46,8 +48,8 @@ static int LuaSetStringValue(lua_State *L) {
 static int LuaSetBoolValue(lua_State *L) {
 #ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err != 0);
+#endif
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	bool value = (lua_toboolean(L, 3) != 0);
@@ -59,8 +61,8 @@ static int LuaSetBoolValue(lua_State *L) {
 static int LuaGetBoolValue(lua_State *L) {
 #ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
+#endif
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	bool result = Messager::GetBoolValue(name, variableName);
@@ -71,8 +73,8 @@ static int LuaGetBoolValue(lua_State *L) {
 static int LuaGetNumberValue(lua_State *L) {
 #ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
+#endif
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
 	float result = Messager::GetNumberValue(name, variableName);
@@ -83,14 +85,14 @@ static int LuaGetNumberValue(lua_State *L) {
 static int LuaGetStringValue(lua_State *L) {
 #ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
+#endif
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 1);
 #ifdef IW_DEBUG
 	const char *value = lua_tostring(L, 2);// не помню для чего это сделано - может это и лишнее????
-#endif
 	assert(value != 0);
+#endif
 	std::string result = Messager::GetValue(name, variableName);
 	lua_pushstring(L, result.c_str());
 	return 1;
@@ -131,9 +133,12 @@ void Core::Load(const char *fileName)
 			}
 			element = element->NextSiblingElement();
 		}
-	} else {
+	} 
+#ifdef IW_DEBUG
+	else {
 		IwAssert(0, "file not found");
 	}
+#endif
 	if (_scripts.find("onLoad") != _scripts.end()) {
 		_scripts["onLoad"]->Execute();
 	}

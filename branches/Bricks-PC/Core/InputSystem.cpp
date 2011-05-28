@@ -252,6 +252,7 @@ void InitInputEvent() {
 }
 
 void ReleaseInputEvent() {
+#ifndef HGE_COMPILE_KEY
     bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
     if (g_UseMultiTouch) {
 		s3ePointerUnRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB);
@@ -260,4 +261,5 @@ void ReleaseInputEvent() {
         s3ePointerUnRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)InputSystem::SingleTouchButtonCB);
         s3ePointerUnRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)InputSystem::SingleTouchMotionCB);
 	}
+#endif//HGE_COMPILE_KEY
 }

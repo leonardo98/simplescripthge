@@ -28,9 +28,9 @@
 #else
 extern "C" 
 {
-  #include "C:\CppLib\lua\include\lua.h"
-  #include "C:\CppLib\lua\include\lualib.h"
-  #include "C:\CppLib\lua\include\lauxlib.h"
+  #include "lua.h"
+  #include "lualib.h"
+  #include "lauxlib.h"
 }
 	#include "hge.h"
 	#include "hgesprite.h"

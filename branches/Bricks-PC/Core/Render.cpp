@@ -1,7 +1,7 @@
 // device specified function
 
 #include "Render.h"
-#include "s3e.h"
+//#include "s3e.h"
 
 DWORD Render::Parse(const std::string &s) {
 	assert(s.size() <= 10);
