@@ -157,7 +157,8 @@ void Core::OnMessage(const std::string &message)
 void Core::Draw()
 {
 	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
-		(*i)->Draw();
+		if((*i)->isVisible())
+			(*i)->Draw();
 	}
 }
 
@@ -165,7 +166,8 @@ void Core::Update(float deltaTime)
 {
 	Messager::CoreSendMessages();
 	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
-		(*i)->Update(deltaTime);
+		if((*i)->isVisible())
+			(*i)->Update(deltaTime);
 	}
 	while (_messages.begin() != _messages.end()) {
 		std::string message = *_messages.begin();
