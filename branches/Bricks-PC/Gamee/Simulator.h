@@ -180,6 +180,7 @@ protected:
 
 	float _angleMultiplier;
 	bool _editor;
+	bool mousePressed;
 
 	int _finish;// ==0 - закончились и бомбы и синие; &1 - еще есть динамит; &2 - еще есть синие
 	bool CanLevelStart();

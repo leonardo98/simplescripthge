@@ -1,7 +1,10 @@
 // device specified function
 
 #include "Render.h"
-//#include "s3e.h"
+
+#ifndef HGE_COMPILE_KEY
+#include "s3e.h"
+#endif
 
 DWORD Render::Parse(const std::string &s) {
 	assert(s.size() <= 10);

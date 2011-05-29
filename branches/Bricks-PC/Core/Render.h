@@ -5,10 +5,10 @@
 #include <string>
 #include <map>
 #include "types.h"
-//#include "IwTexture.h "
-//#include "IwMaterial.h"
 
 #ifndef HGE_COMPILE_KEY
+#include "IwTexture.h "
+#include "IwMaterial.h"
 
 class Render
 {
