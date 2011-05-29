@@ -64,6 +64,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	
 	m_bombSpawning = false;
 	m_stepCount = 0;
+	mousePressed = false;
 }
 
 Simulator::~Simulator()
@@ -256,6 +257,7 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 void Simulator::OnMouseDown(FPoint2D mousePos)
 {	
 	_lastMousePos = mousePos;
+	mousePressed = true;
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
@@ -289,6 +291,7 @@ void Simulator::OnMouseDown(FPoint2D mousePos)
 
 void Simulator::OnMouseUp()
 {
+	mousePressed = false;
 	if (m_mouseJoint) {
 		m_mouseJoint->GetBodyB()->ResetMassData();
 		m_world->DestroyJoint(m_mouseJoint);
@@ -405,11 +408,11 @@ void Simulator::OnMouseMove(FPoint2D mousePos)
 
 	if (m_mouseJoint) {
 		m_mouseJoint->SetTarget(p);
-	} else if (_editor && Render::IsLeftMouseButton() && _selectedBody) {
+	} else if (_editor && mousePressed && _selectedBody) {
 		b2Vec2 pos = _selectedBody->GetPosition();
 		pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
 		_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
-	} else if (Render::IsLeftMouseButton()) {
+	} else if(mousePressed) {
 		_worldCenter += (mousePos - _lastMousePos);
 	}
 	_lastMousePos = mousePos;
