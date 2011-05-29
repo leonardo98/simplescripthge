@@ -19,9 +19,17 @@
 class Object  
 {
 public:
+	Object(bool show = true):bVisible(show) {} //По дефолту все обьекты видимые
 	virtual ~Object();
 	virtual void Draw();
 	virtual void Update(float);
+
+	void Show(bool show) { bVisible = show; } 
+	bool isVisible() { return bVisible; }
+private:
+	bool bVisible;	//Скрытые обьекты не получают события от клавиатуры,
+					//не рисуються и не апдейтятся если обрабатываються
+					//системой (Core, InputSystem)
 };
 
 #endif // !defined(_OBJECT_INCLUDED_)

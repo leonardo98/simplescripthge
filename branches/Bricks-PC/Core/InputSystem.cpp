@@ -23,16 +23,32 @@ InputSystem *InputSystem::_locked;
 InputSystem::InputSystem()
 {
 	_listeners.push_back(this);
+	bSystemInput = true;
+}
+
+void InputSystem::SetSystemInput(bool system)
+{
+	if(bSystemInput!=system)
+	{
+		if(system)
+			_listeners.push_back(this);
+		else
+			RemoveFromList(this);
+		bSystemInput = system;
+	}
 }
 
 InputSystem::~InputSystem()
 {
-	Listeners::iterator i;
-	for (i = _listeners.begin(); i != _listeners.end() && *i != this; i++);
-	if (i == _listeners.end()) {// нет в списке (уже удален)
-		LOG("удален уже Listener - деструктор вызван второй раз???");
-	} else {
-		_listeners.erase(i);
+	if(bSystemInput)
+	{
+		Listeners::iterator i;
+		for (i = _listeners.begin(); i != _listeners.end() && *i != this; i++);
+		if (i == _listeners.end()) {// нет в списке (уже удален)
+			LOG("удален уже Listener - деструктор вызван второй раз???");
+		} else {
+			_listeners.erase(i);
+		}
 	}
 }
 
@@ -50,48 +66,55 @@ bool InputSystem::OnMouseWheel(int direction) {return false;}
 
 void InputSystem::MouseDown(FPoint2D mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if ((*i)->IsMouseOver(mousePos)) {
-			(*i)->OnMouseDown(mousePos);
-			_locked = *i;
-			return;
-		}
+		if((*i)->isVisible())
+			if ((*i)->IsMouseOver(mousePos)) {
+				(*i)->OnMouseDown(mousePos);
+				_locked = *i;
+				return;
+			}
 	}
 }
 
 void InputSystem::LongTap() {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if ((*i)->IsMouseOver(_longTapPos)) {
-			(*i)->OnLongTap(_longTapPos);
-			_locked = *i;
-			return;
-		}
+		if((*i)->isVisible())
+			if ((*i)->IsMouseOver(_longTapPos)) {
+				(*i)->OnLongTap(_longTapPos);
+				_locked = *i;
+				return;
+			}
 	}
 }
 
 void InputSystem::DoubleClick(FPoint2D mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if ((*i)->IsMouseOver(mousePos)) {
-			(*i)->OnDoubleClick(mousePos);
-			_locked = *i;
-			return;
-		}
+		if((*i)->isVisible())
+			if ((*i)->IsMouseOver(mousePos)) {
+				(*i)->OnDoubleClick(mousePos);
+				_locked = *i;
+				return;
+			}
 	}
 }
 
 void InputSystem::MouseUp() {
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
-		(*i)->OnMouseUp();
+		if((*i)->isVisible())
+			(*i)->OnMouseUp();
 	}
 	_locked = NULL;
 }
 
 void InputSystem::MouseMove(FPoint2D mousePos) {
 	if (_locked != NULL) {
-		_locked->OnMouseMove(mousePos);
-		return;
+		if(_locked->isVisible()) {
+			_locked->OnMouseMove(mousePos);
+			return;
+		}
 	}
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
-		(*i)->OnMouseMove(mousePos);
+		if((*i)->isVisible())
+			(*i)->OnMouseMove(mousePos);
 	}
 }
 
@@ -183,12 +206,17 @@ void InputSystem::SingleTouchMotionCB(s3ePointerMotionEvent* event) {
 
 void InputSystem::MouseWheel(int direction) {
 	if (_locked != NULL) {
-		_locked->OnMouseWheel(direction);
-		return;
+		if(_locked->isVisible()) {
+			_locked->OnMouseWheel(direction);
+			return;
+		}
 	}
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if ((*i)->OnMouseWheel(direction)) {
-			return;
+		if((*i)->isVisible())
+		{
+			if ((*i)->OnMouseWheel(direction)) {
+				return;
+			}
 		}
 	}
 }

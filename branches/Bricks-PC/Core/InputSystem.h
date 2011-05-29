@@ -32,6 +32,7 @@ private:
 	static bool _doubleClick; // true - если ловим это событие "ƒвойной клик"
 	static FPoint2D _longTapPos;
 	static InputSystem *_locked;// пишу того кто вз€лс€ обрабатывать клик(нажатие/отпускание) - остальным не делаю MouseMove
+	bool bSystemInput; //true - сам себе обработчик
 public:
 	InputSystem();
 	virtual ~InputSystem();
@@ -53,6 +54,10 @@ public:
 
 	// ќЅя«ј≈Ћ№Ќќ нужно определить дл€ корректной работы OnMouseDown() и прочих функций
 	virtual bool IsMouseOver(FPoint2D mousePos) = 0;
+
+	//”становка системного или своего обработчика
+	void SetSystemInput(bool system);
+	bool isSystemInput() { return bSystemInput; }
 	
 protected:
 	// дл€ сложных(вложенных) элементов ввода - может понадобитьс€, переписать общий способ
