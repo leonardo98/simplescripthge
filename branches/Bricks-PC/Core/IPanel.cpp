@@ -12,7 +12,7 @@ IPanel::IPanel(TiXmlElement *xe)
 	_pos.y = static_cast<float>(atoi(xe->Attribute("y")));
 	_width = atoi(xe->Attribute("width"));
 	_height = atoi(xe->Attribute("height"));
-	Show(xe->Attribute("visible") == NULL?true:atoi(xe->Attribute("visible"))!=0);
+	_visible = xe->Attribute("visible") == NULL?true:atoi(xe->Attribute("visible"))!=0;
 	_needDraw = xe->Attribute("needDraw") == NULL?true:atoi(xe->Attribute("needDraw"))!=0;
 	TiXmlElement *element = xe->FirstChildElement("gui")->FirstChildElement();
 	while (element != NULL) {
@@ -33,7 +33,7 @@ IPanel::~IPanel(void)
 }
 
 void IPanel::Draw() {
-	if (!isVisible()) {
+	if (!_visible) {
 		return;
 	}
 	if (_needDraw) {
@@ -49,7 +49,7 @@ void IPanel::Draw() {
 }
 
 void IPanel::Update(float deltaTime) {
-	if (!isVisible()) {
+	if (!_visible) {
 		return;
 	}
 	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
@@ -58,14 +58,14 @@ void IPanel::Update(float deltaTime) {
 }
 
 bool IPanel::IsMouseOver(FPoint2D mousePos) {
-	if (!isVisible()) {
+	if (!_visible) {
 		return false;
 	}
-	return (isVisible() && _pos.x < mousePos.x && mousePos.x < _pos.x + _width && _pos.y < mousePos.y && mousePos.y < _pos.y + _height);
+	return (_visible && _pos.x < mousePos.x && mousePos.x < _pos.x + _width && _pos.y < mousePos.y && mousePos.y < _pos.y + _height);
 }
 
 void IPanel::OnMouseDown(FPoint2D mousePos) {
-	if (!isVisible()) {
+	if (!_visible) {
 		return;
 	}
 	for (Objects::reverse_iterator i = _objects.rbegin(), e = _objects.rend(); i != e; i++) {
@@ -77,7 +77,7 @@ void IPanel::OnMouseDown(FPoint2D mousePos) {
 }
 
 void IPanel::OnMouseUp() {
-	if (!isVisible()) {
+	if (!_visible) {
 		return;
 	}
 	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
@@ -86,7 +86,7 @@ void IPanel::OnMouseUp() {
 }
 
 void IPanel::OnMouseMove(FPoint2D mousePos) {
-	if (!isVisible()) {
+	if (!_visible) {
 		return;
 	}
 	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
@@ -96,14 +96,14 @@ void IPanel::OnMouseMove(FPoint2D mousePos) {
 
 void IPanel::OnMessage(const std::string &message) {
 	if (message == "hide") {
-		Show(!isVisible());
+		_visible = !_visible;
 	} 
 }
 
 bool IPanel::GetBoolValue(const std::string &variableName) {
-	return isVisible();
+	return _visible;
 }
 
 void IPanel::SetValue(const std::string &variableName, const bool &value) {
-	Show(value);
+	_visible = value;
 }
