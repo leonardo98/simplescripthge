@@ -66,55 +66,48 @@ bool InputSystem::OnMouseWheel(int direction) {return false;}
 
 void InputSystem::MouseDown(FPoint2D mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if((*i)->isVisible())
-			if ((*i)->IsMouseOver(mousePos)) {
-				(*i)->OnMouseDown(mousePos);
-				_locked = *i;
-				return;
-			}
+		if ((*i)->IsMouseOver(mousePos)) {
+			(*i)->OnMouseDown(mousePos);
+			_locked = *i;
+			return;
+		}
 	}
 }
 
 void InputSystem::LongTap() {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if((*i)->isVisible())
-			if ((*i)->IsMouseOver(_longTapPos)) {
-				(*i)->OnLongTap(_longTapPos);
-				_locked = *i;
-				return;
-			}
+		if ((*i)->IsMouseOver(_longTapPos)) {
+			(*i)->OnLongTap(_longTapPos);
+			_locked = *i;
+			return;
+		}
 	}
 }
 
 void InputSystem::DoubleClick(FPoint2D mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if((*i)->isVisible())
-			if ((*i)->IsMouseOver(mousePos)) {
-				(*i)->OnDoubleClick(mousePos);
-				_locked = *i;
-				return;
-			}
+		if ((*i)->IsMouseOver(mousePos)) {
+			(*i)->OnDoubleClick(mousePos);
+			_locked = *i;
+			return;
+		}
 	}
 }
 
 void InputSystem::MouseUp() {
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
-		if((*i)->isVisible())
-			(*i)->OnMouseUp();
+		(*i)->OnMouseUp();
 	}
 	_locked = NULL;
 }
 
 void InputSystem::MouseMove(FPoint2D mousePos) {
 	if (_locked != NULL) {
-		if(_locked->isVisible()) {
-			_locked->OnMouseMove(mousePos);
-			return;
-		}
+		_locked->OnMouseMove(mousePos);
+		return;
 	}
 	for (Listeners::iterator i = _listeners.begin(), e = _listeners.end(); i != e; i++) {
-		if((*i)->isVisible())
-			(*i)->OnMouseMove(mousePos);
+		(*i)->OnMouseMove(mousePos);
 	}
 }
 
@@ -206,17 +199,12 @@ void InputSystem::SingleTouchMotionCB(s3ePointerMotionEvent* event) {
 
 void InputSystem::MouseWheel(int direction) {
 	if (_locked != NULL) {
-		if(_locked->isVisible()) {
-			_locked->OnMouseWheel(direction);
-			return;
-		}
+		_locked->OnMouseWheel(direction);
+		return;
 	}
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
-		if((*i)->isVisible())
-		{
-			if ((*i)->OnMouseWheel(direction)) {
-				return;
-			}
+		if ((*i)->OnMouseWheel(direction)) {
+			return;
 		}
 	}
 }
