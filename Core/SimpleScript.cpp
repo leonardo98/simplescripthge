@@ -76,6 +76,8 @@ int main() {
 
 #else
 
+Core core;
+
 bool RenderFunc()
 {
 	Render::GetDC()->Gfx_BeginScene();
@@ -106,7 +108,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 		Render::RunApplication();
 		core.Release();
 	} else {	
-		Render::ShowMessage(Render::Error().c_str(), "Error");
+		LOG(Render::Error().c_str());
 	}
 	Render::ExitApplication();
 

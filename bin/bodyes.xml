@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- for the test size=1 is 10 pixels, it must be fixed late -->
+<!-- restitution - упругость, friction - коэфициент трения, mass - плотность -->
+<!-- по умолчанию fixed="false" explosion="false" breakable="false" -->
 <Definitions>
+  <!--
   <wall type="unbrakeable" shape="box" width="0.2" height="0.2" restitution="0.0" friction="1" mass="1">
     <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
   </wall>
@@ -16,4 +19,38 @@
   <ground type="ground" shape="box" radius="0.1" width="1.5" height="0.5" restitution="0.0" friction="1.0">
     <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
   </ground>
+  -->
+  <b2object id="wood" destroyOnTap="true" shape="box" baseWidth="0.2" baseHeight="0.2" restitution="0.0" friction="1" mass="0.3">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <b2object id="wood2" destroyOnTap="true" shape="triangle" baseWidth="0.2" baseHeight="0.2" restitution="0.0" friction="1" mass="0.3">
+    <uv u1="0" u2="0.25" v1="0.25" v2="0.5"/>
+  </b2object>
+  <b2object id="ice" destroyOnTap="true" shape="box" baseWidth="0.2" baseHeight="0.2" restitution="0.0" friction="0.03" mass="0.7">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <b2object id="ice2" destroyOnTap="true" shape="triangle" baseWidth="0.2" baseHeight="0.2" restitution="0.0" friction="0.03" mass="0.7">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <b2object id="rock" destroyOnTap="false" shape="box" baseWidth="0.2" baseHeight="0.2" restitution="0.0" friction="1" mass="1">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <b2object id="rock2" destroyOnTap="false" shape="triangle" baseWidth="0.2" baseHeight="0.2" restitution="0.0" friction="1" mass="1">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <b2object id="rubber" destroyOnTap="true" shape="box" baseWidth="0.2" baseHeight="0.2" restitution="0.9" friction="1" mass="1">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <b2object id="explosion" exploid="true" destroyOnTap="true" shape="circle" baseRadius="0.2" restitution="0.0" friction="1" mass="1" explosionRadius="1" explosionForce="0.4">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <b2object id="wall" fixed="true" destroyOnTap="false" shape="box" baseWidth="0.2" baseHeight="0.2" restitution="0.0" friction="0.8" mass="1">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </b2object>
+  <candy id="candy" destroyOnTap="false" shape="circle" baseRadius="0.2" restitution="0.0" friction="1" mass="0.5">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </candy>
+  <person id="person" destroyOnTap="false" shape="circle" baseRadius="0.3" restitution="0.0" friction="1" mass="0.5">
+    <uv u1="0.25" u2="0.5" v1="0" v2="0.25"/>
+  </person>
 </Definitions>

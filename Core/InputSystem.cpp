@@ -179,6 +179,17 @@ void InputSystem::SingleTouchMotionCB(s3ePointerMotionEvent* event) {
     g_Touches[0].y = event->m_y;
 }
 
+void ReleaseInputEvent() {
+    bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
+    if (g_UseMultiTouch) {
+		s3ePointerUnRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB);
+        s3ePointerUnRegister(S3E_POINTER_TOUCH_MOTION_EVENT, (s3eCallback)InputSystem::MultiTouchMotionCB);
+    } else {
+        s3ePointerUnRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)InputSystem::SingleTouchButtonCB);
+        s3ePointerUnRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)InputSystem::SingleTouchMotionCB);
+	}
+}
+
 #else
 
 void InputSystem::MouseWheel(int direction) {
@@ -251,13 +262,3 @@ void InitInputEvent() {
 #endif//HGE_COMPILE_KEY
 }
 
-void ReleaseInputEvent() {
-    bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
-    if (g_UseMultiTouch) {
-		s3ePointerUnRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB);
-        s3ePointerUnRegister(S3E_POINTER_TOUCH_MOTION_EVENT, (s3eCallback)InputSystem::MultiTouchMotionCB);
-    } else {
-        s3ePointerUnRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)InputSystem::SingleTouchButtonCB);
-        s3ePointerUnRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)InputSystem::SingleTouchMotionCB);
-	}
-}

@@ -1,8 +1,9 @@
 #include "Simulator.h"
+#include "..\Helpers\MyMessageBox.h"
 #include "..\Core\Core.h"
 #include "..\Core\Render.h"
 #include <cstdio>
-#define LEVELS_FILE "data.xml"
+#define LEVELS_FILE "levels.xml"
 
 int Simulator::round(float a) {
 	int b = static_cast<int>(a);
@@ -23,17 +24,17 @@ void Simulator::LoadTemplates(const std::string &filename) {
 	if (!doc.LoadFile()) {
 		return;
 	}
-	TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement();
+	TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement("b2object");
 	while (bodyDef) {
 		_collection.push_back(new BodyTemplate(bodyDef));
-		bodyDef = bodyDef->NextSiblingElement();
+		bodyDef = bodyDef->NextSiblingElement("b2object");
 	}
 }
 
 Simulator::Simulator(TiXmlElement *xe)
 	: _viewScale(100.f)
-	, _worldCenter(240.f, 290.f)
-	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
+	, _worldCenter((SCREEN_WIDTH = 480) / 2, (SCREEN_HEIGHT = 320) / 2)
+//	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
 	, Messager("simulator")
 	, _editor(false)
 	, _selectedBody(NULL)
@@ -41,10 +42,21 @@ Simulator::Simulator(TiXmlElement *xe)
 	, _doc(LEVELS_FILE)
 	, _currentLevel("")
 	, _waitState(WaitNone)
+	, _mouseDown(false)
+	, _waitYesNoNewLevel(false)
+	, _waitYesNoDelSelected(false)
+	, _waitYesNoOverwrite(false)
+	, _waitAddNewElem(false)
+	, SLIDER_SCALE(5.f)
+	, SLIDER_MIN(0.2f)
 {
 	if (!_doc.LoadFile()) {
-		Render::ShowMessage("Levels file not found!", "Error!");
+		OkMessageShow("Error!\nLevels file not found!");
 	} 
+	_selectedUV[0].u = 0.f; _selectedUV[0].v = 0.f;
+	_selectedUV[1].u = 0.f; _selectedUV[1].v = 0.f;
+	_selectedUV[2].u = 0.f; _selectedUV[2].v = 0.f;
+	_selectedUV[3].u = 0.f; _selectedUV[3].v = 0.f;
 
 	_allElements = Core::getTexture("allElements");
 	LoadTemplates("bodyes.xml");
@@ -113,7 +125,7 @@ void Simulator::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 	}
 	BodyTemplate *btA = static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->base;
 	BodyTemplate *btB = static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->base;
-	if (btA->_type != BODY_TYPE_BLUE && btB->_type != BODY_TYPE_BLUE)
+	if (!(btA->_breakable) && !(btB->_breakable))
 	{
 		return;
 	}
@@ -130,11 +142,11 @@ void Simulator::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 	if (maxImpulse > 0.1f)
 	{
 		// Flag the body for breaking.
-		if (btA->_type == BODY_TYPE_BLUE)
+		if (btA->_breakable)
 		{
 			static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->broken = true;
 		}
-		if (btB->_type == BODY_TYPE_BLUE)
+		if (btB->_breakable)
 		{
 			static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->broken = true;
 		}
@@ -190,16 +202,21 @@ void Simulator::EraseAllBodyes() {
 }
 
 // добавляем новый элемент в "случайное" место на экране
-b2Body * Simulator::AddElement(BodyTypes type) {
+b2Body * Simulator::AddElement(const std::string &typeId) {
 	Collection::iterator index = _collection.begin();
-	while ((*index)->_type != type && index != _collection.end()) {index++;}
-	assert(index != _collection.end());
+	while (index != _collection.end() && (*index)->_id != typeId ) {index++;}
+	assert(index != _collection.end() && (*index)->_id == typeId );
 
 	BodyState bs;
 	bs.base = (*index);	
 	bs.angle = 0;
-	bs.pos = b2Vec2(RandomFloat(-2.f, 2.f), 3);
+	{// найдём центр экрана 
+
+	}
+	bs.pos = b2Vec2((SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale, (_worldCenter.y - SCREEN_HEIGHT / 2) / _viewScale);
 	bs.width = bs.base->_width;
+	bs.height = bs.base->_height;
+	bs.radius = bs.base->_radius;
 	
 	return AddElement(bs);
 }
@@ -209,16 +226,12 @@ b2Body * Simulator::AddElement(BodyTypes type) {
 b2Body * Simulator::AddElement(const BodyState &bodyState){ 
 
 	b2BodyDef bd;
-	float width;
-	if (bodyState.base->_type == BODY_TYPE_GROUND) {
+	bd.type = b2_dynamicBody;  
+	if (bodyState.base->_fixed) {
 		//bd.type = b2_staticBody;);// ХАК - QueryAABB не работает со статичными объктами, 
-									// т.е. иначе их нельзя будет двигать в редакторе
-		bd.type = b2_dynamicBody;  
-		width = bodyState.width;
-	} else {
-		bd.type = b2_dynamicBody;
-		width = bodyState.base->_width;
-	}
+	}								// т.е. иначе их нельзя будет двигать в редакторе
+									// поэтому в статик они переключаются только в режиме игры,
+									// а в редакторе псевдо-динамик
 	bd.position.Set(bodyState.pos.x, bodyState.pos.y);
 	bd.angle = bodyState.angle;
 	
@@ -231,12 +244,21 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 
 	if (bodyState.base->_shape == "circle") {
 		b2CircleShape shape;
-		shape.m_radius = bodyState.base->_radius;
+		shape.m_radius = bodyState.radius;
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
 	} else if (bodyState.base->_shape == "box") {
 		b2PolygonShape shape;
-		shape.SetAsBox(width / 2.f, bodyState.base->_height / 2.f);
+		shape.SetAsBox(bodyState.width / 2.f, bodyState.height / 2.f);
+		fd.shape = &shape;
+		body->CreateFixture(&fd);
+	} else if (bodyState.base->_shape == "triangle") {
+		b2PolygonShape shape;
+		b2Vec2 vec[3];
+		vec[0] = b2Vec2( bodyState.width / 2.f, bodyState.height / 2.f);
+		vec[1] = b2Vec2(-bodyState.width / 2.f, bodyState.height / 2.f);
+		vec[2] = b2Vec2(-bodyState.width / 2.f, -bodyState.height / 2.f);
+		shape.Set(vec, 3);
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
 	} else {
@@ -246,15 +268,17 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 	MyBody *myBody = new MyBody();
 	myBody->base = bodyState.base;
 	myBody->broken = false;
-	if (bodyState.base->_type == BODY_TYPE_GROUND) {
-		myBody->width = bodyState.width;		
-	}
+
+	myBody->width = bodyState.width;		
+	myBody->height = bodyState.height;
+	myBody->radius = bodyState.radius;		
+
 	body->SetUserData(myBody);
 	return body;
 }
 
 void Simulator::OnMouseDown(FPoint2D mousePos)
-{	
+{	_mouseDown = true;
 	_lastMousePos = mousePos;
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
@@ -289,6 +313,7 @@ void Simulator::OnMouseDown(FPoint2D mousePos)
 
 void Simulator::OnMouseUp()
 {
+	_mouseDown = false;
 	if (m_mouseJoint) {
 		m_mouseJoint->GetBodyB()->ResetMassData();
 		m_world->DestroyJoint(m_mouseJoint);
@@ -311,14 +336,15 @@ void Simulator::OnMouseUp()
 	QueryCallback callback(p);
 	m_world->QueryAABB(&callback, aabb);
 
-	if (callback.m_fixture)
-	{
+	if (callback.m_fixture)	{
 		b2Body* body = callback.m_fixture->GetBody();
 		BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
-		if (bt->_type == BODY_TYPE_EXPLOSION) {
+		if (bt->_explosion) {
 			b2Vec2 pos = body->GetPosition();
 			EraseBody(body);
 			Explosion(pos, bt->_radius, bt->_maxForce);
+		} else if (bt->_destroyOnTap) {
+			static_cast<MyBody *>(body->GetUserData())->broken = true;
 		}
 	}
 }
@@ -334,35 +360,29 @@ void Simulator::InitParams(b2Body *body)
 	if (body != NULL && body != _selectedBody) {
 		_selectedBody = body;
 		const BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
-		if (bt->_type == BODY_TYPE_GROUND) {
-			SendMessage("radio", "clear");
-			SendMessage("radio", "add del");
-			SendMessage("radio", "add angle");
-			SendMessage("radio", "add size");
-			SetValueB("sliderpanel", "visible", true);
-			// set up angle to normal
-			float angle = body->GetAngle();
-			while (angle > 0.f) {angle -= (2 * M_PI);} 
-			while (angle < 0.f) {angle += (2 * M_PI);} 
-			SetValueF("slider", "", angle / (2 * M_PI) );
+
+		SendMessage("radio", "clear");
+		SendMessage("radio", "add del");
+		SendMessage("radio", "add angle");
+		if (bt->_shape == "circle") {
+			SendMessage("radio", "add radius");
 		} else {
-			SendMessage("radio", "clear");
-			SendMessage("radio", "add del");
-			SendMessage("radio", "add angle");
-			SetValueB("sliderpanel", "visible", true);
-			float angle = body->GetAngle();
-			while (angle > 0.f) {angle -= (2 * M_PI);} 
-			while (angle < 0.f) {angle += (2 * M_PI);} 
-			SetValueF("slider", "", angle / (2 * M_PI) );
+			SendMessage("radio", "add width");
+			SendMessage("radio", "add height");
 		}
+		SetValueB("sliderpanel", "visible", true);
+		// set up angle to normal
+		float angle = body->GetAngle();
+		while (angle > 0.f) {angle -= (2 * M_PI);} 
+		while (angle < 0.f) {angle += (2 * M_PI);} 
+		SetValueF("slider", "", angle / (2 * M_PI) );
+
 	} else if (body != NULL && body == _selectedBody) {
 		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
 		int radio = static_cast<int>(GetNumberValue("radio", ""));
 		if (radio == 0) {
-			if (Render::ShowAskMessage("Delete selected object?", "Are you sure?")) {
-				EraseBody(_selectedBody);
-				InitParams(NULL);
-			}
+			AskMessageShow("Are you sure?\nDelete selected object?");
+			_waitYesNoDelSelected = true;
 		} else if (radio == 1) {
 			// set up angle to normal
 			float angle = body->GetAngle();
@@ -370,15 +390,22 @@ void Simulator::InitParams(b2Body *body)
 			while (angle < 0.f) {angle += (2 * M_PI);} 
 			SetValueF("slider", "", angle / (2 * M_PI) );
 		} else if (radio == 2) {
-			assert(myBody->base->_type == BODY_TYPE_GROUND);
-			// set up size
-			float width = (myBody->width - 0.2f) / 10.f;
+			// set up width
+			// ... or set up radius - HACK
+			float width = (myBody->width - SLIDER_MIN) / SLIDER_SCALE;
 			SetValueF("slider", "", width );
+		} else if (radio == 3) {
+			assert(myBody->base->_shape != "circle");
+			// set up height
+			float height = (myBody->height - SLIDER_MIN) / SLIDER_SCALE;
+			SetValueF("slider", "", height );
 		}
 	}
 }
 
-bool Simulator::CanLevelStart() { // если в уровне есть "динамит" и синие коробки - в него можно играть
+bool Simulator::CanLevelStart() {
+	return true;
+	/* // если в уровне есть "динамит" и синие коробки - в него можно играть
 	bool tnt = false;
 	bool blue = false;
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
@@ -391,10 +418,11 @@ bool Simulator::CanLevelStart() { // если в уровне есть "динамит" и синие коробк
 		}
 	}
 	return (tnt && blue);
+	*/
 }
 
 bool Simulator::IsLevelFinish() {
-	return _finish != 0x3;
+	return false;//_finish != 0x3;
 }
 
 
@@ -405,11 +433,11 @@ void Simulator::OnMouseMove(FPoint2D mousePos)
 
 	if (m_mouseJoint) {
 		m_mouseJoint->SetTarget(p);
-	} else if (_editor && Render::IsLeftMouseButton() && _selectedBody) {
+	} else if (_editor && _mouseDown && _selectedBody) {
 		b2Vec2 pos = _selectedBody->GetPosition();
 		pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
 		_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
-	} else if (Render::IsLeftMouseButton()) {
+	} else if (_mouseDown) {
 		_worldCenter += (mousePos - _lastMousePos);
 	}
 	_lastMousePos = mousePos;
@@ -489,7 +517,7 @@ inline void Simulator::DrawElement(CIwSVec2 *&bufVert, CIwSVec2 *&bufUV, const B
 	bufUV += 4;
 }
 #else
-inline void Simulator::DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
+inline void Simulator::DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
 	float x =   _viewScale * pos.x + _worldCenter.x;
 	float y = - _viewScale * pos.y + _worldCenter.y;
 	buf[0].x = x + _viewScale * angles[0].x; buf[0].y = y + _viewScale * angles[0].y; 
@@ -538,46 +566,27 @@ void Simulator::Draw() {
 		}
 		const BodyTemplate *bt = myBody->base;
 		const b2Transform & xf = body->GetTransform();
-		int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
-		assert(0 <= angle && angle <= BodyTemplate::MAX);
 
-		if (bt->_type != BODY_TYPE_GROUND) {
-			if (!tnt && bt->_type == BODY_TYPE_EXPLOSION) {
-				tnt = true;
-				_finish |= 0x1;
-			}
-			if (!blue && bt->_type == BODY_TYPE_BLUE) {
-				blue = true;
-				_finish |= 0x2;
-			}
-#ifndef HGE_COMPILE_KEY
-			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, bt->_positions[angle]);
-#else
-			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
-#endif
-		} else {
-			FPoint2D p[4];
-			float width2 = myBody->width / 2;
-			float height2 = bt->_height / 2;
-			p[0].x = -width2; p[0].y =  height2;
-			p[1].x =  width2; p[1].y =  height2;
-			p[2].x =  width2; p[2].y = -height2;
-			p[3].x = -width2; p[3].y = -height2;
+		FPoint2D p[4];
+		float width2 = myBody->width / 2;
+		float height2 = myBody->height / 2;
+		p[0].x = -width2; p[0].y =  height2;
+		p[1].x =  width2; p[1].y =  height2;
+		p[2].x =  width2; p[2].y = -height2;
+		p[3].x = -width2; p[3].y = -height2;
 
-			float angle(-xf.GetAngle());
-			p[0] = *p[0].Rotate(angle);
-			p[1] = *p[1].Rotate(angle);
-			p[2] = *p[2].Rotate(angle);
-			p[3] = *p[3].Rotate(angle);
+		float angle(-xf.GetAngle());
+		p[0] = *p[0].Rotate(angle);
+		p[1] = *p[1].Rotate(angle);
+		p[2] = *p[2].Rotate(angle);
+		p[3] = *p[3].Rotate(angle);
 #ifndef HGE_COMPILE_KEY
-			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, p);
+		DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, p);
 #else
-			DrawElement(buffer, bt->_uv, xf.position, p);
+		DrawElement(buffer, bt->_uv, xf.position, p);
 #endif
-			if (_selectedBody == body) {
-				exception = true;
-				for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
-			}
+		if (_selectedBody == body) {
+			for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
 		}
 		++counter;
 #ifndef HGE_COMPILE_KEY
@@ -601,29 +610,28 @@ void Simulator::Draw() {
 	}
 	if (_selectedBody && _signal > 0.5f) {
 		max = 1;
-#ifdef HGE_COMPILE_KEY
-		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
-#endif
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
 		const b2Transform & xf = _selectedBody->GetTransform();
-		if (exception) {
-#ifndef HGE_COMPILE_KEY
-			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, pselect);
+
+#ifdef HGE_COMPILE_KEY
+		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
 #else
-			DrawElement(buffer, bt->_uv, xf.position, pselect);
+		CIwSVec2 *bufferVert = _xy;
+		CIwSVec2 *bufferUV = _uvs;
+		Render::StartVertexBuffer(_allElements);
 #endif
-		} else {
-			int angle = round(xf.GetAngle() * _angleMultiplier + BodyTemplate::MAX) % BodyTemplate::MAX;
-			assert(0 <= angle && angle <= BodyTemplate::MAX);
+
+
 #ifndef HGE_COMPILE_KEY
-			DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, bt->_positions[angle]);
+		DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, pselect);
 #else
-			DrawElement(buffer, bt->_uv, xf.position, bt->_positions[angle]);
+		DrawElement(buffer, bt->_uv, xf.position, pselect);
 #endif
-		}
 
 #ifdef HGE_COMPILE_KEY
 		Render::GetDC()->Gfx_FinishBatch(1);
+#else
+		Render::FinishVertexBuffer(_xy, _uvs, 1);
 #endif
 	}
 }
@@ -641,12 +649,48 @@ void Simulator::Update(float deltaTime) {
 			} else if (radio == 1) { // angle
 				float angle = GetNumberValue("slider", "");
 				_selectedBody->SetTransform(_selectedBody->GetPosition(), angle * (2 * M_PI));
-			} else if (radio == 2 && myBody->base->_type == BODY_TYPE_GROUND) { // size
-				float width = GetNumberValue("slider", "") * 10 + 0.2f;
-				myBody->width = width;
-				// конкретно для земли мы в редакторе точно знаем - один Fixture и один Shape
-				static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f, myBody->base->_height / 2.f);
+			} else if (radio == 2) { // width or radius
+				float width = GetNumberValue("slider", "") * SLIDER_SCALE + SLIDER_MIN;
+				if (myBody->base->_shape == "circle") {
+					myBody->radius = width / 2;
+					myBody->width = width;
+					myBody->height = width;
+					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_circle);
+					static_cast<b2CircleShape *>(_selectedBody->GetFixtureList()->GetShape())->m_radius = myBody->radius;
+				} else if (myBody->base->_shape == "box") {
+					myBody->width = width;
+					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
+					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f, myBody->height / 2.f);
+				} else if (myBody->base->_shape == "triangle") {
+					myBody->width = width;
+					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
+					b2Vec2 vec[3];
+					vec[0] = b2Vec2( myBody->width / 2.f, myBody->height / 2.f);
+					vec[1] = b2Vec2(-myBody->width / 2.f, myBody->height / 2.f);
+					vec[2] = b2Vec2(-myBody->width / 2.f, -myBody->height / 2.f);
+					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->Set(vec, 3);
+				} else {
+					assert(false);
+				}
+				// конкретно мы в редакторе точно знаем - один Fixture и один Shape
 				_selectedBody->ResetMassData();
+			} else if (radio == 3) { // height
+				float height = GetNumberValue("slider", "") * SLIDER_SCALE + SLIDER_MIN;
+				if (myBody->base->_shape == "box") {
+					myBody->height = height;
+					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
+					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f, myBody->height / 2.f);
+				} else if (myBody->base->_shape == "triangle") {
+					myBody->height = height;
+					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
+					b2Vec2 vec[3];
+					vec[0] = b2Vec2( myBody->width / 2.f, myBody->height / 2.f);
+					vec[1] = b2Vec2(-myBody->width / 2.f, myBody->height / 2.f);
+					vec[2] = b2Vec2(-myBody->width / 2.f, -myBody->height / 2.f);
+					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->Set(vec, 3);
+				} else {
+					assert(false);
+				}
 			} else {
 				assert(false);
 			}
@@ -663,9 +707,9 @@ void Simulator::Update(float deltaTime) {
 		}
 		if (IsLevelFinish()) {
 			if (_finish & 0x2) { // остались синие
-				Render::ShowMessage("You lose!", "Game over!");
+				OkMessageShow("Game over!\nYou lose!");
 			} else {
-				Render::ShowMessage("You win!", "Congratulation!");				
+				OkMessageShow("Congratulation!\nYou win!");
 			}
 			OnMessage("play");
 		}
@@ -699,7 +743,7 @@ void Simulator::SaveState() {
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
 		const b2Transform & xf = body->GetTransform();
 		MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
-		if (myBody->base->_type == BODY_TYPE_GROUND) {
+		if (myBody->base->_fixed) {
 			body->SetType(b2_staticBody);// ХАК - QueryAABB не работает со статичными объктами, 
 										 // т.е. иначе их нельзя будет двигать в редакторе
 		}
@@ -708,6 +752,8 @@ void Simulator::SaveState() {
 		s.angle = xf.GetAngle();
 		s.pos = xf.position;
 		s.width = myBody->width;
+		s.height = myBody->height;
+		s.radius = myBody->radius;
 		_state.push_back(s);
 	}
 }
@@ -724,6 +770,22 @@ void Simulator::ResetState() {
 }
 
 void Simulator::OnMessage(const std::string &message) {
+	if (_waitYesNoNewLevel) {
+		if (message == "yes") {
+			InitParams(NULL);
+			_currentLevel = "";
+			_state.clear();
+			EraseAllBodyes();
+		}
+		_waitYesNoNewLevel = false;
+	} else if (_waitYesNoDelSelected) {
+		EraseBody(_selectedBody);
+		InitParams(NULL);
+		_waitYesNoDelSelected = false;
+	} else if (_waitYesNoOverwrite) {
+		SaveLevel(_saveLevelName);
+		_waitYesNoOverwrite = false;
+	}
 	std::string msg;
 	if (message == "changes") {
 		InitParams(_selectedBody);
@@ -739,39 +801,25 @@ void Simulator::OnMessage(const std::string &message) {
 				_finish = 0x3;
 				_startLevel.Init(2.f);
 			} else {
-				Render::ShowMessage("Level must have TNT and BLUE boxes!", "Error!");
+				OkMessageShow("Error!\nLevel must have TNT and BLUE boxes!");
 			}
 		} else { // в редактор
 			SetValueS("play", "", ">>");
 			ResetState();
 		}
-	} else if (CanCut(message, "add ", msg)) {		
-		if (!_editor) {
-			SetValueS("play", "", ">>");
-			ResetState();
+	} else if (message == "add new elem") {
+		for (Collection::iterator i = _collection.begin(); i != _collection.end(); i++) {
+			Messager::SendMessage("SmallList", "add " + (*i)->_id);
 		}
-		if (msg == "wall") {
-			InitParams(AddElement(BODY_TYPE_UNBREAKABLE));
-		} else if (msg == "explosion") {
-			InitParams(AddElement(BODY_TYPE_EXPLOSION));
-		} else if (msg == "box") {
-			InitParams(AddElement(BODY_TYPE_BLUE));
-		} else if (msg == "ball") {
-			InitParams(AddElement(BODY_TYPE_BALL));
-		} else if (msg == "ground") {
-			InitParams(AddElement(BODY_TYPE_GROUND));
-		}
+		Messager::SendMessage("SmallList", "special add cancel");
+		_waitAddNewElem = true;
 	} else if (message == "left") {
 	} else if (message == "right") {
 	} else if (message == "up") {
 	} else if (message == "down") {
 	} else if (message == "new") {
-		if (Render::ShowAskMessage("Delete all objects?", "Are you sure?")) {
-			InitParams(NULL);
-			_currentLevel = "";
-			_state.clear();
-			EraseAllBodyes();
-		}
+		AskMessageShow("Are you sure?\nDelete all objects?");
+		_waitYesNoNewLevel = true;
 	} else if (message == "open") {
 		TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
 		std::string s;
@@ -805,7 +853,18 @@ void Simulator::OnMessage(const std::string &message) {
 		Messager::SendMessage("BigList", "special add as new");
 		_waitState = WaitForLevelSave;
 	} else if (CanCut(message, "button pressed ", msg)) {
-		if (_waitState == WaitForLevelOpen) {
+		if (_waitAddNewElem) {
+			_waitAddNewElem = false;
+			Messager::SendMessage("SmallList", "clear");
+			if (msg == "cancel") {
+				return;
+			}
+			if (!_editor) {
+				SetValueS("play", "", ">>");
+				ResetState();
+			}
+			InitParams(AddElement(msg));
+		} else if (_waitState == WaitForLevelOpen) {
 			_waitState = WaitNone;
 			Messager::SendMessage("BigList", "clear");
 			if (msg == "cancel") {
@@ -818,30 +877,28 @@ void Simulator::OnMessage(const std::string &message) {
 			assert(xe != NULL);
 			// level loading
 			_state.clear();
-			TiXmlElement *elem = xe->FirstChildElement();
+			TiXmlElement *elem = xe->FirstChildElement("element");
 			while (elem != NULL) {
 				Simulator::BodyState s;
-				BodyTypes type = static_cast<BodyTypes>(atoi(elem->Attribute("type")));
+				std::string typeId = elem->Attribute("type");
 
 				Collection::iterator index = _collection.begin();
-				while ((*index)->_type != type && index != _collection.end()) {index++;}
+				while ((*index)->_id != typeId && index != _collection.end()) {index++;}
 				assert(index != _collection.end());
 				
 				s.base = (*index);
 				s.pos.x = static_cast<float>(atof(elem->Attribute("x")));
 				s.pos.y = static_cast<float>(atof(elem->Attribute("y")));
 				s.angle = static_cast<float>(atof(elem->Attribute("angle")));
-				if (type == BODY_TYPE_GROUND) {
-					//assert(elem->Attribute("width"));
-					if (elem->Attribute("width")) {
-						s.width = static_cast<float>(atof(elem->Attribute("width")));
-					} else {
-						s.width = 1.5f;
-					}
-				}
+				s.width = static_cast<float>(atof(elem->Attribute("width")));
+				s.height = static_cast<float>(atof(elem->Attribute("height")));
 				_state.push_back(s);
-				elem = elem->NextSiblingElement();
+				elem = elem->NextSiblingElement("element");
 			}
+			TiXmlElement *word = xe->FirstChildElement("word");
+			_worldCenter.x = atof(word->Attribute("x"));
+			_worldCenter.y = atof(word->Attribute("y"));
+			_viewScale = atof(word->Attribute("scale"));
 			SetValueS("play", "", ">>");
 			ResetState();
 			_currentLevel = msg;
@@ -857,6 +914,7 @@ void Simulator::OnMessage(const std::string &message) {
 				s = xe->Attribute("id");
 				xe = xe->NextSiblingElement();
 			}
+			_saveLevelXml = xe;
 			if (xe == NULL) {
 				int save_as_new = atoi(s.c_str()) + 1;
 				char buff[10];
@@ -865,37 +923,48 @@ void Simulator::OnMessage(const std::string &message) {
 				level->SetAttribute("id", buff);
 				_doc.RootElement()->LinkEndChild(level);
 				xe = level; 
+				_saveLevelXml = xe;
 				msg = buff;
 			} else if (_currentLevel != msg) {
-				std::string s = "Do you want overwrite " + msg + "?";
-				if (Render::ShowAskMessage(s.c_str(), "Are you sure?")) {
-					return;
-				}
+				AskMessageShow("Are you sure?\nDo you want overwrite " + msg + "?");
+				_waitYesNoOverwrite = true;
+				_saveLevelName = msg;
+				_saveLevelXml = xe;
+				return;
 			}
-			// level saving
-			SaveState();
-			TiXmlElement *elem = xe->FirstChildElement();
-			while (elem != NULL) {
-				TiXmlElement *remove = elem;
-				elem = elem->NextSiblingElement();
-				xe->RemoveChild(remove);
-			}
-			for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
-				TiXmlElement *elem = new TiXmlElement("element");
-				elem->SetAttribute("type", static_cast<int>(i->base->_type));
-				char s[16];
-				sprintf(s, "%f", i->pos.x); elem->SetAttribute("x", s);
-				sprintf(s, "%f", i->pos.y); elem->SetAttribute("y", s);
-				sprintf(s, "%f", i->angle); elem->SetAttribute("angle", s);
-				if (i->base->_type == BODY_TYPE_GROUND) {
-					sprintf(s, "%f", i->width); elem->SetAttribute("width", s);
-				}
-				xe->LinkEndChild(elem);
-			}
-			_doc.SaveFile();
-			_currentLevel = msg;
+			SaveLevel(msg);
 		} else {
 			assert(false);
 		}
 	}
+}
+
+void Simulator::SaveLevel(const std::string &levelName) {
+	// level saving
+	SaveState();
+	TiXmlElement *elem = _saveLevelXml->FirstChildElement();
+	while (elem != NULL) {
+		TiXmlElement *remove = elem;
+		elem = elem->NextSiblingElement();
+		_saveLevelXml->RemoveChild(remove);
+	}
+	for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
+		TiXmlElement *elem = new TiXmlElement("element");
+		elem->SetAttribute("type", i->base->_id.c_str());
+		char s[16];
+		sprintf(s, "%f", i->pos.x); elem->SetAttribute("x", s);
+		sprintf(s, "%f", i->pos.y); elem->SetAttribute("y", s);
+		sprintf(s, "%f", i->angle); elem->SetAttribute("angle", s);
+		sprintf(s, "%f", i->width); elem->SetAttribute("width", s);
+		sprintf(s, "%f", i->height); elem->SetAttribute("height", s);
+		_saveLevelXml->LinkEndChild(elem);
+	}
+	TiXmlElement *word = new TiXmlElement("word");
+	word->SetAttribute("x", _worldCenter.x);
+	word->SetAttribute("y", _worldCenter.y);
+	word->SetAttribute("scale", _viewScale);
+	_saveLevelXml->LinkEndChild(word);
+
+	_doc.SaveFile();
+	_currentLevel = levelName;
 }

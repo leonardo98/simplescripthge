@@ -110,12 +110,14 @@ public:
 
 	virtual void Step(Settings* settings);
 
-	struct MyBody { // структура которая прикрепляется к b2Body для идентификации
-					// для "земли" отдельно храню тут ширину(у остальных тел эти данные беруться из BodyTemplate)
+	struct MyBody { // структура которая прикрепляется к b2Body в UserData для идентификации 
+					// отдельно храню тут ширину и высоту
 		BodyTemplate *base;
 		float width;
+		float height;
+		float radius;
 		bool broken;
-		MyBody() : width(0.f), broken(false) {
+		MyBody() : width(0.f), height(0.f), radius(0.f), broken(false) {
 		}
 	};
 	struct BodyState : public MyBody
@@ -124,7 +126,7 @@ public:
 		b2Vec2 pos;
 		float angle;
 	};
-	virtual b2Body * AddElement(BodyTypes type);
+	virtual b2Body * AddElement(const std::string &typeId);
 	virtual b2Body * AddElement(const BodyState &bodyState);
 	virtual void OnMouseDown(FPoint2D mousePos);
 	virtual void OnMouseUp();
@@ -168,6 +170,19 @@ protected:
 	bool m_bombSpawning;
 	b2Vec2 m_mouseWorld;
 	int32 m_stepCount;
+	bool _mouseDown;
+	bool _waitYesNoNewLevel;
+	bool _waitYesNoDelSelected;
+	bool _waitYesNoOverwrite;
+	bool _waitAddNewElem;
+	int SCREEN_WIDTH;
+	int SCREEN_HEIGHT;
+	const float SLIDER_SCALE;
+	const float SLIDER_MIN;
+
+	std::string _saveLevelName;
+	TiXmlElement *_saveLevelXml;
+	void SaveLevel(const std::string &levelName);
 
 	FPoint2D _lastMousePos;
 	Settings settings;
@@ -197,7 +212,7 @@ protected:
 	enum {
 		WaitNone,
 		WaitForLevelOpen,
-		WaitForLevelSave
+		WaitForLevelSave,
 	} _waitState;
 
 	void SaveState();
@@ -211,6 +226,7 @@ protected:
 
 	b2Body *_selectedBody;
 	void InitParams(b2Body *body);
+	UV _selectedUV[4];
 #ifndef HGE_COMPILE_KEY
 #define MAX_ELEMENTS 200
     CIwSVec2 _uvs[MAX_ELEMENTS * 4];
@@ -218,7 +234,7 @@ protected:
 	//CIwTexture *s_Texture;
 	inline void DrawElement(CIwSVec2 *&bufVert, CIwSVec2 *&bufUV, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 #else
-	inline void DrawElement(Vertex *&buf, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
+	inline void DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 #endif
 };
 

@@ -5,6 +5,7 @@
 #include "ObjectFactory.h"
 //#include "..\Helpers\TestObject.h"
 #include "..\Helpers\FpsCounter.h"
+#include "..\Helpers\MyMessageBox.h"
 /*#include "StaticTexture.h"
 #include "Mask.h"
 #include "TextBox.h"
@@ -45,6 +46,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("ButtonList", ButtonList);
 	REG_TYPE("ISlider", ISlider);
 	REG_TYPE("IRadioBtns", IRadioBtns);
+	REG_TYPE("MyMessageBox", MyMessageBox);
 	if(name == "FpsCounter") {
 		return new FpsCounter();
 	}

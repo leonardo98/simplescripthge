@@ -1,36 +1,45 @@
 #include "BodyTemplate.h"
 
 BodyTemplate::BodyTemplate(TiXmlElement *xe) {
-	_id = xe->Value();
-	std::string type = xe->Attribute("type");
-	if (type == "unbrakeable") {
-		_type = BODY_TYPE_UNBREAKABLE;
-	} else if (type == "blue") {
-		_type = BODY_TYPE_BLUE;
-	} else if (type == "explosion") {
-		_type = BODY_TYPE_EXPLOSION;
-	} else if (type == "ball") {
-		_type = BODY_TYPE_BALL;
-	} else if (type == "ground") {
-		_type = BODY_TYPE_GROUND;
-	} else {
-		assert(false);
-	}
-	_shape = xe->Attribute("shape");
-	if (_shape == "box") {
-		_width = static_cast<float>(atof(xe->Attribute("width")));
-		_height = static_cast<float>(atof(xe->Attribute("height")));
-		if (_type == BODY_TYPE_EXPLOSION) {
-			_maxForce = static_cast<float>(atof(xe->Attribute("maxForce")));
-			_radius = static_cast<float>(atof(xe->Attribute("radius")));
+	_id = xe->Attribute("id");
+
+	assert(std::string(xe->Attribute("destroyOnTap")) == "false" || std::string(xe->Attribute("destroyOnTap")) == "true");
+	_destroyOnTap = (std::string(xe->Attribute("destroyOnTap")) == "true");
+
+	_explosion = false;
+	if (xe->Attribute("explosion")) {
+		assert(std::string(xe->Attribute("explosion")) == "false" || std::string(xe->Attribute("explosion")) == "true");
+		if (std::string(xe->Attribute("explosion")) == "true") {
+			_maxForce = static_cast<float>(atof(xe->Attribute("explosionForce")));
+			_radius = static_cast<float>(atof(xe->Attribute("explosionRadius")));
+			_explosion = true;
 		}
+	}
+
+	_breakable = false;
+	if (xe->Attribute("breakable")) {
+		assert(std::string(xe->Attribute("breakable")) == "false" || std::string(xe->Attribute("breakable")) == "true");
+		_breakable = (std::string(xe->Attribute("breakable")) == "true");
+	}
+
+	_fixed = false;
+	if (xe->Attribute("fixed")) {
+		assert(std::string(xe->Attribute("fixed")) == "false" || std::string(xe->Attribute("fixed")) == "true");
+		_fixed = (std::string(xe->Attribute("fixed")) == "true");
+	}
+
+	_shape = xe->Attribute("shape");
+	if (_shape == "box" || _shape == "triangle") {
+		_width = static_cast<float>(atof(xe->Attribute("baseWidth")));
+		_height = static_cast<float>(atof(xe->Attribute("baseHeight")));
 	} else if (_shape == "circle") {
-		_radius = static_cast<float>(atof(xe->Attribute("radius")));
+		_radius = static_cast<float>(atof(xe->Attribute("baseRadius")));
 		_width = 2 * _radius;
 		_height = 2 * _radius;
 	} else {
-		// unknown type
+		assert(false && "unknown type");
 	}	
+
 	_restitution = static_cast<float>(atof(xe->Attribute("restitution")));
 	_friction = static_cast<float>(atof(xe->Attribute("friction")));
 	
@@ -52,7 +61,8 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 	_uv[2].u = u2; _uv[2].v = v2;
 	_uv[3].u = u1; _uv[3].v = v2;
 #endif
-
+	
+	/*
 	for (int i = 0; i < MAX; i++) {//1.04f - дополнительный множитель масшатаба для коробок
 		FPoint2D p0(-_width/2,  _height/2);
 		FPoint2D p1( _width/2,  _height/2);
@@ -65,4 +75,5 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 		_positions[i][2] = *p2.Rotate(angle);
 		_positions[i][3] = *p3.Rotate(angle);
 	}
+	*/
 }

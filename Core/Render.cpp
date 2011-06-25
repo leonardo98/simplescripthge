@@ -1,7 +1,6 @@
 // device specified function
 
 #include "Render.h"
-#include "s3e.h"
 
 DWORD Render::Parse(const std::string &s) {
 	assert(s.size() <= 10);
@@ -212,6 +211,7 @@ void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
 
 #else
 
+#include "s3e.h"
 #include "Iw2D.h"
 #include "IwGxPrint.h"
 
