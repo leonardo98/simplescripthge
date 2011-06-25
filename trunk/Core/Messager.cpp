@@ -117,7 +117,8 @@ std::string Messager::GetValue(const std::string &receiverName, const std::strin
 
 bool Messager::CanCut(const std::string &message, const std::string &substr, std::string &result)
 {
-	if (message.find(substr) != 0) {
+	unsigned int rr = message.find(substr);
+	if (rr != 0) {
 		return false;
 	} else {
 		result = message.substr(substr.size());

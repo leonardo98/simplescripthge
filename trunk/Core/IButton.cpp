@@ -31,17 +31,16 @@ void IButton::Draw() {
 		Render::Line(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
 		Render::Line(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_HIGH);
 		Render::Line(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_HIGH);
-		Render::PrintString(static_cast<int>(_pos.x + _width / 2), static_cast<int>(_pos.y + _height / 2)/* - Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
 	} else if (_state == BUTTON_PRESSED) {
 		Render::DrawBar(_pos.x, _pos.y, static_cast<float>(_width), static_cast<float>(_height), Interface::BACKGROUND_PRESSED);
 		Render::Line(_pos.x - 1, _pos.y, _pos.x + _width, _pos.y, Interface::BORDER_LOW);
 		Render::Line(_pos.x, _pos.y, _pos.x, _pos.y + _height, Interface::BORDER_LOW);
 		Render::Line(_pos.x + _width, _pos.y, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
 		Render::Line(_pos.x, _pos.y + _height, _pos.x + _width, _pos.y + _height, Interface::BORDER_LOW);
-		Render::PrintString(static_cast<int>(_pos.x + _width / 2), static_cast<int>(_pos.y + _height) / 2 /*- Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
 	} else {
 		assert(false);
 	}
+	Render::PrintString(static_cast<int>(_pos.x + _width / 2), static_cast<int>(_pos.y + _height / 2)/* - Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
 }
 
 bool IButton::IsMouseOver(FPoint2D mousePos) {

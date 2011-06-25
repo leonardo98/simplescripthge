@@ -125,6 +125,8 @@ files
 	Helpers\Tester.h
 	Helpers\TestObject.cpp
 	Helpers\TestObject.h
+	Helpers\MyMessageBox.cpp
+	Helpers\MyMessageBox.h
 
 	Core\Core.cpp
 	Core\Core.h
@@ -340,7 +342,7 @@ files
     lauxlib.c
     lbaselib.c
     ltablib.c
-   liolib.c
+	liolib.c
     lstrlib.c
 	lmathlib.c # No point having math library if we're only using integers!
 #	ldblib.c

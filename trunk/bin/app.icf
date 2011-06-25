@@ -16,7 +16,7 @@
 # Some conditional operations are also permitted, see the
 # S3E documentation for details.
 [S3E]
-FixScreenOrientation=1
+FixScreenOrientation=2
 [GX]
 DataCacheSize=128000
 [system]

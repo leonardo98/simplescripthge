@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string>
 #include <fstream>
-//#include <vector>
+#include <vector>
 #include <string>
 #include <list>
 #include <map>

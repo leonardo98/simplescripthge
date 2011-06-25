@@ -59,7 +59,16 @@ bool IPanel::IsMouseOver(FPoint2D mousePos) {
 	if (!_visible) {
 		return false;
 	}
-	return (_visible && _pos.x < mousePos.x && mousePos.x < _pos.x + _width && _pos.y < mousePos.y && mousePos.y < _pos.y + _height);
+	if (_visible && _pos.x < mousePos.x && mousePos.x < _pos.x + _width && _pos.y < mousePos.y && mousePos.y < _pos.y + _height) {
+		return true;
+	} else {
+		for (Objects::reverse_iterator i = _objects.rbegin(), e = _objects.rend(); i != e; i++) {
+			if ((*i)->IsMouseOver(mousePos)) {
+				return true;
+			}
+		}
+		return false;
+	} 
 }
 
 void IPanel::OnMouseDown(FPoint2D mousePos) {
