@@ -11,7 +11,7 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 		assert(std::string(xe->Attribute("explosion")) == "false" || std::string(xe->Attribute("explosion")) == "true");
 		if (std::string(xe->Attribute("explosion")) == "true") {
 			_maxForce = static_cast<float>(atof(xe->Attribute("explosionForce")));
-			_radius = static_cast<float>(atof(xe->Attribute("explosionRadius")));
+			_explosionRadius = static_cast<float>(atof(xe->Attribute("explosionRadius")));
 			_explosion = true;
 		}
 	}

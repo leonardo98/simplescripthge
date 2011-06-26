@@ -20,6 +20,7 @@ struct BodyTemplate // описание базового элемента - все исходные параметры тут и
 	float _restitution;
 	float _friction;
 	float _radius;
+	float _explosionRadius;
 	float _height;
 	float _width;
 	float _maxForce;
