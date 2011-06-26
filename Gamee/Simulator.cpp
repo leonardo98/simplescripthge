@@ -29,6 +29,8 @@ void Simulator::LoadTemplates(const std::string &filename) {
 		_collection.push_back(new BodyTemplate(bodyDef));
 		bodyDef = bodyDef->NextSiblingElement("b2object");
 	}
+	_collection.push_back(_fish = new BodyTemplate(doc.RootElement()->FirstChildElement("fish")));
+	_collection.push_back(_cat = new BodyTemplate(doc.RootElement()->FirstChildElement("cat")));
 }
 
 Simulator::Simulator(TiXmlElement *xe)
@@ -127,6 +129,9 @@ void Simulator::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 	BodyTemplate *btB = static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->base;
 	if (!(btA->_breakable) && !(btB->_breakable))
 	{
+		if ((btA->_hero && btB->_hero)) {
+			_userLevelWin = true;
+		}
 		return;
 	}
 
@@ -139,15 +144,12 @@ void Simulator::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
 	}
 
-	if (maxImpulse > 0.1f)
-	{
+	if (maxImpulse > 0.1f) {
 		// Flag the body for breaking.
-		if (btA->_breakable)
-		{
+		if (btA->_breakable) {
 			static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->broken = true;
 		}
-		if (btB->_breakable)
-		{
+		if (btB->_breakable) {
 			static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->broken = true;
 		}
 	}
@@ -282,7 +284,7 @@ void Simulator::OnMouseDown(FPoint2D mousePos)
 	_lastMousePos = mousePos;
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
-	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
+	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
 	
 	if (m_mouseJoint != NULL)
 	{
@@ -323,7 +325,7 @@ void Simulator::OnMouseUp()
 		return;
 	}
 	FPoint2D fp = 1.f / _viewScale * (_lastMousePos - _worldCenter);
-	b2Vec2 p(1.f / _viewScale * (_lastMousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - _lastMousePos.y)); // нужен для выбора объекта по которому кликнули
+	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
 	
 	// Make a small box.
 	b2AABB aabb;
@@ -422,14 +424,14 @@ bool Simulator::CanLevelStart() {
 }
 
 bool Simulator::IsLevelFinish() {
-	return false;//_finish != 0x3;
+	return _userLevelWin;//_finish != 0x3;
 }
 
 
 void Simulator::OnMouseMove(FPoint2D mousePos)
 {
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
-	b2Vec2 p(1.f / _viewScale * (mousePos.x - _worldCenter.x), 1.f / _viewScale * (_worldCenter.y - mousePos.y)); // нужен для выбора объекта по которому кликнули
+	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
 
 	if (m_mouseJoint) {
 		m_mouseJoint->SetTarget(p);
@@ -445,26 +447,25 @@ void Simulator::OnMouseMove(FPoint2D mousePos)
 }
 
 bool Simulator::OnMouseWheel(int direction) {
+	float old = _viewScale;
+	FPoint2D fp = 1.f / _viewScale * (_lastMousePos - _worldCenter);
 	if (direction > 0) {
 		_viewScale *= 1.09f * direction;
 	} else if (direction < 0) {
 		_viewScale *= 0.9f * abs(direction);
 	}
+	_worldCenter = - (_viewScale / old * (_lastMousePos - _worldCenter) - _lastMousePos);
 	return true;
-}
+} 
 
 void Simulator::Step(Settings* settings)
 {
 	float32 timeStep = settings->hz > 0.0f ? 1.0f / settings->hz : float32(0.0f);
 
-	if (settings->pause)
-	{
-		if (settings->singleStep)
-		{
+	if (settings->pause) {
+		if (settings->singleStep) {
 			settings->singleStep = 0;
-		}
-		else
-		{
+		} else {
 			timeStep = 0.0f;
 		}
 		m_textLine += 15;
@@ -485,13 +486,11 @@ void Simulator::Step(Settings* settings)
 
 	m_world->Step(timeStep, settings->velocityIterations, settings->positionIterations);
 
-	if (timeStep > 0.0f)
-	{
+	if (timeStep > 0.0f) {
 		++m_stepCount;
 	}
 
-	if (m_mouseJoint)
-	{
+	if (m_mouseJoint) {
 	}
 }
 
@@ -603,11 +602,6 @@ void Simulator::Draw() {
 		EraseBody(*remove.begin());
 		remove.erase(remove.begin());
 	}
-	if (oldTnt && !tnt) {
-		_lastTimer.Init(4.f);
-	} else if (oldBlue && !blue) {
-		_lastTimer.Init(2.f);
-	}
 	if (_selectedBody && _signal > 0.5f) {
 		max = 1;
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
@@ -701,17 +695,20 @@ void Simulator::Update(float deltaTime) {
 		if (_startLevel.Action()) {
 			_startLevel.Update(deltaTime);
 		}
-		if (_lastTimer.Action()) {
-			_lastTimer.Update(deltaTime);
-			return;
-		}
 		if (IsLevelFinish()) {
-			if (_finish & 0x2) { // остались синие
-				OkMessageShow("Game over!\nYou lose!");
+			if (_lastTimer.Action()) {
+				_lastTimer.Update(deltaTime);
+				if (!_lastTimer.Action()) {
+					if (_finish & 0x2) { // остались синие
+						OkMessageShow("Game over!\nYou lose!");
+					} else {
+						OkMessageShow("Congratulation!\nYou win!");
+					}
+					OnMessage("play");
+				}
 			} else {
-				OkMessageShow("Congratulation!\nYou win!");
+				_lastTimer.Init(0.6f);
 			}
-			OnMessage("play");
 		}
 	}
 }
@@ -724,8 +721,7 @@ void Simulator::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 	float strength;
 	float force;
 	float angle;
-	for (b2Body* b = m_world->GetBodyList(); b; b = b->GetNext())
-	{
+	for (b2Body* b = m_world->GetBodyList(); b; b = b->GetNext()) {
 		b2BodyPosition = b2Vec2(b->GetPosition().x, b->GetPosition().y);
 		distance = b2Distance(b2BodyPosition, b2TouchPosition);
 		if(distance < maxDistance - 0.01) {
@@ -800,6 +796,7 @@ void Simulator::OnMessage(const std::string &message) {
 				SaveState();
 				_finish = 0x3;
 				_startLevel.Init(2.f);
+				_userLevelWin = false;
 			} else {
 				OkMessageShow("Error!\nLevel must have TNT and BLUE boxes!");
 			}

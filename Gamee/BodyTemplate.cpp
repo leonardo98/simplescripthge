@@ -28,6 +28,12 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 		_fixed = (std::string(xe->Attribute("fixed")) == "true");
 	}
 
+	_hero = false;
+	if (xe->Attribute("hero")) {
+		assert(std::string(xe->Attribute("hero")) == "false" || std::string(xe->Attribute("hero")) == "true");
+		_hero = (std::string(xe->Attribute("hero")) == "true");
+	}
+
 	_shape = xe->Attribute("shape");
 	if (_shape == "box" || _shape == "triangle") {
 		_width = static_cast<float>(atof(xe->Attribute("baseWidth")));

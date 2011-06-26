@@ -28,6 +28,7 @@ struct BodyTemplate // описание базового элемента - все исходные параметры тут и
 	bool _breakable;
 	bool _destroyOnTap;
 	bool _fixed;
+	bool _hero;
 
 	UV _uv[4];
 	//static const int MAX = 300;

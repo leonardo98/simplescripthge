@@ -146,6 +146,8 @@ public:
 	void LoadTemplates(const std::string &filename);
 
 	typedef std::list<BodyTemplate *> Collection;
+	BodyTemplate *_fish;
+	BodyTemplate *_cat;
 	Collection _collection;
 
 protected:
@@ -221,6 +223,7 @@ protected:
 	int round(float a);
 
 	float _signal;
+	bool _userLevelWin;
 	Counter _lastTimer;
 	Counter _startLevel; // ждем пока устаканиться уровень
 
