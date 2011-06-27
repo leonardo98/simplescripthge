@@ -889,7 +889,9 @@ void Simulator::OnMessage(const std::string &message) {
 				s.angle = static_cast<float>(atof(elem->Attribute("angle")));
 				s.width = static_cast<float>(atof(elem->Attribute("width")));
 				s.height = static_cast<float>(atof(elem->Attribute("height")));
-				s.radius = static_cast<float>(atof(elem->Attribute("radius")));
+				if (s.base->_shape == "circle") {
+					s.radius = static_cast<float>(atof(elem->Attribute("radius")));
+				}
 				_state.push_back(s);
 				elem = elem->NextSiblingElement("element");
 			}
@@ -955,7 +957,9 @@ void Simulator::SaveLevel(const std::string &levelName) {
 		sprintf(s, "%f", i->angle); elem->SetAttribute("angle", s);
 		sprintf(s, "%f", i->width); elem->SetAttribute("width", s);
 		sprintf(s, "%f", i->height); elem->SetAttribute("height", s);
-		sprintf(s, "%f", i->radius); elem->SetAttribute("radius", s);
+		if (i->base->_shape == "circle") {
+			sprintf(s, "%f", i->radius); elem->SetAttribute("radius", s);
+		}
 		_saveLevelXml->LinkEndChild(elem);
 	}
 	TiXmlElement *word = new TiXmlElement("word");
