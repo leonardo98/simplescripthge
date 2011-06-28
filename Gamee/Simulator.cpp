@@ -4,6 +4,8 @@
 #include "..\Core\Render.h"
 #include <cstdio>
 #define LEVELS_FILE "levels.xml"
+#define DEC 0.01f
+#define HALFBORDER 0.0025f
 
 int Simulator::round(float a) {
 	int b = static_cast<int>(a);
@@ -49,7 +51,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	, _waitYesNoDelSelected(false)
 	, _waitYesNoOverwrite(false)
 	, _waitAddNewElem(false)
-	, SLIDER_SCALE(5.f)
+	, SLIDER_SCALE(1.2f)
 	, SLIDER_MIN(0.2f)
 {
 	if (!_doc.LoadFile()) {
@@ -229,9 +231,9 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 
 	b2BodyDef bd;
 	bd.type = b2_dynamicBody;  
-	if (bodyState.base->_fixed) {
+	//if (bodyState.base->_fixed) {
 		//bd.type = b2_staticBody;);// ХАК - QueryAABB не работает со статичными объктами, 
-	}								// т.е. иначе их нельзя будет двигать в редакторе
+	//}								// т.е. иначе их нельзя будет двигать в редакторе
 									// поэтому в статик они переключаются только в режиме игры,
 									// а в редакторе псевдо-динамик
 	bd.position.Set(bodyState.pos.x, bodyState.pos.y);
@@ -246,20 +248,20 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 
 	if (bodyState.base->_shape == "circle") {
 		b2CircleShape shape;
-		shape.m_radius = bodyState.radius;
+		shape.m_radius = bodyState.radius + HALFBORDER;
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
 	} else if (bodyState.base->_shape == "box") {
 		b2PolygonShape shape;
-		shape.SetAsBox(bodyState.width / 2.f, bodyState.height / 2.f);
+		shape.SetAsBox(bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
 	} else if (bodyState.base->_shape == "triangle") {
 		b2PolygonShape shape;
 		b2Vec2 vec[3];
-		vec[0] = b2Vec2( bodyState.width / 2.f, bodyState.height / 2.f);
-		vec[1] = b2Vec2(-bodyState.width / 2.f, bodyState.height / 2.f);
-		vec[2] = b2Vec2(-bodyState.width / 2.f, -bodyState.height / 2.f);
+		vec[0] = b2Vec2( bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
+		vec[1] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
+		vec[2] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, -bodyState.height / 2.f + DEC - HALFBORDER);
 		shape.Set(vec, 3);
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
@@ -650,18 +652,18 @@ void Simulator::Update(float deltaTime) {
 					myBody->width = width;
 					myBody->height = width;
 					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_circle);
-					static_cast<b2CircleShape *>(_selectedBody->GetFixtureList()->GetShape())->m_radius = myBody->radius;
+					static_cast<b2CircleShape *>(_selectedBody->GetFixtureList()->GetShape())->m_radius = myBody->radius + HALFBORDER;
 				} else if (myBody->base->_shape == "box") {
 					myBody->width = width;
 					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
-					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f, myBody->height / 2.f);
+					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f - DEC + HALFBORDER, myBody->height / 2.f - DEC + HALFBORDER);
 				} else if (myBody->base->_shape == "triangle") {
 					myBody->width = width;
 					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
 					b2Vec2 vec[3];
-					vec[0] = b2Vec2( myBody->width / 2.f, myBody->height / 2.f);
-					vec[1] = b2Vec2(-myBody->width / 2.f, myBody->height / 2.f);
-					vec[2] = b2Vec2(-myBody->width / 2.f, -myBody->height / 2.f);
+					vec[0] = b2Vec2( myBody->width / 2.f - DEC +  HALFBORDER, myBody->height / 2.f - DEC + HALFBORDER);
+					vec[1] = b2Vec2(-myBody->width / 2.f + DEC - HALFBORDER, myBody->height / 2.f - DEC + HALFBORDER);
+					vec[2] = b2Vec2(-myBody->width / 2.f + DEC - HALFBORDER, -myBody->height / 2.f + DEC - HALFBORDER);
 					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->Set(vec, 3);
 				} else {
 					assert(false);
@@ -673,14 +675,14 @@ void Simulator::Update(float deltaTime) {
 				if (myBody->base->_shape == "box") {
 					myBody->height = height;
 					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
-					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f, myBody->height / 2.f);
+					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->SetAsBox(myBody->width / 2.f - DEC + HALFBORDER, myBody->height / 2.f - DEC + HALFBORDER);
 				} else if (myBody->base->_shape == "triangle") {
 					myBody->height = height;
 					assert(_selectedBody->GetFixtureList()->GetShape()->GetType() == b2Shape::e_polygon);
 					b2Vec2 vec[3];
-					vec[0] = b2Vec2( myBody->width / 2.f, myBody->height / 2.f);
-					vec[1] = b2Vec2(-myBody->width / 2.f, myBody->height / 2.f);
-					vec[2] = b2Vec2(-myBody->width / 2.f, -myBody->height / 2.f);
+					vec[0] = b2Vec2( myBody->width / 2.f - DEC + HALFBORDER, myBody->height / 2.f - DEC + HALFBORDER);
+					vec[1] = b2Vec2(-myBody->width / 2.f - DEC + HALFBORDER, myBody->height / 2.f - DEC + HALFBORDER);
+					vec[2] = b2Vec2(-myBody->width / 2.f + DEC - HALFBORDER, -myBody->height / 2.f + DEC - HALFBORDER);
 					static_cast<b2PolygonShape *>(_selectedBody->GetFixtureList()->GetShape())->Set(vec, 3);
 				} else {
 					assert(false);

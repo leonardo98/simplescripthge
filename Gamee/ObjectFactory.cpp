@@ -6,8 +6,8 @@
 //#include "..\Helpers\TestObject.h"
 #include "..\Helpers\FpsCounter.h"
 #include "..\Helpers\MyMessageBox.h"
-/*#include "StaticTexture.h"
-#include "Mask.h"
+#include "StaticTexture.h"
+/*#include "Mask.h"
 #include "TextBox.h"
 #include "Inventory.h"
 #include "InventoryObject.h"
@@ -31,8 +31,8 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	std::string name = xe->Value();
 	//REG_TYPE("TestObject", TestObject);
 	REG_TYPE("Simulator", Simulator);
-	/*REG_TYPE("StaticTexture", StaticTexture);
-	REG_TYPE("Mask", Mask);
+	REG_TYPE("StaticTexture", StaticTexture);
+	/*REG_TYPE("Mask", Mask);
 	REG_TYPE("TextBox", TextBox);
 	REG_TYPE("Inventory", Inventory);
 	REG_TYPE("InventoryObject", InventoryObject);

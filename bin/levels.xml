@@ -27,4 +27,16 @@
         <element type="cat" x="-1.250000" y="-0.060000" angle="0.152834" width="0.400000" height="0.400000" />
         <word x="240" y="160" scale="100" />
     </level>
+    <level id="3">
+        <element type="wood2" x="-0.343163" y="-0.087331" angle="1.562306" width="0.200000" height="0.200000" />
+        <element type="ice" x="1.705676" y="1.213383" angle="0.000000" width="1.400000" height="0.200000" />
+        <element type="wood3" x="2.395259" y="0.403615" angle="0.000000" width="1.400000" height="1.400000" radius="0.700000" />
+        <element type="wood" x="1.145302" y="0.402778" angle="0.000000" width="0.200000" height="1.400000" />
+        <element type="wall" x="1.789083" y="-0.402920" angle="0.000000" width="1.400000" height="0.200000" />
+        <element type="wall" x="0.237706" y="-0.293394" angle="0.000000" width="1.400000" height="0.200000" />
+        <element type="wood3" x="0.889376" y="-0.087337" angle="0.000000" width="0.200000" height="0.200000" radius="0.100000" />
+        <element type="wood" x="1.472483" y="-0.200510" angle="0.000000" width="0.200000" height="0.200000" />
+        <element type="ice" x="0.208673" y="0.116544" angle="0.000000" width="1.400000" height="0.200000" />
+        <word x="122" y="190" scale="133" />
+    </level>
 </list>
