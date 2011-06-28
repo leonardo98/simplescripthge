@@ -60,7 +60,13 @@ void TextureManager::UnloadGroup(std::string groupId)
 PTexture TextureManager::GetTexture(std::string textureId)
 {
 	if (_texturesMap.find(textureId) == _texturesMap.end()) {
-		return NULL;
+		// если такой текстуры нет - может нам дают ее путь?
+		TextureState ts;
+		ts.group = "";
+		ts.path = textureId.c_str();
+		ts.texture = new Render::Texture(ts.path.c_str());
+		_texturesMap[textureId] = ts;
+		return ts.texture;
 	} else {
 		return _texturesMap[textureId].texture;
 	}
