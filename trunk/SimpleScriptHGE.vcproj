@@ -417,6 +417,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gamee\Keyboard.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Core\LuaScript.h"
 				>
 			</File>
