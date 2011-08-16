@@ -553,6 +553,22 @@ void Simulator::Draw() {
 	Render::StartVertexBuffer(_allElements);
 #else
 	Vertex *buffer;
+	{
+		int n = 480 * 10 / _viewScale;
+		float t = _worldCenter.x / (0.1f * _viewScale);
+		t = (t - static_cast<int>(t)) * (0.1f * _viewScale);
+		for (int i = 0; i <= n; i++) {
+			float x = i * 0.1f * _viewScale + t;
+			Render::GetDC()->Gfx_RenderLine(x, 0, x, 320, 0x4FFFFFFF);
+		}
+		n = 320 * 10 / _viewScale;
+		t = _worldCenter.y / (0.1f * _viewScale);
+		t = (t - static_cast<int>(t)) * (0.1f * _viewScale);
+		for (int i = 0; i <= n; i++) {
+			float y = i * 0.1f * _viewScale + t;
+			Render::GetDC()->Gfx_RenderLine(0, y, 480, y, 0x4FFFFFFF);
+		}
+	}
 	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 #endif
 	unsigned int counter = 0;
@@ -774,6 +790,8 @@ void Simulator::OnMessage(const std::string &message) {
 			_currentLevel = "";
 			_state.clear();
 			EraseAllBodyes();
+			_worldCenter = FPoint2D((SCREEN_WIDTH = 480) / 2, (SCREEN_HEIGHT = 320) / 2);
+			_viewScale = 100.f;
 		}
 		_waitYesNoNewLevel = false;
 	} else if (_waitYesNoDelSelected) {
