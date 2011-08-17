@@ -53,6 +53,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	, _waitAddNewElem(false)
 	, SLIDER_SCALE(1.2f)
 	, SLIDER_MIN(0.2f)
+	, _netVisible(true)
 {
 	if (!_doc.LoadFile()) {
 		OkMessageShow("Error!\nLevels file not found!");
@@ -440,6 +441,12 @@ void Simulator::OnMouseMove(FPoint2D mousePos)
 	} else if (_editor && _mouseDown && _selectedBody) {
 		b2Vec2 pos = _selectedBody->GetPosition();
 		pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
+		if (_netVisible) {
+			pos = p;//_worldCenter.x + mousePos.x;
+//			pos = _worldCenter.y + mousePos.y;
+			pos.x = round(pos.x / 0.1f) * 0.1f;
+			pos.y = round(pos.y / 0.1f) * 0.1f;
+		}
 		_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
 	} else if (_mouseDown) {
 		_worldCenter += (mousePos - _lastMousePos);
@@ -553,7 +560,7 @@ void Simulator::Draw() {
 	Render::StartVertexBuffer(_allElements);
 #else
 	Vertex *buffer;
-	{
+	if (_netVisible) {
 		int n = 480 * 10 / _viewScale;
 		float t = _worldCenter.x / (0.1f * _viewScale);
 		t = (t - static_cast<int>(t)) * (0.1f * _viewScale);
@@ -805,6 +812,8 @@ void Simulator::OnMessage(const std::string &message) {
 	std::string msg;
 	if (message == "changes") {
 		InitParams(_selectedBody);
+	} else if (message == "net") {
+		_netVisible = !_netVisible;
 	} else if (message == "play") {
 		if (_editor) { // переходим в режим игры
 			if (CanLevelStart()) {
