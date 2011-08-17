@@ -194,6 +194,7 @@ protected:
 
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
+	bool _netVisible;
 
 	float _angleMultiplier;
 	bool _editor;
