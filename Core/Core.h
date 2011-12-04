@@ -1,42 +1,45 @@
 // Core.h: interface for the Lexems class.
 
-#if !defined(_CORE_INCLUDED_)
-#define _CORE_INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifndef CORE_H
+#define CORE_H
 
 #include "types.h"
-#include "Messager.h"
 #include "TextureManager.h"
 #include "LuaScript.h"
 #include "Object.h"
+#include "Animation.h"
 
 
 class Core
-	: public Messager
-	, public TextureManager
+	: public TextureManager
 {
 public:
-	Core();
-	~Core();
-	void Load(const char *fileName);
-	void Draw();
-	void Update(float deltaTime);
-	void Release();
-	bool DoLua(char *code);
-	bool DoScript(const std::string &name);
-	static PTexture getTexture(const std::string &textureId);
+	static void Init();
+	static void Load(const char *fileName);
+	static void Unload();
+	static void Draw();
+	static void Update(float deltaTime);
+	static void Release();
+	static bool DoLua(const char *code);
+	static bool DoScript(const std::string &name);
+	static Animation *getAnimation(const std::string &animationId);
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
-	virtual void OnMessage(const std::string &message); 
+	static void OnMessage(const std::string &message);
+	static void LoadAnimations(const char *fileName);
+
 	typedef std::list<Object *> Objects;
-protected:
-	Objects _objects;
 	typedef std::map<std::string, LuaScript *> ScriptMap;
-	ScriptMap _scripts;
-	std::list<std::string> _messages;
-	lua_State *lua;
+	typedef std::map<std::string, Animation *> AnimationMap;
+
+protected:
+
+	static Objects _objects;
+	static ScriptMap _scripts;
+	static AnimationMap _animations;
+	static std::list<std::string> _messages;
+	static lua_State *lua;
+
+	friend class AnimationEditor;
 };
 
-#endif // !defined(_CORE_INCLUDED_)
+#endif//CORE_H

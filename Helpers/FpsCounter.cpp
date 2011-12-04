@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "FpsCounter.h"
-#include "..\Core\Render.h"
+#include "../Core/Render.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -19,6 +19,6 @@ FpsCounter::~FpsCounter()
 
 void FpsCounter::Draw() {
 	char buff[10];
-	//sprintf(buff, "fps: %d", Render::GetDC()->Timer_GetFPS());
+	sprintf(buff, "fps: %d", Render::GetDC()->Timer_GetFPS());
 	Render::PrintString(0, 0, "", buff, 0xFFFFFFFF);
 }

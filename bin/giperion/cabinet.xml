@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<fileroot>
+  <script>
+    UnloadGroup("icebox");
+    LoadGroup("cabinet");
+  </script>
+	<script name="onLoad">
+    CabinetSwitch();
+  </script>
+	<StaticTexture x="0" y="0" texture="fon_cabinet"/>
+    <MultiTexture variableName="cabinet">  <!-- шкаф -->
+		<states>
+            <if value="one" x="0" y="0" texture="cabinet_close_cabinet"/>
+			<if value="two" x="0" y="0" texture="cabinet_open_cabinet"/>
+			<if value="three" x="0" y="0" texture="cabinet_cabinet"/>
+		</states>
+		<script>
+        if (cabinetstage == 0 or cabinetstage == 1 or cabinetstage == 2) then
+         CabinetNext();
+         end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="l4_bobcat">  <!-- рысенок -->
+		<states>
+     	    <if value="one" x="0" y="0" texture="bobcat1_cabinet"/>
+			<if value="two" x="0" y="0" texture="bobcat2_cabinet"/>
+		</states>
+		<script>
+        if (cabinetstage == 1 or cabinetstage == 2 or cabinetstage == 3) then
+         CabinetNext();
+         end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="l4_bullfinch">  <!-- снегирь -->
+        <states>
+       	    <if value="one" x="0" y="0" texture="bullfinch1_cabinet"/>
+			<if value="two" x="0" y="0" texture="bullfinch2_cabinet"/>
+		</states>
+		<script>
+        if (cabinetstage == 1 or cabinetstage == 2 or cabinetstage == 3) then
+         CabinetNext();
+         end;
+      </script>
+	</MultiTexture>
+	<MultiTexture variableName="cabinetstage">
+		<states>
+			<if value="on" x="0" y="0" texture="dark_closet"/>
+		</states>
+	</MultiTexture>
+	<TextBox name="messageWindow" x="520" y="670" width="800" height="100" font="data\a_futuraRound_24.fnt" hideTime="500">
+    <background texture="textback1" x="0" y="0"/>
+	</TextBox>
+  <Button x="920" y="675" normal="arrow" pressed="arrow_pressed">
+    CabinetNext();
+  </Button>
+  <Button x="15" y="675" normal="arrow2" pressed="arrow2_pressed">
+    CabinetPrev();
+  </Button>
+
+  <!-- DEBUG/TEST ONLY -->
+  <IButton name="new" x="0" y="0" width="40" height="40" caption="Reload">
+    SendMessage("Core", "load xml start.xml");
+  </IButton>
+  <IButton name="new1" x="0" y="40" width="40" height="40" caption="Reload1">
+    SendMessage("Core", "load xml cabinet.xml");
+  </IButton>
+  <FpsCounter/>
+
+</fileroot>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

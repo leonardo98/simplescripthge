@@ -2,12 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_OBJECT_INCLUDED_)
-#define _OBJECT_INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifndef OBJECT_H
+#define OBJECT_H
 
 #include "types.h"
 
@@ -24,4 +20,4 @@ public:
 	virtual void Update(float);
 };
 
-#endif // !defined(_OBJECT_INCLUDED_)
+#endif//OBJECT_H

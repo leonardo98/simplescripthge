@@ -36,19 +36,19 @@ InputSystem::~InputSystem()
 	}
 }
 
-void InputSystem::OnMouseDown(FPoint2D mousePos) {}
+void InputSystem::OnMouseDown(const FPoint2D &mousePos) {}
 
 void InputSystem::OnMouseUp() {}
 
-void InputSystem::OnMouseMove(FPoint2D mousePos) {}
+void InputSystem::OnMouseMove(const FPoint2D &mousePos) {}
 
-void InputSystem::OnLongTap(FPoint2D mousePos) {}
+void InputSystem::OnLongTap(const FPoint2D &mousePos) {}
 
-void InputSystem::OnDoubleClick(FPoint2D mousePos) {}
+void InputSystem::OnDoubleClick(const FPoint2D &mousePos) {}
 
 bool InputSystem::OnMouseWheel(int direction) {return false;}
 
-void InputSystem::MouseDown(FPoint2D mousePos) {
+void InputSystem::MouseDown(const FPoint2D &mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
@@ -68,7 +68,7 @@ void InputSystem::LongTap() {
 	}
 }
 
-void InputSystem::DoubleClick(FPoint2D mousePos) {
+void InputSystem::DoubleClick(const FPoint2D &mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
 			(*i)->OnDoubleClick(mousePos);
@@ -85,7 +85,11 @@ void InputSystem::MouseUp() {
 	_locked = NULL;
 }
 
-void InputSystem::MouseMove(FPoint2D mousePos) {
+void InputSystem::Reset() {
+	_locked = NULL;
+}
+
+void InputSystem::MouseMove(const FPoint2D &mousePos) {
 	if (_locked != NULL) {
 		_locked->OnMouseMove(mousePos);
 		return;
@@ -113,85 +117,6 @@ void OnLongTap(int direction) {
 void OnDoubleClick(int direction) {
 }
 
-#ifndef HGE_COMPILE_KEY
-
-InputSystem::CTouch InputSystem::g_Touches[MAX_TOUCHES];
-
-InputSystem::CTouch* InputSystem::GetTouch(int32 id) {
-    CTouch* pInActive = NULL;
-    for(uint32 i = 0; i < MAX_TOUCHES; i++) {
-        if( id == g_Touches[i].id )
-            return &g_Touches[i];
-        if( !g_Touches[i].active )
-            pInActive = &g_Touches[i];
-    }
-    //Return first inactive touch
-    if( pInActive ) {
-        pInActive->id = id;
-        return pInActive;
-    }
-    //No more touches, give up.
-    return NULL;
-}
-
-#define FLOAT(a) static_cast<float>(a)
-
-void InputSystem::MultiTouchButtonCB(s3ePointerTouchEvent* event) {
-    CTouch* touch = GetTouch(event->m_TouchID);
-    if (touch) {
-		if (touch->active = (event->m_Pressed != 0)) {
-			MouseDown(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
-		} else {
-			MouseUp();
-		}
-        touch->x = event->m_x;
-        touch->y = event->m_y;
-    }
-}
-
-void InputSystem::MultiTouchMotionCB(s3ePointerTouchMotionEvent* event) {
-    CTouch* touch = GetTouch(event->m_TouchID);
-    if (touch) {
-		if (touch->active) {
-			MouseMove(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
-		}
-        touch->x = event->m_x;
-        touch->y = event->m_y;
-    }
-}
-
-void InputSystem::SingleTouchButtonCB(s3ePointerEvent* event) {
-	if ((g_Touches[0].active = (event->m_Pressed != 0))) {
-		MouseDown(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
-	} else {
-		MouseUp();
-	}
-    g_Touches[0].x = event->m_x;
-    g_Touches[0].y = event->m_y;
-    //sprintf(g_TouchEventMsg, "`x666666Touch %s", event->m_Pressed ? "PRESSED" : "RELEASED" );
-}
-
-void InputSystem::SingleTouchMotionCB(s3ePointerMotionEvent* event) {
-	if (g_Touches[0].active) {
-		MouseMove(FPoint2D(FLOAT(event->m_x), FLOAT(event->m_y)));
-	}
-    g_Touches[0].x = event->m_x;
-    g_Touches[0].y = event->m_y;
-}
-
-void ReleaseInputEvent() {
-    bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
-    if (g_UseMultiTouch) {
-		s3ePointerUnRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB);
-        s3ePointerUnRegister(S3E_POINTER_TOUCH_MOTION_EVENT, (s3eCallback)InputSystem::MultiTouchMotionCB);
-    } else {
-        s3ePointerUnRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)InputSystem::SingleTouchButtonCB);
-        s3ePointerUnRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)InputSystem::SingleTouchMotionCB);
-	}
-}
-
-#else
-
 void InputSystem::MouseWheel(int direction) {
 	if (_locked != NULL) {
 		_locked->OnMouseWheel(direction);
@@ -204,61 +129,48 @@ void InputSystem::MouseWheel(int direction) {
 	}
 }
 
-bool CheckForInputEvent(float dt) {
-	InputSystem::_timeCounter += dt;
-	InputSystem::_doubleClick &= (InputSystem::_timeCounter < InputSystem::DOUBLE_CLICK_TIME);
+bool InputSystem::CheckForEvent(float dt) {
+	_timeCounter += dt;
+	_doubleClick &= (_timeCounter < DOUBLE_CLICK_TIME);
 	hgeInputEvent event;
 	while (Render::GetDC()->Input_GetEvent(&event)) {
 		if (event.type == INPUT_MBUTTONDOWN && event.key == HGEK_LBUTTON) {
-			InputSystem::_longTapPos = FPoint2D(event.x, event.y);
-			InputSystem::MouseDown(InputSystem::_longTapPos);
-			if (InputSystem::_doubleClick) {
-				InputSystem::DoubleClick(InputSystem::_longTapPos);
-				InputSystem::_doubleClick = false;
+			_longTapPos = FPoint2D(event.x, event.y);
+			MouseDown(_longTapPos);
+			if (_doubleClick) {
+				DoubleClick(_longTapPos);
+				_doubleClick = false;
 			}
-			InputSystem::_timeCounter = dt / 2.f;
-			InputSystem::_longTap = true;
-			InputSystem::_doubleClick = true;
+			_timeCounter = dt / 2.f;
+			_longTap = true;
+			_doubleClick = true;
 		} else if (event.type == INPUT_MBUTTONUP && event.key == HGEK_LBUTTON) {
-			InputSystem::MouseUp();
-			InputSystem::_longTap = false;
+			MouseUp();
+			_longTap = false;
 		} else if (event.type == INPUT_MOUSEMOVE) {
 			FPoint2D pos = FPoint2D(event.x, event.y);
-			InputSystem::MouseMove(pos);
-			InputSystem::_longTap &= (InputSystem::_longTapPos - pos).Length() > InputSystem::LONG_TAP_EPS;
+			MouseMove(pos);
+			_longTap &= (_longTapPos - pos).Length() > LONG_TAP_EPS;
 		} else if (event.type == INPUT_MOUSEWHEEL) {
-			InputSystem::MouseWheel(event.wheel);
+			MouseWheel(event.wheel);
 		} else if (event.type == INPUT_KEYDOWN && event.key == HGEK_ESCAPE) {
 			return true;
 		}
 	}
-	if (InputSystem::_longTap) {
-		InputSystem::LongTap();
-		InputSystem::_longTap = false;
+	if (_longTap) {
+		LongTap();
+		_longTap = false;
 	}
 	return false;
 }
 
-#endif//HGE_COMPILE_KEY
-
-void InitInputEvent() {
-#ifndef HGE_COMPILE_KEY
-    bool g_UseMultiTouch = s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE) ? true : false;
-    if (g_UseMultiTouch) {
-		s3ePointerRegister(S3E_POINTER_TOUCH_EVENT, (s3eCallback)InputSystem::MultiTouchButtonCB, NULL);
-        s3ePointerRegister(S3E_POINTER_TOUCH_MOTION_EVENT, (s3eCallback)InputSystem::MultiTouchMotionCB, NULL);
-    } else {
-        s3ePointerRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)InputSystem::SingleTouchButtonCB, NULL);
-        s3ePointerRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)InputSystem::SingleTouchMotionCB, NULL);
-	}
-#else
-	InputSystem::LONG_TAP_EPS = 10.f;
-	InputSystem::LONG_TAP_TIME = 0.2f;
-	InputSystem::DOUBLE_CLICK_TIME = 0.2f;
-	InputSystem::_timeCounter = 0.f;
-	InputSystem::_longTap = false;
-	InputSystem::_doubleClick = false; 
-	InputSystem::_locked = NULL;
-#endif//HGE_COMPILE_KEY
+void InputSystem::Init() {
+	LONG_TAP_EPS = 10.f;
+	LONG_TAP_TIME = 0.2f;
+	DOUBLE_CLICK_TIME = 0.2f;
+	_timeCounter = 0.f;
+	_longTap = false;
+	_doubleClick = false; 
+	_locked = NULL;
 }
 

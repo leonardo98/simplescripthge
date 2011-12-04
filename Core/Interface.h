@@ -1,10 +1,9 @@
-#pragma once
+#ifndef INTERFACE_H
+#define INTERFACE_H
 
 #include "types.h"
 
-#ifdef HGE_COMPILE_KEY
-#include "hgeFont.h"
-#endif // HGE_COMPILE_KEY
+#include "../../hge181-for-osx/trunk/include/hgeFont.h"
 
 class Interface
 {
@@ -23,3 +22,5 @@ public:
 	static DWORD Parse(const std::string &s);
 	static void Init();
 };
+
+#endif//INTERFACE_H

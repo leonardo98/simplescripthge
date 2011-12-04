@@ -2,14 +2,15 @@
 
 #include "types.h"
 #include "Core.h"
+#include "InputSystem.h"
 #include "Render.h"
-#include "..\Gamee\ObjectFactory.h"
+#include "../Gamee/ObjectFactory.h"
 #include "Variables.h"
+#include "Messager.h"
 
+	
 static int LuaSendMessage(lua_State *L) {
-#ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	const char *name = lua_tostring(L, 1);
 	const char *message = lua_tostring(L, 2);
 	Messager::SendMessage(name, message);
@@ -18,9 +19,7 @@ static int LuaSendMessage(lua_State *L) {
 }
 
 static int LuaSetNumberValue(lua_State *L) {
-#ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
@@ -31,9 +30,7 @@ static int LuaSetNumberValue(lua_State *L) {
 }
 
 static int LuaSetStringValue(lua_State *L) {
-#ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
@@ -44,9 +41,7 @@ static int LuaSetStringValue(lua_State *L) {
 }
 
 static int LuaSetBoolValue(lua_State *L) {
-#ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err != 0);
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
@@ -57,9 +52,7 @@ static int LuaSetBoolValue(lua_State *L) {
 }
 
 static int LuaGetBoolValue(lua_State *L) {
-#ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
@@ -69,9 +62,7 @@ static int LuaGetBoolValue(lua_State *L) {
 }
 
 static int LuaGetNumberValue(lua_State *L) {
-#ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
 	const char *name = lua_tostring(L, 1);
 	const char *variableName = lua_tostring(L, 2);
@@ -81,25 +72,96 @@ static int LuaGetNumberValue(lua_State *L) {
 }
 
 static int LuaGetStringValue(lua_State *L) {
-#ifdef IW_DEBUG
 	int err = lua_gettop(L);
-#endif
 	assert(err == 0);
 	const char *name = lua_tostring(L, 1);
-	const char *variableName = lua_tostring(L, 1);
-#ifdef IW_DEBUG
+	const char *variableName = lua_tostring(L, 2);
 	const char *value = lua_tostring(L, 2);// не помню для чего это сделано - может это и лишнее????
-#endif
 	assert(value != 0);
 	std::string result = Messager::GetValue(name, variableName);
 	lua_pushstring(L, result.c_str());
 	return 1;
 }
 
-Core::Core()
-	: Messager("Core")
-{
+
+static int LuaOpenFile(lua_State *L) {
+    assert(false);
+    /*
+	int err = lua_gettop(L);
+	//assert(err == 0);
+	const char *path = lua_tostring(L, 1);
+	const char *mask = lua_tostring(L, 2);
+	std::string file;
+	OPENFILENAME fn;
+	fn.lStructSize = sizeof(fn);
+	fn.hInstance = 0;
+	fn.hwndOwner = Render::GetDC()->System_GetState(HGE_HWND);
+	fn.lpstrInitialDir = path;
+	fn.lpstrFilter = mask;
+	fn.nFilterIndex = 0;
+	fn.lpstrFile = new char[1024];
+	fn.lpstrFile[0] = 0;
+	fn.nMaxFile = 1024 - 1;
+	fn.lpstrFileTitle = NULL;
+	fn.nMaxFileTitle = NULL;
+	fn.lpstrTitle = NULL;
+	fn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	fn.lpstrCustomFilter = NULL;
+	fn.nMaxCustFilter = 0;
+	fn.nFileOffset = 0;
+	fn.nFileExtension = 0;
+	fn.lpstrDefExt = NULL;
+	fn.lCustData = NULL;
+	fn.lpfnHook = NULL;
+	fn.FlagsEx = 0;
+	fn.lpTemplateName = "";
+	fn.dwReserved = 0;
+	fn.pvReserved = 0;
+	bool res = GetOpenFileName(&fn);
+	assert(err == lua_gettop(L));
+	if (res) {
+		lua_pushstring(L, fn.lpstrFile);
+	} else {
+		lua_pushstring(L, "null");
+	}
+     */
+	return 0;
+}
+
+static int LuaDoFile(lua_State *L) {
+	int err = lua_gettop(L);
+	assert(err == 1);
+	const char *name = lua_tostring(L, 1);
+	err = luaL_dofile(L, Render::GetDC()->Resource_MakePath((Render::GetDataDir() + name).c_str()));
+    assert(err == 0);
+	return 0;
+}
+
+static int LuaLoadGroup(lua_State *L) {
+	int err = lua_gettop(L);
+	assert(err == 1);
+	const char *name = lua_tostring(L, 1);
+	Core::LoadGroup(name);
+	return 0;
+}
+
+static int LuaUnloadGroup(lua_State *L) {
+	int err = lua_gettop(L);
+	assert(err == 1);
+	const char *name = lua_tostring(L, 1);
+	Core::UnloadGroup(name);
+	return 0;
+}
+
+Core::Objects Core::_objects;
+Core::ScriptMap Core::_scripts;
+Core::AnimationMap Core::_animations;
+std::list<std::string> Core::_messages;
+lua_State *Core::lua;
+
+void Core::Init() {
 	lua = lua_open();
+	luaopen_base(lua);
 	lua_register(lua, "SendMessage", LuaSendMessage);
 	lua_register(lua, "SetNumberValue", LuaSetNumberValue);
 	lua_register(lua, "SetStringValue", LuaSetStringValue);
@@ -107,14 +169,49 @@ Core::Core()
 	lua_register(lua, "GetNumberValue", LuaGetNumberValue);
 	lua_register(lua, "GetStringValue", LuaGetStringValue);
 	lua_register(lua, "GetBoolValue", LuaGetBoolValue);
+	lua_register(lua, "OpenFile", LuaOpenFile);
+	lua_register(lua, "LoadGroup", LuaLoadGroup);
+	lua_register(lua, "UnloadGroup", LuaUnloadGroup);
+	lua_register(lua, "MyDoFile", LuaDoFile);
+	//lua_register(lua, "CutImages", LuaCutImages);
 	Variables::Init(lua);
+}
+
+void Core::LoadAnimations(const char *fileName) {
+	TiXmlDocument doc;
+	bool load;
+	if ((fileName[1] == ':' && doc.LoadFile(fileName)) || doc.LoadFile(std::string(Render::GetDataDir() + fileName).c_str())) {
+		TiXmlElement *root = doc.RootElement();
+		TiXmlElement *animation = root->FirstChildElement("Animation");
+		while (animation) {
+			const char *id = animation->Attribute("id");
+			if (_animations.find(id) != _animations.end()) {
+				LOG("animation already exist: " + id);
+				assert(false);
+			}
+			_animations[id] = new Animation(animation);
+			animation = animation->NextSiblingElement("Animation");
+		}
+	} else {
+		LOG("file not found: " + fileName);
+	}
+}
+
+Animation *Core::getAnimation(const std::string &animationId) {
+	AnimationMap::iterator find = _animations.find(animationId);
+	if (find != _animations.end()) {
+		return (find->second);
+	}
+	LOG("animation " + animationId + " not found.");
+	exit(-8);
 }
 
 void Core::Load(const char *fileName)
 {
-	Release();
 	TiXmlDocument doc;
-	bool result = doc.LoadFile(fileName);
+    std::string s(Render::GetDataDir() + fileName);
+    s = Render::GetDC()->Resource_MakePath(s.c_str());
+	bool result = doc.LoadFile(s.c_str());
 	if (result) {
 		TiXmlElement *root = doc.RootElement();
 		TiXmlElement *element = root->FirstChildElement();
@@ -122,26 +219,29 @@ void Core::Load(const char *fileName)
 			std::string name = element->Value();
 			if (name == "script") {
 				const char *name = element->Attribute("name");
-				assert(_scripts.find(name) == _scripts.end());
-				_scripts[name] = new LuaScript(lua, element);
+				if (name != NULL) {
+					assert(_scripts.find(name) == _scripts.end());
+					_scripts[name] = new LuaScript(lua, element);
+				} else {
+					LuaScript l(lua, element);
+					l.Execute();
+				}
 			} else if (name == "Resources") {
+				TextureManager::Release();
 				ReadDescriptions(element->Attribute("fileName"));
+			} else if (name == "Animations") {
+				LoadAnimations(element->Attribute("fileName"));
 			} else {
 				_objects.push_back(ObjectFactory::Create(element));
 			}
 			element = element->NextSiblingElement();
 		}
 	} else {
-		LOG("Core load - file not found");
+		LOG(std::string("Core ") + fileName + " - file not found");
 	}
 	if (_scripts.find("onLoad") != _scripts.end()) {
 		_scripts["onLoad"]->Execute();
 	}
-}
-
-PTexture Core::getTexture(const std::string &textureId)
-{
-	return TextureManager::GetTexture(textureId);
 }
 
 void Core::OnMessage(const std::string &message)
@@ -165,11 +265,13 @@ void Core::Update(float deltaTime)
 	while (_messages.begin() != _messages.end()) {
 		std::string message = *_messages.begin();
 		_messages.pop_front();
-		if (CanCut(message, "loadGroup ", message)) {
+		if (Messager::CanCut(message, "loadGroup ", message)) {
 			LoadGroup(message);
-		} else if (CanCut(message, "UnloadGroup ", message)) {
+		} else if (Messager::CanCut(message, "UnloadGroup ", message)) {
 			UnloadGroup(message);
-		} else if (CanCut(message, "load xml ", message)) {
+		} else if (Messager::CanCut(message, "load xml ", message)) {
+			InputSystem::Reset();
+			Unload();
 			Load(message.c_str());
 		} else {
 			assert(false);
@@ -177,13 +279,7 @@ void Core::Update(float deltaTime)
 	}
 }
 
-Core::~Core()
-{
-	lua_close(lua);
-}
-
-void Core::Release()
-{
+void Core::Unload() {
 	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		delete (*i);
 		(*i) = NULL;
@@ -192,12 +288,23 @@ void Core::Release()
 		delete _scripts.begin()->second;
 		_scripts.begin()->second = NULL;
 	}
+	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; i++) {
+		delete _animations.begin()->second;
+		_animations.begin()->second = NULL;
+	}
 	_objects.clear();
+	_animations.clear();
 	_scripts.clear();
+}
+
+void Core::Release()
+{
+	Unload();
+	lua_close(lua);
 	TextureManager::Release();
 }
 
-bool Core::DoLua(char *code) {
+bool Core::DoLua(const char *code) {
 	int lua_dostring_result = luaL_dostring(lua, code);
 	LuaScript::report(lua, lua_dostring_result);
 	return true;

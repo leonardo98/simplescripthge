@@ -1,15 +1,16 @@
 #include "Simulator.h"
-#include "..\Helpers\MyMessageBox.h"
-#include "..\Core\Core.h"
-#include "..\Core\Render.h"
+#include "../Helpers/MyMessageBox.h"
+#include "../Core/Core.h"
+#include "../Core/Render.h"
 #include <cstdio>
 #define LEVELS_FILE "levels.xml"
 #define DEC 0.01f
 #define HALFBORDER 0.0025f
 
+
 int Simulator::round(float a) {
 	int b = static_cast<int>(a);
-	return (a - b) > 0.5f ? b + 1 : b;
+	return (a - b) >= 0.5f ? b + 1 : b;
 } 
 
 void DestructionListener::SayGoodbye(b2Joint* joint)
@@ -43,7 +44,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	, _editor(false)
 	, _selectedBody(NULL)
 	, _signal(0.f)
-	, _doc(LEVELS_FILE)
+	, _doc((Render::GetDataDir() + LEVELS_FILE).c_str())
 	, _currentLevel("")
 	, _waitState(WaitNone)
 	, _mouseDown(false)
@@ -64,7 +65,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	_selectedUV[3].u = 0.f; _selectedUV[3].v = 0.f;
 
 	_allElements = Core::getTexture("allElements");
-	LoadTemplates("bodyes.xml");
+	LoadTemplates(Render::GetDataDir() + "bodyes.xml");
 
 	b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);
@@ -282,7 +283,7 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 	return body;
 }
 
-void Simulator::OnMouseDown(FPoint2D mousePos)
+void Simulator::OnMouseDown(const FPoint2D &mousePos)
 {	_mouseDown = true;
 	_lastMousePos = mousePos;
 	InitParams(NULL);
@@ -431,7 +432,7 @@ bool Simulator::IsLevelFinish() {
 }
 
 
-void Simulator::OnMouseMove(FPoint2D mousePos)
+void Simulator::OnMouseMove(const FPoint2D &mousePos)
 {
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
@@ -442,8 +443,7 @@ void Simulator::OnMouseMove(FPoint2D mousePos)
 		b2Vec2 pos = _selectedBody->GetPosition();
 		pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
 		if (_netVisible) {
-			pos = p;//_worldCenter.x + mousePos.x;
-//			pos = _worldCenter.y + mousePos.y;
+			pos = p;
 			pos.x = round(pos.x / 0.1f) * 0.1f;
 			pos.y = round(pos.y / 0.1f) * 0.1f;
 		}
@@ -503,28 +503,10 @@ void Simulator::Step(Settings* settings)
 	}
 }
 
-bool Simulator::IsMouseOver(FPoint2D mousePos) {
+bool Simulator::IsMouseOver(const FPoint2D &mousePos) {
 	return true;
 }
 
-#ifndef HGE_COMPILE_KEY
-inline void Simulator::DrawElement(CIwSVec2 *&bufVert, CIwSVec2 *&bufUV, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
-	float x =   _viewScale * pos.x + _worldCenter.x;
-	float y = - _viewScale * pos.y + _worldCenter.y;
-#define INT(a) static_cast<int16>(a)
-	bufVert[0].x = INT(x + _viewScale * angles[0].x); bufVert[0].y = INT(y + _viewScale * angles[0].y); 
-	bufVert[1].x = INT(x + _viewScale * angles[1].x); bufVert[1].y = INT(y + _viewScale * angles[1].y); 
-	bufVert[2].x = INT(x + _viewScale * angles[2].x); bufVert[2].y = INT(y + _viewScale * angles[2].y); 
-	bufVert[3].x = INT(x + _viewScale * angles[3].x); bufVert[3].y = INT(y + _viewScale * angles[3].y); 
-	bufVert += 4;
-
-	bufUV[0].x = uv[0].u; bufUV[0].y = uv[0].v;// buf[0].col = 0xFFFFFFFF;
-	bufUV[1].x = uv[1].u; bufUV[1].y = uv[1].v;// buf[1].col = 0xFFFFFFFF;
-	bufUV[2].x = uv[2].u; bufUV[2].y = uv[2].v;// buf[2].col = 0xFFFFFFFF;
-	bufUV[3].x = uv[3].u; bufUV[3].y = uv[3].v;// buf[3].col = 0xFFFFFFFF;
-	bufUV += 4;
-}
-#else
 inline void Simulator::DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
 	float x =   _viewScale * pos.x + _worldCenter.x;
 	float y = - _viewScale * pos.y + _worldCenter.y;
@@ -539,7 +521,6 @@ inline void Simulator::DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos
 	buf[3].tx = uv[3].u; buf[3].ty = uv[3].v; buf[3].col = 0xFFFFFFFF;
 	buf += 4;
 }
-#endif
 
 /// DrawLine
 inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
@@ -554,11 +535,6 @@ void Simulator::Draw() {
 	bool blue = false;
 	_finish = 0x0;
 	int max = 1;
-#ifndef HGE_COMPILE_KEY
-	CIwSVec2 *bufferVert = _xy;
-	CIwSVec2 *bufferUV = _uvs;
-	Render::StartVertexBuffer(_allElements);
-#else
 	Vertex *buffer;
 	if (_netVisible) {
 		int n = 480 * 10 / _viewScale;
@@ -576,8 +552,7 @@ void Simulator::Draw() {
 			Render::GetDC()->Gfx_RenderLine(0, y, 480, y, 0x4FFFFFFF);
 		}
 	}
-	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
-#endif
+	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), 0, BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
 	bool exception = false;
 	FPoint2D pselect[4];
@@ -604,25 +579,16 @@ void Simulator::Draw() {
 		p[1] = *p[1].Rotate(angle);
 		p[2] = *p[2].Rotate(angle);
 		p[3] = *p[3].Rotate(angle);
-#ifndef HGE_COMPILE_KEY
-		DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, p);
-#else
 		DrawElement(buffer, bt->_uv, xf.position, p);
-#endif
 		if (_selectedBody == body) {
 			for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
 		}
 		++counter;
-#ifndef HGE_COMPILE_KEY
-	}
-	Render::FinishVertexBuffer(_xy, _uvs, counter);
-#else
 		if (static_cast<int>(counter) > max) {
 			assert(false);
 		}
 	}
 	Render::GetDC()->Gfx_FinishBatch(counter);
-#endif
 	for (;remove.begin() != remove.end();) {
 		EraseBody(*remove.begin());
 		remove.erase(remove.begin());
@@ -632,26 +598,11 @@ void Simulator::Draw() {
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
 		const b2Transform & xf = _selectedBody->GetTransform();
 
-#ifdef HGE_COMPILE_KEY
-		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
-#else
-		CIwSVec2 *bufferVert = _xy;
-		CIwSVec2 *bufferUV = _uvs;
-		Render::StartVertexBuffer(_allElements);
-#endif
+		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), 0, BLEND_ALPHAADD | BLEND_COLORADD, &max);
 
 
-#ifndef HGE_COMPILE_KEY
-		DrawElement(bufferVert, bufferUV, bt->_uv, xf.position, pselect);
-#else
 		DrawElement(buffer, bt->_uv, xf.position, pselect);
-#endif
-
-#ifdef HGE_COMPILE_KEY
 		Render::GetDC()->Gfx_FinishBatch(1);
-#else
-		Render::FinishVertexBuffer(_xy, _uvs, 1);
-#endif
 	}
 }
 

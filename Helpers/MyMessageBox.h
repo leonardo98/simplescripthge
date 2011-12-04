@@ -1,10 +1,11 @@
-#pragma once
+#ifndef MyMessageBox_H
+#define MyMessageBox_H
 
-#include "..\Core\InputSystem.h"
-#include "..\Core\Interface.h"
-#include "..\Core\LuaScript.h"
-#include "..\Core\Messager.h"
-#include "..\Core\IButton.h"
+#include "../Core/InputSystem.h"
+#include "../Core/Interface.h"
+#include "../Core/LuaScript.h"
+#include "../Core/Messager.h"
+#include "../Core/IButton.h"
 
 // класс окна сообщения(по нажатию выполняется скрипт)
 // рисуется примитивами без текстур
@@ -18,10 +19,10 @@ public:
 	MyMessageBox(TiXmlElement *xe);
 	~MyMessageBox();
 	void Draw();
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(FPoint2D mousePos);
+	virtual void OnMouseMove(const FPoint2D &mousePos);
 
 	virtual void SetValue(const std::string &variableName, const std::string &value);
 	virtual void OnMessage(const std::string &message);
@@ -44,3 +45,5 @@ public:
 
 #define OkMessageShow(text) MyMessageBox::Show(text, "ok", GetMyName())
 #define AskMessageShow(text) MyMessageBox::Show(text, "yesno", GetMyName())
+
+#endif//MyMessageBox_H

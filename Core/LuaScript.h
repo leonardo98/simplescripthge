@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LUASCRIPT_H
+#define LUASCRIPT_H
 
 #include "types.h"
 #include <string>
@@ -19,3 +20,5 @@ private:
 	char *code;
 	string scriptfile;
 };
+
+#endif//LUASCRIPT_H

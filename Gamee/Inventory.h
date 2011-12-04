@@ -2,20 +2,16 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_INVENTORY_INCLUDED_)
-#define _INVENTORY_INCLUDED_
+#ifndef INVENTORY_H
+#define INVENTORY_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\Messager.h"
-#include "..\Core\InputSystem.h"
-#include "..\Core\Render.h"
+#include "../Core/Messager.h"
+#include "../Core/InputSystem.h"
+#include "../Core/Render.h"
 
 struct Tool {
 	std::string id;
-	PTexture texture;
+	Texture *texture;
 };
 
 class Inventory 
@@ -28,16 +24,16 @@ public:
 	virtual void OnMessage(const std::string &message);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
-	virtual bool IsMouseOver(FPoint2D mousePos);
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual void OnMouseMove(FPoint2D mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual void OnMouseMove(const FPoint2D &mousePos);
 private:
 	FPoint2D _pos;
 	FPoint2D _lastMousePos;
-	PTexture _texture;
+	Texture *_texture;
 	typedef std::list<Tool> Tools;
 	Tools _tools;
-	PTexture _active;
+	Texture *_active;
 };
 
-#endif // !defined(_INVENTORY_INCLUDED_)
+#endif//INVENTORY_H

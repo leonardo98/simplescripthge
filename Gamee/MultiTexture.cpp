@@ -3,8 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MultiTexture.h"
-#include "..\Core\Variables.h"
-#include "..\Core\Core.h"
+#include "../Core/Variables.h"
+#include "../Core/Core.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -41,7 +41,7 @@ void State::SetAlpha(float alpha) {
 		} else if (alpha >= 1.f) {
 			alpha = 0.999f;
 		}
-		texture->SetColor(int(0xFF * alpha) << 24 | 0xFFFFFF);
+		//texture->SetColor(int(0xFF * alpha) << 24 | 0xFFFFFF);
 	}
 }
 
@@ -72,7 +72,7 @@ void MultiTexture::Draw() {
 	}
 }
 
-bool MultiTexture::IsMouseOver(FPoint2D mousePos) {
+bool MultiTexture::IsMouseOver(const FPoint2D &mousePos) {
 	std::string varvalue = Variables::Get(_stateVariableName.c_str());
 	for (States::reverse_iterator i = _states.rbegin(), e = _states.rend(); i != e; i++) {
 		FPoint2D t = mousePos - i->pos;
@@ -83,7 +83,7 @@ bool MultiTexture::IsMouseOver(FPoint2D mousePos) {
 	return false;
 }
 
-void MultiTexture::OnMouseDown(FPoint2D mousePos) {
+void MultiTexture::OnMouseDown(const FPoint2D &mousePos) {
 	std::string varvalue = Variables::Get(_stateVariableName.c_str());
 	for (States::reverse_iterator i = _states.rbegin(), e = _states.rend(); i != e; i++) {
 		FPoint2D t = mousePos - i->pos;

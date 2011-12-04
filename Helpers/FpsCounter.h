@@ -2,14 +2,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_FPSCOUNTER_INCLUDED_)
-#define _FPSCOUNTER_INCLUDED_
+#ifndef FPSCOUNTER_H
+#define FPSCOUNTER_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\Object.h"
+#include "../Core/Object.h"
 
 class FpsCounter : public Object  
 {
@@ -20,4 +16,4 @@ public:
 private:
 };
 
-#endif // !defined(_FPSCOUNTER_INCLUDED_)
+#endif//FPSCOUNTER_H

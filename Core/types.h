@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <stdio.h>
 #include <string>
@@ -8,40 +9,32 @@
 #include <list>
 #include <map>
 
-#ifndef HGE_COMPILE_KEY
-	extern "C" 
-	{
-	  #include "C:\Airplay SDK\update\modules\third_party\lua\modified\src\lua.h"
-	  #include "C:\Airplay SDK\update\modules\third_party\lua\modified\src\lualib.h"
-	  #include "C:\Airplay SDK\update\modules\third_party\lua\modified\src\lauxlib.h"
-	}
-	#include "C:\Airplay SDK\update\modules\third_party\tinyxml\modified\tinyxml.h"
-	#include "std\math.h"
-	#include "FPoint2D.h"
-	typedef unsigned int DWORD;
-	#define LOG(a) ;//I_w_Trace(DEFAULT, a)
-	#define abort_1(a) {LOG(a); assert(false); }
-	#define abort_2(a, b) {LOG(a); LOG(B); assert(false); }
-	typedef unsigned int UINT;
-	typedef unsigned char BYTE;
-	typedef int Vertex;
-#else
 extern "C" 
 {
-  #include "C:\CppLib\lua\include\lua.h"
-  #include "C:\CppLib\lua\include\lualib.h"
-  #include "C:\CppLib\lua\include\lauxlib.h"
+  #include "../../CppLib/lua/include/lua.h"
+  #include "../../CppLib/lua/include/lualib.h"
+  #include "../../CppLib/lua/include/lauxlib.h"
 }
-	#include "hge.h"
-	#include "hgesprite.h"
-	#include "hgeVector.h"
-	#include "hgefont.h"
-	#include "tinyxml.h"
-	typedef hgeVector FPoint2D;
-	typedef hgeVertex Vertex;
-	#define LOG(a) Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str())
-#endif //HGE_COMPILE_KEY
 
-#define PTexture Render::Texture *
+#ifdef MY_ENGINE_IOS
+#define _IOS
+#else
+#define _HGE_TARGET_OSX_
+#endif
+
+#include "../../hge181-for-osx/trunk/include/hge.h"
+#include "../../hge181-for-osx/trunk/include/hgesprite.h"
+#include "../../hge181-for-osx/trunk/include/hgeVector.h"
+#include "../../hge181-for-osx/trunk/include/hgefont.h"
+
+#include "../../CppLib/tinyxml/tinyxml.h"
+typedef hgeVector FPoint2D;
+typedef hgeVertex Vertex;
+#define LOG(a) Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str())
+
+#undef assert
+#define assert(exp) if (!(exp)) {int j = 0; j = 1 / j;}
 
 #include "Object.h"
+
+#endif//TYPES_H

@@ -1,6 +1,7 @@
 #include "FPoint2D.h"
 
-float InvSqrt(float x) {
+
+float Point2dMath::InvSqrt(float x) {
 		union {
           int intPart;
           float floatPart;

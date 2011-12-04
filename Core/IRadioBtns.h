@@ -1,6 +1,8 @@
-#pragma once
-#include "..\Core\InputSystem.h"
-#include "..\Core\Messager.h"
+#ifndef IRADIOBTNS_H
+#define IRADIOBTNS_H
+
+#include "../Core/InputSystem.h"
+#include "../Core/Messager.h"
 
 class IRadioBtns :
 	public InputSystem, 
@@ -9,8 +11,8 @@ class IRadioBtns :
 public:
 	IRadioBtns(TiXmlElement *xe);
 	void Draw();
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 
 	virtual void OnMessage(const std::string &message);
 
@@ -29,3 +31,5 @@ private:
 	unsigned int _selected;
 	std::string _receiver;
 };
+
+#endif//IRADIOBTNS_H

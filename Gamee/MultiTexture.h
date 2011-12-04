@@ -2,21 +2,17 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_MULTITEXTURE_INCLUDED_)
-#define _MULTITEXTURE_INCLUDED_
+#ifndef MULTITEXTURE_H
+#define MULTITEXTURE_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\InputSystem.h"
-#include "..\Helpers\Counter.h"
-#include "..\Core\LuaScript.h"
-#include "..\Core\Render.h"
+#include "../Core/InputSystem.h"
+#include "../Helpers/Counter.h"
+#include "../Core/LuaScript.h"
+#include "../Core/Render.h"
 
 struct State {
 	FPoint2D pos;
-	PTexture texture;
+	Texture *texture;
 	std::string name;
 	bool visible;
 	State(TiXmlElement *xe);
@@ -32,8 +28,8 @@ public:
 	virtual ~MultiTexture();
 	virtual void Draw();
 	virtual void Update(float deltaTime);
-	virtual bool IsMouseOver(FPoint2D mousePos);
-	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
 private:
 	typedef std::list<State> States;
 	States _states;
@@ -41,4 +37,4 @@ private:
 	LuaScript *_luaScript;
 };
 
-#endif // !defined(_MULTITEXTURE_INCLUDED_)
+#endif//MULTITEXTURE_H

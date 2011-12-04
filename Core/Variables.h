@@ -1,11 +1,7 @@
 // Variables.h: interface for the Variables class.
 
-#if !defined(_VARIABLES_INCLUDED_)
-#define _VARIABLES_INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifndef VARIABLES_H
+#define VARIABLES_H
 
 #include "types.h"
 
@@ -25,4 +21,4 @@ private:
 	friend class TestObject;
 };
 
-#endif // !defined(_VARIABLES_INCLUDED_)
+#endif//VARIABLES_H

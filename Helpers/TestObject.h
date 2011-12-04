@@ -2,17 +2,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_TESTOBJECT_INCLUDED_)
-#define _TESTOBJECT_INCLUDED_
+#ifndef TESTOBJECT_H
+#define TESTOBJECT_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\types.h"
-#include "..\Core\Variables.h"
-#include "..\Core\LuaScript.h"
-#include "..\Core\Render.h"
+#include "../Core/types.h"
+#include "../Core/Variables.h"
+#include "../Core/LuaScript.h"
+#include "../Core/Render.h"
 
 class TestObject  
 	: public Object	
@@ -26,9 +22,9 @@ public:
 	virtual void OnMouseDown(FPoint2D mousePos);
 private:
 	FPoint2D _pos;
-	PTexture _texture;
+	Texture *_texture;
 	std::string _visibleVariableName;
 	LuaScript *_luaScript;
 };
 
-#endif // !defined(_TESTOBJECT_INCLUDED_)
+#endif//TESTOBJECT_H

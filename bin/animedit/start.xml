@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<fileroot>
+	<script name="onLoad">
+		--[[dofile("Code.lua")]]
+		fileName = "";
+		parameterCaption = "parameters";
+	</script>
+  <AnimationEditor/> <!-- name="animator" -->
+	<IPanel name="MainBoard" x="600" y="1" width="200" height="34" visible="1" needDraw="1">
+		<gui>
+			<IButton name="new" x="602" y="3" width="30" height="30" caption="New">
+				SendMessage("animator", "new");
+			</IButton>
+			<IButton name="load" x="634" y="3" width="30" height="30" caption="Load ">
+				SendMessage("animator", "open");
+			</IButton>
+			<IButton name="save" x="666" y="3" width="30" height="30" caption="Save ">
+				SendMessage("animator", "save");
+			</IButton>
+			<IButton name="help" x="768" y="3" width="30" height="30" caption="Help">
+				--SendMessage("animator", "help");
+			</IButton>
+		</gui>
+	</IPanel>
+	<IPanel name="FileNameBoard" x="600" y="35" width="200" height="34" visible="1" needDraw="1">
+		<gui>
+		</gui>
+	</IPanel>
+  <ILabel x="700" y="45" variableName="fileName"/>
+  <IPanel name="AnimationSelectorBoard" x="600" y="69" width="200" height="34" visible="1" needDraw="1">
+		<gui>
+			<IButton name="Selector" x="602" y="71" width="164" height="30" caption="...">
+				SendMessage("animator", "selector");
+			</IButton>
+			<IButton name="PlayStop" x="768" y="71" width="30" height="30" caption="Play">
+				SendMessage("animator", "playstop");
+			</IButton>
+		</gui>
+	</IPanel>
+	<IPanel name="TreeViewBoard" x="600" y="103" width="200" height="280" visible="1" needDraw="1">
+		<gui/>
+	</IPanel>
+	<IPanel name="ParameterBoard" x="600" y="383" width="200" height="217" visible="1" needDraw="1">
+		<gui>
+		</gui>
+	</IPanel>
+  <ILabel x="700" y="387" variableName="parameterCaption"/>
+  <IPanel name="TimelineBoard" x="10" y="560" width="581" height="35" visible="0" needDraw="1">
+		<gui/>
+	</IPanel>
+  <ButtonList name="ModalList" receiver="animator" x="325" y="100" width="150" height="30" stepDown="30" itemsInRow="1"/>
+  <!--IRadioBtns name="radio" receiver="lua:SwitchPanel" x="600" y="80" width="100" height="30" stepDown="0" stepRight="101" itemsInRow="2"/>
+	<IPanel name="spritespanel" x="600" y="110" width="200" height="390" visible="0" needDraw="1">
+		<gui>
+			<IButton name="loadimage" x="610" y="125" width="77" height="30" caption="load image">
+				local file = OpenFile("C:\\", "Images: PNG files\0*.png\0\0")
+				if file ~= "null" then
+				currentTexture = file;
+				end
+			</IButton>
+			<IButton name="newsprite" x="715" y="125" width="77" height="30" caption="new sprite">
+			</IButton>
+		</gui>
+	</IPanel-->
+	<IButton name="re" x="2" y="2" width="30" height="30" caption="reset">
+		SendMessage("Core", "load xml start.xml");
+	</IButton>
+	<FpsCounter/>
+</fileroot>

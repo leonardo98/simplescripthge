@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "InventoryObject.h"
-#include "..\Core\Core.h"
+#include "../Core/Core.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -30,21 +30,19 @@ void InventoryObject::Draw() {
 	_texture->Render(_pos);
 }
 
-void InventoryObject::OnMouseDown(FPoint2D mousePos) {
+void InventoryObject::OnMouseDown(const FPoint2D &mousePos) {
 	if (_found) {
 		return;
 	}
-	mousePos -= _pos;
-	if (_texture->IsNotTransparent((int)mousePos.x, (int)mousePos.y)) {
+	if (_texture->IsNotTransparent((int)(mousePos.x - _pos.x), (int)(mousePos.y - _pos.y))) {
 		_found = true;	
 		Messager::SendMessage("inventory", "add " + _id);
 	}
 }
 
-bool InventoryObject::IsMouseOver(FPoint2D mousePos) {
+bool InventoryObject::IsMouseOver(const FPoint2D &mousePos) {
 	if (_found) {
 		return false;
 	}
-	mousePos -= _pos;
-	return _texture->IsNotTransparent((int)mousePos.x, (int)mousePos.y);
+	return _texture->IsNotTransparent((int)(mousePos.x - _pos.x), (int)(mousePos.y - _pos.y));
 }

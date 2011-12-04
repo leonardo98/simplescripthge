@@ -1,10 +1,7 @@
-#ifndef MyMessageBox_H
-#define MyMessageBox_H
-
-#include "..\Core\Render.h"
+#include "../Core/Render.h"
 #include "MyMessageBox.h"
-#include "..\Core\Core.h"
-#include "..\Core\Variables.h"
+#include "../Core/Core.h"
+#include "../Core/Variables.h"
 
 MyMessageBox::~MyMessageBox() {
 	_myMessageBox = NULL;
@@ -42,17 +39,17 @@ void MyMessageBox::Draw() {
 	}
 }
 
-bool MyMessageBox::IsMouseOver(FPoint2D mousePos) {
+bool MyMessageBox::IsMouseOver(const FPoint2D &mousePos) {
 	return (_buttons.size() > 0);
 }
 
-void MyMessageBox::OnMouseDown(FPoint2D mousePos) {
+void MyMessageBox::OnMouseDown(const FPoint2D &mousePos) {
 	for (unsigned int i = 0; i < _buttons.size(); i++) {
 		_buttons[i]->OnMouseDown(mousePos);
 	}
 }
 
-void MyMessageBox::OnMouseMove(FPoint2D mousePos) {
+void MyMessageBox::OnMouseMove(const FPoint2D &mousePos) {
 	for (unsigned int i = 0; i < _buttons.size(); i++) {
 		_buttons[i]->OnMouseMove(mousePos);
 	}
@@ -91,10 +88,8 @@ void MyMessageBox::OnMessage(const std::string &message) {
 MyMessageBox *MyMessageBox::_myMessageBox = NULL;
 
 void MyMessageBox::Show(const std::string &text, const std::string &buttons, const std::string &receiver) {
-	assert(_myMessageBox != NULL);
+	//assert(_myMessageBox != NULL);
 	Messager::SetValueS("MessageBox", "question", text);
 	Messager::SetValueS("MessageBox", "answer", receiver);
 	Messager::SetValueS("MessageBox", "buttons", buttons);
 }
-
-#endif//MyMessageBox_H

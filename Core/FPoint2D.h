@@ -1,6 +1,7 @@
 // sources token from HGE
 
-#ifndef FPoint2D
+#ifndef FPOINT2D_H
+#define FPOINT2D_H
 
 #include <math.h>
 
@@ -14,7 +15,9 @@
 #define M_PI_2 1.570796f
 #endif 
 
-float InvSqrt(float x);
+namespace Point2dMath {
+    float InvSqrt(float x);
+}
 
 class FPoint2D
 {
@@ -41,7 +44,7 @@ public:
 	float		Angle(const FPoint2D *v = 0) const;
 	
 	void		Clamp(const float max) { if(Length() > max)	{ Normalize(); x *= max; y *= max; } }
-	FPoint2D*	Normalize() { float rc=InvSqrt(Dot(this)); x*=rc; y*=rc; return this; }
+	FPoint2D*	Normalize() { float rc=Point2dMath::InvSqrt(Dot(this)); x*=rc; y*=rc; return this; }
 	FPoint2D*	Rotate(float a) {
 		FPoint2D v;
 		v.x=x*cosf(a) - y*sinf(a);
@@ -55,4 +58,4 @@ inline FPoint2D operator* (const float s, const FPoint2D &v)		{ return v*s; }
 inline float	 operator^ (const FPoint2D &v, const FPoint2D &u) { return v.Angle(&u); }
 inline float	 operator% (const FPoint2D &v, const FPoint2D &u) { return v.Dot(&u); }
 
-#endif
+#endif//FPOINT2D_H

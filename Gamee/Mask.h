@@ -2,17 +2,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_MASK_INCLUDED_)
-#define _MASK_INCLUDED_
+#ifndef MASK_H
+#define MASK_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\InputSystem.h"
-#include "..\Core\LuaScript.h"
-#include "..\Core\Variables.h"
-#include "..\Core\Render.h"
+#include "../Core/InputSystem.h"
+#include "../Core/LuaScript.h"
+#include "../Core/Variables.h"
+#include "../Core/Render.h"
 
 class Mask 
 	: public InputSystem  
@@ -21,11 +17,11 @@ public:
 	Mask(TiXmlElement *xe);
 	~Mask();
 private:
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	FPoint2D _pos;
-	PTexture _texture;
+	Texture *_texture;
 	LuaScript *_luaScript;
 };
 
-#endif // !defined(_MASK_INCLUDED_)
+#endif//MASK_H

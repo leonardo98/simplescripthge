@@ -1,7 +1,7 @@
 #include "IRadioBtns.h"
 #include "Render.h"
-#include "..\Core\Core.h"
-#include "..\Core\Interface.h"
+#include "../Core/Core.h"
+#include "../Core/Interface.h"
 
 IRadioBtns::IRadioBtns(TiXmlElement *xe)
 	: Messager(xe)
@@ -31,7 +31,7 @@ void IRadioBtns::Draw() {
 		} else {
 			Render::DrawBar(pos.x, pos.y, _width, _height, 0xFF7F7F7F);
 		}
-		Render::PrintString(static_cast<int>(pos.x + _width / 2), static_cast<int>(pos.y + _height / 2)/* - Interface::Font()->GetHeight() / 2*/, "",i->c_str(), Interface::BUTTON_TEXT);		
+		Render::PrintString(static_cast<int>(pos.x + _width / 2), static_cast<int>(pos.y + _height / 2) - Render::GetFontHeight("data\\font2.fnt") / 2, "", i->c_str(), Interface::BUTTON_TEXT);		
 		++counter;
 	}
 }
@@ -46,7 +46,7 @@ void IRadioBtns::OnMessage(const std::string &message) {
 	}
 }
 
-bool IRadioBtns::IsMouseOver(FPoint2D mousePos) {
+bool IRadioBtns::IsMouseOver(const FPoint2D &mousePos) {
 	for (unsigned int i = 0; i < _items.size(); ++i) {
 		FPoint2D pos = _pos;
 		pos.x += _stepRight * (i % _itemsInRow);
@@ -59,7 +59,7 @@ bool IRadioBtns::IsMouseOver(FPoint2D mousePos) {
 	return false;
 }
 
-void IRadioBtns::OnMouseDown(FPoint2D mousePos) {
+void IRadioBtns::OnMouseDown(const FPoint2D &mousePos) {
 	unsigned int old = _selected;
 	for (unsigned int i = 0; i < _items.size(); ++i) {
 		FPoint2D pos = _pos;
