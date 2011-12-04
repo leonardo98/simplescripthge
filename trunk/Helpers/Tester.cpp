@@ -3,9 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Tester.h"
-#include "..\Core\types.h"
-#include "..\Core\Core.h"
-#include "..\Core\Render.h"
+#include "../Core/types.h"
+#include "../Core/Core.h"
+#include "../Core/Render.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

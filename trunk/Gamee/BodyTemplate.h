@@ -1,14 +1,11 @@
-#pragma once
+#ifndef BODYTEMPLATE_H
+#define BODYTEMPLATE_H
 
-#include "..\Core\types.h"
-#include "C:\CppLib\Box2D_v2.1.2\Box2D\Box2D\Box2D.h"
+#include "../Core/types.h"
+#include "../../CppLib/Box2D_v2.1.2/Box2D/Box2D/Box2D.h"
 
 struct UV {
-#ifndef HGE_COMPILE_KEY
-	int16 u, v;
-#else
 	float u, v;
-#endif
 };
 
 struct BodyTemplate // описание базового элемента - все исходные параметры тут и только они см. MyBody, BodyState
@@ -36,3 +33,5 @@ struct BodyTemplate // описание базового элемента - все исходные параметры тут и
 	// соптимизируем для iphone, чтобы не тратить время на расчеты в реальном времени
 	// запишем все координаты вершин элемента под разными углами в массив
 };
+
+#endif//BODYTEMPLATE_H

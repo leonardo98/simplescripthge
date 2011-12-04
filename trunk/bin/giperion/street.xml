@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<fileroot>
+  <script>
+    UnloadGroup("shema");
+    LoadGroup("street");
+  </script>
+	<script name="onLoad">
+    StreetSwitch();
+  </script>
+    <StaticTexture x="0" y="0" texture="fon_street"/>
+	<StaticTexture x="0" y="0" texture="cloud_street"/>
+	<StaticTexture x="0" y="0" texture="fon_tree_street"/>
+    <MultiTexture variableName="l8_bullfinch">  <!-- снегирь2 -->
+        <states>
+			<if value="four" x="0" y="0" texture="bullfinch4_street"/>
+		</states>
+		<script>
+      if (streetstage == 1 or streetstage == 2 or streetstage == 3) then
+        StreetNext();
+      end;
+    </script>
+	</MultiTexture>
+	  <MultiTexture variableName="l8_bobcat">  <!-- рысенок -->
+  	    <states>
+			<if value="one" x="0" y="0" texture="bobcat_street"/>
+			<if value="two" x="0" y="0" texture="bobcat2_street"/>
+			<if value="three" x="0" y="0" texture="bobcat3_street"/>
+			<if value="four" x="0" y="0" texture="bobcat4_street"/>
+			<if value="six" x="0" y="0" texture="bobcat6_street"/>
+			<if value="seven" x="0" y="0" texture="bobcat7_street"/>
+		</states>
+		<script>
+      if (streetstage == 1 or streetstage == 2 or streetstage == 3 or streetstage == 4 or streetstage == 5 or streetstage == 6) then
+        StreetNext();
+      end;
+    </script>
+   </MultiTexture>
+   <MultiTexture variableName="bobcat_eyes">  <!-- рысенок -->
+		<states>
+			<if value="one" x="0" y="0" texture="bobcat_eyes_street"/>
+		</states>
+   </MultiTexture>
+   <MultiTexture variableName="comok2">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_2_street"/>
+		</states>
+		<script>
+       if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+    </MultiTexture>
+    <MultiTexture variableName="comok3">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_3_street"/>
+		</states>
+		<script>
+      if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="comok">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_street"/>
+		</states>
+		<script>
+      if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="comok_carrot">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_carrot_street"/>
+		</states>
+		<script>
+      if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+    <MultiTexture variableName="comok_eyes">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_eyes_street"/>
+		</states>
+		<script>
+     if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="comok_bucket">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_bucket_street"/>
+		</states>
+		<script>
+     if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="comok_broom">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_broom_street"/>
+		</states>
+		<script>
+     if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="l8_bullfinch">  <!-- снегирь -->
+		<states>
+	    	<if value="one" x="0" y="0" texture="bullfinch1_street"/>
+  	        <if value="two" x="0" y="0" texture="bullfinch2_street"/>
+			<if value="three" x="0" y="0" texture="bullfinch3_street"/>
+			<if value="five" x="0" y="0" texture="bullfinch5_street"/>
+			<if value="six" x="0" y="0" texture="bullfinch6_street"/>
+			<if value="seven" x="0" y="0" texture="bullfinch_carrot_street"/>
+		</states>
+		<script>
+        if (streetstage == 1 or streetstage == 2 or streetstage == 3 or streetstage == 4 or streetstage == 5 or streetstage == 6 or streetstage == 7 or streetstage == 8 or streetstage == 9) then
+        StreetNext();
+      end;
+      </script>
+	</MultiTexture>
+	<MultiTexture variableName="l8_bobcat">  <!-- рысенок -->
+		<states>
+			<if value="five" x="0" y="0" texture="bobcat5_street"/>
+		</states>
+		<script>
+       if (streetstage == 1 or streetstage == 2 or streetstage == 3 or streetstage == 4 or streetstage == 5 or streetstage == 6) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="comok_scarf">
+		<states>
+			<if value="one" x="0" y="0" texture="comok_scarf_street"/>
+		</states>
+		<script>
+     if (streetstage == 1 or streetstage == 2) then
+        StreetNext();
+      end;
+      </script>
+   </MultiTexture>
+    <StaticTexture x="0" y="0" texture="comok_small_street"/>
+	<TextBox name="messageWindow" x="520" y="670" width="800" height="100" font="data\a_futuraRound_24.fnt" hideTime="500">
+    <background texture="textback1" x="0" y="0"/>
+	</TextBox>
+  <Button x="920" y="675" normal="arrow" pressed="arrow_pressed">
+    StreetNext();
+  </Button>
+  <Button x="15" y="675" normal="arrow2" pressed="arrow2_pressed">
+    StreetPrev();
+  </Button>
+
+  <!-- DEBUG/TEST ONLY -->
+  <IButton name="new" x="0" y="0" width="40" height="40" caption="Reload">
+    SendMessage("Core", "load xml start.xml");
+  </IButton>
+  <IButton name="new1" x="0" y="40" width="40" height="40" caption="Reload1">
+    SendMessage("Core", "load xml street.xml");
+  </IButton>
+	<FpsCounter/>
+  
+</fileroot>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

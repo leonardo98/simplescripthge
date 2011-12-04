@@ -2,15 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_STARSRECT_INCLUDED_)
-#define _STARSRECT_INCLUDED_
+#ifndef STARTRECT_H
+#define STARTRECT_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\Object.h"
-#include "..\Core\Render.h"
+#include "../Core/Object.h"
+#include "../Core/Render.h"
 
 class StarsRect  
 	: public Object
@@ -25,7 +21,7 @@ private:
 	int _width;
 	int _height;
 	int _number;
-	PTexture _texture;
+	Texture *_texture;
 	struct Star 
 	{
 		FPoint2D getPos();
@@ -40,4 +36,4 @@ private:
 	std::list<Star> _stars;
 };
 
-#endif // !defined(_STARSRECT_INCLUDED_)
+#endif//STARTRECT_H

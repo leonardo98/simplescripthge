@@ -3,9 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Inventory.h"
-#include "..\Core\Core.h"
-#include "..\Core\Render.h"
-#include "..\Core\Variables.h"
+#include "../Core/Core.h"
+#include "../Core/Render.h"
+#include "../Core/Variables.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -67,12 +67,12 @@ void Inventory::Update(float deltaTime) {
 	}
 }
 
-bool Inventory::IsMouseOver(FPoint2D mousePos) {
+bool Inventory::IsMouseOver(const FPoint2D &mousePos) {
 	FPoint2D local = mousePos - _pos;
 	return _texture->IsNotTransparent(int(local.x), int(local.y));
 }
 
-void Inventory::OnMouseDown(FPoint2D mousePos) {
+void Inventory::OnMouseDown(const FPoint2D &mousePos) {
 	FPoint2D local = mousePos - (_pos + FPoint2D(35, 13));
 	int width = 70;
 	for (Tools::iterator i = _tools.begin(), e = _tools.end(); i != e; i++) {
@@ -87,6 +87,6 @@ void Inventory::OnMouseDown(FPoint2D mousePos) {
 	_active = NULL;
 }
 
-void Inventory::OnMouseMove(FPoint2D mousePos) {
+void Inventory::OnMouseMove(const FPoint2D &mousePos) {
 	_lastMousePos = mousePos;
 }

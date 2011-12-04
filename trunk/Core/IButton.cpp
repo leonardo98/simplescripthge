@@ -1,6 +1,3 @@
-#ifndef IBUTTON_H
-#define IBUTTON_H
-
 #include "Render.h"
 #include "IButton.h"
 #include "Core.h"
@@ -40,23 +37,23 @@ void IButton::Draw() {
 	} else {
 		assert(false);
 	}
-	Render::PrintString(static_cast<int>(_pos.x + _width / 2), static_cast<int>(_pos.y + _height / 2)/* - Interface::Font()->GetHeight() / 2*/, "", _caption.c_str(), Interface::BUTTON_TEXT);
+	Render::PrintString(static_cast<int>(_pos.x + _width / 2), static_cast<int>(_pos.y + _height / 2) - Render::GetFontHeight("data\\font2.fnt") / 2, "data\\font2.fnt", _caption.c_str(), Interface::BUTTON_TEXT);
 }
 
-bool IButton::IsMouseOver(FPoint2D mousePos) {
-	mousePos -= _pos;
-	return (0 <= mousePos.x && mousePos.x < _width 
-			&& 0 <= mousePos.y && mousePos.y < _height);
+bool IButton::IsMouseOver(const FPoint2D &mousePos) {
+	FPoint2D p = mousePos - _pos;
+	return (0 <= p.x && p.x < _width 
+			&& 0 <= p.y && p.y < _height);
 }
 
-void IButton::OnMouseDown(FPoint2D mousePos) {
+void IButton::OnMouseDown(const FPoint2D &mousePos) {
 	if (IsMouseOver(mousePos)) {
 		_state = BUTTON_PRESSED;
 		_down = true;
 	}
 }
 
-void IButton::OnMouseMove(FPoint2D mousePos) {
+void IButton::OnMouseMove(const FPoint2D &mousePos) {
 	bool oldValue = IsMouseOver(_oldMousePos);
 	_oldMousePos = mousePos;
 	bool newValue = IsMouseOver(_oldMousePos);
@@ -92,5 +89,3 @@ void IButton::OnMouseOut() {
 void IButton::SetValue(const std::string &variableName, const std::string &value) {
 	_caption = value;
 }
-
-#endif//IBUTTON_H

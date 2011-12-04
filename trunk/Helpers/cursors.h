@@ -2,15 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_CURSORS_INCLUDED_)
-#define _CURSORS_INCLUDED_
+#ifndef cursors_h
+#define cursors_h
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\types.h"
-#include "..\Core\Render.h"
+#include "../Core/types.h"
+#include "../Core/Render.h"
 
 class cursors  
 {
@@ -19,8 +15,8 @@ public:
 	static void Draw(FPoint2D pos);
 	static void Set(std::string type);
 private:
-	static std::map<std::string, PTexture> _names;
+	static std::map<std::string, Texture *> _names;
 	static std::string _currentType;
 };
 
-#endif // !defined(_CURSORS_INCLUDED_)
+#endif//cursors_h

@@ -1,13 +1,13 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
-#include "..\Core\InputSystem.h"
-#include "..\Core\Messager.h"
-#include "..\Core\Render.h"
-#include "Box2D\Box2D.h"
+#include "../Core/InputSystem.h"
+#include "../Core/Messager.h"
+#include "../Core/Render.h"
+#include "Box2D/Box2D.h"
 #include <cstdlib>
 #include "BodyTemplate.h"
-#include "..\Helpers\Counter.h"
+#include "../Helpers/Counter.h"
 
 class Simulator;
 struct Settings;
@@ -128,9 +128,9 @@ public:
 	};
 	virtual b2Body * AddElement(const std::string &typeId);
 	virtual b2Body * AddElement(const BodyState &bodyState);
-	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
-	void OnMouseMove(FPoint2D mousePos);
+	void OnMouseMove(const FPoint2D &mousePos);
 	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
 
 	// Callbacks for derived classes.
@@ -138,7 +138,7 @@ public:
 	virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
 	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
 	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	virtual bool OnMouseWheel(int direction);
 	virtual void Draw();
 	virtual void Update(float deltaTime);
@@ -190,7 +190,7 @@ protected:
 	Settings settings;
 
 
-	PTexture _allElements;
+	Texture *_allElements;
 
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
@@ -231,15 +231,7 @@ protected:
 	b2Body *_selectedBody;
 	void InitParams(b2Body *body);
 	UV _selectedUV[4];
-#ifndef HGE_COMPILE_KEY
-#define MAX_ELEMENTS 200
-    CIwSVec2 _uvs[MAX_ELEMENTS * 4];
-    CIwSVec2 _xy[MAX_ELEMENTS * 4];
-	//CIwTexture *s_Texture;
-	inline void DrawElement(CIwSVec2 *&bufVert, CIwSVec2 *&bufUV, const BodyTemplate::UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
-#else
 	inline void DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
-#endif
 };
 
-#endif //SIMULATOR_H
+#endif//SIMULATOR_H

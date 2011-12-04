@@ -2,15 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_STATICTEXTURE_INCLUDED_)
-#define _STATICTEXTURE_INCLUDED_
+#ifndef STATICTEXTURE_H
+#define STATICTEXTURE_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\Core\Object.h"
-#include "..\Core\Render.h"
+#include "../Core/Object.h"
+#include "../Core/Render.h"
 
 class StaticTexture : public Object  
 {
@@ -20,7 +16,8 @@ public:
 	void Draw();
 private:
 	FPoint2D _pos;
-	PTexture _texture;
+	Texture *_texture;
+	std::string _textureId;
 };
 
-#endif // !defined(_STATICTEXTURE_INCLUDED_)
+#endif//STATICTEXTURE_H

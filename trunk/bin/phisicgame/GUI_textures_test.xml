@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<Resources>
+  <texture id="allElements" path="data\box2d\allElements.png"/>
+  <!--texture id="red_box" path="data\box2d\red_box.png"/>
+  <texture id="ball" path="data\box2d\ball.png"/>
+  <texture id="wall" path="data\box2d\wall.png"/-->
+</Resources>

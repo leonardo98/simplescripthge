@@ -5,7 +5,7 @@
 
 void TextureManager::ReadDescriptions(std::string fileName)
 {
-	TiXmlDocument doc( fileName.c_str() );
+	TiXmlDocument doc( Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str()));
 	bool loadOkay = doc.LoadFile();
 	if (!loadOkay) {
 		LOG("Не могу открыть файл " + fileName);
@@ -24,15 +24,63 @@ void TextureManager::ReadDescriptions(std::string fileName)
 				ts.group = groupName;
 				ts.path = item->Attribute( "path" );
 				ts.texture = NULL;
-				_texturesMap[item->Attribute( "id" )] = ts;
+				const char *name = item->Attribute( "id" );
+				if (_texturesMap.find(name) != _texturesMap.end()) {
+					LOG("resource already loaded :" + name);
+					assert(false);
+				}
+				_texturesMap[name] = ts;
 				item = item->NextSiblingElement();
 			}
 		} else if (name == "texture") {
 			TextureState ts;
 			ts.group = "";
 			ts.path = element->Attribute( "path" );
-			ts.texture = new Render::Texture(ts.path.c_str());
-			_texturesMap[element->Attribute( "id" )] = ts;
+			ts.texture = new Texture(ts.path.c_str());
+			const char *name = element->Attribute( "id" );
+			if (_texturesMap.find(name) != _texturesMap.end()) {
+				LOG("resource already loaded :" + name);
+				assert(false);
+			}
+			_texturesMap[name] = ts;
+		} else if (name == "atlas") {
+			std::string path = element->Attribute("path");
+			TiXmlDocument doc(std::string(Render::GetDataDir() + path).c_str());
+			if (!doc.LoadFile()) {
+				LOG("file not found " + path);
+				assert(false);
+			}
+			path.replace(path.find("desc.xml"), std::string("desc.xml").size(), "png");
+			HTEXTURE hTexture = Render::GetDC()->Texture_Load((Render::GetDataDir() + path).c_str());
+			if (hTexture == 0) {
+				LOG("file not found " + path);
+				assert(false);
+			}
+			TiXmlElement *root = doc.RootElement();
+			TiXmlElement *frame = root->FirstChildElement("frame");
+			while (frame) {
+				int x = atoi(frame->Attribute("x"));
+				int y = atoi(frame->Attribute("y"));
+				int width = atoi(frame->Attribute("width"));
+				int height = atoi(frame->Attribute("height"));
+				int innerX = atoi(frame->Attribute("innerX"));
+				int innerY = atoi(frame->Attribute("innerY"));
+				int frameWidth = atoi(frame->Attribute("frameWidth"));
+				int frameHeight = atoi(frame->Attribute("frameHeight"));
+				const char *name = frame->Attribute("path");
+				
+				TextureState ts;
+				ts.group = "";
+				ts.path = name;
+				ts.texture = new Texture(hTexture, x, y, width, height, innerX, innerY);
+				if (_texturesMap.find(name) != _texturesMap.end()) {
+					LOG("resource already loaded :" + name);
+					assert(false);
+				}
+				_texturesMap[name] = ts;
+
+				frame = frame->NextSiblingElement("frame");
+			}
 		}
 		element = element->NextSiblingElement();
 	}
@@ -42,7 +90,7 @@ void TextureManager::LoadGroup(std::string groupId)
 {
 	for (TextureMap::iterator i = _texturesMap.begin(), e = _texturesMap.end(); i != e; i++) {
 		if (i->second.group == groupId && i->second.texture == NULL) {
-			i->second.texture = new Render::Texture(i->second.path.c_str());
+			i->second.texture = new Texture(i->second.path.c_str());
 		}
 	}
 }
@@ -57,14 +105,14 @@ void TextureManager::UnloadGroup(std::string groupId)
 	}
 }
 
-PTexture TextureManager::GetTexture(std::string textureId)
+Texture *TextureManager::getTexture(const std::string &textureId)
 {
 	if (_texturesMap.find(textureId) == _texturesMap.end()) {
 		// если такой текстуры нет - может нам дают ее путь?
 		TextureState ts;
 		ts.group = "";
 		ts.path = textureId.c_str();
-		ts.texture = new Render::Texture(ts.path.c_str());
+		ts.texture = new Texture(ts.path.c_str());
 		_texturesMap[textureId] = ts;
 		return ts.texture;
 	} else {

@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Resources>
+  <Textures>
+
+    <texture name="fon_casket" path="data\casket\Fon_casket.png" group="casket" />
+    <texture name="bobcat_casket1" path="data\casket\bobcat_casket1.png" group="casket" />
+    <texture name="bobcat_casket2" path="data\casket\bobcat_casket2.png" group="casket" />
+    <texture name="table_casket" path="data\casket\table_casket.png" group="casket" />
+    <texture name="casket_close" path="data\casket\casket_close.png" group="casket" />
+    <texture name="casket_open" path="data\casket\casket_open.png" group="casket" />
+    <texture name="casket_open2" path="data\casket\casket_open2.png" group="casket" />
+
+    <texture name="switch_mask" path="data\switch_mask.png" group="closet" />
+    <texture name="broom_closet" path="data\closet\broom_closet.png" group="closet" />
+    <texture name="bucket_closet" path="data\closet\bucket_closet.png" group="closet" />
+    <texture name="bullfinch2_closet" path="data\closet\bullfinch2_closet.png" group="closet" />
+    <texture name="bullfinch_closet" path="data\closet\bullfinch_closet.png" group="closet" />
+    <texture name="bobcat_closet" path="data\closet\bobcat_closet.png" group="closet" />
+    <texture name="cheese_closet" path="data\closet\cheese_closet.png" group="closet" />
+    <texture name="spider_closet" path="data\closet\spider_closet.png" group="closet" />
+    <texture name="picture_closet" path="data\closet\picture_closet.png" group="closet" />
+    <texture name="picture2_closet" path="data\closet\picture2_closet.png" group="closet" />
+    <texture name="dark_closet" path="data\closet\dark_closet.png" group="closet" />
+    <texture name="stool_closet" path="data\closet\stool_closet.png" group="closet" />
+    <texture name="fon_closet" path="data\closet\fon_closet.png" group="closet" />
+    <texture name="mouse_closet" path="data\closet\mouse_closet.png" group="closet" />
+    <texture name="mouse2_closet" path="data\closet\mouse2_closet.png" group="closet" />
+    <texture name="broom_closet_mask" path="data\broom_closet_mask.png" group="closet" />
+    <texture name="bucket_closet_mask" path="data\bucket_closet_mask.png" group="closet" />
+
+    <texture name="babl_room" path="data\room\babl_room.png" group="room" />
+    <texture name="bobcat1_room" path="data\room\bobcat1_room.png" group="room" />
+    <texture name="bobcat2_room" path="data\room\bobcat2_room.png" group="room" />
+    <texture name="bobcat3_room" path="data\room\bobcat3_room.png" group="room" />
+    <texture name="bobcat4_room" path="data\room\bobcat4_room.png" group="room" />
+    <texture name="bobcat5_room" path="data\room\bobcat5_room.png" group="room" />
+    <texture name="bullfinch1_room" path="data\room\bullfinch1_room.png" group="room" />
+    <texture name="bullfinch2_room" path="data\room\bullfinch2_room.png" group="room" />
+    <texture name="bullfinch3_room" path="data\room\bullfinch3_room.png" group="room" />
+    <texture name="cactus_room" path="data\room\cactus_room.png" group="room" />
+    <texture name="cactus_flower_room" path="data\room\cactus_flower_room.png" group="room" />
+    <texture name="clock_room" path="data\room\clock_room.png" group="room" />
+    <texture name="clock_birds_room" path="data\room\clock_birds_room.png" group="room" />
+    <texture name="door_open_room" path="data\room\door_open_room.png" group="room" />
+    <texture name="door_room" path="data\room\door_room.png" group="room" />
+    <texture name="fon_room" path="data\room\fon_room.png" group="room" />
+    <texture name="shtora_palka_room" path="data\room\shtora_palka_room.png" group="room" />
+    <texture name="shtora_open1_room" path="data\room\shtora_open1_room.png" group="room" />
+    <texture name="shtora_open2_room" path="data\room\shtora_open2_room.png" group="room" />
+    <texture name="shtora_close1_room" path="data\room\shtora_close1_room.png" group="room" />
+    <texture name="shtora_close2_room" path="data\room\shtora_close2_room.png" group="room" />
+    <texture name="text_room" path="data\room\text_room.png" group="room" />
+    <texture name="tuk_tyk_room" path="data\room\tuk_tyk_room.png" group="room" />
+    <texture name="arrow" path="data\arrow.png" group="room" />
+    <texture name="arrow2" path="data\arrow2.png" group="room" />
+
+    <texture name="bobcat1_icebox" path="data\icebox\bobcat1_icebox.png" group="icebox" />
+    <texture name="bobcat2_icebox" path="data\icebox\bobcat2_icebox.png" group="icebox" />
+    <texture name="bullfinch1_icebox" path="data\icebox\bullfinch1_icebox.png" group="icebox" />
+    <texture name="bullfinch2_icebox" path="data\icebox\bullfinch2_icebox.png" group="icebox" />
+    <texture name="chair_icebox" path="data\icebox\chair_icebox.png" group="icebox" />
+    <texture name="fon_icebox" path="data\icebox\fon_icebox.png" group="icebox" />
+    <texture name="icebox_icebox" path="data\icebox\icebox_icebox.png" group="icebox" />
+    <texture name="icebox_open1_icebox" path="data\icebox\icebox_open1_icebox.png" group="icebox" />
+    <texture name="icebox_open2_icebox" path="data\icebox\icebox_open2_icebox.png" group="icebox" />
+    <texture name="shtora_icebox" path="data\icebox\shtora_icebox.png" group="icebox" />
+    <texture name="shtora_open_icebox" path="data\icebox\shtora_open_icebox.png" group="icebox" />
+    <texture name="shadow_icebox" path="data\icebox\shadow_icebox.png" group="icebox" />
+    <texture name="covrikc_icebox" path="data\icebox\covrikc_icebox.png" group="icebox" />
+    <texture name="polka_icebox" path="data\icebox\polka_icebox.png" group="icebox" />
+
+    <texture name="bobcat1_cabinet" path="data\cabinet\bobcat1_cabinet.png" group="cabinet" />
+    <texture name="bobcat2_cabinet" path="data\cabinet\bobcat2_cabinet.png" group="cabinet" />
+    <texture name="bullfinch1_cabinet" path="data\cabinet\bullfinch1_cabinet.png" group="cabinet" />
+    <texture name="bullfinch2_cabinet" path="data\cabinet\bullfinch2_cabinet.png" group="cabinet" />
+    <texture name="cabinet_close_cabinet" path="data\cabinet\cabinet_close_cabinet.png" group="cabinet" />
+    <texture name="cabinet_open_cabinet" path="data\cabinet\cabinet_open_cabinet.png" group="cabinet" />
+    <texture name="cabinet_cabinet" path="data\cabinet\cabinet_cabinet.png" group="cabinet" />
+    <texture name="fon_cabinet" path="data\cabinet\fon_cabinet.png" group="cabinet" />
+
+    <texture name="fon_street" path="data\street\fon_street.png" group="street" />
+    <texture name="fon_tree_street" path="data\street\fon_tree_street.png" group="street" />
+    <texture name="comok_small_street" path="data\street\comok_small_street.png" group="street" />
+    <texture name="comok_scarf_street" path="data\street\comok_scarf_street.png" group="street" />
+    <texture name="comok_eyes_street" path="data\street\comok_eyes_street.png" group="street" />
+    <texture name="comok_street" path="data\street\comok_street.png" group="street" />
+    <texture name="comok_carrot_street" path="data\street\comok_carrot_street.png" group="street" />
+    <texture name="comok_bucket_street" path="data\street\comok_bucket_street.png" group="street" />
+    <texture name="comok_broom_street" path="data\street\comok_broom_street.png" group="street" />
+    <texture name="comok_3_street" path="data\street\comok_3_street.png" group="street" />
+    <texture name="comok_2_street" path="data\street\comok_2_street.png" group="street" />
+    <texture name="cloud_street" path="data\street\cloud_street.png" group="street" />
+    <texture name="bullfinch6_street" path="data\street\bullfinch6_street.png" group="street" />
+    <texture name="bullfinch5_street" path="data\street\bullfinch5_street.png" group="street" />
+    <texture name="bullfinch4_street" path="data\street\bullfinch4_street.png" group="street" />
+    <texture name="bullfinch3_street" path="data\street\bullfinch3_street.png" group="street" />
+    <texture name="bullfinch2_street" path="data\street\bullfinch2_street.png" group="street" />
+    <texture name="bullfinch1_street" path="data\street\bullfinch1_street.png" group="street" />
+    <texture name="bullfinch_carrot_street" path="data\street\bullfinch_carrot_street.png" group="street" />
+    <texture name="bobcat_street" path="data\street\bobcat_street.png" group="street" />
+    <texture name="bobcat2_street" path="data\street\bobcat2_street.png" group="street" />
+    <texture name="bobcat3_street" path="data\street\bobcat3_street.png" group="street" />
+    <texture name="bobcat4_street" path="data\street\bobcat4_street.png" group="street" />
+    <texture name="bobcat5_street" path="data\street\bobcat5_street.png" group="street" />
+    <texture name="bobcat6_street" path="data\street\bobcat6_street.png" group="street" />
+    <texture name="bobcat7_street" path="data\street\bobcat7_street.png" group="street" />
+    <texture name="bobcat_eyes_street" path="data\street\bobcat_eyes_street.png" group="street" />
+
+    <texture name="fon_room2" path="data\room_2\fon_room2.png" group="room_2" />
+    <texture name="fon_street_room2" path="data\room_2\fon_street_room2.png" group="room_2" />
+    <texture name="Mask_street_room2" path="data\room_2\Mask_street_room2.png" group="room_2" />
+    <texture name="door_room2" path="data\room_2\door_room2.png" group="room_2" />
+    <texture name="door_open_room2" path="data\room_2\door_open_room2.png" group="room_2" />
+    <texture name="clock_room2" path="data\room_2\clock_room2.png" group="room_2" />
+    <texture name="bullfinch_room2" path="data\room_2\bullfinch_room2.png" group="room_2" />
+    <texture name="box_room2" path="data\room_2\box_room2.png" group="room_2" />
+    <texture name="bobcat_room2" path="data\room_2\bobcat_room2.png" group="room_2" />
+
+    <texture name="bobcat1_street2" path="data\street_2\bobcat1_street2.png" group="street_2" />
+    <texture name="bullfinch1_street2" path="data\street_2\bullfinch1_street2.png" group="street_2" />
+    <texture name="snowman_street2" path="data\street_2\snowman_street2.png" group="street_2" />
+    <texture name="fon_housetree_street2" path="data\street_2\fon_housetree_street2.png" group="street_2" />
+    <texture name="fon_street2" path="data\street_2\fon_street2.png" group="street_2" />
+    <texture name="fon_tree_street2" path="data\street_2\fon_tree_street2.png" group="street_2" />
+    <texture name="conez_street2" path="data\street_2\conez_street2.png" group="street_2" />
+
+    <texture name="logo" path="data\logo\logo.png" group="firstscreen" />
+    <texture name="start" path="data\start.png" group="firstscreen" />
+    <texture name="start2" path="data\start2.png" group="firstscreen" />
+
+    <texture name="shema" path="data\shema\shema.png" group="shema" />
+    <texture name="text" path="data\shema\text.png" group="shema" />
+
+    <texture name="textback1" path="data\textback1.png"/>
+    <!--
+    <texture name="dodo_w_walk_leftfront06.png" path="textures\dodo_w\dodo_w_leftfront\dodo_w_walk_leftfront06.png" group="" />
+    -->
+  </Textures>
+</Resources>

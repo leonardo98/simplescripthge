@@ -1,7 +1,9 @@
-#pragma once
-#include "..\Core\InputSystem.h"
-#include "..\Core\LuaScript.h"
-#include "..\Core\Render.h"
+#ifndef BUTTON_H
+#define BUTTON_H
+
+#include "../Core/InputSystem.h"
+#include "../Core/LuaScript.h"
+#include "../Core/Render.h"
 
 class Button :
 	public InputSystem
@@ -9,10 +11,10 @@ class Button :
 public:
 	Button(TiXmlElement *xe);
 	void Draw();
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(FPoint2D mousePos);
+	virtual void OnMouseMove(const FPoint2D &mousePos);
 
 	virtual void OnMouseIn();
 	virtual void OnMouseOut();
@@ -20,8 +22,11 @@ private:
 	FPoint2D _pos;
 	FPoint2D _oldMousePos;
 	bool _down;
-	PTexture _normal;
-	PTexture _pressed;
-	PTexture _current;
+	Texture *_normal;
+	Texture *_pressed;
+	Texture *_current;
 	LuaScript *_luaScript;
 };
+
+
+#endif//BUTTON_H

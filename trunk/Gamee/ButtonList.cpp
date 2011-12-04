@@ -1,7 +1,7 @@
-#include "..\Core\Render.h"
+#include "../Core/Render.h"
 #include "ButtonList.h"
-#include "..\Core\Core.h"
-#include "..\Core\Interface.h"
+#include "../Core/Core.h"
+#include "../Core/Interface.h"
 
 #define OFFSET ((_items.size() / _itemsInRow > 3) ? 4.f * _stepDown - (_stepDown * (_items.size() / _itemsInRow) + _height) : 0.f)
 
@@ -37,7 +37,11 @@ void ButtonList::Draw() {
 		} else {
 			Render::DrawBar(pos.x, pos.y, _width, _height, 0xFF7F7F7F);
 		}
-		Render::PrintString(static_cast<int>(pos.x + _width / 2), static_cast<int>(pos.y + _height / 2) /*- Interface::Font()->GetHeight() / 2*/, "", i->first.c_str(), Interface::BUTTON_TEXT);		
+		Render::Line(pos.x - 1, pos.y, pos.x + _width, pos.y, Interface::BORDER_LOW);
+		Render::Line(pos.x, pos.y, pos.x, pos.y + _height, Interface::BORDER_LOW);
+		Render::Line(pos.x + _width, pos.y, pos.x + _width, pos.y + _height, Interface::BORDER_LOW);
+		Render::Line(pos.x, pos.y + _height, pos.x + _width, pos.y + _height, Interface::BORDER_LOW);
+		Render::PrintString(static_cast<int>(pos.x + _width / 2), static_cast<int>(pos.y + _height / 2) - Render::GetFontHeight("data\\font2.fnt") / 2, "data\\font2.fnt", i->first.c_str(), Interface::BUTTON_TEXT);		
 		++counter;
 	}
 }
@@ -54,11 +58,11 @@ void ButtonList::OnMessage(const std::string &message) {
 }
 
 
-bool ButtonList::IsMouseOver(FPoint2D mousePos) {
+bool ButtonList::IsMouseOver(const FPoint2D &mousePos) {
 	return _items.size() > 0;
 }
 
-void ButtonList::OnMouseDown(FPoint2D mousePos) {
+void ButtonList::OnMouseDown(const FPoint2D &mousePos) {
 	if (IsMouseOver(mousePos)) {
 		_down = true;
 		_timer = 0.f;
@@ -67,7 +71,7 @@ void ButtonList::OnMouseDown(FPoint2D mousePos) {
 	_counter.Init(0.f);
 }
 
-void ButtonList::OnMouseMove(FPoint2D mousePos) {
+void ButtonList::OnMouseMove(const FPoint2D &mousePos) {
 	if (_down && (_moving || (!_moving && fabs(mousePos.y - _oldMousePos.y) > 15.f) || _timer > MOVE_ACTION_TIME)) {
 		_moving = true;
 		_slideDown += (mousePos.y - _oldMousePos.y);

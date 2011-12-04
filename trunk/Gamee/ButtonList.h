@@ -1,7 +1,9 @@
-#pragma once
-#include "..\Core\InputSystem.h"
-#include "..\Core\Messager.h"
-#include "..\Helpers\Counter.h"
+#ifndef BUTTONLIST_H
+#define BUTTONLIST_H
+
+#include "../Core/InputSystem.h"
+#include "../Core/Messager.h"
+#include "../Helpers/Counter.h"
 
 class ButtonList :
 	public InputSystem, 
@@ -11,10 +13,10 @@ public:
 	ButtonList(TiXmlElement *xe);
 	void Draw();
 	void Update(float dt);
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(FPoint2D mousePos);
+	virtual void OnMouseMove(const FPoint2D &mousePos);
 
 	virtual void OnMessage(const std::string &message);
 private:
@@ -35,3 +37,5 @@ private:
 	float _timer;
 	float MOVE_ACTION_TIME;
 };
+
+#endif//BUTTONLIST_H

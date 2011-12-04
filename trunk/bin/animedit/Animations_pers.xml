@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Animations>
+  <!-- анимация байкера тестовая c инверсной кинематикой -->
+  <Animation loop="true" x="0" y="0"  pivotX="134" pivotY="160" time="3.0" id="byker_iktest">
+    <!-- правая нога -->
+    <IKTwoBone order="invert" anchorX="141" anchorY="108" firstTexture="data\textures\minigame\m_client_body\m_cw_r_thigh.png"
+                     connectX="118" connectY="107" secondTexture="data\textures\minigame\m_client_body\m_cw_r_calf.png"
+                     targetX="120" targetY="119" angleSign="1">
+      <pos x="120" y="119"/>
+      <pos x="120" y="135"/>
+      <pos x="135" y="135"/>
+      <pos x="130" y="119"/>
+      <pos x="120" y="119"/>
+      <pos x="120" y="135"/>
+      <pos x="135" y="135"/>
+      <pos x="130" y="119"/>
+      <pos x="120" y="119"/>
+      <pos x="120" y="135"/>
+      <pos x="135" y="135"/>
+      <pos x="130" y="119"/>
+      <movingPart offparent="top" centerX="120" centerY="119" texture="data\textures\minigame\m_client_body\m_cw_r_foot.png">
+        <pos x="120" y="119" angle="0.3"/>
+        <pos x="120" y="119" angle="-0.2"/>
+      </movingPart>
+    </IKTwoBone>
+    <!-- тело -->
+    <movingPart centerX="147" centerY="111" texture="data\textures\minigame\m_client_body\m_cw_body.png">
+      <pos x="147" y="111" angle="-0.1"/>
+      <pos x="147" y="111" angle="0.1"/>
+      <!-- голова -->
+      <movingPart offparent="top" centerX="143" centerY="67" texture="data\textures\minigame\m_client_body\temp_head.png">
+        <pos x="143" y="67" angle="0.2"/>
+        <pos x="143" y="67" angle="-0.2"/>
+      </movingPart>
+      <!-- правая рука -->
+      <IKTwoBone offparent="bottom" order="none" anchorX="134" anchorY="71" firstTexture="data\textures\minigame\m_client_body\m_cw_r_upperarm.png"
+                       connectX="118" connectY="80" secondTexture="data\textures\minigame\m_client_body\m_cw_r_forearm.png"
+                       targetX="106" targetY="68" angleSign="-1" freeBones="true">
+        <pos x="106" y="68"/>
+        <movingPart offparent="top" centerX="106" centerY="68" texture="data\textures\minigame\m_client_body\m_cw_r_hand.png">
+          <pos x="106" y="68" angle="0"/>
+        </movingPart>
+      </IKTwoBone>
+      <!-- левая рука -->
+      <IKTwoBone offparent="top" order="none" anchorX="150" anchorY="83" firstTexture="data\textures\minigame\m_client_body\m_cw_l_upperarm.png"
+                       connectX="132" connectY="96" secondTexture="data\textures\minigame\m_client_body\m_cw_l_forearm.png"
+                        targetX="116" targetY="92" angleSign="-1" freeBones="true">
+        <pos x="116" y="92"/>
+        <movingPart offparent="top" centerX="116" centerY="92" texture="data\textures\minigame\m_client_body\m_cw_l_hand.png">
+          <pos x="116" y="92" angle="0"/>
+        </movingPart>
+      </IKTwoBone>
+    </movingPart>
+    <!-- левая нога -->
+    <IKTwoBone order="invert" anchorX="147" anchorY="111" firstTexture="data\textures\minigame\m_client_body\m_cw_l_thigh.png"
+                  connectX="134" connectY="123" secondTexture="data\textures\minigame\m_client_body\m_cw_l_calf.png"
+                  targetX="136" targetY="137" angleSign="1">
+      <pos x="146" y="139"/>
+      <pos x="141" y="124"/>
+      <pos x="131" y="124"/>
+      <pos x="135" y="139"/>
+      <pos x="146" y="139"/>
+      <pos x="141" y="124"/>
+      <pos x="131" y="124"/>
+      <pos x="135" y="139"/>
+      <pos x="146" y="139"/>
+      <pos x="141" y="124"/>
+      <pos x="131" y="124"/>
+      <pos x="135" y="139"/>
+      <movingPart offparent="top" centerX="136" centerY="137" texture="data\textures\minigame\m_client_body\m_cw_l_foot.png">
+        <pos x="136" y="137" angle="0"/>
+        <pos x="136" y="137" angle="0.4"/>
+      </movingPart>
+    </IKTwoBone>
+  </Animation>
+</Animations>

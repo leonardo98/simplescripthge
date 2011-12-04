@@ -29,68 +29,225 @@ DWORD Render::Parse(const std::string &s) {
 	return 0;
 }
 
-#ifdef HGE_COMPILE_KEY
-
 HGE *Render::_hge = NULL;
 std::map<std::string, hgeFont*> Render::_fonts;
+std::map<HTEXTURE, int> Render::_storageTextures;
+
+DWORD Render::_currentColor;
+Matrix Render::_matrixStack[MAX_MATRIX_AMOUNT];
+unsigned int Render::_currentMatrix;
+DWORD Render::_blendMode;
 
 HGE *Render::GetDC() {
 	return _hge;
 }
 
-Render::Texture::Texture(HTEXTURE h, int x, int y, int width, int height)
-{
-	assert(false);
+int Texture::Width() const {
+	return _width;
 }
 
-Render::Texture::Texture(const std::string &fileName) {
-	hTexture = GetDC()->Texture_Load(fileName.c_str());
-	if (hTexture == NULL) {
-//		LOG("Не могу открыть файл " + fileName);
+int Texture::Height() const {
+	return _height;
+}
+
+Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int offsetY)
+: _width(w)
+, _height(h)
+{
+	_offsetX = offsetX;
+	_offsetY = offsetY;
+	_hTexture = hTexture;
+	_texture = new hgeSprite(_hTexture, x, y, _width, _height);
+	if (Render::_storageTextures.find(_hTexture) == Render::_storageTextures.end()) {
+		Render::_storageTextures[_hTexture] = 1;
+	} else {
+		Render::_storageTextures[_hTexture]++;
+	}
+
+	{
+		float w = Render::GetDC()->Texture_GetWidth(_hTexture);
+		float h = Render::GetDC()->Texture_GetHeight(_hTexture);
+
+		_originQuad.tex = _hTexture;
+		_originQuad.blend = BLEND_DEFAULT;
+
+		_originQuad.v[0].tx = x / w; _originQuad.v[0].ty = y / h;
+		_originQuad.v[1].tx = (x + _width) / w; _originQuad.v[1].ty = y / h;
+		_originQuad.v[2].tx = (x + _width) / w; _originQuad.v[2].ty = (y + _height) / h;
+		_originQuad.v[3].tx = x / w; _originQuad.v[3].ty = (y + _height) / h;
+
+		_screenVertex[0].x = _offsetX; _screenVertex[0].y = _offsetY;
+		_screenVertex[1].x = _offsetX + _width; _screenVertex[1].y = _offsetY;
+		_screenVertex[2].x = _offsetX + _width; _screenVertex[2].y = _offsetY + _height;
+		_screenVertex[3].x = _offsetX; _screenVertex[3].y = _offsetY + _height;
+
+		for (int i = 0; i < 4; ++i) {
+			_originQuad.v[i].col = 0xFFFFFFFF;
+
+			_originQuad.v[i].x = _screenVertex[i].x;
+			_originQuad.v[i].y = _screenVertex[i].y;
+			_originQuad.v[i].z = 1.f;
+		}
+	}
+}
+
+Texture::Texture(const std::string &fileName) 
+{
+	_offsetX = 0.f;
+	_offsetY = 0.f;
+	_hTexture = Render::GetDC()->Texture_Load((Render::GetDataDir() + fileName).c_str());
+	if (Render::_storageTextures.find(_hTexture) == Render::_storageTextures.end()) {
+		Render::_storageTextures[_hTexture] = 1;
+	}
+	if (_hTexture == NULL) {
+		LOG("Не могу открыть файл " + fileName);
 		exit(-7);
 	}
-	texture = new hgeSprite(hTexture, 0, 0, GetDC()->Texture_GetWidth(hTexture), GetDC()->Texture_GetHeight(hTexture));
+
+	float w = _width = Render::GetDC()->Texture_GetWidth(_hTexture);
+	float h = _height = Render::GetDC()->Texture_GetHeight(_hTexture);
+	_texture = new hgeSprite(_hTexture, 0, 0, w, h);
+
+	_originQuad.tex = _hTexture;
+	_originQuad.blend = BLEND_DEFAULT;
+
+	_originQuad.v[0].tx = 0.f; _originQuad.v[0].ty = 0.f;
+	_originQuad.v[1].tx = 1.f; _originQuad.v[1].ty = 0.f;
+	_originQuad.v[2].tx = 1.f; _originQuad.v[2].ty = 1.f;
+	_originQuad.v[3].tx = 0.f; _originQuad.v[3].ty = 1.f;
+
+	_screenVertex[0].x = 0.f; _screenVertex[0].y = 0.f;
+	_screenVertex[1].x = w; _screenVertex[1].y = 0.f;
+	_screenVertex[2].x = w; _screenVertex[2].y = h;
+	_screenVertex[3].x = 0.f; _screenVertex[3].y = h;
+
+	for (int i = 0; i < 4; ++i) {
+		_originQuad.v[i].col = Render::_currentColor;
+
+		_originQuad.v[i].x = _screenVertex[i].x;
+		_originQuad.v[i].y = _screenVertex[i].y;
+		_originQuad.v[i].z = 1.f;
+	}
 }
 
-Render::Texture::~Texture() {
-	delete texture;
-	GetDC()->Texture_Free(hTexture);
+Texture::~Texture() {
+	delete _texture;
+	Render::_storageTextures[_hTexture]--;
+	if (Render::_storageTextures[_hTexture] == 0) {
+		Render::GetDC()->Texture_Free(_hTexture);
+	}
 }
 
-bool Render::Texture::IsNotTransparent(int x, int y) {
+bool Texture::IsNotTransparent(int x, int y) const {
 	if (x < 0 || y < 0) {
 		return false;
 	}
 	HTEXTURE h;
-	h = texture->GetTexture();
-	if (x >= GetDC()->Texture_GetWidth(h) || y >= GetDC()->Texture_GetHeight(h)) {
+	h = _texture->GetTexture();
+	if (x >= Render::GetDC()->Texture_GetWidth(h) || y >= Render::GetDC()->Texture_GetHeight(h)) {
 		return false;
 	}
 	DWORD *dw;
-	dw = GetDC()->Texture_Lock(h, true, x, y, 1, 1);
-	bool result = ((*dw) >> 24) > 0x7F;
-	GetDC()->Texture_Unlock(h);
+	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
+	bool result = ((*dw) >> 24) > 0x4F;
+	Render::GetDC()->Texture_Unlock(h);
 	return result;
 }
 
-void Render::Texture::Render(float x, float y) {
-	texture->Render(x, y);
+void Texture::Render(float x, float y) {
+	SetColor(Render::_currentColor);
+	_originQuad.v[0].x = _screenVertex[0].x + x; _originQuad.v[0].y = _screenVertex[0].y + y;
+	_originQuad.v[1].x = _screenVertex[1].x + x; _originQuad.v[1].y = _screenVertex[1].y + y;
+	_originQuad.v[2].x = _screenVertex[2].x + x; _originQuad.v[2].y = _screenVertex[2].y + y;
+	_originQuad.v[3].x = _screenVertex[3].x + x; _originQuad.v[3].y = _screenVertex[3].y + y;
+	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
 }
 
-void Render::Texture::Render(const FPoint2D &pos)  {
-	texture->Render(pos.x, pos.y);
+void Texture::Render(const FPoint2D &pos) {
+	SetColor(Render::_currentColor);
+	_originQuad.v[0].x = _screenVertex[0].x + pos.x; _originQuad.v[0].y = _screenVertex[0].y + pos.y;
+	_originQuad.v[1].x = _screenVertex[1].x + pos.x; _originQuad.v[1].y = _screenVertex[1].y + pos.y;
+	_originQuad.v[2].x = _screenVertex[2].x + pos.x; _originQuad.v[2].y = _screenVertex[2].y + pos.y;
+	_originQuad.v[3].x = _screenVertex[3].x + pos.x; _originQuad.v[3].y = _screenVertex[3].y + pos.y;
+	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
 }
 
-HTEXTURE Render::Texture::GetTexture() {
-	return texture->GetTexture();
+void Texture::Render(const Matrix &transform) {
+	SetColor(Render::_currentColor);
+	transform.Mul(_screenVertex[0], _originQuad.v[0].x, _originQuad.v[0].y);
+	transform.Mul(_screenVertex[1], _originQuad.v[1].x, _originQuad.v[1].y);
+	transform.Mul(_screenVertex[2], _originQuad.v[2].x, _originQuad.v[2].y);
+	transform.Mul(_screenVertex[3], _originQuad.v[3].x, _originQuad.v[3].y);
+	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
 }
 
-void Render::Texture::SetBlendMode(DWORD mode) {
-	texture->SetBlendMode(mode);
+HTEXTURE Texture::GetTexture() const {
+	return _texture->GetTexture();
 }
 
-void Render::Texture::SetColor(DWORD color) {
-	texture->SetColor(color);
+void Texture::SetColor(DWORD color) {
+	_originQuad.v[0].col = color;
+	_originQuad.v[1].col = color;
+	_originQuad.v[2].col = color;
+	_originQuad.v[3].col = color;
+}
+
+void StaticSprite::Set(const Texture *texture, float x, float y) {
+	_origin = texture;
+	_screenQuad = _origin->_originQuad;
+	_originWidth = Render::GetDC()->Texture_GetWidth(_screenQuad.tex);
+	_originHeight = Render::GetDC()->Texture_GetHeight(_screenQuad.tex);
+	Matrix transform;
+	transform.Move(x, y);
+	SetTransform(transform);
+}
+
+void StaticSprite::Render() {
+	_screenQuad.v[0].col = Render::_currentColor;
+	_screenQuad.v[1].col = Render::_currentColor;
+	_screenQuad.v[2].col = Render::_currentColor;
+	_screenQuad.v[3].col = Render::_currentColor;
+	_screenQuad.blend = Render::_blendMode;
+
+	Matrix &m = Render::_matrixStack[Render::_currentMatrix];
+
+	m.Mul(_quad.v[0].x, _quad.v[0].y, _screenQuad.v[0].x, _screenQuad.v[0].y);
+	m.Mul(_quad.v[1].x, _quad.v[1].y, _screenQuad.v[1].x, _screenQuad.v[1].y);
+	m.Mul(_quad.v[2].x, _quad.v[2].y, _screenQuad.v[2].x, _screenQuad.v[2].y);
+	m.Mul(_quad.v[3].x, _quad.v[3].y, _screenQuad.v[3].x, _screenQuad.v[3].y);
+
+	Render::GetDC()->Gfx_RenderQuad(&_screenQuad);
+}
+
+void StaticSprite::SetTransform(const Matrix &transform) {
+	_quad = _origin->_originQuad;
+	transform.Mul(_origin->_screenVertex[0], _quad.v[0].x, _quad.v[0].y);
+	transform.Mul(_origin->_screenVertex[1], _quad.v[1].x, _quad.v[1].y);
+	transform.Mul(_origin->_screenVertex[2], _quad.v[2].x, _quad.v[2].y);
+	transform.Mul(_origin->_screenVertex[3], _quad.v[3].x, _quad.v[3].y);
+}
+
+void StaticSprite::PushTransform(const Matrix &transform) {
+	transform.Mul(_quad.v[0].x, _quad.v[0].y);
+	transform.Mul(_quad.v[1].x, _quad.v[1].y);
+	transform.Mul(_quad.v[2].x, _quad.v[2].y);
+	transform.Mul(_quad.v[3].x, _quad.v[3].y);
+}
+
+bool StaticSprite::PixelCheck(const FPoint2D &pos) {
+	FPoint2D m(pos.x - _quad.v[0].x, pos.y - _quad.v[0].y);
+	FPoint2D a(_quad.v[1].x - _quad.v[0].x, _quad.v[1].y - _quad.v[0].y);
+	FPoint2D b(_quad.v[3].x - _quad.v[0].x, _quad.v[3].y - _quad.v[0].y);
+
+	float k1 = (m.x * b.y - m.y * b.x) / (a.x * b.y - a.y * b.x);
+	float k2 = (b.y > 1e-5) ? (m.y - k1 * a.y) / b.y : (m.x - k1 * a.x) / b.x;
+
+	if (k1 < 0 || k1 > 1 || k2 < 0 || k2 > 1) {
+		return false;
+	}
+	int i = (k1 * (_quad.v[1].tx - _quad.v[0].tx) + _quad.v[0].tx) * _originWidth;
+	int j = (k2 * (_quad.v[3].ty - _quad.v[0].ty) + _quad.v[0].ty) * _originHeight;
+	return _origin->IsNotTransparent(i, j);
 }
 
 void Render::IniFile(const std::string &fileName) {
@@ -98,19 +255,33 @@ void Render::IniFile(const std::string &fileName) {
 }
 
 int Render::IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue) {
-	char buff[10];
-	sprintf(buff, "%d", defaultValue);
-	return Parse(_hge->Ini_GetString(section, variable, buff));
+	std::string value = _hge->Ini_GetString(section, variable, "none");
+	if (value != "none") {
+		return Parse(value);
+	}
+	return defaultValue;
 }
 
 std::string Render::IniFileGetString(const char *section, const char *variable, const char *defaultValue) {
 	return _hge->Ini_GetString(section, variable, defaultValue);
 }
 
-void Render::PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF) {
+void Render::PrintString(int x, int y, const std::string &text, int align) {
+	std::string fontName("data\\font2.fnt");
+	fontName = GetDataDir() + fontName;
+	hgeFont *font;
+	if (_fonts.find(fontName) == _fonts.end()) {
+		_fonts[fontName] = new hgeFont(fontName.c_str());
+	}
+	font = _fonts[fontName];
+	font->Render(x, y, align, text.c_str());
+}
+
+void Render::PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color) {
 	if (fontName == "") {
 		fontName = "data\\font2.fnt";
 	}
+	fontName = GetDataDir() + fontName;
 	hgeFont *font;
 	if (_fonts.find(fontName) == _fonts.end()) {
 		_fonts[fontName] = new hgeFont(fontName.c_str());
@@ -121,10 +292,11 @@ void Render::PrintString(int x, int y, std::string fontName, const std::string &
 }
 
 int Render::GetFontHeight(const std::string &fontName) {
-	if (_fonts.find(fontName) == _fonts.end()) {
-		_fonts[fontName] = new hgeFont(fontName.c_str());
+	std::string fn = GetDataDir() + fontName;
+	if (_fonts.find(fn) == _fonts.end()) {
+		_fonts[fn] = new hgeFont(fn.c_str());
 	}
-	hgeFont *font = _fonts[fontName];
+	hgeFont *font = _fonts[fn];
 	return font->GetHeight();
 }
 
@@ -136,9 +308,10 @@ int Render::GetStringWidth(const std::string &fontName, const char *s) {
 	return font->GetStringWidth(s);
 }
 
-bool Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc) {
+bool Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc, const std::string &dataDir) {
+	_dataDir = dataDir;
 	_hge = hgeCreate(HGE_VERSION);
-	_hge->System_SetState(HGE_INIFILE, "settings.ini");
+	_hge->System_SetState(HGE_INIFILE, (GetDataDir() + "settings.ini").c_str());
 	_hge->System_SetState(HGE_LOGFILE, _hge->Ini_GetString("system", "logfile", "log.txt"));
 	_hge->System_SetState(HGE_FRAMEFUNC, frameFunc);
 	_hge->System_SetState(HGE_RENDERFUNC, renderFunc);
@@ -152,6 +325,10 @@ bool Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc) {
 	_hge->System_SetState(HGE_HIDEMOUSE, false);
 	_hge->System_SetState(HGE_ZBUFFER, false);
 	_hge->System_SetState(HGE_TITLE, "Simple script application");
+	_currentColor = 0xFFFFFFFF;
+	_blendMode = BLEND_DEFAULT;
+	_currentMatrix = 0;
+	SetMatrixUnit();
 	return _hge->System_Initiate();
 }
 
@@ -169,11 +346,12 @@ void Render::ExitApplication() {
 }
 
 void Render::ShowMessage(const char *str, const char *caption) {
-	MessageBox(GetDC()->System_GetState(HGE_HWND), str, caption, MB_OK | MB_APPLMODAL);
+	//MessageBox(GetDC()->System_GetState(HGE_HWND), str, caption, MB_OK | MB_APPLMODAL);
 }
 
 bool Render::ShowAskMessage(const char *str, const char *caption) {
-	return (MessageBox(GetDC()->System_GetState(HGE_HWND), "Delete selected object?", "Are you sure?", MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES);
+//	return (MessageBox(GetDC()->System_GetState(HGE_HWND), "Delete selected object?", "Are you sure?", MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES);
+    return true;
 }
 
 bool Render::IsRightMouseButton() {
@@ -209,150 +387,54 @@ void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
 	GetDC()->Gfx_RenderLine(x1, y1, x2, y2, color);
 }
 
-#else
-
-#include "s3e.h"
-#include "Iw2D.h"
-#include "IwGxPrint.h"
-
-Render::Texture::Texture(const char *fileName) {
-	s_Texture = new CIwTexture();
-	s_Texture->LoadFromFile(fileName);
-	s_Texture->Upload();
-
-    // Set up screenspace vertex coords
-    int16 x1 = 0;
-    int16 x2 = (int16)s_Texture->GetWidth();
-    int16 y1 = 0;
-    int16 y2 = (int16)s_Texture->GetHeight();
-        
-    xy3[0].x = x1, xy3[0].y = y1;
-    xy3[1].x = x1, xy3[1].y = y2;
-    xy3[2].x = x2, xy3[2].y = y2;
-    xy3[3].x = x2, xy3[3].y = y1;
-
-    uvs[0] = CIwSVec2(0 << 12, 0 << 12);
-    uvs[1] = CIwSVec2(0 << 12, 1 << 12);
-    uvs[2] = CIwSVec2(1 << 12, 1 << 12);
-    uvs[3] = CIwSVec2(1 << 12, 0 << 12);
+void Render::SetColor(DWORD color) {
+	_currentColor = color;
 }
 
-Render::Texture::~Texture() {
-	delete s_Texture;
+void Render::SetAlpha(DWORD alpha) {
+	_currentColor = (alpha << 24) | (_currentColor & 0xFFFFFF);
 }
 
-bool Render::Texture::IsNotTransparent(int x, int y) {
-	assert(false);
-	return false;
-}
+std::string Render::_dataDir;
 
-void Render::Texture::Render(float x, float y) 
-{
-	for (int i = 0; i < 4; i++) {
-		xy[i].x = xy3[i].x + static_cast<int16>(x);
-		xy[i].y = xy3[i].y + static_cast<int16>(y);
+std::string Render::GetDataDir() {
+	if (_dataDir.size()) {
+		return _dataDir + "/";
 	}
-	// Allocate a material from the IwGx global cache
-    CIwMaterial *pMat = IW_GX_ALLOC_MATERIAL();
-    pMat->SetModulateMode(CIwMaterial::MODULATE_NONE);
-    // Use Texture on Material
-    pMat->SetTexture(s_Texture);
-	// Set this as the active material
-    IwGxSetMaterial(pMat);
-	IwGxSetVertStreamScreenSpace(xy, 4);
-    IwGxSetUVStream(uvs);
-    // Draw single triangle
-    IwGxDrawPrims(IW_GX_QUAD_LIST, NULL, 4);
- }
-
-void Render::Texture::Render(const FPoint2D &pos)  {
-	Render(pos.x, pos.y);
+	return "";
 }
 
-void Render::Texture::SetBlendMode(DWORD mode) {
-	assert(false);
+void Render::PushMatrix() {
+	assert((_currentMatrix + 1)< MAX_MATRIX_AMOUNT);
+	++_currentMatrix;
+	_matrixStack[_currentMatrix] = _matrixStack[_currentMatrix - 1];
 }
 
-void Render::Texture::SetColor(DWORD color) {
-	assert(false);
+void Render::PopMatrix() {
+	assert(_currentMatrix > 0);
+	--_currentMatrix;
 }
 
-void Render::PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF) {
-	int l = - int(text.length() * 6 / 2);
-	IwGxPrintString(x + l, y, text.c_str());
+void Render::MatrixMove(float x, float y) {
+	_matrixStack[_currentMatrix].Move(x, y);
 }
 
-#define INT(a) static_cast<int>(a)
-
-void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
-	Iw2DSetColour(color);
-	Iw2DDrawLine(CIwSVec2(INT(x1), INT(y1)), CIwSVec2(INT(x2), INT(y2)));
+void Render::MatrixRotate(float angle) {
+	_matrixStack[_currentMatrix].Rotate(angle);
 }
 
-void Render::DrawBar(float x, float y, float width, float height, DWORD color) {
-	Iw2DSetColour(color);
-	Iw2DFillRect(CIwSVec2(INT(x), INT(y)), CIwSVec2(INT(width), INT(height)));
+void Render::MatrixScale(float sx, float sy) {
+	_matrixStack[_currentMatrix].Scale(sx, sy);
 }
 
-bool Render::IsRightMouseButton() {
-	return false;
+void Render::SetMatrixUnit() {
+	_matrixStack[_currentMatrix].Unit();
 }
 
-bool Render::IsLeftMouseButton() {
-	return true;
+void Render::SetMatrix(const Matrix &matrix) {
+	_matrixStack[_currentMatrix] = matrix;
 }
 
-int Render::GetFontHeight(const std::string &fontName) {
-	assert(false);
-	return 0;
+void Render::SetBlendMode(DWORD mode) {
+	_blendMode = mode;
 }
-
-int Render::GetStringWidth(const std::string &fontName, const char *s) {
-	assert(false);
-	return 0;
-}
-
-int Render::IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue) {
-	int i = defaultValue;
-	int res = s3eConfigGetInt(section, variable, &i);
-	assert(res != S3E_RESULT_ERROR);
-	return i;
-}
-
-std::string Render::IniFileGetString(const char *section, const char *variable, const char *defaultValue) {
-	char str[0x100];
-	strcpy(str, defaultValue);
-	int res = s3eConfigGetString(section, variable, str);
-	assert(res != S3E_RESULT_ERROR);
-	return str;
-}
-
-void Render::ShowMessage(const char *str, const char *caption) {
-	//IwTrace(str);//assert(false);
-	//IwTrace(caption);
-	IwAssertMsg(MYAPP, caption, ("Error", str));
-}
-
-bool Render::ShowAskMessage(const char *str, const char *caption) {
-	assert(false);
-	return false;
-}
-
-CIwMaterial *Render::StartVertexBuffer(PTexture texture) {
-	// Allocate a material from the IwGx global cache
-    CIwMaterial *pMat = IW_GX_ALLOC_MATERIAL();
-    pMat->SetModulateMode(CIwMaterial::MODULATE_NONE);
-    // Use Texture on Material
-    pMat->SetTexture(texture->s_Texture);
-	// Set this as the active material
-    IwGxSetMaterial(pMat);
-	return pMat;
-}
-
-void Render::FinishVertexBuffer(CIwSVec2 *xy, CIwSVec2 *uvs, unsigned int counter) {
-	IwGxSetVertStreamScreenSpace(xy, counter * 4);
-    IwGxSetUVStream(uvs);
-    IwGxDrawPrims(IW_GX_QUAD_LIST, NULL, counter * 4);
-}
-
-#endif // HGE_COMPILE_KEY

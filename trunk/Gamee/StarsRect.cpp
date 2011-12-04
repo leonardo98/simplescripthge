@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "StarsRect.h"
-#include "..\Core\Core.h"
+#include "../Core/Core.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -18,9 +18,9 @@ StarsRect::StarsRect(TiXmlElement *xe)
 	_number = atoi(xe->Attribute("number"));
 	std::string texture = xe->Attribute("texture"); 
 	_texture = Core::getTexture(texture);
-#ifdef HGE_COMPILE_KEY
-	_texture->SetBlendMode(BLEND_NOZWRITE);
-#endif
+
+	//_texture->SetBlendMode(BLEND_NOZWRITE);
+
 	for (int i = 0; i < _number; i++ ) {
 		_stars.push_back(Star(_pos, _width, _height));
 		_stars.back().pos += (rand() / 32768.f);

@@ -1,10 +1,11 @@
 #include "VideoFrame.h"
-#include "Ogg\Ogg.h"
-#include "..\Core\Render.h"
+//#include "Ogg\Ogg.h"
+#include "../Core/Render.h"
 
+/*
 #include <iostream>
 
-using namespace std;
+ using namespace std;
 
 
 void VideoFrame::TheoraInit()
@@ -410,15 +411,6 @@ void VideoFrame::PutDataToTexture()
 	width = hge->Texture_GetWidth(hTexture, false);
 #endif
 
-	/*
-	theora, как и многие другие кодеки работает в цветовом пространстве YUV12, где Y Ц информаци€ о €ркости точки, а UV Ц цветоразностные характеристики, придающие картинке цветность. “аким образом, если вас устраивает черно-бела€ картинка, ничего преобразовывать не надо Ц просто используйте данные из сло€ Y. :)
-	‘ормула дл€ преобразовани€ yuv->rgb выгл€дит так: 
-	R = Y + 1.371(CR - 128) 
-	G = Y - 0.698(CR - 128) - 0.336(CB - 128) 
-	B = Y + 1.732(CB - 128) 
-	, где CB Ц это U, а CR Ц это V.
-	 роме того, надо учитывать, что разрешение Y сло€ в кадре theora меньше, чем разрешение UV слоев, так как было подмечено, что €ркость мен€етс€ не так резко, как цветность. ƒл€ определени€ положени€ нужной точки внутри слоев в структуре yuv_buffer имеютс€ пол€ y_stride и uv_stride.
-	¬от код преобразовани€: */
 	for ( int nTempY = 0; nTempY < YUV_BUFFER.y_height; nTempY++ )
 	{
 		int nYShift = YUV_BUFFER.y_stride * nTempY;
@@ -612,3 +604,4 @@ bool VideoFrame::ReadFrameFromFile()
 	}
 	return true;
 }
+*/

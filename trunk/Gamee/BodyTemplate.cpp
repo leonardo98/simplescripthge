@@ -55,18 +55,10 @@ BodyTemplate::BodyTemplate(TiXmlElement *xe) {
 	float v1 = static_cast<float>(atof(uvdesc->Attribute("v1")));
 	float v2 = static_cast<float>(atof(uvdesc->Attribute("v2")));
 
-#ifndef HGE_COMPILE_KEY
-#define UV16(a) static_cast<int16>(a * (1 << 12));
-	_uv[0].u = UV16(u1); _uv[0].v = UV16(v1);
-	_uv[1].u = UV16(u2); _uv[1].v = UV16(v1);
-	_uv[2].u = UV16(u2); _uv[2].v = UV16(v2);
-	_uv[3].u = UV16(u1); _uv[3].v = UV16(v2);
-#else
 	_uv[0].u = u1; _uv[0].v = v1;
 	_uv[1].u = u2; _uv[1].v = v1;
 	_uv[2].u = u2; _uv[2].v = v2;
 	_uv[3].u = u1; _uv[3].v = v2;
-#endif
 	
 	/*
 	for (int i = 0; i < MAX; i++) {//1.04f - дополнительный множитель масшатаба для коробок

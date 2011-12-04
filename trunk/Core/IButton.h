@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IBUTTON_H
+#define IBUTTON_H
 
 #include "InputSystem.h"
 #include "Interface.h"
@@ -17,10 +18,10 @@ public:
 	IButton(TiXmlElement *xe);
 	~IButton();
 	void Draw();
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(FPoint2D mousePos);
+	virtual void OnMouseMove(const FPoint2D &mousePos);
 
 	virtual void OnMouseIn();
 	virtual void OnMouseOut();
@@ -40,3 +41,5 @@ private:
 	} _state;
 	LuaScript *_luaScript;
 };
+
+#endif//IBUTTON_H

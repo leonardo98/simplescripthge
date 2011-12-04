@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IKeyboard_h
+#define IKeyboard_h
 
 #include "InputSystem.h"
 #include "Interface.h"
@@ -46,3 +47,5 @@ private:
 	FPoint2D _oldMousePos;
 	LuaScript *_luaScript;
 };
+
+#endif//IKeyboard_h

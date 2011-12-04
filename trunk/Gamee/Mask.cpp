@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Mask.h"
-#include "..\Core\Core.h"
+#include "../Core/Core.h"
 
 //////////////////////////////////////////////////////////////////////
 
@@ -21,14 +21,12 @@ Mask::~Mask()
 	delete _luaScript;
 }
 
-void Mask::OnMouseDown(FPoint2D mousePos) {
-	mousePos -= _pos;
-	if (_texture->IsNotTransparent((int)mousePos.x, (int)mousePos.y)) {
+void Mask::OnMouseDown(const FPoint2D &mousePos) {
+	if (_texture->IsNotTransparent((int)(mousePos.x - _pos.x), (int)(mousePos.y - _pos.y))) {
 		_luaScript->Execute();
 	}
 }
 
-bool Mask::IsMouseOver(FPoint2D mousePos) {
-	mousePos -= _pos;
-	return _texture->IsNotTransparent((int)mousePos.x, (int)mousePos.y);
+bool Mask::IsMouseOver(const FPoint2D &mousePos) {
+	return _texture->IsNotTransparent((int)(mousePos.x - _pos.x), (int)(mousePos.y - _pos.y));
 }

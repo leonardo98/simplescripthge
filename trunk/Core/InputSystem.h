@@ -2,18 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_INPUTSYSTEM_INCLUDED_)
-#define _INPUTSYSTEM_INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifndef INPUTSYSTEM_H
+#define INPUTSYSTEM_H
 
 #include "types.h"
 #include "Object.h"
-#ifndef HGE_COMPILE_KEY
-#include "s3ePointer.h"
-#endif
 //
 // надстройка над системой ввода,
 // если нужно обрабатывать событи€ мыши - наследуемс€ от этого класса
@@ -39,20 +32,20 @@ public:
 	// если хотим обрабатывать соотвествующее событие
 
 	// клик по элементу(нажатие левой кнопки мыши)
-	virtual void OnMouseDown(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
 	// отпустили кнопку мыши(неважно где)
 	virtual void OnMouseUp();
 	// движение мыши
-	virtual void OnMouseMove(FPoint2D mousePos);
+	virtual void OnMouseMove(const FPoint2D &mousePos);
 	// колесико мыши
 	virtual bool OnMouseWheel(int direction);
 	// длительное нажатие и удержание
-	virtual void OnLongTap(FPoint2D mousePos);
+	virtual void OnLongTap(const FPoint2D &mousePos);
 	// двойной клик
-	virtual void OnDoubleClick(FPoint2D mousePos);
+	virtual void OnDoubleClick(const FPoint2D &mousePos);
 
 	// ќЅя«ј≈Ћ№Ќќ нужно определить дл€ корректной работы OnMouseDown() и прочих функций
-	virtual bool IsMouseOver(FPoint2D mousePos) = 0;
+	virtual bool IsMouseOver(const FPoint2D &mousePos) = 0;
 	
 protected:
 	// дл€ сложных(вложенных) элементов ввода - может понадобитьс€, переписать общий способ
@@ -61,42 +54,19 @@ protected:
 private:
 	typedef std::list<InputSystem *> Listeners;
 	static Listeners _listeners;
-#ifndef HGE_COMPILE_KEY
-	//Simple structure to track touches
-	struct CTouch
-	{
-		int32 x; // position x
-		int32 y; // position y
-		bool active; // is touch active (currently down)
-		int32 id; // touch's unique identifier
-	};
-	#define MAX_TOUCHES 10
-	static CTouch g_Touches[MAX_TOUCHES];
-	static CTouch* GetTouch(int32 id);
-	static void MultiTouchButtonCB(s3ePointerTouchEvent* event);
-	static void MultiTouchMotionCB(s3ePointerTouchMotionEvent* event);
-	static void SingleTouchButtonCB(s3ePointerEvent* event);
-	static void SingleTouchMotionCB(s3ePointerMotionEvent* event);
-	static void MouseDown(FPoint2D mousePos);
+
+	static void MouseDown(const FPoint2D &mousePos);
 	static void MouseUp();
-	static void MouseMove(FPoint2D mousePos);
-	static void LongTap();
-	static void DoubleClick(FPoint2D mousePos);
-	friend void InitInputEvent();
-	friend void ReleaseInputEvent();
-#else
-	static void MouseDown(FPoint2D mousePos);
-	static void MouseUp();
-	static void MouseMove(FPoint2D mousePos);
+	static void MouseMove(const FPoint2D &mousePos);
 	static void MouseWheel(int direction);
 	static void LongTap();
-	static void DoubleClick(FPoint2D mousePos);
-	friend void InitInputEvent();
-	friend bool CheckForInputEvent(float dt);
-#endif//IOS_COMPLILE_KEY
+	static void DoubleClick(const FPoint2D &mousePos);
+
+public:
+	static void Reset();
+	static void Init();
+	static bool CheckForEvent(float dt);
+
 };
 
-void InitInputEvent();
-void ReleaseInputEvent();
-
-#endif // !defined(_INPUTSYSTEM_INCLUDED_)
+#endif//INPUTSYSTEM_H

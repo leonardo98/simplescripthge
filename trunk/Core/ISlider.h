@@ -1,7 +1,9 @@
-#pragma once
+#ifndef ISLIDER_H
+#define ISLIDER_H
+
 #include "InputSystem.h"
 #include "Interface.h"
-#include "..\Core\Messager.h"
+#include "../Core/Messager.h"
 
 // класс кнопки(по нажатию выполняется скрипт)
 // рисуется примитивами без текстур
@@ -14,10 +16,10 @@ class ISlider
 public:
 	ISlider(TiXmlElement *xe);
 	void Draw();
-	virtual void OnMouseDown(FPoint2D mousePos);
-	virtual bool IsMouseOver(FPoint2D mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
+	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
-	virtual void OnMouseMove(FPoint2D mousePos);
+	virtual void OnMouseMove(const FPoint2D &mousePos);
 
 private:
 	FPoint2D _pos;
@@ -31,3 +33,5 @@ private:
 	virtual void SetValue(const std::string &variableName, const float &value);
 	virtual float GetNumberValue(const std::string &variableName);
 };
+
+#endif//ISLIDER_H

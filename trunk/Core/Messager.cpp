@@ -2,6 +2,7 @@
 
 #include "Messager.h"
 #include "Render.h"
+#include "Core.h"
 
 Messager::Messager(std::string receiverName)
 {
@@ -49,11 +50,18 @@ void Messager::CoreSendMessages()
 	_messages.clear();
 	for (AllMessages::iterator q = tmp.begin(), w = tmp.end(); q != w; q++) {
 		List::iterator i, e;
+		if (q->first.substr(0, 4) == "lua:") {
+			Core::DoLua((q->first.substr(4) + "(" + q->second + ");").c_str());
+			continue;
+		} else if (q->first == "Core") {
+			Core::OnMessage(q->second);
+			continue;
+		}
 		for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != q->first; i++);
 		if (i != e) {
 			(*i)->OnMessage(q->second);
 		} else {
-			// нет получателя в списке
+			LOG("Receiver - file not found: " + q->first);
 		}		
 	}
 }

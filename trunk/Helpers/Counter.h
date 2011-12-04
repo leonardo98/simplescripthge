@@ -2,12 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_COUNTER_INCLUDED_)
-#define _COUNTER_INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifndef COUNTER_H
+#define COUNTER_H
 
 class Counter  
 {
@@ -24,4 +20,4 @@ private:
 	float _actionTimeCounter;
 };
 
-#endif // !defined(_COUNTER_INCLUDED_)
+#endif//COUNTER_H

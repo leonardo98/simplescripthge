@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<fileroot>
+  <script>
+    LoadGroup("firstscreen");
+    MyDoFile("code.lua");
+  </script>
+	<StaticTexture x="0" y="0" texture="logo"/>
+  <Button x="830" y="630" normal="start" pressed="start2">
+    SendMessage("Core", "load xml Level1.xml");
+    level1stage = 0;
+    Level1Init();
+  </Button>
+    <IButton name="new" x="0" y="0" width="40" height="40" caption="Reload">
+      SendMessage("Core", "load xml start.xml");
+    </IButton>
+	<FpsCounter/>
+</fileroot>
+
+
+
+
+
+
+
+
+
+
+
+

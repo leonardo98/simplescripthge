@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<fileroot>
+<!--	<Resources fileName="GUI_textures.xml"/>
+	<script name="onLoad">
+    SendMessage("Core", "load xml Level1.xml");
+  </script>
+  -->
+  <Resources fileName="GUI_textures.xml"/>
+  <script name="onLoad">
+    function SaveData(fileName)
+      local test = 189
+      local file = io.open(fileName, "w")
+      io.write("var="..test..";")
+      io.close(file)
+    end;
+
+    SaveData("test.dat")
+    SendMessage("video", "play");
+  </script>
+  <VideoFrame fileName="data\test.ogg" x="0" y="0">
+    <messager name="video"/>
+  </VideoFrame>
+  <IPanel x="30" y="320" width="285" height="70" visible="1">
+    <messager name="panel"/>
+    <gui>
+      <IButton x="50" y="340" width="45" height="30" caption="Open...">
+        SendMessage("video", "pause");
+        local file = OpenFile("C:\\", "Images: OGG files\0*.ogg\0\0")
+        --local file = OpenFile("C:\\", "Images: OGG files\0*.ogg\0Images: PNG files\0*.png\0Images: JPG files\0*.jpg\0All files\0*.*\0\0")&10;
+        if file ~= "null" then
+          SendMessage("video", "set "..file)
+          SendMessage("video", "play");
+        end
+      </IButton>
+      <IButton x="150" y="340" width="45" height="30" caption="Play!">
+        SendMessage("video", "play");
+      </IButton>
+      <IButton x="200" y="340" width="45" height="30" caption="Pause">
+        SendMessage("video", "pause");
+      </IButton>
+      <IButton x="250" y="340" width="45" height="30" caption="Stop">
+        SendMessage("video", "stop");
+      </IButton>
+    </gui>
+    <keys>
+      <set key="TAB">
+        visible = GetBoolValue("panel", "visible");
+        SetBoolValue("panel", "visible", not visible);
+        Object("panel").visible = false;
+      </set>
+    </keys>
+  </IPanel>
+  <FpsCounter/>
+</fileroot>

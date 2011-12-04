@@ -1,13 +1,15 @@
-#pragma once
+#ifndef VIDEOFRAME_H
+#define VIDEOFRAME_H
 
-#include "Theora\Theora.h"
-#include "..\Core\Messager.h"
-#include "..\Core\types.h"
+//#include "Theora/Theora.h"
+#include "../Core/Messager.h"
+#include "../Core/types.h"
 
 class VideoFrame 
 	: public Object
 	, public Messager
 {
+    /*
 public:
 	VideoFrame(TiXmlElement *xe);
 	virtual void OnMessage(const std::string &message);
@@ -57,4 +59,7 @@ private:
 	bool ReadFrameFromFile();
 
 	bool _pause;
+     */
 };
+
+#endif//VIDEOFRAME_H

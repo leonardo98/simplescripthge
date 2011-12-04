@@ -2,7 +2,7 @@
 #include "IPanel.h"
 #include "Render.h"
 #include "Variables.h"
-#include "..\Gamee\ObjectFactory.h"
+#include "../Gamee/ObjectFactory.h"
 
 IPanel::IPanel(TiXmlElement *xe)
 	: Messager(xe)
@@ -55,7 +55,7 @@ void IPanel::Update(float deltaTime) {
 	}
 }
 
-bool IPanel::IsMouseOver(FPoint2D mousePos) {
+bool IPanel::IsMouseOver(const FPoint2D &mousePos) {
 	if (!_visible) {
 		return false;
 	}
@@ -71,7 +71,7 @@ bool IPanel::IsMouseOver(FPoint2D mousePos) {
 	} 
 }
 
-void IPanel::OnMouseDown(FPoint2D mousePos) {
+void IPanel::OnMouseDown(const FPoint2D &mousePos) {
 	if (!_visible) {
 		return;
 	}
@@ -92,7 +92,7 @@ void IPanel::OnMouseUp() {
 	}
 }
 
-void IPanel::OnMouseMove(FPoint2D mousePos) {
+void IPanel::OnMouseMove(const FPoint2D &mousePos) {
 	if (!_visible) {
 		return;
 	}
@@ -102,9 +102,13 @@ void IPanel::OnMouseMove(FPoint2D mousePos) {
 }
 
 void IPanel::OnMessage(const std::string &message) {
-	if (message == "hide") {
+	if (message == "changestate") {
 		_visible = !_visible;
-	} 
+	} else if (message == "show") {
+		_visible = true;
+	} else if (message == "hide") {
+		_visible = false;
+	}
 }
 
 bool IPanel::GetBoolValue(const std::string &variableName) {

@@ -1,11 +1,6 @@
 // Messager.h: interface for the Messager class.
-
-#if !defined(_Messager_INCLUDED_)
-#define _Messager_INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifndef MESSAGER_H
+#define MESSAGER_H
 
 #include "types.h"
 
@@ -57,4 +52,4 @@ private:
 	static AllMessages _messages;
 };
 
-#endif // !defined(_Messager_INCLUDED_)
+#endif//MESSAGER_H

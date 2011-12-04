@@ -1,106 +1,103 @@
 // device specified function
-#pragma once
+#ifndef RENDER_H
+#define RENDER_H
 
-#include <assert.h>
-#include <string>
-#include <map>
 #include "types.h"
+#include "Matrix.h"
 
-#ifndef HGE_COMPILE_KEY
-
-#include "IwTexture.h "
-#include "IwMaterial.h"
-
-class Render
+class Texture 
 {
-private:
-	//static HGE *_hge;
-	//static std::map<std::string, hgeFont*> _fonts;
 public:
-	//static HGE *GetDC();
-	static DWORD Parse(const std::string &s);	
-	class Texture 
-	{
-#ifdef HGE_COMPILE_KEY
-	public:
-		//Texture(HTEXTURE h, int x, int y, int width, int height);
-		//HTEXTURE GetTexture();
-	private:
-		//HTEXTURE hTexture;
-		//hgeSprite *texture;
-#endif
-	public:
-		virtual ~Texture();
-		bool IsNotTransparent(int x, int y);
-		void Render(float x, float y);
-		void Render(const FPoint2D &pos);
-		void SetBlendMode(DWORD mode);
-		void SetColor(DWORD color);
-	private:
-		Texture(const char *fileName);
-        CIwSVec2 xy3[4];
-        CIwSVec2 uvs[4];
-	    CIwSVec2 xy[4];
-		CIwTexture *s_Texture;
-		friend class TextureManager;
-		friend class Render;
-	};
-	static void IniFile(const std::string &fileName);
-	static int IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue);
-	static std::string IniFileGetString(const char *section, const char *variable, const char *defaultValue);
-	static void PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color);
-	//static bool InitApplication(hgeCallback frameFunc, hgeCallback renderFunc);
-	static void RunApplication();
-	static void ExitApplication();
-	static std::string Error();
-	static int GetFontHeight(const std::string &fontName);
-	static int GetStringWidth(const std::string &fontName, const char *s);
-	static void ShowMessage(const char *str, const char *caption);
-	static bool ShowAskMessage(const char *str, const char *caption);
-	static bool IsRightMouseButton();
-	static bool IsLeftMouseButton();
-	static void DrawBar(float x, float y, float width, float height, DWORD color);
-	static void Line(float x1, float y1, float x2, float y2, DWORD color);
-	static CIwMaterial *StartVertexBuffer(PTexture texture);
-	static void FinishVertexBuffer(CIwSVec2 *xy, CIwSVec2 *uvs, unsigned int counter);
+	Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX = 0, int offsetY = 0);
+	virtual ~Texture();
+	bool IsNotTransparent(int x, int y) const;
+	void Render(float x, float y);
+	void Render(const FPoint2D &pos);
+	void Render(const Matrix &transform);
+	HTEXTURE GetTexture() const;
+	//void SetBlendMode(DWORD mode);
+	int Width() const;
+	int Height() const;
+private:
+	void SetColor(DWORD color);
+	//DWORD _currentColor;
+	int _width;
+	int _height;
+	Texture(const std::string &fileName);
+	void LoadFromFile(const std::string &fileName);
+	HTEXTURE _hTexture;
+	hgeSprite *_texture;
+	float _offsetX;
+	float _offsetY;
+	hgeQuad _originQuad;
+	FPoint2D _screenVertex[4];
+	friend class TextureManager;
+	friend class StaticSprite;
 };
 
-#else
+class StaticSprite {
+public:
+	void Set(const Texture *texture, float x = 0.f, float y = 0.f);
+	void Render();
+	void SetTransform(const Matrix &transform);
+	void PushTransform(const Matrix &transform);
+	bool PixelCheck(const FPoint2D &pos);
+	inline float GetOriginWidth() {
+		return _originWidth;
+	}
+	inline float GetOriginHeight() {
+		return _originHeight;
+	}
+private:
+	hgeQuad _quad;
+	hgeQuad _screenQuad;
+	const Texture *_origin;
+	float _originWidth;
+	float _originHeight;
+};
 
-#include <hge.h>
-#include <hgeFont.h>
+#define MAX_MATRIX_AMOUNT 32
 
 class Render
 {
+	friend class Texture;
+	friend class StaticSprite;
+
 private:
 	static HGE *_hge;
 	static std::map<std::string, hgeFont*> _fonts;
+	static std::map<HTEXTURE, int> _storageTextures;
+	static DWORD _currentColor;
+	static std::string _dataDir;
+	char sdx[112];
+	static Matrix _matrixStack[MAX_MATRIX_AMOUNT];
+	static unsigned int _currentMatrix;
+	static void DrawQuad(const hgeQuad &origin, hgeQuad &drawn);
+	static void DrawTriangle(const hgeQuad &origin, hgeQuad &drawn);
+	static DWORD _blendMode;
 public:
+
+	static void PushMatrix();
+	static void PopMatrix();
+	static void MatrixMove(float x, float y);
+	static void MatrixRotate(float angle);
+	static void MatrixScale(float sx, float sy);
+	static void SetMatrixUnit();
+	static void SetMatrix(const Matrix &matrix);
+
+	static std::string GetDataDir();
+	static void SetColor(DWORD color);
+	static void SetAlpha(DWORD alpha);
+	static void SetBlendMode(DWORD blendMode);
 	static HGE *GetDC();
 	static DWORD Parse(const std::string &s);	
-	class Texture 
-	{
-	public:
-		Texture(HTEXTURE h, int x, int y, int width, int height);
-		virtual ~Texture();
-		bool IsNotTransparent(int x, int y);
-		void Render(float x, float y);
-		void Render(const FPoint2D &pos);
-		HTEXTURE GetTexture();
-		void SetBlendMode(DWORD mode);
-		void SetColor(DWORD color);
-	private:
-		Texture(const std::string &fileName);
-		void LoadFromFile(const std::string &fileName);
-		HTEXTURE hTexture;
-		hgeSprite *texture;
-		friend class TextureManager;
-	};
+
 	static void IniFile(const std::string &fileName);
 	static int IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue);
 	static std::string IniFileGetString(const char *section, const char *variable, const char *defaultValue);
-	static void PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color);
-	static bool InitApplication(hgeCallback frameFunc, hgeCallback renderFunc);
+	static void PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF);
+	static void PrintString(int x, int y, const std::string &text, int align);
+	static bool InitApplication(hgeCallback frameFunc, hgeCallback renderFunc, const std::string &dataDir);
 	static void RunApplication();
 	static void ExitApplication();
 	static std::string Error();
@@ -114,4 +111,5 @@ public:
 	static void Line(float x1, float y1, float x2, float y2, DWORD color);
 };
 
-#endif // HGE_COMPILE_KEY
+
+#endif//RENDER_H

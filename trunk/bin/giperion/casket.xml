@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<fileroot>
+  <script>
+   UnloadGroup("cabinet");
+    LoadGroup("casket");
+  </script>
+	<script name="onLoad">
+    CasketSwitch();
+  </script>
+	<StaticTexture x="0" y="0" texture="fon_casket"/>
+	<MultiTexture variableName="l5_bobcat">  <!-- рысенок -->
+		<states>
+            <if value="one" x="0" y="0" texture="bobcat_casket1"/>
+			<if value="two" x="0" y="0" texture="bobcat_casket2"/>
+		</states>
+		<script>
+        if (casketstage == 1 or casketstage == 2 or casketstage == 3) then
+         CasketNext();
+         end;
+      </script>
+   </MultiTexture>
+    <StaticTexture x="0" y="0" texture="table_casket"/>
+    <MultiTexture variableName="casket">  <!-- холодильник -->
+		<states>
+			<if value="one" x="0" y="0" texture="casket_close"/>
+			<if value="two" x="0" y="0" texture="casket_open"/>
+			<if value="three" x="0" y="0" texture="casket_open2"/>
+		</states>
+		<script>
+        if (casketstage == 0 or casketstage == 1 or casketstage == 2) then
+         CasketNext();
+         end;
+      </script>
+   </MultiTexture>
+   <TextBox name="messageWindow" x="520" y="670" width="800" height="100" font="data\a_futuraRound_24.fnt" hideTime="500">
+    <background texture="textback1" x="0" y="0"/>
+	</TextBox>
+  <Button x="920" y="675" normal="arrow" pressed="arrow_pressed">
+    CasketNext();
+  </Button>
+  <Button x="15" y="675" normal="arrow2" pressed="arrow2_pressed">
+    CasketPrev();
+  </Button>
+
+  <!-- DEBUG/TEST ONLY -->
+  <IButton name="new" x="0" y="0" width="40" height="40" caption="Reload">
+    SendMessage("Core", "load xml start.xml");
+  </IButton>
+  <IButton name="new1" x="0" y="40" width="40" height="40" caption="Reload1">
+    SendMessage("Core", "load xml casket.xml");
+  </IButton>
+  <FpsCounter/>
+
+</fileroot>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

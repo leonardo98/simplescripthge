@@ -3,8 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "TextBox.h"
-#include "..\Core\Core.h"
-#include "..\Core\Render.h"
+#include "../Core/Core.h"
+#include "../Core/Render.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -35,17 +35,17 @@ void TextBox::Draw() {
 		float f = 1  - _show.Progress();
 		y = y * f * f;
 		DWORD alpha = DWORD(255 * (1 - f)) << 24;
-		_background->SetColor(alpha | 0x00FFFFFF);
+		//_background->SetColor(alpha | 0x00FFFFFF);
 		_fontColor = (alpha | 0x00FFFFFF);
 	} else if (_text.size() > 0 && !_hide.Action()) {
 		y = 0;
-		_background->SetColor(0xFFFFFFFF);
+		//_background->SetColor(0xFFFFFFFF);
 		_fontColor = 0xFFFFFFFF;
 	} else if (_hide.Action()) {
 		y = 0;
 		y = 10 * _hide.Progress();
 		DWORD alpha = DWORD(255 * (1  - _hide.Progress())) << 24;
-		_background->SetColor(alpha | 0x00FFFFFF);
+		//_background->SetColor(alpha | 0x00FFFFFF);
 		_fontColor = alpha | 0x00FFFFFF;
 	} else {
 		return;
@@ -92,10 +92,10 @@ void TextBox::OnMessage(const std::string &message) {
 	}
 }
 
-bool TextBox::IsMouseOver(FPoint2D mousePos) {
+bool TextBox::IsMouseOver(const FPoint2D &mousePos) {
 	return false;
 }
 
-void TextBox::OnMouseMove(FPoint2D mousePos) {
+void TextBox::OnMouseMove(const FPoint2D &mousePos) {
 	_lastMousePos = mousePos;
 }

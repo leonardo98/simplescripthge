@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<fileroot>
+  <script>
+    UnloadGroup("firstscreen");
+    LoadGroup("room");
+  </script>
+	<script name="onLoad">
+    Level1Switch();
+  </script>
+	<StaticTexture x="0" y="0" texture="fon_room"/>
+	<StaticTexture x="0" y="0" texture="shtora_palka_room"/>
+	<StaticTexture x="0" y="0" texture="cactus_room"/>
+	<Mask x="0" y="0" texture="cactus_room"> <!-- тап на кактус, может стоит поправить маску-->
+		<script>Level1Cactus()</script>
+    </Mask>
+    <MultiTexture variableName="cactus">
+		<states>
+			<if value="off" x="0" y="0" texture="cactus_flower_room"/>
+		</states>
+	</MultiTexture>
+    <MultiTexture variableName="clock">
+		<states>
+            <if value="one" x="448" y="28" texture="clock_room"/>
+            <if value="two" x="440" y="28" texture="clock_birds_room"/>
+		</states>
+    </MultiTexture>
+    <Mask x="448" y="28" texture="clock_room"> <!-- тап на часы, может стоит поправить маску-->
+		<script>
+      if (clock == "one") then
+        clock = "two"
+      elseif (clock == "two") then
+        clock = "one"
+		end
+		</script>
+    </Mask>
+    <MultiTexture variableName="shtora1">
+		<states>
+            <if value="one" x="590" y="16" texture="shtora_open1_room"/>
+            <if value="two" x="591" y="13" texture="shtora_close1_room"/>
+		</states>
+    </MultiTexture>
+    <Mask x="591" y="13" texture="shtora_close1_room"> <!-- тап на занавеску1 -->
+		<script>
+      if (shtora1 == "one") then
+        shtora1 = "two"
+      elseif (shtora1 == "two") then
+        shtora1 = "one"
+		end
+		</script>
+    </Mask>
+    <MultiTexture variableName="shtora2">
+		<states>
+            <if value="one" x="916" y="10" texture="shtora_open2_room"/>
+            <if value="two" x="847" y="10" texture="shtora_close2_room"/>
+		</states>
+    </MultiTexture>
+    <Mask x="847" y="10" texture="shtora_close2_room"> <!-- тап на занавеску1 -->
+		<script>
+      if (shtora2 == "one") then
+        shtora2 = "two"
+      elseif (shtora2 == "two") then
+        shtora2 = "one"
+		end
+		</script>
+    </Mask>
+ <MultiTexture variableName="l1_bullfinch"> <!-- снегирь -->
+		<states>
+			<if value="one" x="0" y="0" texture="bullfinch1_room"/>
+		</states>
+     	<script>
+        if (level1stage == 2) then
+         Level1Next();
+         end;
+      </script>
+   </MultiTexture>
+   <MultiTexture variableName="l1_bobcat">  <!-- рысенок -->
+		<states>
+			<if value="one" x="0" y="0" texture="bobcat1_room"/>
+			<if value="two" x="0" y="0" texture="bobcat2_room"/>
+			<if value="three" x="0" y="0" texture="bobcat3_room"/>
+			<if value="four" x="0" y="0" texture="bobcat4_room"/>
+			<if value="five" x="0" y="0" texture="bobcat5_room"/>
+		</states>
+		<script>
+      Level1Next();
+    </script>
+   </MultiTexture>
+   <MultiTexture variableName="door">  <!-- дверь -->
+		<states>
+			<if value="one" x="0" y="0" texture="door_room"/>
+			<if value="two" x="0" y="0" texture="door_open_room"/>
+		</states>
+		<script>
+      if (level1stage == 1 or level1stage == 2) then
+        Level1Next();
+      end;
+    </script>
+   </MultiTexture>
+   <MultiTexture variableName="l1_bullfinch">  <!-- снегирь2 -->
+		<states>
+  	        <if value="two" x="0" y="0" texture="bullfinch2_room"/>
+			<if value="three" x="0" y="0" texture="bullfinch3_room"/>
+		</states>
+		<script>
+      if (level1stage == 3 or level1stage == 4 or level1stage == 5 or level1stage == 6) then
+        Level1Next();
+      end;
+    </script>
+	</MultiTexture>
+	<TextBox name="messageWindow" x="520" y="670" width="800" height="100" font="data\a_futuraRound_24.fnt" hideTime="500">
+    <background texture="textback1" x="0" y="0"/>
+	</TextBox>
+	  <MultiTexture variableName="tuk"> <!-- тук-тук -->
+		<states>
+			<if value="one" x="0" y="0" texture="tuk_tyk_room"/>
+		</states>
+		<script>Level1TukTuk()</script>
+      </MultiTexture>
+      <MultiTexture variableName="babl"> <!-- бабл -->
+		<states>
+			<if value="one" x="0" y="0" texture="babl_room"/>
+		</states>
+		<script>
+      if (level1stage == 6) then
+        Level1Next();
+      end;
+    </script>
+      </MultiTexture>
+  <Button x="920" y="675" normal="arrow" pressed="arrow_pressed">
+    Level1Next();
+  </Button>
+  <Button x="15" y="675" normal="arrow2" pressed="arrow2_pressed">
+    Level1Prev();
+  </Button>
+
+  <!-- DEBUG/TEST ONLY -->
+  <IButton name="new" x="0" y="0" width="40" height="40" caption="Reload">
+    SendMessage("Core", "load xml start.xml");
+  </IButton>
+  <IButton name="new1" x="0" y="40" width="40" height="40" caption="Reload1">
+    SendMessage("Core", "load xml Level1.xml");
+  </IButton>
+	<FpsCounter/>
+  
+</fileroot>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
