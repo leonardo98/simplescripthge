@@ -18,51 +18,45 @@
 			<if value="off" x="0" y="0" texture="cactus_flower_room"/>
 		</states>
 	</MultiTexture>
-    <MultiTexture variableName="clock">
-		<states>
-            <if value="one" x="448" y="28" texture="clock_room"/>
-            <if value="two" x="440" y="28" texture="clock_birds_room"/>
-		</states>
-    </MultiTexture>
-    <Mask x="448" y="28" texture="clock_room"> <!-- тап на часы, может стоит поправить маску-->
-		<script>
-      if (clock == "one") then
-        clock = "two"
-      elseif (clock == "two") then
-        clock = "one"
-		end
-		</script>
-    </Mask>
     <MultiTexture variableName="shtora1">
 		<states>
             <if value="one" x="590" y="16" texture="shtora_open1_room"/>
             <if value="two" x="591" y="13" texture="shtora_close1_room"/>
 		</states>
-    </MultiTexture>
-    <Mask x="591" y="13" texture="shtora_close1_room"> <!-- тап на занавеску1 -->
 		<script>
-      if (shtora1 == "one") then
-        shtora1 = "two"
-      elseif (shtora1 == "two") then
-        shtora1 = "one"
-		end
+            if (shtora1 == "one") then
+            shtora1 = "two"
+            elseif (shtora1 == "two") then
+            shtora1 = "one"
+            end
 		</script>
-    </Mask>
+    </MultiTexture>
     <MultiTexture variableName="shtora2">
 		<states>
             <if value="one" x="916" y="10" texture="shtora_open2_room"/>
             <if value="two" x="847" y="10" texture="shtora_close2_room"/>
 		</states>
-    </MultiTexture>
-    <Mask x="847" y="10" texture="shtora_close2_room"> <!-- тап на занавеску1 -->
 		<script>
-      if (shtora2 == "one") then
-        shtora2 = "two"
-      elseif (shtora2 == "two") then
-        shtora2 = "one"
-		end
+            if (shtora2 == "one") then
+            shtora2 = "two"
+            elseif (shtora2 == "two") then
+            shtora2 = "one"
+            end
 		</script>
-    </Mask>
+    </MultiTexture>
+    <MultiTexture variableName="clock">
+		<states>
+            <if value="one" x="448" y="28" texture="clock_room"/>
+            <if value="two" x="440" y="28" texture="clock_birds_room"/>
+		</states>
+		<script>
+            if (clock == "one") then
+            clock = "two"
+            elseif (clock == "two") then
+            clock = "one"
+            end
+		</script>
+    </MultiTexture>
  <MultiTexture variableName="l1_bullfinch"> <!-- снегирь -->
 		<states>
 			<if value="one" x="0" y="0" texture="bullfinch1_room"/>
