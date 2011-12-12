@@ -3,8 +3,6 @@
 
 #include "types.h"
 
-#include "../../hge181-for-osx/trunk/include/hgeFont.h"
-
 class Interface
 {
 public:

@@ -14,7 +14,7 @@ private:
 			for (int j = 0; j < 3; j++) {
 				val = 0;
 				for (int v = 0; v < 3; v++) {
-					val += tmp[i][v] * m[v][j];
+					val += m[i][v] * tmp[v][j];
 				}
 				_matrix[i][j] = val;
 			}

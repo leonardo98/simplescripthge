@@ -13,6 +13,7 @@ public:
 	virtual void Draw();
 	virtual void Update(float dt);
 private:
+	void Reload();
 	FPoint2D _pos;
 	bool _mirror;
 	Animation *_animation;

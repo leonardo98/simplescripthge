@@ -45,6 +45,8 @@ MovingPart::~MovingPart() {
 MovingPart::MovingPart(TiXmlElement *xe, bool loop, const Matrix *main)
 : Bone(xe->Attribute("name"), main, BT_MovingPart)
 {
+	_loop = loop;
+	_discontinuous = Math::Read(xe, "discontinuous", false);
 	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? bottom : top);
 	_center.x = Math::Read(xe, "centerX", 0.f);
 	_center.y = Math::Read(xe, "centerY", 0.f);
@@ -103,6 +105,8 @@ MovingPart::MovingPart(TiXmlElement *xe, bool loop, const Matrix *main)
 MovingPart::MovingPart(MovingPart &movinPart) 
 : Bone(movinPart)
 {
+	_loop = movinPart._loop;
+	_discontinuous = movinPart._discontinuous;
 	_transform = movinPart._transform;
 	_x = movinPart._x;
 	_y = movinPart._y;
@@ -132,25 +136,45 @@ MovingPart::MovingPart(MovingPart &movinPart)
 
 
 void MovingPart::Draw(const Matrix &transform, float p) {
+	assert(0.f <= p && p < 1);
+	/*
 	_transform.Unit();
 	_transform.Move(-_center.x, -_center.y);
 	_transform.Scale(_scaleX.getGlobalFrame(p), _scaleY.getGlobalFrame(p));
 	_transform.Rotate(_angle.getGlobalFrame(p));
-	_transform.Move(_x.getGlobalFrame(p), _y.getGlobalFrame(p));
-	
+	_transform.Move(_x.getGlobalFrame(p), _y.getGlobalFrame(p));	
 	_transform.Mul(transform);
+	*/
+	Render::PushMatrix();
+	float dp = p;
+	if (_discontinuous) {
+		if (_loop) {
+			dp = static_cast<int>(p * (_x.keys.size() - 1)) / static_cast<float>(_x.keys.size() - 1);
+		} else {
+			dp = static_cast<int>(p * _x.keys.size()) / static_cast<float>(_x.keys.size());
+		}
+	}
+	Render::MatrixMove(_x.getGlobalFrame(dp), _y.getGlobalFrame(dp));
+	Render::MatrixRotate(_angle.getGlobalFrame(dp));
+	Render::MatrixScale(_scaleX.getGlobalFrame(dp), _scaleY.getGlobalFrame(dp));
+	Render::MatrixMove(-_center.x, -_center.y);
 
 	for (int i = 0; i < _bottomBone.size(); ++i) {
 		_bottomBone[i]->Draw(_transform, p);
 	}
 	if (_parts.size()) {
-		_last = _parts[static_cast<int>(p * _parts.size())];
+		int i = static_cast<int>(p * _parts.size());
+		assert(0 <= i && i < _parts.size());
+		_last = _parts[i];
 		_last->SetTransform(_transform);
 		_last->Render();
 	}
 	for (int i = 0; i < _topBone.size(); ++i) {
 		_topBone[i]->Draw(_transform, p);
 	}
+
+	Render::PopMatrix();
+
 }
 
 bool MovingPart::PixelCheck(const FPoint2D &pos) {
@@ -431,9 +455,6 @@ void Animation::SetPos(const FPoint2D &pos, bool mirror) {
 }
 
 void Animation::SetPos(const Matrix &transform) {
-	_mainMatrix.Unit();
-	_mainMatrix.Move(-_pivotPos.x, -_pivotPos.y);
-	_mainMatrix.Mul(transform);
 }
 
 bool Animation::PixelCheck(const FPoint2D &pos) {
@@ -446,21 +467,28 @@ bool Animation::PixelCheck(const FPoint2D &pos) {
 }
 
 void Animation::Draw() {
+	Render::PushMatrix();
+	Render::MatrixMove(-_pivotPos.x, -_pivotPos.y);
 	float p = _timeCounter / _time;
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
 		(*i)->Draw(_mainMatrix, p);
 	}
+	Render::PopMatrix();
 }
 
 void Animation::Draw(float position) {
-	assert(0.f <= position && position <= 1.f);
+	assert(0.f <= position && position < 1.f);
+	Render::PushMatrix();
+	Render::MatrixMove(-_pivotPos.x, -_pivotPos.y);
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
 		(*i)->Draw(_mainMatrix, position);
 	}
+	Render::PopMatrix();
 }
 
 void Animation::Update(float dt) {
-	while ((_timeCounter += dt) >= _time) {
+	_timeCounter += dt;
+	while (_timeCounter >= _time) {
 		_timeCounter -= _time;
 	}
 }

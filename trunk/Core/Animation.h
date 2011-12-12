@@ -60,6 +60,8 @@ private:
 	SplinePath _scaleY;
 	std::vector<StaticSprite *> _parts;
 	StaticSprite *_last;
+	bool _discontinuous;
+	bool _loop;
 };
 
 class IKTwoBone : public Bone {

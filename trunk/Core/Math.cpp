@@ -12,6 +12,11 @@ float Math::Read(TiXmlElement *xe, const char *name, const float defaultValue) {
 	return (tmp ? atof(tmp) : defaultValue);
 }
 
+bool Math::Read(TiXmlElement *xe, const char *name, const bool defaultValue) {
+	const char *tmp = xe->Attribute(name);
+	return (tmp ? std::string(tmp) == "true" : defaultValue);
+}
+
 bool Math::GetCirclesIntersect(float X1, float Y1, float R1, float X2, float Y2, float R2, FPoint2D &P1, FPoint2D &P2)
 {
 
