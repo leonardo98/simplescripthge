@@ -44,14 +44,14 @@ void TextureManager::ReadDescriptions(std::string fileName)
 			}
 			_texturesMap[name] = ts;
 		} else if (name == "atlas") {
-			std::string path = element->Attribute("path");
-			TiXmlDocument doc(std::string(Render::GetDataDir() + path).c_str());
+			std::string path = Render::GetDC()->Resource_MakePath((Render::GetDataDir() + element->Attribute("path")).c_str());
+			TiXmlDocument doc(path.c_str());
 			if (!doc.LoadFile()) {
 				LOG("file not found " + path);
 				assert(false);
 			}
 			path.replace(path.find("desc.xml"), std::string("desc.xml").size(), "png");
-			HTEXTURE hTexture = Render::GetDC()->Texture_Load((Render::GetDataDir() + path).c_str());
+			HTEXTURE hTexture = Render::GetDC()->Texture_Load(path.c_str());
 			if (hTexture == 0) {
 				LOG("file not found " + path);
 				assert(false);
