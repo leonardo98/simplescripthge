@@ -5,108 +5,58 @@
 #include "Interface.h"
 #include "Render.h"
 
-#ifndef HGE_COMPILE_KEY 
+float TimeMul = 1.f;
 
-#include <math.h>
-#include <GLES/egl.h>
-#include "SimpleScriptBase.h"
-
-// main file
-//-----------------------------------------------------------------------------
-
-#include "s3e.h"
-#include "IwDebug.h"
-#include "Iw2D.h"
-
-// Attempt to lock to 30 frames per second
-#define	MS_PER_FRAME (1000 / 30)
-
-//-----------------------------------------------------------------------------
-// Main global function
-//-----------------------------------------------------------------------------
-int main() {	
-
-	Iw2DInit();
-	{
-		Interface::Init();
-		// запускаем ядро
-		Core core;
-		core.Load("start.xml");
-		InitInputEvent();
-		LOG("application start");
-
-		while (1)
-		{
-			s3eDeviceYield(0);
-			s3eKeyboardUpdate();
-			s3ePointerUpdate();
-
-			int64 start = s3eTimerGetMs();
-
-			bool result = true;
-			core.Update(1/25.f);
-			if	(
-				(result == false) ||
-				(s3eKeyboardGetState(s3eKeyEsc) & S3E_KEY_STATE_DOWN) ||
-				(s3eKeyboardGetState(s3eKeyAbsBSK) & S3E_KEY_STATE_DOWN) ||
-				(s3eDeviceCheckQuitRequest())
-				)
-				break;
-
-			// Clear the screen & draw
-			Iw2DSurfaceClear(0xff2f4f2f);
-			core.Draw();
-			Iw2DSurfaceShow();
-
-			// Attempt frame rate
-			while ((s3eTimerGetMs() - start) < MS_PER_FRAME)
-			{
-				int32 yield = (int32) (MS_PER_FRAME - (s3eTimerGetMs() - start));
-				if (yield<0)
-					break;
-				s3eDeviceYield(yield);
-			}
-		}
-		core.Release();
-		ReleaseInputEvent();
-	}
-	Iw2DTerminate();
-	return 0;
-}
-
-#else
-
-Core core;
+DWORD BACKGROUND_FILL = 0xFFFFFFFF;
 
 bool RenderFunc()
 {
 	Render::GetDC()->Gfx_BeginScene();
-	Render::GetDC()->Gfx_Clear(0);
+	Render::GetDC()->Gfx_Clear(BACKGROUND_FILL);
 	if (Render::GetDC()) {
-		core.Draw();
+		Core::Draw();
 	}
+	char buff[20];
+	sprintf(buff, "%f", TimeMul);
+	Render::PrintString(100, 10, "", buff);
 	Render::GetDC()->Gfx_EndScene();
 	return false;
 }
 
 bool FrameFunc()
 {
-	float dt = Render::GetDC()->Timer_GetDelta();
-	core.Update(dt);
-	return CheckForInputEvent(dt);
+	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+		if (Render::GetDC()->Input_KeyDown(HGEK_UP)) {
+			TimeMul *= 1.1f;
+		} else if (Render::GetDC()->Input_KeyDown(HGEK_DOWN)) {
+			TimeMul /= 1.1f;
+		}
+	}
+	float dt = Render::GetDC()->Timer_GetDelta() * TimeMul;
+	Core::Update(dt);
+	return InputSystem::CheckForEvent(dt);
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 {
+	printf("SimpleScriptHGE Start");
+	if (argc != 1) {
+		printf(argv);
+		printf("usage: SimpleScriptHGE <dir>");
+		return (-13);
+	}
 	// инициализируем 
-	if(Render::InitApplication(FrameFunc, RenderFunc)) {
+	if(Render::InitApplication(FrameFunc, RenderFunc, argv)) {
+		LOG(argv);
 		Interface::Init();
+		BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);
 		// запускаем ядро
-		core.Load("start.xml");
+		Core::Init();
+		Core::Load("start.xml");
 		LOG("application start");
-		InitInputEvent();
+		InputSystem::Init();
 		Render::RunApplication();
-		core.Release();
+		Core::Release();
 	} else {	
 		LOG(Render::Error().c_str());
 	}
@@ -114,5 +64,3 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 
 	return 0;
 }
-
-#endif // HGE_COMPILE_KEY

@@ -72,7 +72,7 @@ void TextureManager::ReadDescriptions(std::string fileName)
 				TextureState ts;
 				ts.group = "";
 				ts.path = name;
-				ts.texture = new Texture(hTexture, x, y, width, height, innerX, innerY);
+				ts.texture = new Texture(hTexture, x, y, width, height, innerX, innerY, frameWidth, frameHeight);
 				if (_texturesMap.find(name) != _texturesMap.end()) {
 					LOG("resource already loaded :" + name);
 					assert(false);
@@ -103,6 +103,10 @@ void TextureManager::UnloadGroup(std::string groupId)
 			i->second.texture = NULL;
 		}
 	}
+}
+
+bool TextureManager::isTexture(const std::string &textureId) {
+	return (_texturesMap.find(textureId) != _texturesMap.end());
 }
 
 Texture *TextureManager::getTexture(const std::string &textureId)

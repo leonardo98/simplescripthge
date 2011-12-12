@@ -180,7 +180,8 @@ void Core::Init() {
 void Core::LoadAnimations(const char *fileName) {
 	TiXmlDocument doc;
 	bool load;
-	if ((fileName[1] == ':' && doc.LoadFile(fileName)) || doc.LoadFile(std::string(Render::GetDataDir() + fileName).c_str())) {
+    std::string s =Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str());
+	if ((fileName[1] == ':' && doc.LoadFile(fileName)) || doc.LoadFile(s.c_str())) {
 		TiXmlElement *root = doc.RootElement();
 		TiXmlElement *animation = root->FirstChildElement("Animation");
 		while (animation) {

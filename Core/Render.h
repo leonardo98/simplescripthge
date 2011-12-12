@@ -3,12 +3,15 @@
 #define RENDER_H
 
 #include "types.h"
+
+//#include <hge.h>
+//#include <hgeFont.h>
 #include "Matrix.h"
 
 class Texture 
 {
 public:
-	Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX = 0, int offsetY = 0);
+	Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int offsetY, int frameWidth, int frameHeight);
 	virtual ~Texture();
 	bool IsNotTransparent(int x, int y) const;
 	void Render(float x, float y);
@@ -23,6 +26,8 @@ private:
 	//DWORD _currentColor;
 	int _width;
 	int _height;
+	int _frameWidth;
+	int _frameHeight;
 	Texture(const std::string &fileName);
 	void LoadFromFile(const std::string &fileName);
 	HTEXTURE _hTexture;
@@ -30,6 +35,7 @@ private:
 	float _offsetX;
 	float _offsetY;
 	hgeQuad _originQuad;
+	hgeQuad _forCopyQuad;
 	FPoint2D _screenVertex[4];
 	friend class TextureManager;
 	friend class StaticSprite;
@@ -42,6 +48,8 @@ public:
 	void SetTransform(const Matrix &transform);
 	void PushTransform(const Matrix &transform);
 	bool PixelCheck(const FPoint2D &pos);
+	int SpriteWidth();
+	int SpriteHeight();
 	inline float GetOriginWidth() {
 		return _originWidth;
 	}
@@ -50,7 +58,7 @@ public:
 	}
 private:
 	hgeQuad _quad;
-	hgeQuad _screenQuad;
+	Matrix _matrix;
 	const Texture *_origin;
 	float _originWidth;
 	float _originHeight;
@@ -108,6 +116,7 @@ public:
 	static bool IsRightMouseButton();
 	static bool IsLeftMouseButton();
 	static void DrawBar(float x, float y, float width, float height, DWORD color);
+	static void Draw(hgeTriple &triple);
 	static void Line(float x1, float y1, float x2, float y2, DWORD color);
 };
 

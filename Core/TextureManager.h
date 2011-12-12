@@ -17,6 +17,7 @@ public:
 	};
 	typedef std::map<std::string, TextureState> TextureMap;
 	static Texture *getTexture(const std::string &textureId);
+	static bool isTexture(const std::string &textureId);
 	static void LoadGroup(std::string groupId);
 	static void UnloadGroup(std::string groupId);
 protected:

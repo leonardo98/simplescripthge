@@ -43,16 +43,18 @@ HGE *Render::GetDC() {
 }
 
 int Texture::Width() const {
-	return _width;
+	return _frameWidth;
 }
 
 int Texture::Height() const {
-	return _height;
+	return _frameHeight;
 }
 
-Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int offsetY)
+Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int offsetY, int frameWidth, int frameHeight)
 : _width(w)
 , _height(h)
+, _frameWidth(frameWidth)
+, _frameHeight(frameHeight)
 {
 	_offsetX = offsetX;
 	_offsetY = offsetY;
@@ -89,13 +91,14 @@ Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int
 			_originQuad.v[i].z = 1.f;
 		}
 	}
+	_forCopyQuad = _originQuad;
 }
 
 Texture::Texture(const std::string &fileName) 
 {
 	_offsetX = 0.f;
 	_offsetY = 0.f;
-	_hTexture = Render::GetDC()->Texture_Load((Render::GetDataDir() + fileName).c_str());
+	_hTexture = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str()));
 	if (Render::_storageTextures.find(_hTexture) == Render::_storageTextures.end()) {
 		Render::_storageTextures[_hTexture] = 1;
 	}
@@ -104,8 +107,9 @@ Texture::Texture(const std::string &fileName)
 		exit(-7);
 	}
 
-	float w = _width = Render::GetDC()->Texture_GetWidth(_hTexture);
-	float h = _height = Render::GetDC()->Texture_GetHeight(_hTexture);
+	float w = _frameWidth = _width = Render::GetDC()->Texture_GetWidth(_hTexture);
+	float h = _frameHeight = _height = Render::GetDC()->Texture_GetHeight(_hTexture);
+	
 	_texture = new hgeSprite(_hTexture, 0, 0, w, h);
 
 	_originQuad.tex = _hTexture;
@@ -122,12 +126,13 @@ Texture::Texture(const std::string &fileName)
 	_screenVertex[3].x = 0.f; _screenVertex[3].y = h;
 
 	for (int i = 0; i < 4; ++i) {
-		_originQuad.v[i].col = Render::_currentColor;
+		_originQuad.v[i].col = 0xFFFFFFFF;
 
 		_originQuad.v[i].x = _screenVertex[i].x;
 		_originQuad.v[i].y = _screenVertex[i].y;
 		_originQuad.v[i].z = 1.f;
 	}
+	_forCopyQuad = _originQuad;
 }
 
 Texture::~Texture() {
@@ -149,36 +154,63 @@ bool Texture::IsNotTransparent(int x, int y) const {
 	}
 	DWORD *dw;
 	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
-	bool result = ((*dw) >> 24) > 0x4F;
+	bool result = ((*dw) >> 24) > 0x7F;
 	Render::GetDC()->Texture_Unlock(h);
 	return result;
 }
 
 void Texture::Render(float x, float y) {
-	SetColor(Render::_currentColor);
-	_originQuad.v[0].x = _screenVertex[0].x + x; _originQuad.v[0].y = _screenVertex[0].y + y;
-	_originQuad.v[1].x = _screenVertex[1].x + x; _originQuad.v[1].y = _screenVertex[1].y + y;
-	_originQuad.v[2].x = _screenVertex[2].x + x; _originQuad.v[2].y = _screenVertex[2].y + y;
-	_originQuad.v[3].x = _screenVertex[3].x + x; _originQuad.v[3].y = _screenVertex[3].y + y;
-	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
-}
+
+	_originQuad.v[0].x = _screenVertex[0].x; _originQuad.v[0].y = _screenVertex[0].y;
+	_originQuad.v[1].x = _screenVertex[1].x; _originQuad.v[1].y = _screenVertex[1].y;
+	_originQuad.v[2].x = _screenVertex[2].x; _originQuad.v[2].y = _screenVertex[2].y;
+	_originQuad.v[3].x = _screenVertex[3].x; _originQuad.v[3].y = _screenVertex[3].y;
+
+	_originQuad.v[0].col = Render::_currentColor;
+	_originQuad.v[1].col = Render::_currentColor;
+	_originQuad.v[2].col = Render::_currentColor;
+	_originQuad.v[3].col = Render::_currentColor;
+
+	_originQuad.blend = Render::_blendMode;
+
+	Matrix m(Render::_matrixStack[Render::_currentMatrix]);
+	m.Move(x, y);
+
+	m.Mul(_originQuad.v[0].x, _originQuad.v[0].y);
+	m.Mul(_originQuad.v[1].x, _originQuad.v[1].y);
+	m.Mul(_originQuad.v[2].x, _originQuad.v[2].y);
+	m.Mul(_originQuad.v[3].x, _originQuad.v[3].y);
+	
+	Render::GetDC()->Gfx_RenderQuad(&_originQuad);}
 
 void Texture::Render(const FPoint2D &pos) {
-	SetColor(Render::_currentColor);
-	_originQuad.v[0].x = _screenVertex[0].x + pos.x; _originQuad.v[0].y = _screenVertex[0].y + pos.y;
-	_originQuad.v[1].x = _screenVertex[1].x + pos.x; _originQuad.v[1].y = _screenVertex[1].y + pos.y;
-	_originQuad.v[2].x = _screenVertex[2].x + pos.x; _originQuad.v[2].y = _screenVertex[2].y + pos.y;
-	_originQuad.v[3].x = _screenVertex[3].x + pos.x; _originQuad.v[3].y = _screenVertex[3].y + pos.y;
-	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
+	Render(pos.x, pos.y);
 }
 
 void Texture::Render(const Matrix &transform) {
-	SetColor(Render::_currentColor);
-	transform.Mul(_screenVertex[0], _originQuad.v[0].x, _originQuad.v[0].y);
-	transform.Mul(_screenVertex[1], _originQuad.v[1].x, _originQuad.v[1].y);
-	transform.Mul(_screenVertex[2], _originQuad.v[2].x, _originQuad.v[2].y);
-	transform.Mul(_screenVertex[3], _originQuad.v[3].x, _originQuad.v[3].y);
+
+	_originQuad.v[0].x = _screenVertex[0].x; _originQuad.v[0].y = _screenVertex[0].y;
+	_originQuad.v[1].x = _screenVertex[1].x; _originQuad.v[1].y = _screenVertex[1].y;
+	_originQuad.v[2].x = _screenVertex[2].x; _originQuad.v[2].y = _screenVertex[2].y;
+	_originQuad.v[3].x = _screenVertex[3].x; _originQuad.v[3].y = _screenVertex[3].y;
+
+	_originQuad.v[0].col = Render::_currentColor;
+	_originQuad.v[1].col = Render::_currentColor;
+	_originQuad.v[2].col = Render::_currentColor;
+	_originQuad.v[3].col = Render::_currentColor;
+
+	_originQuad.blend = Render::_blendMode;
+
+	Matrix m(Render::_matrixStack[Render::_currentMatrix]);
+	m.Mul(transform);
+
+	m.Mul(_originQuad.v[0].x, _originQuad.v[0].y);
+	m.Mul(_originQuad.v[1].x, _originQuad.v[1].y);
+	m.Mul(_originQuad.v[2].x, _originQuad.v[2].y);
+	m.Mul(_originQuad.v[3].x, _originQuad.v[3].y);
+	
 	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
+
 }
 
 HTEXTURE Texture::GetTexture() const {
@@ -194,44 +226,40 @@ void Texture::SetColor(DWORD color) {
 
 void StaticSprite::Set(const Texture *texture, float x, float y) {
 	_origin = texture;
-	_screenQuad = _origin->_originQuad;
-	_originWidth = Render::GetDC()->Texture_GetWidth(_screenQuad.tex);
-	_originHeight = Render::GetDC()->Texture_GetHeight(_screenQuad.tex);
-	Matrix transform;
-	transform.Move(x, y);
-	SetTransform(transform);
+	_originWidth = Render::GetDC()->Texture_GetWidth(_origin->_originQuad.tex);
+	_originHeight = Render::GetDC()->Texture_GetHeight(_origin->_originQuad.tex);
+	_matrix.Unit();
+	_matrix.Move(x, y);
 }
 
 void StaticSprite::Render() {
-	_screenQuad.v[0].col = Render::_currentColor;
-	_screenQuad.v[1].col = Render::_currentColor;
-	_screenQuad.v[2].col = Render::_currentColor;
-	_screenQuad.v[3].col = Render::_currentColor;
-	_screenQuad.blend = Render::_blendMode;
+	_quad = _origin->_forCopyQuad;
 
-	Matrix &m = Render::_matrixStack[Render::_currentMatrix];
+	_quad.v[0].col = Render::_currentColor;
+	_quad.v[1].col = Render::_currentColor;
+	_quad.v[2].col = Render::_currentColor;
+	_quad.v[3].col = Render::_currentColor;
+	_quad.blend = Render::_blendMode;
 
-	m.Mul(_quad.v[0].x, _quad.v[0].y, _screenQuad.v[0].x, _screenQuad.v[0].y);
-	m.Mul(_quad.v[1].x, _quad.v[1].y, _screenQuad.v[1].x, _screenQuad.v[1].y);
-	m.Mul(_quad.v[2].x, _quad.v[2].y, _screenQuad.v[2].x, _screenQuad.v[2].y);
-	m.Mul(_quad.v[3].x, _quad.v[3].y, _screenQuad.v[3].x, _screenQuad.v[3].y);
+	Matrix m(Render::_matrixStack[Render::_currentMatrix]);
+	m.Mul(_matrix);
 
-	Render::GetDC()->Gfx_RenderQuad(&_screenQuad);
+	m.Mul(_quad.v[0].x, _quad.v[0].y);
+	m.Mul(_quad.v[1].x, _quad.v[1].y);
+	m.Mul(_quad.v[2].x, _quad.v[2].y);
+	m.Mul(_quad.v[3].x, _quad.v[3].y);
+
+	Render::GetDC()->Gfx_RenderQuad(&_quad);
 }
 
 void StaticSprite::SetTransform(const Matrix &transform) {
-	_quad = _origin->_originQuad;
-	transform.Mul(_origin->_screenVertex[0], _quad.v[0].x, _quad.v[0].y);
-	transform.Mul(_origin->_screenVertex[1], _quad.v[1].x, _quad.v[1].y);
-	transform.Mul(_origin->_screenVertex[2], _quad.v[2].x, _quad.v[2].y);
-	transform.Mul(_origin->_screenVertex[3], _quad.v[3].x, _quad.v[3].y);
+	_matrix = transform;
 }
 
 void StaticSprite::PushTransform(const Matrix &transform) {
-	transform.Mul(_quad.v[0].x, _quad.v[0].y);
-	transform.Mul(_quad.v[1].x, _quad.v[1].y);
-	transform.Mul(_quad.v[2].x, _quad.v[2].y);
-	transform.Mul(_quad.v[3].x, _quad.v[3].y);
+	Matrix m(transform);
+	m.Mul(_matrix);
+	_matrix = m;
 }
 
 bool StaticSprite::PixelCheck(const FPoint2D &pos) {
@@ -248,6 +276,14 @@ bool StaticSprite::PixelCheck(const FPoint2D &pos) {
 	int i = (k1 * (_quad.v[1].tx - _quad.v[0].tx) + _quad.v[0].tx) * _originWidth;
 	int j = (k2 * (_quad.v[3].ty - _quad.v[0].ty) + _quad.v[0].ty) * _originHeight;
 	return _origin->IsNotTransparent(i, j);
+}
+
+int StaticSprite::SpriteWidth() {
+	return _origin->Width();
+}
+
+int StaticSprite::SpriteHeight() {
+	return _origin->Height();
 }
 
 void Render::IniFile(const std::string &fileName) {
@@ -346,12 +382,12 @@ void Render::ExitApplication() {
 }
 
 void Render::ShowMessage(const char *str, const char *caption) {
-	//MessageBox(GetDC()->System_GetState(HGE_HWND), str, caption, MB_OK | MB_APPLMODAL);
+//	MessageBox(GetDC()->System_GetState(HGE_HWND), str, caption, MB_OK | MB_APPLMODAL);
 }
 
 bool Render::ShowAskMessage(const char *str, const char *caption) {
 //	return (MessageBox(GetDC()->System_GetState(HGE_HWND), "Delete selected object?", "Are you sure?", MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES);
-    return true;
+    return false;
 }
 
 bool Render::IsRightMouseButton() {
@@ -399,7 +435,7 @@ std::string Render::_dataDir;
 
 std::string Render::GetDataDir() {
 	if (_dataDir.size()) {
-		return _dataDir + "/";
+		return _dataDir + "\\";
 	}
 	return "";
 }
@@ -437,4 +473,12 @@ void Render::SetMatrix(const Matrix &matrix) {
 
 void Render::SetBlendMode(DWORD mode) {
 	_blendMode = mode;
+}
+
+void Render::Draw(hgeTriple &triple) {
+	Matrix &m = Render::_matrixStack[Render::_currentMatrix];
+	m.Mul(triple.v[0].x, triple.v[0].y);
+	m.Mul(triple.v[1].x, triple.v[1].y);
+	m.Mul(triple.v[2].x, triple.v[2].y);
+	Render::GetDC()->Gfx_RenderTriple(&triple);
 }
