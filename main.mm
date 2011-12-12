@@ -51,7 +51,7 @@ bool FrameFunc()
 int main (int argc, char * const argv[])
 {
     
-#define PROJECT_PATH "bin/giperion"
+#define PROJECT_PATH "bin/farmmania3"
     
 	if ( Render::InitApplication(FrameFunc, RenderFunc, PROJECT_PATH) ) {
 		//LOG(argv);

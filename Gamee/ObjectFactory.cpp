@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ObjectFactory.h"
-//#include "../Helpers/TestObject.h"
 #include "../Helpers/FpsCounter.h"
 #include "../Helpers/MyMessageBox.h"
 #include "StaticTexture.h"
@@ -13,7 +12,6 @@
 #include "InventoryObject.h"
 #include "MultiTexture.h"
 #include "StarsRect.h"
-#include "../Helpers/Tester.h"
 #include "Button.h"
 #include "../Core/Messager.h"
 #include "../Core/IButton.h"
@@ -32,7 +30,6 @@
 Object * ObjectFactory::Create(TiXmlElement *xe)
 {
 	std::string name = xe->Value();
-	//REG_TYPE("TestObject", TestObject);
 	REG_TYPE("Simulator", Simulator);
 	REG_TYPE("StaticTexture", StaticTexture);
 	REG_TYPE("AnimationViewer", AnimationViewer);
@@ -44,7 +41,6 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("MultiTexture", MultiTexture);
 	REG_TYPE("StarsRect", StarsRect);
 	REG_TYPE("StarsRect", StarsRect);
-	REG_TYPE("Tester", Tester);
 	REG_TYPE("Button", Button);
 	REG_TYPE("IButton", IButton);
 	REG_TYPE("IPanel", IPanel);
