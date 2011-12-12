@@ -32,6 +32,13 @@
   </group>
 
   <group name="room">
+      <texture id="clock_room" path="data\room\clock_room.png"/>
+      <texture id="clock_birds_room" path="data\room\clock_birds_room.png"/>
+      <texture id="shtora_palka_room" path="data\room\shtora_palka_room.png"/>
+      <texture id="shtora_open1_room" path="data\room\shtora_open1_room.png"/>
+      <texture id="shtora_open2_room" path="data\room\shtora_open2_room.png"/>
+      <texture id="shtora_close1_room" path="data\room\shtora_close1_room.png"/>
+      <texture id="shtora_close2_room" path="data\room\shtora_close2_room.png"/>
     <texture id="babl_room" path="data\room\babl_room.png"/>
     <texture id="bobcat1_room" path="data\room\bobcat1_room.png"/>
     <texture id="bobcat2_room" path="data\room\bobcat2_room.png"/>
@@ -43,16 +50,9 @@
     <texture id="bullfinch3_room" path="data\room\bullfinch3_room.png"/>
     <texture id="cactus_room" path="data\room\cactus_room.png"/>
     <texture id="cactus_flower_room" path="data\room\cactus_flower_room.png"/>
-    <texture id="clock_room" path="data\room\clock_room.png"/>
-    <texture id="clock_birds_room" path="data\room\clock_birds_room.png"/>
     <texture id="door_open_room" path="data\room\door_open_room.png"/>
     <texture id="door_room" path="data\room\door_room.png"/>
     <texture id="fon_room" path="data\room\fon_room.png"/>
-    <texture id="shtora_palka_room" path="data\room\shtora_palka_room.png"/>
-    <texture id="shtora_open1_room" path="data\room\shtora_open1_room.png"/>
-    <texture id="shtora_open2_room" path="data\room\shtora_open2_room.png"/>
-    <texture id="shtora_close1_room" path="data\room\shtora_close1_room.png"/>
-    <texture id="shtora_close2_room" path="data\room\shtora_close2_room.png"/>
     <texture id="text_room" path="data\room\text_room.png"/>
     <texture id="tuk_tyk_room" path="data\room\tuk_tyk_room.png"/>
     <texture id="arrow" path="data\arrow.png"/>   +
