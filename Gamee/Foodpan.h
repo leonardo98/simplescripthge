@@ -1,14 +1,14 @@
-#ifndef ENVWELL_H
-#define ENVWELL_H
+#ifndef FOODPAN_H
+#define FOODPAN_H
 
 #include "BaseElement.h"
 #include "../Core/Render.h"
 
-class EnvWell 
+class Foodpan 
 	: public BaseElement
 {
 public:
-	EnvWell();
+	Foodpan(int index);
 	virtual void Draw();
 	virtual void DrawBottom();
 	virtual void Update(float dt);
@@ -17,12 +17,20 @@ public:
 	FPoint2D annaPos;
 	FPoint2D bobPos;
 	FPoint2D grandpaPos;
+	void SomeAction();
+	std::string WhatToDo();
 protected:
 	StaticSprite _shadow;
-	StaticSprite _well;
-	StaticSprite _buck;
-	bool _drawBuck;
+	StaticSprite _pan;
+	std::vector<StaticSprite> _food;
 	float _effect;
+	std::string _action;
+	enum {
+		empty,
+		level
+	} _state;
+	int _level;
+	const int MAX_LEVELS;
 };
 
-#endif//ENVWELL_H
+#endif//FOODPAN_H

@@ -18,4 +18,17 @@ protected:
 	bool _active;
 };
 
+enum PlantPlaceState {
+	no_plant,
+	waiting_seed,
+	plant_growing1,
+	waiting_water,
+	plant_growing2,
+	waiting_chop,
+	plant_growing3,
+	waiting_harvest,
+	harvesting,
+	plant_fade
+};
+
 #endif//BASEELEMENT_H

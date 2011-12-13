@@ -44,24 +44,30 @@ void PopupMenu::Draw() {
 			_selected->Render();
 			Render::PopMatrix();
 			Render::SetBlendMode(BLEND_DEFAULT);
-		}	
+		}
+	}
+	/*
 		_firstTab.Render();
 		_firstIcon.Render();
 		_thirdTab.Render();
 		_thirdIcon.Render();
 		_secondTab.Render();
 		_secondIcon.Render();
-	} else if (_state == state_show || _state == state_hide) {
+	} else */
+	if (_state == state_visible || _state == state_show || _state == state_hide) {
+		float sf(1.f);
+		if (_state == state_show || _state == state_hide) {
+			sf = _timeCounter;
+		}
 		Matrix m, f, s, t;
-		m.Move(_position.x, _position.y);
+		f.Move(_position.x, _position.y);
+		f.Rotate(-_riseUp.getGlobalFrame(sf));
 		f.Move(-29, -75);
-		f.Rotate(-_riseUp.getGlobalFrame(_timeCounter));
-		f.Mul(m);
+		s.Move(_position.x, _position.y);
 		s.Move(-28, -79);
-		s.Mul(m);
+		t.Move(_position.x, _position.y);
+		t.Rotate(_riseUp.getGlobalFrame(sf));
 		t.Move(-27, -75);
-		t.Rotate(_riseUp.getGlobalFrame(_timeCounter));
-		t.Mul(m);
 
 		_firstTab.SetTransform(f);
 		_secondTab.SetTransform(s);
