@@ -1,14 +1,14 @@
-#ifndef ENVWELL_H
-#define ENVWELL_H
+#ifndef WATERPAN_H
+#define WATERPAN_H
 
 #include "BaseElement.h"
 #include "../Core/Render.h"
 
-class EnvWell 
+class Waterpan 
 	: public BaseElement
 {
 public:
-	EnvWell();
+	Waterpan(int index);
 	virtual void Draw();
 	virtual void DrawBottom();
 	virtual void Update(float dt);
@@ -17,12 +17,16 @@ public:
 	FPoint2D annaPos;
 	FPoint2D bobPos;
 	FPoint2D grandpaPos;
+	void SomeAction();
 protected:
 	StaticSprite _shadow;
-	StaticSprite _well;
-	StaticSprite _buck;
-	bool _drawBuck;
+	StaticSprite _down;
+	StaticSprite _up;
+	StaticSprite _water;
 	float _effect;
+	const int MAX_LEVELS;
+	float _oldLevel;
+	float _level;
 };
 
-#endif//ENVWELL_H
+#endif//WATERPAN_H

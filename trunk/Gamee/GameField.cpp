@@ -7,6 +7,23 @@ bool CmpBaseElement(BaseElement *one, BaseElement *two) {
 	return (one->_pos.y < two->_pos.y);
 }
 
+void GameField::SortElements() {
+	bool swap;
+	int startFrom = 0;
+	do {
+		swap = false;
+		for (int i = startFrom; i < _renderList.size() - 1; ++i) {
+			if (CmpBaseElement(_renderList[i + 1], _renderList[i])) {
+				BaseElement *tmp = _renderList[i];
+				_renderList[i] = _renderList[i + 1];
+				_renderList[i + 1] = tmp;
+				swap = true;
+			}
+		}
+		++startFrom;
+	} while (swap);
+}
+
 bool GameField::IsMouseOver(const FPoint2D &mousePos) {
 	return true;
 }
@@ -24,17 +41,18 @@ void GameField::OnMouseDown(const FPoint2D &mousePos) {
 	}
 	HideAllPopupMenu();
 	if (_persIndexDebug == 0) {
-		_anna.Goto(mousePos);
-		_persIndexDebug = 1;
-	} else if (_persIndexDebug == 1) {
-		_bob.Goto(mousePos);
-		_persIndexDebug = 2;
-	} else if (_persIndexDebug == 2) {
-		_grandpa.Goto(mousePos);
-		_persIndexDebug = 0;
+		//_anna.Goto(mousePos);
+		//_persIndexDebug = 1;
+	//} else if (_persIndexDebug == 1) {
+	//	_bob.Goto(mousePos);
+	//	_persIndexDebug = 2;
+	//} else if (_persIndexDebug == 2) {
+	//	_grandpa.Goto(mousePos);
+	//	_persIndexDebug = 0;
 	} else {
 		assert(false);
 	}
+	_clientsManager.OnMouseDown(mousePos);
 }
 
 GameField::GameField(TiXmlElement *xe)
@@ -44,19 +62,25 @@ GameField::GameField(TiXmlElement *xe)
 , _plantBed2(2)
 , _plantBed3(3)
 , _plantBed4(4)
-, _storagePlace1(6)
-, _storagePlace2(7)
-, _buckPlace(1)
-, _productPlace2(2)
-, _productPlace3(3)
-, _productPlace4(4)
-, _productPlace5(5)
+, _storagePlace1(pt_free1)
+, _storagePlace2(pt_free2)
+, _productPlace2(pt_tree)
+, _productPlace3(pt_grain)
+, _productPlace4(pt_clover)
+, _productPlace5(pt_unknown)
+, _waterPan1(1)
+, _waterPan2(2)
+, _foodPan1(1)
+, _foodPan2(2)
 {
+	_buckPlace = new ProductPlace(pt_water);
+	_well = new EnvWell();
+	//_testBackground.Set(Core::getTexture("data\\EnvironmentJungle_Bob_HT.jpg"));
 	_persIndexDebug = 0;
 
 	Matrix transform;
-	transform.Scale(-1.f, 1.f);
 	transform.Move(1024, 0);
+	transform.Scale(-1.f, 1.f);
 
 	_field_s1.Set(Core::getTexture("Field_s1"), 310, 136);
 
@@ -108,8 +132,6 @@ GameField::GameField(TiXmlElement *xe)
 	_stoneshelve_set1_b_m.Set(Core::getTexture("stoneshelve_set1_b"), 305, 259);
 	_stoneshelve_set1_b_m.PushTransform(transform);
 
-	_stoneshelve_set1_c.Set(Core::getTexture("stoneshelve_set1_c"), 379, 232);
-
 	_stoneshelve_set1_d.Set(Core::getTexture("stoneshelve_set1_d"), 286, 436);
 
 	_stoneshelve_set1_d_m.Set(Core::getTexture("stoneshelve_set1_d"), 286, 436);
@@ -128,21 +150,27 @@ GameField::GameField(TiXmlElement *xe)
 	_renderList.push_back(&_anna);
 	_renderList.push_back(&_bob);
 	_renderList.push_back(&_grandpa);
+	_renderList.push_back(&_grainField);
+	_renderList.push_back(&_cloverField);
 	_renderList.push_back(&_treeBed1);
 	_renderList.push_back(&_treeBed2);
 	_renderList.push_back(&_plantBed1);
 	_renderList.push_back(&_plantBed2);
 	_renderList.push_back(&_plantBed3);
 	_renderList.push_back(&_plantBed4);
-	_renderList.push_back(&_well);
+	_renderList.push_back(_well);
 	_renderList.push_back(&_storagePlace1);
 	_renderList.push_back(&_storagePlace2);
-	_renderList.push_back(&_buckPlace);
+	_renderList.push_back(_buckPlace);
 	_renderList.push_back(&_productPlace2);
 	_renderList.push_back(&_productPlace3);
 	_renderList.push_back(&_productPlace4);
 	_renderList.push_back(&_productPlace5);
-	_renderList.push_back(&_archaeopteryx);
+	_renderList.push_back(&_swampPlace);
+	_renderList.push_back(&_waterPan1);
+	_renderList.push_back(&_waterPan2);
+	_renderList.push_back(&_foodPan1);
+	_renderList.push_back(&_foodPan2);
 
 	_updateList.push_back(&_anna);
 	_updateList.push_back(&_bob);
@@ -155,17 +183,30 @@ GameField::GameField(TiXmlElement *xe)
 	_updateList.push_back(&_plantBed2);
 	_updateList.push_back(&_plantBed3);
 	_updateList.push_back(&_plantBed4);
-	_updateList.push_back(&_well);
+	_updateList.push_back(_well);
 	_updateList.push_back(&_storagePlace1);
 	_updateList.push_back(&_storagePlace2);
-	_updateList.push_back(&_buckPlace);
+	_updateList.push_back(_buckPlace);
 	_updateList.push_back(&_productPlace2);
 	_updateList.push_back(&_productPlace3);
 	_updateList.push_back(&_productPlace4);
 	_updateList.push_back(&_productPlace5);
-	_updateList.push_back(&_archaeopteryx);
+	_updateList.push_back(&_swampPlace);
+	_updateList.push_back(&_waterPan1);
+	_updateList.push_back(&_waterPan2);
+	_updateList.push_back(&_foodPan1);
+	_updateList.push_back(&_foodPan2);
 
 	std::sort(_updateList.rbegin(), _updateList.rend(), CmpBaseElement);
+
+	_archaeopteryx.push_back(new Archaeopteryx());
+	_renderList.push_back(_archaeopteryx.back());
+	_archaeopteryx.push_back(new Archaeopteryx());
+	_renderList.push_back(_archaeopteryx.back());
+	_archaeopteryx.push_back(new Archaeopteryx());
+	_renderList.push_back(_archaeopteryx.back());
+	_archaeopteryx.push_back(new Archaeopteryx());
+	_renderList.push_back(_archaeopteryx.back());
 }
 
 void GameField::DrawBushes() {
@@ -195,9 +236,9 @@ void GameField::Draw() {
 
 	_s01_bush.Render();
 
-	_grainField.Draw();
+	//_grainField.Draw();
 
-	_cloverField.Draw();
+	//_cloverField.Draw();
 
 	_stoneshelve_set1_a.Render();
 	_stoneshelve_set1_a_m.Render();
@@ -205,7 +246,6 @@ void GameField::Draw() {
 	_stoneshelve_set1_a2_m.Render();
 	_stoneshelve_set1_b.Render();
 	_stoneshelve_set1_b_m.Render();
-	_stoneshelve_set1_c.Render();
 	_stoneshelve_set1_d.Render();
 	_stoneshelve_set1_d_m.Render();
 	_stoneshelve_set1_e.Render();
@@ -214,16 +254,15 @@ void GameField::Draw() {
 	_grass_set1_e_m.Render();
 	_grass_set1_f.Render();
 
+	SortElements();
 	for (RenderList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
 		(*i)->DrawBottom();
 	}
-	std::sort(_renderList.begin(), _renderList.end(), CmpBaseElement);
 	for (RenderList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
 		(*i)->Draw();
 	}
 
 	Render::PushMatrix();
-	//Render::SetBlendMode(1);
 	Render::SetColor(0xFFA791D5);
 	Render::MatrixMove(-3, 0);
 	DrawBushes();
@@ -233,10 +272,14 @@ void GameField::Draw() {
 	DrawBushes();
 	Render::SetColor(0xFFFFFFFF);
 	Render::PopMatrix();
-	//Render::SetBlendMode(BLEND_DEFAULT);
 	DrawBushes();
+	_clientsManager.Draw();
 
 	_persPaths.Draw();
+
+	/*Render::SetAlpha(0x7F);
+	_testBackground.Render();
+	Render::SetAlpha(0xFF);*/
 }
 
 void GameField::OnMouseUp() {
@@ -256,19 +299,36 @@ void GameField::OnMouseMove(const FPoint2D &mousePos) {
 		}
 		(*i)->OnMouseMove(mousePos);
 	}
+	_clientsManager.OnMouseMove(mousePos);
 }
 
 void GameField::Update(float dt) {
 	for (RenderList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
 		(*i)->Update(dt);
 	}
+	int MAX = 10;
+	for (int k = 0; k < MAX; ++k) {
+		for (Birds::iterator i = _archaeopteryx.begin(), e = _archaeopteryx.end(); i != e; ++i) {
+			(*i)->Update(dt / MAX);
+		}
+	}
 	if (Render::GetDC()->Input_KeyDown(HGEK_D)) {
 		_persPaths.SetVisible_debug(Render::GetDC()->Input_GetKeyState(HGEK_SHIFT));
+	} else if (Render::GetDC()->Input_KeyDown(HGEK_A)) {
+		Archaeopteryx *a = new Archaeopteryx();
+		_archaeopteryx.push_back(a);
+		_renderList.push_back(a);
+		//_updateList.push_back(a);
 	}
+	_clientsManager.Update(dt);
 }
 
-GameField::~GameField(void)
-{
+GameField::~GameField(void) {
+	for (unsigned int i = 0; i < _archaeopteryx.size(); ++i) {
+		delete _archaeopteryx[i];
+	}
+	delete _buckPlace;
+	delete _well;
 }
 
 GameField::PopupMenus GameField::_popupMenus;
@@ -293,3 +353,14 @@ void GameField::RemovePopupMenu(PopupMenu *menu) {
 	assert(i != e);
 	_popupMenus.erase(i);
 }
+
+ProductPlace * GameField::GetBuckPlace() {
+	return _buckPlace;
+}
+
+EnvWell * GameField::GetWell() {
+	return _well;
+}
+
+ProductPlace * GameField::_buckPlace;
+EnvWell * GameField::_well;

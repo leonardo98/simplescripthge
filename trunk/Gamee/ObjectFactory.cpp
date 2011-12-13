@@ -24,6 +24,7 @@
 #include "../Core/Render.h"
 #include "../Helpers/AnimationEditor.h"
 #include "AnimationViewer.h"
+#include "GameField.h"
 
 #define REG_TYPE(a, b) if (name == a) return new b(xe)
 
@@ -37,6 +38,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("Mask", Mask);
 	REG_TYPE("TextBox", TextBox);
 	REG_TYPE("Inventory", Inventory);
+	REG_TYPE("GameField", GameField);
 	REG_TYPE("InventoryObject", InventoryObject);
 	REG_TYPE("MultiTexture", MultiTexture);
 	REG_TYPE("StarsRect", StarsRect);

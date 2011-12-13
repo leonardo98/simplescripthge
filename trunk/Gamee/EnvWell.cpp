@@ -10,6 +10,12 @@ EnvWell::EnvWell()
 	_well.Set(Core::getTexture("textures\\env_well01\\well1_basis.png"));
 	_buck.Set(Core::getTexture("textures\\env_well01\\well1_buck.png"));
 	_pos.y = 400.f;
+	annaPos.x = 589; annaPos.y = 409;
+	bobPos.x = 589; bobPos.y = 409;
+	grandpaPos.x = 589; grandpaPos.y = 409;
+	annaPos = PersPaths::SearchNearest(annaPos);
+	bobPos = PersPaths::SearchNearest(bobPos);
+	grandpaPos = PersPaths::SearchNearest(grandpaPos);
 }
 
 void EnvWell::DrawBottom() {
@@ -45,6 +51,8 @@ void EnvWell::Update(float dt) {
 }
 
 void EnvWell::OnMouseDown(const FPoint2D &mousePos) {
+	GrandpaPers::NewAction("", this);
+	GrandpaPers::NewAction("", GameField::GetBuckPlace());
 }
 
 bool EnvWell::IsUnderMouse(const FPoint2D &mousePos) {

@@ -16,6 +16,10 @@
 #include "ProductPlace.h"
 #include "PopupMenu.h"
 #include "Archaeopteryx.h"
+#include "SwampPlace.h"
+#include "Waterpan.h"
+#include "Foodpan.h"
+#include "ClientManager.h"
 
 class GameField 
 	:public InputSystem
@@ -35,9 +39,12 @@ public:
 	static void HideAllPopupMenu();
 	static void AddPopupMenu(PopupMenu *menu);
 	static void RemovePopupMenu(PopupMenu *menu);
+	static ProductPlace * GetBuckPlace();
+	static EnvWell * GetWell();
 
 private:
 
+	void SortElements();
 	StaticSprite _field_s1, _field_s1_m;
 	StaticSprite _grass_set1_a, _grass_set1_a_m;
 	StaticSprite _grass_set1_e, _grass_set1_e_m;
@@ -51,7 +58,6 @@ private:
 	StaticSprite _stoneshelve_set1_a, _stoneshelve_set1_a_m;
 	StaticSprite _stoneshelve_set1_a2, _stoneshelve_set1_a2_m;
 	StaticSprite _stoneshelve_set1_b, _stoneshelve_set1_b_m;
-	StaticSprite _stoneshelve_set1_c;
 	StaticSprite _stoneshelve_set1_d, _stoneshelve_set1_d_m;
 	StaticSprite _stoneshelve_set1_e;
 
@@ -71,15 +77,22 @@ private:
 	PlantPlace _plantBed2;
 	PlantPlace _plantBed3;
 	PlantPlace _plantBed4;
-	EnvWell _well;
+	static EnvWell *_well;
 	ProductPlace _storagePlace1;
 	ProductPlace _storagePlace2;
-	ProductPlace _buckPlace;
+	static ProductPlace *_buckPlace;
 	ProductPlace _productPlace2;
 	ProductPlace _productPlace3;
 	ProductPlace _productPlace4;
 	ProductPlace _productPlace5;
-	Archaeopteryx _archaeopteryx;
+	Waterpan _waterPan1;
+	Waterpan _waterPan2;
+	Foodpan _foodPan1;
+	Foodpan _foodPan2;
+	typedef std::vector<Archaeopteryx *> Birds;
+	Birds _archaeopteryx;
+	SwampPlace _swampPlace;
+
 	StaticSprite _bush1;
 	StaticSprite _bush2;
 	StaticSprite _bush3;
@@ -88,6 +101,7 @@ private:
 	StaticSprite _bush6;
 	StaticSprite _bush7;
 	void DrawBushes();
+	ClientManager _clientsManager;
 	FPoint2D _lastMousePos;
 	int _persIndexDebug;
 
@@ -96,6 +110,7 @@ private:
 
 	BaseElement *_lockMouseMove;
 
+	//StaticSprite _testBackground;
 };
 
 #endif//GAMEFIELD_H

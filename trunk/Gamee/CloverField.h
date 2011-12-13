@@ -9,6 +9,9 @@ class CloverField
 {
 public:
 	CloverField();
+	virtual void DrawBottom();
+private:
+	StaticSprite _stoneshelve_set1_c;
 };
 
 #endif//CLOVERFIELD_H

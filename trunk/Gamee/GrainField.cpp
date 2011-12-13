@@ -1,5 +1,6 @@
 #include "GrainField.h"
 #include "../Core/Core.h"
+#include "PersPaths.h"
 
 GrainField::GrainField() {
 	_empty.Set(Core::getTexture("Field_s1"), 310, 136);
@@ -15,5 +16,19 @@ GrainField::GrainField() {
 	_state[5].Set(Core::getTexture("textures\\env_jungle_fields\\grainfield_66.png"));
 	_oldCapacity = _capacity = -1;
 	_effect = 0.f;
+	_placeType = pt_grain;
+	_productName = "grain";
+	_pos.x = 426;
+	_pos.y = 192;
+
+	grandpaPos.push_back(FPoint2D(450, 140));
+	grandpaPos.push_back(FPoint2D(370, 140));
+	grandpaPos.push_back(FPoint2D(460, 170));
+	grandpaPos.push_back(FPoint2D(380, 180));
+	grandpaPos.push_back(FPoint2D(460, 205));
+	grandpaPos.push_back(FPoint2D(400, 210));
+	for (int i = 0; i < grandpaPos.size(); ++i) {
+		grandpaPos[i] = PersPaths::SearchNearest(grandpaPos[i]);
+	}
 }
 

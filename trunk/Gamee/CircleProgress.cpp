@@ -8,20 +8,21 @@ CircleProgress::CircleProgress() {
 	_center.y = 45;
 	texture = Core::getTexture("textures\\clouds\\icon_b_bubble_in.png");
 	_cover.resize(8);
-	float x[9] = {89.f, 119.f, 119.f, 119.f, 89.f, 60.f, 60.f, 60.f, 89.f};
-	float y[9] = { 0.f,   0.f,  26.f,  53.f, 53.f, 65.f, 25.f,  0.f,  0.f};
-	float cx = 89;
-	float cy = 26;
+	float x[9] = {28.f, 57.f, 57.f, 57.f, 28.f, 0.f, 0.f, 0.f, 28.f};
+
+	float y[9] = {57.f, 57.f,  83.f,  108.f, 108.f, 108.f, 83.f,  57.f,  57.f};
+	_cx = 28;
+	_cy = 82;
 	float w = Render::GetDC()->Texture_GetWidth(texture->GetTexture(), true);
 	float h = Render::GetDC()->Texture_GetHeight(texture->GetTexture(), true);
 	for (int i = 0; i < _cover.size(); ++i) {
 		_cover[i].tex = texture->GetTexture();
 		_cover[i].blend = BLEND_DEFAULT;
-		_cover[i].v[0].x = cx;
-		_cover[i].v[0].y = cy;
+		_cover[i].v[0].x = _cx;
+		_cover[i].v[0].y = _cy;
 		_cover[i].v[0].z = 0.f;
-		_cover[i].v[0].tx = cx / w;
-		_cover[i].v[0].ty = cy / h;
+		_cover[i].v[0].tx = _cx / w;
+		_cover[i].v[0].ty = _cy / h;
 		_cover[i].v[0].col = 0xFFFFFFFF;
 
 		_cover[i].v[1].x = x[i];
@@ -38,6 +39,19 @@ CircleProgress::CircleProgress() {
 		_cover[i].v[2].ty = y[i + 1] / h;
 		_cover[i].v[2].col = 0xFFFFFFFF;
 	}
+}
+
+void CircleProgress::DrawShow(float p) {
+	Matrix t;
+	t.Move(_offset.x, _offset.y);
+	t.Scale(p, p);
+	t.Move(- _center.x, - _center.y);
+	_origin.SetTransform(t);
+	_origin.Render();
+	Render::PushMatrix();
+	Render::MatrixMove(_offset.x - _icon.SpriteWidth() / 2, _offset.y - _icon.SpriteHeight() / 2);
+	_icon.Render();
+	Render::PopMatrix();
 }
 
 void CircleProgress::Draw(float p) {
@@ -71,14 +85,15 @@ void CircleProgress::Draw(float p) {
 	}
 	DWORD color = 0xFF000000 | red << 16 | green << 8 | blue;
 	_origin.Render();
+	hgeTriple t;
 	for (int i = 0; i < static_cast<int>(8 * p); ++i) {
-		hgeTriple t = _cover[i];
+		t = _cover[i];
 		for (int k = 0; k < 3; ++k) {
-			t.v[k].x += (_offset.x - 89);
-			t.v[k].y += (_offset.y - 26);
+			t.v[k].x += (_offset.x - _cx);
+			t.v[k].y += (_offset.y - _cy);
 			t.v[k].col = color;
 		}
-		Render::GetDC()->Gfx_RenderTriple(&t);
+		Render::Draw(t);
 	}
 	int last = static_cast<int>(8 * p);
 	//p = 8 * p - static_cast<int>(8 * p);
@@ -91,27 +106,40 @@ void CircleProgress::Draw(float p) {
 	} else {
 		p = 1 - tan(M_PI / 4 - angle);
 	}
-	hgeTriple t = _cover[last];
+	t = _cover[last];
 	t.v[2].x = (t.v[2].x - t.v[1].x) * p + t.v[1].x;
 	t.v[2].y = (t.v[2].y - t.v[1].y) * p + t.v[1].y;
 	t.v[2].tx = (t.v[2].tx - t.v[1].tx) * p + t.v[1].tx;
 	t.v[2].ty = (t.v[2].ty - t.v[1].ty) * p + t.v[1].ty;
 	for (int k = 0; k < 3; ++k) {
-		t.v[k].x += (_offset.x - 89);
-		t.v[k].y += (_offset.y - 26);
+		t.v[k].x += (_offset.x - _cx);
+		t.v[k].y += (_offset.y - _cy);
 		t.v[k].col = color;
 	}
-	Render::GetDC()->Gfx_RenderTriple(&t);
+	Render::Draw(t);
+	Render::PushMatrix();
+	Render::MatrixMove(_offset.x - _icon.SpriteWidth() / 2, _offset.y - _icon.SpriteHeight() / 2);
+	_icon.Render();
+	Render::PopMatrix();
 }
 
 void CircleProgress::Move(float x, float y) {
 	Matrix t;
 	t.Move(x - _center.x, y - _center.y);
 	_origin.SetTransform(t);
+	//_icon.SetTransform(t);
 	_offset.x = x;
 	_offset.y = y;
 }
 
 bool CircleProgress::PixelCheck(const FPoint2D &pos) {
 	return _origin.PixelCheck(pos);
+}
+
+void CircleProgress::SetIcon(const std::string &icon) {
+	if (Core::isTexture("textures\\clouds\\icon_" + icon + ".png")) {
+		_icon.Set(Core::getTexture("textures\\clouds\\icon_" + icon + ".png"));
+	} else {
+		_icon.Set(Core::getTexture(icon));
+	}
 }
