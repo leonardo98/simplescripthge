@@ -3,6 +3,7 @@
 
 #include "BaseElement.h"
 #include "../Core/Animation.h"
+#include "CircleProgress.h"
 
 class Archaeopteryx : public BaseElement
 {
@@ -18,6 +19,9 @@ private:
 	void SwitchAnimation();
 	void SwitchToIdle();
 	void SwitchToWalk();
+    void SetupAnimation();
+    std::string _birdsType;
+    std::string _sex;
 	Animation *_current;
 	Animation *_leftFront;
 	Animation *_leftFrontIdle;
@@ -50,6 +54,16 @@ private:
 		age_young,
 		age_adult
 	} _age;
+    enum BirdsStates {
+        waiting_food,
+        waiting_water,
+        walking_state
+    };
+    BirdsStates _waitingState;
+    std::list<BirdsStates> _adultCircleStates;
+    float _lifeTimeCounter;
+    float _waitingTimeCounter;
+    CircleProgress _waitingProgress;
 };
 
 #endif//ARCHAEOPTERYX_H
