@@ -9,38 +9,34 @@ Archaeopteryx::Archaeopteryx()
 : _mirror(true)
 {
 	BirdsManager::_positions.push_back(this);
-	std::string type, sex;
+
+	if (rand() % 2 == 1) {
+		_birdsType = "archaeopteryx";
+	} else {
+		_birdsType = "dodo";
+	}
 
 	_boy = (rand() % 2 == 1);
-	if (rand() % 2 == 1) {
+
+	if (rand() % 2 <= 1) {
 		_age = age_young;
 		if (_boy) {
-			sex = "b";
+			_sex = "b";
 		} else {
-			sex = "g";
+			_sex = "g";            
 		}
+        _lifeTimeCounter = Math::random(0.1f, 2.f);
 	} else {
 		_age = age_adult;
 		if (_boy) {
-			sex = "m";
+			_sex = "m";
 		} else {
-			sex = "w";
+			_sex = "w";
 		}
-	}	
-	if (rand() % 2 == 1) {
-		type = "archaeopteryx";
-	} else {
-		type = "dodo";
+        _lifeTimeCounter = 0.f;
 	}
-	std::string id = type + "_" + sex;
-	//id = "archaeopteryx_b";
-
-	_left = Core::getAnimation(id + "_left");
-	_leftIdle = Core::getAnimation(id + "_leftidle");
-	_leftFront = Core::getAnimation(id + "_leftfront");
-	_leftFrontIdle = Core::getAnimation(id + "_leftfrontidle");
-	_leftBack = Core::getAnimation(id + "_leftback");
-	_lefteat = Core::getAnimation(id + "_leftdrink");
+    
+    SetupAnimation();
 
 	_shadow = Core::getTexture("persshadow");
 	_endTarget = _currentTarget = _pos;
@@ -62,7 +58,29 @@ Archaeopteryx::Archaeopteryx()
 	_state = state_idle;
 	_current = _leftFrontIdle;
 	_current->SetPos(_pos, _mirror);
+    
+    _waitingTimeCounter = 0.f;
+    
+    _waitingState = walking_state;
+    
+    _adultCircleStates.push_back(waiting_water);
+    _adultCircleStates.push_back(waiting_food);
+    _adultCircleStates.push_back(waiting_water);
+    _adultCircleStates.push_back(waiting_food);
 }
+
+void Archaeopteryx::SetupAnimation() {
+    std::string id = _birdsType + "_" + _sex;
+	//id = "archaeopteryx_b";
+    
+	_left = Core::getAnimation(id + "_left");
+	_leftIdle = Core::getAnimation(id + "_leftidle");
+	_leftFront = Core::getAnimation(id + "_leftfront");
+	_leftFrontIdle = Core::getAnimation(id + "_leftfrontidle");
+	_leftBack = Core::getAnimation(id + "_leftback");
+	_lefteat = Core::getAnimation(id + "_leftdrink");
+}
+
 
 void Archaeopteryx::Draw() {
 	assert(0 <= _pos.x && _pos.x <= 1024);
@@ -75,6 +93,10 @@ void Archaeopteryx::Draw() {
 	}
 	_current->Draw(_timeCounter);
 	Render::PopMatrix();
+    if (_waitingState == waiting_food || _waitingState == waiting_water) {
+        _waitingProgress.Move(_pos.x, _pos.y - 80);
+        _waitingProgress.Draw(1.f - _waitingTimeCounter);
+    }
 	/*
 	char buffer[100];
 	sprintf(buffer, "x:%i, y:%i", (int)_pos.x, (int)_pos.y);
@@ -120,6 +142,37 @@ void Archaeopteryx::Update(float dt) {
 		}
 	}
 	BirdsManager::UpdatePosition(this, dt);
+    
+    if (_waitingTimeCounter > 0.f) {
+        _waitingTimeCounter -= dt / 20.f;
+        if (_waitingTimeCounter > 0.f) {            
+            return;
+        } 
+        dt += _waitingTimeCounter;
+        _waitingState = walking_state;
+    }
+    if (_lifeTimeCounter > 0.f) {
+        _lifeTimeCounter -= dt * 0.05f;
+        if (_lifeTimeCounter <= 0.f) {
+            if (_adultCircleStates.size()) {
+                _waitingState = _adultCircleStates.front();
+                _waitingTimeCounter = 1.f;
+                _adultCircleStates.pop_front();
+                if (_waitingState == waiting_food) {
+                    _waitingProgress.SetIcon("grain");
+                } else if (_waitingState == waiting_water) {
+                    _waitingProgress.SetIcon("water");
+                }
+                _lifeTimeCounter = Math::random(0.5f, 2.f);
+                return;
+            } else if (_sex == "b") {
+                _sex = "m";
+            } else {
+                _sex = "w";
+            }
+            SetupAnimation();
+        }
+    }
 }
 
 void Archaeopteryx::SwitchToIdle() {
