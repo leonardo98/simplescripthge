@@ -56,6 +56,7 @@ TreePlace::TreePlace(int placeType) {
 	bobPos = PersPaths::SearchNearest(bobPos);
 	grandpaPos = PersPaths::SearchNearest(grandpaPos);
     _fadeCounter = 0.f;
+    _waitingCounter = 0.f;
 }
 
 void TreePlace::DrawBottom() {
