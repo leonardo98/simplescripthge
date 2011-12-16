@@ -37,7 +37,7 @@ private:
 	FPoint2D _endTarget;
 	float _timeCounter;
 	float _actionTimeCounter;
-	enum {
+	enum BirdsStates {
 		state_walk,
 		state_idle,
 		state_eat0,
@@ -48,22 +48,23 @@ private:
 		state_angry,
 		state_want_eat,
 		state_want_drink
-	} _state;
+	};
+    BirdsStates _state;
+    BirdsStates _nextState;
+    bool _targetPosition;
 	bool _boy;
 	enum {
 		age_young,
 		age_adult
 	} _age;
-    enum BirdsStates {
-        waiting_food,
-        waiting_water,
-        walking_state
-    };
-    BirdsStates _waitingState;
     std::list<BirdsStates> _adultCircleStates;
     float _lifeTimeCounter;
     float _waitingTimeCounter;
     CircleProgress _waitingProgress;
+    FPoint2D _foodPos;
+    FPoint2D _waterPos;
+    FPoint2D _turnPoint;
+    bool _waitBasePosition;
 };
 
 #endif//ARCHAEOPTERYX_H

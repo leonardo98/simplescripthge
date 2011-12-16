@@ -11,7 +11,14 @@ public:
 	static float Distance(const Archaeopteryx *a, const Archaeopteryx *b);
 	static void UpdatePosition(Archaeopteryx *a, float dt);
 	static bool FreePosition(Archaeopteryx *a);
+	static void SetWaterBusy(bool busy);
+	static bool IsWaterBusy();
+	static void SetFoodBusy(bool busy);
+	static bool IsFoodBusy();
 	static int Size();
+private:
+    static bool _foodBusy;
+    static bool _waterBusy;
 };
 
 #endif//BIRDSMANAGER_H

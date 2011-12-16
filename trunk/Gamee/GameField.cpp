@@ -201,12 +201,12 @@ GameField::GameField(TiXmlElement *xe)
 
 	_archaeopteryx.push_back(new Archaeopteryx());
 	_renderList.push_back(_archaeopteryx.back());
-	_archaeopteryx.push_back(new Archaeopteryx());
-	_renderList.push_back(_archaeopteryx.back());
-	_archaeopteryx.push_back(new Archaeopteryx());
-	_renderList.push_back(_archaeopteryx.back());
-	_archaeopteryx.push_back(new Archaeopteryx());
-	_renderList.push_back(_archaeopteryx.back());
+//	_archaeopteryx.push_back(new Archaeopteryx());
+//	_renderList.push_back(_archaeopteryx.back());
+//	_archaeopteryx.push_back(new Archaeopteryx());
+//	_renderList.push_back(_archaeopteryx.back());
+//	_archaeopteryx.push_back(new Archaeopteryx());
+//	_renderList.push_back(_archaeopteryx.back());
 }
 
 void GameField::DrawBushes() {
