@@ -3,7 +3,10 @@
 
 std::vector<Archaeopteryx *> BirdsManager::_positions;
 
-BirdsManager::BirdsManager() {}
+BirdsManager::BirdsManager() {
+    _foodBusy = false;
+    _waterBusy = false;
+}
 
 float BirdsManager::Distance(const Archaeopteryx *a, const Archaeopteryx *b) {
 	FPoint2D r = (b->_pos - a->_pos);
@@ -56,3 +59,22 @@ bool BirdsManager::FreePosition(Archaeopteryx *a) {
 int BirdsManager::Size() {
 	return _positions.size();
 }
+
+void BirdsManager::SetWaterBusy(bool busy) {
+    _waterBusy = busy;
+}
+
+bool BirdsManager::IsWaterBusy() {
+    return _waterBusy;
+}
+
+void BirdsManager::SetFoodBusy(bool busy) {
+    _foodBusy = busy;
+}
+
+bool BirdsManager::IsFoodBusy() {
+    return _foodBusy;
+}
+
+bool BirdsManager::_foodBusy;
+bool BirdsManager::_waterBusy;

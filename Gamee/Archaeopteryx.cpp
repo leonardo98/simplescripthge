@@ -6,7 +6,7 @@
 const float Archaeopteryx::SPEED = 80.f;
 
 Archaeopteryx::Archaeopteryx() 
-: _mirror(true)
+: _mirror(rand() % 2 == 1)
 {
 	BirdsManager::_positions.push_back(this);
 
@@ -61,12 +61,17 @@ Archaeopteryx::Archaeopteryx()
     
     _waitingTimeCounter = 0.f;
     
-    _waitingState = walking_state;
+    _adultCircleStates.push_back(state_want_drink);
+    _adultCircleStates.push_back(state_want_eat);
+    _adultCircleStates.push_back(state_want_drink);
+    _adultCircleStates.push_back(state_want_eat);
     
-    _adultCircleStates.push_back(waiting_water);
-    _adultCircleStates.push_back(waiting_food);
-    _adultCircleStates.push_back(waiting_water);
-    _adultCircleStates.push_back(waiting_food);
+    _waterPos = FPoint2D(790, 680);
+    _foodPos = FPoint2D(720, 500);
+    _turnPoint = FPoint2D(1000, 590);
+    
+    _nextState = state_idle;
+    _targetPosition = true;
 }
 
 void Archaeopteryx::SetupAnimation() {
@@ -93,9 +98,13 @@ void Archaeopteryx::Draw() {
 	}
 	_current->Draw(_timeCounter);
 	Render::PopMatrix();
-    if (_waitingState == waiting_food || _waitingState == waiting_water) {
+    if (_state == state_want_drink || _state == state_want_eat) {
         _waitingProgress.Move(_pos.x, _pos.y - 80);
         _waitingProgress.Draw(1.f - _waitingTimeCounter);
+    }
+    if (_nextState == state_want_drink || _nextState == state_want_eat) {
+        _waitingProgress.Move(_pos.x, _pos.y - 80);
+        _waitingProgress.Draw(0.f);
     }
 	/*
 	char buffer[100];
@@ -113,8 +122,28 @@ void Archaeopteryx::Update(float dt) {
 		_actionTimeCounter -= dt;
 		if (_state == state_walk) {
 			_pos += *(_currentTarget - _pos).Normalize() * SPEED * dt;
+//            if (!_targetPosition && (_currentTarget - _pos).Length() < 10.f) {
+//                _current = _lefteat;
+//                _state = _nextState;
+//                _nextState = state_idle;
+//                _waitingTimeCounter = 1.f;
+//                return;
+//            }
 		}
-		if (_actionTimeCounter <= 0.f || (_state == state_walk && (_pos - _currentTarget).Length() < 10.f)) {
+        if (_waitingTimeCounter > 0.f) {
+            _waitingTimeCounter -= dt / 20.f;
+            if (_waitingTimeCounter > 0.f) {            
+                return;
+            } 
+            dt += _waitingTimeCounter;
+            if (_state == state_want_eat) {
+                BirdsManager::SetWaterBusy(false);
+            } else if (_state == state_want_drink) {
+                BirdsManager::SetFoodBusy(false);
+            }
+            _state = state_walk;
+        }
+		if (_actionTimeCounter <= 0.f || (!_targetPosition && (_pos - _currentTarget).Length() > 10.f)) {
 			_actionTimeCounter = Math::random(1.5f, 4.f);
 			if (_state == state_eat0) {
 				if (Math::random(0.f, 1.f) > 0.5f) {
@@ -132,38 +161,52 @@ void Archaeopteryx::Update(float dt) {
 					SwitchToWalk();
 				}
 			} else if (_state == state_walk) {
-				if (BirdsManager::FreePosition(this)) {
+				if (BirdsManager::FreePosition(this) && _nextState != state_want_drink && _nextState != state_want_eat) {
 					SwitchToIdle();
 					_actionTimeCounter *= static_cast<int>(sqrt(float(BirdsManager::Size())));
 				} else {
 					SwitchToWalk();
 				}
 			}
-		}
+		} else if (_nextState == state_want_eat && (_pos - _foodPos).Length() < 10.f) {            
+            _state = state_want_eat;
+            _nextState = state_idle; 
+            _current = _lefteat;
+            _mirror = false;
+            _targetPosition = true;
+		} else if (_nextState == state_want_drink && (_pos - _waterPos).Length() < 10.f) {
+            _state = state_want_drink;
+            _nextState = state_idle;
+            _current = _lefteat;
+            _mirror = false;
+            _targetPosition = true;
+        }
 	}
 	BirdsManager::UpdatePosition(this, dt);
     
-    if (_waitingTimeCounter > 0.f) {
-        _waitingTimeCounter -= dt / 20.f;
-        if (_waitingTimeCounter > 0.f) {            
-            return;
-        } 
-        dt += _waitingTimeCounter;
-        _waitingState = walking_state;
-    }
-    if (_lifeTimeCounter > 0.f) {
-        _lifeTimeCounter -= dt * 0.05f;
+    if (_lifeTimeCounter > 0.f && _targetPosition) {
+        _lifeTimeCounter -= dt * 0.5f;
         if (_lifeTimeCounter <= 0.f) {
+            _lifeTimeCounter = Math::random(0.5f, 2.f);
             if (_adultCircleStates.size()) {
-                _waitingState = _adultCircleStates.front();
-                _waitingTimeCounter = 1.f;
-                _adultCircleStates.pop_front();
-                if (_waitingState == waiting_food) {
+                _nextState = _adultCircleStates.front();
+                if (_nextState == state_want_eat && !BirdsManager::IsFoodBusy()) {
                     _waitingProgress.SetIcon("grain");
-                } else if (_waitingState == waiting_water) {
+                    BirdsManager::SetFoodBusy(true);
+                    SwitchToWalk();
+                    _actionTimeCounter = 20.f;
+                    _targetPosition = false;
+                } else if (_nextState == state_want_drink && !BirdsManager::IsWaterBusy()) {
                     _waitingProgress.SetIcon("water");
+                    BirdsManager::SetWaterBusy(true);
+                    SwitchToWalk();
+                    _actionTimeCounter = 20.f;
+                    _targetPosition = false;
+                } else {
+                    _nextState = state_idle;
+                    return;
                 }
-                _lifeTimeCounter = Math::random(0.5f, 2.f);
+                _adultCircleStates.pop_front();
                 return;
             } else if (_sex == "b") {
                 _sex = "m";
@@ -208,6 +251,13 @@ FPoint2D Archaeopteryx::GetDirection() {
 FPoint2D Archaeopteryx::GetNewDirection() {
 	//i = rand() % 2;
 	//return _region[1 + 2 * i];
+    if (_nextState == state_want_drink && (fabs(_waterPos.x - _pos.x) >= fabs(_waterPos.y - _pos.y))) {
+        return _waterPos;
+    } else if (_nextState == state_want_eat && (fabs(_foodPos.x - _pos.x) >= fabs(_foodPos.y - _pos.y))) {
+        return _foodPos;
+    } else if (_nextState == state_want_eat || _nextState == state_want_drink) {
+        return _turnPoint;
+    }
 
 	int i = rand() % _region.size();
 	float f = (rand() % 10) / 10.f;
