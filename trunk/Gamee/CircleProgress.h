@@ -1,5 +1,5 @@
-#ifndef CIRCLEPROGRESS_H
-#define CIRCLEPROGRESS_H
+#ifndef MYENGINE_CIRCLEPROGRESS_H
+#define MYENGINE_CIRCLEPROGRESS_H
 
 #include "../Core/types.h"
 #include "../Core/Render.h"
@@ -23,4 +23,4 @@ private:
 	float _cy;
 };
 
-#endif//CIRCLEPROGRESS_H
+#endif//MYENGINE_CIRCLEPROGRESS_H

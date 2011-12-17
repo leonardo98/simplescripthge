@@ -1,5 +1,5 @@
-#ifndef GRAINFIELD_H
-#define GRAINFIELD_H
+#ifndef MYENGINE_GRAINFIELD_H
+#define MYENGINE_GRAINFIELD_H
 
 #include "BaseField.h"
 #include "../Core/Render.h"
@@ -11,4 +11,4 @@ public:
 	GrainField();
 };
 
-#endif//GRAINFIELD_H
+#endif//MYENGINE_GRAINFIELD_H

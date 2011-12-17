@@ -1,5 +1,5 @@
-#ifndef ANIMATION_H
-#define ANIMATION_H
+#ifndef MYENGINE_ANIMATION_H
+#define MYENGINE_ANIMATION_H
 
 #include "Render.h"
 #include "SplinePath.h"
@@ -119,4 +119,4 @@ private:
 	friend class AnimationEditor;
 };
 
-#endif//ANIMATION_H
+#endif//MYENGINE_ANIMATION_H

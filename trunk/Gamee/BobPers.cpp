@@ -321,14 +321,14 @@ bool BobPers::CheckAction() {
 			if (_product == 0) {
 			} else if (_product == 1 && _productType == s) {
 				DropProduct();
-				_currentAction.foodPlace->SomeAction();
+				_currentAction.foodPlace->FillFood();
 			}
 		} else if (_currentAction.waterPlace) {
 			//std::string s = _currentAction.waterPlace->WhatToDo();
 			if (_product == 0) {
 			} else if (_product == 1 && _productType == "water") {
 				DropProduct();
-				_currentAction.waterPlace->SomeAction();
+				_currentAction.waterPlace->FillWater();
 			}
 		}
 	}

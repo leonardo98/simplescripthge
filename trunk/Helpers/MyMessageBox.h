@@ -1,5 +1,5 @@
-#ifndef MyMessageBox_H
-#define MyMessageBox_H
+#ifndef MYENGINE_MyMessageBox_H
+#define MYENGINE_MyMessageBox_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/Interface.h"
@@ -46,4 +46,4 @@ public:
 #define OkMessageShow(text) MyMessageBox::Show(text, "ok", GetMyName())
 #define AskMessageShow(text) MyMessageBox::Show(text, "yesno", GetMyName())
 
-#endif//MyMessageBox_H
+#endif//MYENGINE_MyMessageBox_H

@@ -1,5 +1,5 @@
-#ifndef CLIENTMANAGER_H
-#define CLIENTMANAGER_H
+#ifndef MYENGINE_CLIENTMANAGER_H
+#define MYENGINE_CLIENTMANAGER_H
 
 #include "../Core/Render.h"
 #include "../Core/SplinePath.h"
@@ -101,4 +101,4 @@ private:
 	float _newClientTimeCounter;
 };
 
-#endif//CLIENTMANAGER_H
+#endif//MYENGINE_CLIENTMANAGER_H

@@ -552,7 +552,7 @@ void Simulator::Draw() {
 			Render::GetDC()->Gfx_RenderLine(0, y, 480, y, 0x4FFFFFFF);
 		}
 	}
-	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), 0, BLEND_DEFAULT, &max);
+	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
 	bool exception = false;
 	FPoint2D pselect[4];
@@ -598,7 +598,7 @@ void Simulator::Draw() {
 		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
 		const b2Transform & xf = _selectedBody->GetTransform();
 
-		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), 0, BLEND_ALPHAADD | BLEND_COLORADD, &max);
+		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
 
 
 		DrawElement(buffer, bt->_uv, xf.position, pselect);

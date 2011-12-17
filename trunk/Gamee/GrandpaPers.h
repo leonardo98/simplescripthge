@@ -1,5 +1,5 @@
-#ifndef GRANDPAPERS_H
-#define GRANDPAPERS_H
+#ifndef MYENGINE_GRANDPAPERS_H
+#define MYENGINE_GRANDPAPERS_H
 
 #include "../Core/Animation.h"
 #include "BaseElement.h"
@@ -45,4 +45,4 @@ private:
 	float _showAnimationCounter;
 };
 
-#endif GRANDPAPERS_H
+#endif//MYENGINE_GRANDPAPERS_H

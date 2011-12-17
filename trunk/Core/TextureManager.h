@@ -1,7 +1,7 @@
 // TextureManager.h: interface for the TextureManager class.
 
-#ifndef TEXTUREMANAGER_H
-#define TEXTUREMANAGER_H
+#ifndef MYENGINE_TEXTUREMANAGER_H
+#define MYENGINE_TEXTUREMANAGER_H
 
 #include "types.h"
 #include "Render.h"
@@ -27,4 +27,4 @@ private:
 	static TextureMap _texturesMap;
 };
 
-#endif//TEXTUREMANAGER_H
+#endif//MYENGINE_TEXTUREMANAGER_H

@@ -1,5 +1,5 @@
-#ifndef PERSPATH_H
-#define PERSPATH_H
+#ifndef MYENGINE_PERSPATH_H
+#define MYENGINE_PERSPATH_H
 
 #include "../Core/types.h"
 #include "../Core/InputSystem.h"
@@ -55,4 +55,4 @@ private:
 	static FastIndexHelp _indexDistance;
 };
 
-#endif///PERSPATH_H
+#endif//MYENGINE_PERSPATH_H

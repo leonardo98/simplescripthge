@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef INVENTORYOBJECT_H
-#define INVENTORYOBJECT_H
+#ifndef MYENGINE_INVENTORYOBJECT_H
+#define MYENGINE_INVENTORYOBJECT_H
 
 #include "../Core/Messager.h"
 #include "../Core/InputSystem.h"
@@ -25,4 +25,4 @@ private:
 	std::string _id;
 };
 
-#endif//INVENTORYOBJECT_H
+#endif//MYENGINE_INVENTORYOBJECT_H

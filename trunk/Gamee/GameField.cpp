@@ -1,5 +1,6 @@
-#include "GameField.h"
 #include <algorithm>
+#include "GameField.h"
+#include "BirdsManager.h"
 
 const float GameField::SELECTION_BORDER = 1.8f;
 
@@ -73,6 +74,7 @@ GameField::GameField(TiXmlElement *xe)
 , _foodPan1(1)
 , _foodPan2(2)
 {
+	BirdsManager::Init(&_waterPan2, &_foodPan2);
 	_buckPlace = new ProductPlace(pt_water);
 	_well = new EnvWell();
 	//_testBackground.Set(Core::getTexture("data\\EnvironmentJungle_Bob_HT.jpg"));

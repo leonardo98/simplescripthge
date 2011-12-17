@@ -1,5 +1,5 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef MYENGINE_BUTTON_H
+#define MYENGINE_BUTTON_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/LuaScript.h"
@@ -29,4 +29,4 @@ private:
 };
 
 
-#endif//BUTTON_H
+#endif//MYENGINE_BUTTON_H

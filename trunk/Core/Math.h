@@ -1,5 +1,5 @@
-#ifndef MATH_H
-#define MATH_H
+#ifndef MYENGINE_MATH_H
+#define MYENGINE_MATH_H
 
 #include "types.h"
 
@@ -16,4 +16,4 @@ public:
 	static bool STrinagle(float a, float b, float c, float &s);
 };
 
-#endif//MATH_H
+#endif//MYENGINE_MATH_H

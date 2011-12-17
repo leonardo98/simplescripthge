@@ -1,5 +1,5 @@
-#ifndef FOODPAN_H
-#define FOODPAN_H
+#ifndef MYENGINE_FOODPAN_H
+#define MYENGINE_FOODPAN_H
 
 #include "BaseElement.h"
 #include "../Core/Render.h"
@@ -17,7 +17,9 @@ public:
 	FPoint2D annaPos;
 	FPoint2D bobPos;
 	FPoint2D grandpaPos;
-	void SomeAction();
+	bool Empty();
+	void FillFood();
+	void EatFood();
 	std::string WhatToDo();
 protected:
 	StaticSprite _shadow;
@@ -31,6 +33,7 @@ protected:
 	} _state;
 	int _level;
 	const int MAX_LEVELS;
+	float _pause;
 };
 
-#endif//FOODPAN_H
+#endif//MYENGINE_FOODPAN_H

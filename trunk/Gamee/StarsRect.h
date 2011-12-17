@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef STARTRECT_H
-#define STARTRECT_H
+#ifndef MYENGINE_STARTRECT_H
+#define MYENGINE_STARTRECT_H
 
 #include "../Core/Object.h"
 #include "../Core/Render.h"
@@ -36,4 +36,4 @@ private:
 	std::list<Star> _stars;
 };
 
-#endif//STARTRECT_H
+#endif//MYENGINE_STARTRECT_H

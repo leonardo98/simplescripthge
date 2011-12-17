@@ -1,5 +1,5 @@
-#ifndef SWAMPPLACE_H
-#define SWAMPPLACE_H
+#ifndef MYENGINE_SWAMPPLACE_H
+#define MYENGINE_SWAMPPLACE_H
 
 #include "BaseElement.h"
 #include "../Core/Render.h"
@@ -23,4 +23,4 @@ private:
 	float _shakeTimeCounter;
 };
 
-#endif//SWAMPPLACE_H
+#endif//MYENGINE_SWAMPPLACE_H

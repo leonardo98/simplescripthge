@@ -1,5 +1,5 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef MYENGINE_MATRIX_H
+#define MYENGINE_MATRIX_H
 
 #include "types.h"
 
@@ -130,4 +130,4 @@ public:
 	}
 };
 
-#endif//MATRIX_H
+#endif//MYENGINE_MATRIX_H

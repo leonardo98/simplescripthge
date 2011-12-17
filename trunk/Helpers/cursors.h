@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef cursors_h
-#define cursors_h
+#ifndef MYENGINE_cursors_h
+#define MYENGINE_cursors_h
 
 #include "../Core/types.h"
 #include "../Core/Render.h"
@@ -19,4 +19,4 @@ private:
 	static std::string _currentType;
 };
 
-#endif//cursors_h
+#endif//MYENGINE_cursors_h

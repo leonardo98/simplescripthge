@@ -1,5 +1,5 @@
-#ifndef BODYTEMPLATE_H
-#define BODYTEMPLATE_H
+#ifndef MYENGINE_BODYTEMPLATE_H
+#define MYENGINE_BODYTEMPLATE_H
 
 #include "../Core/types.h"
 #include "../../CppLib/Box2D_v2.1.2/Box2D/Box2D/Box2D.h"
@@ -34,4 +34,4 @@ struct BodyTemplate // описание базового элемента - все исходные параметры тут и
 	// запишем все координаты вершин элемента под разными углами в массив
 };
 
-#endif//BODYTEMPLATE_H
+#endif//MYENGINE_BODYTEMPLATE_H

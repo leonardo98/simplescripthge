@@ -1,5 +1,5 @@
-#ifndef IRADIOBTNS_H
-#define IRADIOBTNS_H
+#ifndef MYENGINE_IRADIOBTNS_H
+#define MYENGINE_IRADIOBTNS_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/Messager.h"
@@ -32,4 +32,4 @@ private:
 	std::string _receiver;
 };
 
-#endif//IRADIOBTNS_H
+#endif//MYENGINE_IRADIOBTNS_H

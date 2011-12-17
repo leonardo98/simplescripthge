@@ -1,5 +1,5 @@
-#ifndef ARCHAEOPTERYX_H
-#define ARCHAEOPTERYX_H
+#ifndef MYENGINE_ARCHAEOPTERYX_H
+#define MYENGINE_ARCHAEOPTERYX_H
 
 #include "BaseElement.h"
 #include "../Core/Animation.h"
@@ -47,11 +47,11 @@ private:
 		state_hangry,
 		state_angry,
 		state_want_eat,
-		state_want_drink
+		state_want_drink,
+		state_none
 	};
     BirdsStates _state;
     BirdsStates _nextState;
-    bool _targetPosition;
 	bool _boy;
 	enum {
 		age_young,
@@ -67,4 +67,4 @@ private:
     bool _waitBasePosition;
 };
 
-#endif//ARCHAEOPTERYX_H
+#endif//MYENGINE_ARCHAEOPTERYX_H

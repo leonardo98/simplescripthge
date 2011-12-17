@@ -1,5 +1,5 @@
-#ifndef ACTION_H
-#define ACTION_H
+#ifndef MYENGINE_ACTION_H
+#define MYENGINE_ACTION_H
 
 #include "../Core/types.h"
 #include "PlantPlace.h"
@@ -30,4 +30,4 @@ struct Action {
 
 typedef std::list<Action> Actions;
 
-#endif//ACTION_H
+#endif//MYENGINE_ACTION_H

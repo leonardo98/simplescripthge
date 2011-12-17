@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MASK_H
-#define MASK_H
+#ifndef MYENGINE_MASK_H
+#define MYENGINE_MASK_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/LuaScript.h"
@@ -24,4 +24,4 @@ private:
 	LuaScript *_luaScript;
 };
 
-#endif//MASK_H
+#endif//MYENGINE_MASK_H

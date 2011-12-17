@@ -1,5 +1,5 @@
-#ifndef BASEFIELD_H
-#define BASEFIELD_H
+#ifndef MYENGINE_BASEFIELD_H
+#define MYENGINE_BASEFIELD_H
 
 #include "BaseElement.h"
 #include "ProductPlace.h"
@@ -34,4 +34,4 @@ protected:
 	std::string _productName;
 };
 
-#endif//BASEFIELD_H
+#endif//MYENGINE_BASEFIELD_H

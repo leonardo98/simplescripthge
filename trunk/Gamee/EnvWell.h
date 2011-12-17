@@ -1,5 +1,5 @@
-#ifndef ENVWELL_H
-#define ENVWELL_H
+#ifndef MYENGINE_ENVWELL_H
+#define MYENGINE_ENVWELL_H
 
 #include "BaseElement.h"
 #include "../Core/Render.h"
@@ -25,4 +25,4 @@ protected:
 	float _effect;
 };
 
-#endif//ENVWELL_H
+#endif//MYENGINE_ENVWELL_H

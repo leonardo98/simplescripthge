@@ -70,8 +70,7 @@ Archaeopteryx::Archaeopteryx()
     _foodPos = FPoint2D(720, 500);
     _turnPoint = FPoint2D(1000, 590);
     
-    _nextState = state_idle;
-    _targetPosition = true;
+    _nextState = state_none;
 }
 
 void Archaeopteryx::SetupAnimation() {
@@ -102,15 +101,15 @@ void Archaeopteryx::Draw() {
         _waitingProgress.Move(_pos.x, _pos.y - 80);
         _waitingProgress.Draw(1.f - _waitingTimeCounter);
     }
-    if (_nextState == state_want_drink || _nextState == state_want_eat) {
-        _waitingProgress.Move(_pos.x, _pos.y - 80);
-        _waitingProgress.Draw(0.f);
-    }
-	/*
+    //if (_nextState == state_want_drink || _nextState == state_want_eat) {
+    //    _waitingProgress.Move(_pos.x, _pos.y - 80);
+    //    _waitingProgress.Draw(0.f);
+    //}
+	
 	char buffer[100];
-	sprintf(buffer, "x:%i, y:%i", (int)_pos.x, (int)_pos.y);
-	Render::PrintString(_pos.x, _pos.y, "", buffer);
-	*/
+	sprintf(buffer, "lifeTimer:%f", _lifeTimeCounter);
+	Render::PrintString(_pos.x, _pos.y - 50, "", buffer);
+	
 }
 
 void Archaeopteryx::Update(float dt) {
@@ -118,32 +117,49 @@ void Archaeopteryx::Update(float dt) {
 	while (_timeCounter >= 1.f) {
 		_timeCounter -= 1.f;
 	}
+    if (_waitingTimeCounter > 0.f) {
+        _waitingTimeCounter -= dt / 40.f; // время ожидания(40)
+		if (_state == state_want_drink && !BirdsManager::IsWaterEmpty()) {
+			_state = state_idle;
+			_current = _lefteat;
+			_actionTimeCounter = 1.f;
+			_waitingTimeCounter = 0.f;
+			BirdsManager::DrinkWater();
+			BirdsManager::SetWaterBusy(false);
+		} else if (_state == state_want_eat && !BirdsManager::IsFoodEmpty()) {
+			_state = state_idle;
+			_current = _lefteat;
+			_actionTimeCounter = 1.f;
+			_waitingTimeCounter = 0.f;
+			BirdsManager::EatFood();
+			BirdsManager::SetFoodBusy(false);
+		} else if (_waitingTimeCounter > 0.f) {
+            return;
+		} else {
+			dt += _waitingTimeCounter;
+			if (_state == state_want_eat) {
+				BirdsManager::SetWaterBusy(false);
+			} else if (_state == state_want_drink) {
+				BirdsManager::SetFoodBusy(false);
+			}
+			_state = state_walk;
+		}
+    }
 	if (_actionTimeCounter >= 0.f) {
 		_actionTimeCounter -= dt;
 		if (_state == state_walk) {
 			_pos += *(_currentTarget - _pos).Normalize() * SPEED * dt;
-//            if (!_targetPosition && (_currentTarget - _pos).Length() < 10.f) {
-//                _current = _lefteat;
-//                _state = _nextState;
-//                _nextState = state_idle;
-//                _waitingTimeCounter = 1.f;
-//                return;
-//            }
-		}
-        if (_waitingTimeCounter > 0.f) {
-            _waitingTimeCounter -= dt / 20.f;
-            if (_waitingTimeCounter > 0.f) {            
-                return;
-            } 
-            dt += _waitingTimeCounter;
-            if (_state == state_want_eat) {
-                BirdsManager::SetWaterBusy(false);
-            } else if (_state == state_want_drink) {
-                BirdsManager::SetFoodBusy(false);
+            if ((_nextState == state_want_eat && (_pos - _foodPos).Length() < 10.f) 
+				|| (_nextState == state_want_drink && (_pos - _waterPos).Length() < 10.f)) {
+				_state = _nextState;
+				_current = _leftIdle;
+				_nextState = state_none;
+				_mirror = false;
+				_waitingTimeCounter = 1.f;
+				return;
             }
-            _state = state_walk;
-        }
-		if (_actionTimeCounter <= 0.f || (!_targetPosition && (_pos - _currentTarget).Length() > 10.f)) {
+		}
+		if (_actionTimeCounter <= 0.f || (_state == state_walk && (_currentTarget - _pos).Length() < 10.f)) {
 			_actionTimeCounter = Math::random(1.5f, 4.f);
 			if (_state == state_eat0) {
 				if (Math::random(0.f, 1.f) > 0.5f) {
@@ -168,23 +184,11 @@ void Archaeopteryx::Update(float dt) {
 					SwitchToWalk();
 				}
 			}
-		} else if (_nextState == state_want_eat && (_pos - _foodPos).Length() < 10.f) {            
-            _state = state_want_eat;
-            _nextState = state_idle; 
-            _current = _lefteat;
-            _mirror = false;
-            _targetPosition = true;
-		} else if (_nextState == state_want_drink && (_pos - _waterPos).Length() < 10.f) {
-            _state = state_want_drink;
-            _nextState = state_idle;
-            _current = _lefteat;
-            _mirror = false;
-            _targetPosition = true;
         }
 	}
 	BirdsManager::UpdatePosition(this, dt);
     
-    if (_lifeTimeCounter > 0.f && _targetPosition) {
+    if (_lifeTimeCounter > 0.f && _nextState == state_none) {
         _lifeTimeCounter -= dt * 0.5f;
         if (_lifeTimeCounter <= 0.f) {
             _lifeTimeCounter = Math::random(0.5f, 2.f);
@@ -195,15 +199,13 @@ void Archaeopteryx::Update(float dt) {
                     BirdsManager::SetFoodBusy(true);
                     SwitchToWalk();
                     _actionTimeCounter = 20.f;
-                    _targetPosition = false;
                 } else if (_nextState == state_want_drink && !BirdsManager::IsWaterBusy()) {
                     _waitingProgress.SetIcon("water");
                     BirdsManager::SetWaterBusy(true);
                     SwitchToWalk();
                     _actionTimeCounter = 20.f;
-                    _targetPosition = false;
                 } else {
-                    _nextState = state_idle;
+                    _nextState = state_none;
                     return;
                 }
                 _adultCircleStates.pop_front();

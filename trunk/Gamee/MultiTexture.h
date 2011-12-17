@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MULTITEXTURE_H
-#define MULTITEXTURE_H
+#ifndef MYENGINE_MULTITEXTURE_H
+#define MYENGINE_MULTITEXTURE_H
 
 #include "../Core/InputSystem.h"
 #include "../Helpers/Counter.h"
@@ -37,4 +37,4 @@ private:
 	LuaScript *_luaScript;
 };
 
-#endif//MULTITEXTURE_H
+#endif//MYENGINE_MULTITEXTURE_H

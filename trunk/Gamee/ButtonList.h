@@ -1,5 +1,5 @@
-#ifndef BUTTONLIST_H
-#define BUTTONLIST_H
+#ifndef MYENGINE_BUTTONLIST_H
+#define MYENGINE_BUTTONLIST_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/Messager.h"
@@ -38,4 +38,4 @@ private:
 	float MOVE_ACTION_TIME;
 };
 
-#endif//BUTTONLIST_H
+#endif//MYENGINE_BUTTONLIST_H

@@ -3,9 +3,11 @@
 
 std::vector<Archaeopteryx *> BirdsManager::_positions;
 
-BirdsManager::BirdsManager() {
+void BirdsManager::Init(Waterpan *waterpan, Foodpan *foodpan) {
     _foodBusy = false;
     _waterBusy = false;
+	_waterpan = waterpan;
+	_foodpan = foodpan;
 }
 
 float BirdsManager::Distance(const Archaeopteryx *a, const Archaeopteryx *b) {
@@ -78,3 +80,25 @@ bool BirdsManager::IsFoodBusy() {
 
 bool BirdsManager::_foodBusy;
 bool BirdsManager::_waterBusy;
+Waterpan *BirdsManager::_waterpan = NULL;
+Foodpan *BirdsManager::_foodpan = NULL;
+
+bool BirdsManager::IsWaterEmpty() {
+	assert(_waterpan != NULL);
+	return _waterpan->Empty();
+}
+
+void BirdsManager::DrinkWater() {
+	assert(_waterpan != NULL);
+	return _waterpan->DrinkWater();
+}
+
+bool BirdsManager::IsFoodEmpty() {
+	assert(_foodpan != NULL);
+	return _foodpan->Empty();
+}
+
+void BirdsManager::EatFood() {
+	assert(_foodpan != NULL);
+	return _foodpan->EatFood();
+}

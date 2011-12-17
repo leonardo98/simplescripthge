@@ -1,5 +1,5 @@
-#ifndef IKeyboard_h
-#define IKeyboard_h
+#ifndef MYENGINE_IKeyboard_h
+#define MYENGINE_IKeyboard_h
 
 #include "InputSystem.h"
 #include "Interface.h"
@@ -48,4 +48,4 @@ private:
 	LuaScript *_luaScript;
 };
 
-#endif//IKeyboard_h
+#endif//MYENGINE_IKeyboard_h

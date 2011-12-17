@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef MYENGINE_TYPES_H
+#define MYENGINE_TYPES_H
 
 #include <stdio.h>
 #include <string>
@@ -11,9 +11,9 @@
 
 extern "C" 
 {
-  #include "../../CppLib/lua/include/lua.h"
-  #include "../../CppLib/lua/include/lualib.h"
-  #include "../../CppLib/lua/include/lauxlib.h"
+  #include "lua.h"
+  #include "lualib.h"
+  #include "lauxlib.h"
 }
 
 #ifdef MY_ENGINE_IOS
@@ -22,19 +22,19 @@ extern "C"
 #define _HGE_TARGET_OSX_
 #endif
 
-#include "../../hge181-for-osx/trunk/include/hge.h"
-#include "../../hge181-for-osx/trunk/include/hgesprite.h"
-#include "../../hge181-for-osx/trunk/include/hgeVector.h"
-#include "../../hge181-for-osx/trunk/include/hgefont.h"
+#include "hge.h"
+#include "hgesprite.h"
+#include "hgeVector.h"
+#include "hgefont.h"
 
-#include "../../CppLib/tinyxml/tinyxml.h"
+#include "tinyxml.h"
 typedef hgeVector FPoint2D;
 typedef hgeVertex Vertex;
 #define LOG(a) Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str())
 
-#undef assert
-#define assert(exp) if (!(exp)) {int j = 0; j = 1 / j;}
+//#undef assert
+//#define assert(exp) if (!(exp)) {int j = 0; j = 1 / j;}
 
 #include "Object.h"
 
-#endif//TYPES_H
+#endif//MYENGINE_TYPES_H

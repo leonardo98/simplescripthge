@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef MYENGINE_OBJECT_H
+#define MYENGINE_OBJECT_H
 
 #include "types.h"
 

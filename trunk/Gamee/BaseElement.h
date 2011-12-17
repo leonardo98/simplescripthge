@@ -1,5 +1,5 @@
-#ifndef BASEELEMENT_H
-#define BASEELEMENT_H
+#ifndef MYENGINE_BASEELEMENT_H
+#define MYENGINE_BASEELEMENT_H
 
 #include "../Core/types.h"
 
@@ -31,4 +31,4 @@ enum PlantPlaceState {
 	plant_fade
 };
 
-#endif//BASEELEMENT_H
+#endif//MYENGINE_BASEELEMENT_H

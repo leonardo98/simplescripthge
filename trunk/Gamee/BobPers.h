@@ -1,5 +1,5 @@
-#ifndef BOBPERS_H
-#define BOBPERS_H
+#ifndef MYENGINE_BOBPERS_H
+#define MYENGINE_BOBPERS_H
 
 #include "../Core/Animation.h"
 #include "BaseElement.h"
@@ -44,4 +44,4 @@ private:
 	Action _currentAction;
 };
 
-#endif BOBPERS_H
+#endif//MYENGINE_BOBPERS_H
