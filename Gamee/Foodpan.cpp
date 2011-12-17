@@ -40,6 +40,7 @@ Foodpan::Foodpan(int index)
 	annaPos = PersPaths::SearchNearest(annaPos);
 	bobPos = PersPaths::SearchNearest(bobPos);
 	grandpaPos = PersPaths::SearchNearest(grandpaPos);
+	_pause = 0.f;
 }
 
 void Foodpan::DrawBottom() {
@@ -64,14 +65,27 @@ void Foodpan::DrawBottom() {
 void Foodpan::Draw() {
 	_pan.Render();
 	if (_effect > 0.f) {
-		int l = Math::round((1.f - _effect) * (MAX_LEVELS - 1));
-		_food[l].Render();
+		int l;
+		if (_level == MAX_LEVELS) {
+			l = Math::round((1.f - _effect) * MAX_LEVELS);
+		} else if (_level == MAX_LEVELS / 2) {
+			l = Math::round(_effect * (MAX_LEVELS - MAX_LEVELS / 2.f) + MAX_LEVELS / 2.f);
+		} else {
+			l = Math::round(_effect * MAX_LEVELS / 2.f);
+		}
+		if (l > 0) {
+			_food[l - 1].Render();
+		} 
 	} else if (_level > 0) {
 		_food[_level - 1].Render();
 	} 
 }
 
 void Foodpan::Update(float dt) {
+	if (_pause > 0.f) {
+		_pause -= dt;
+		return;
+	}
 	if (_effect > 0.f) {
 		_effect -= dt / 0.666;
 	}
@@ -85,11 +99,26 @@ bool Foodpan::IsUnderMouse(const FPoint2D &mousePos) {
 	return (_pan.PixelCheck(mousePos) || (_level > 0 && _food[_level - 1].PixelCheck(mousePos)));
 }
 
-void Foodpan::SomeAction() {
+void Foodpan::FillFood() {
 	_effect = 1.f;
 	_level = MAX_LEVELS;
 }
 
 std::string Foodpan::WhatToDo() {
 	return _action;
+}
+
+bool Foodpan::Empty() {
+	return _level == 0 || _effect > 0.f;
+}
+
+void Foodpan::EatFood() {
+	assert(_level > 0);
+	if (_level == MAX_LEVELS) {
+		_level = MAX_LEVELS / 2;
+	} else {
+		_level = 0;
+	}
+	_pause = 0.5f;
+	_effect = 1.f;
 }

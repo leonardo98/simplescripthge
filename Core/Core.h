@@ -1,7 +1,7 @@
 // Core.h: interface for the Lexems class.
 
-#ifndef CORE_H
-#define CORE_H
+#ifndef MYENGINE_CORE_H
+#define MYENGINE_CORE_H
 
 #include "types.h"
 #include "TextureManager.h"
@@ -42,4 +42,4 @@ protected:
 	friend class AnimationEditor;
 };
 
-#endif//CORE_H
+#endif//MYENGINE_CORE_H

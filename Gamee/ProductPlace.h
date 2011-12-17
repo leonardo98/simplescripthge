@@ -1,5 +1,5 @@
-#ifndef PRODUCTPLACE_H
-#define PRODUCTPLACE_H
+#ifndef MYENGINE_PRODUCTPLACE_H
+#define MYENGINE_PRODUCTPLACE_H
 
 #include "BaseElement.h"
 #include "ServingElement.h"
@@ -44,4 +44,4 @@ protected:
 	bool _mirrorEffect;
 };
 
-#endif//PRODUCTPLACE_H
+#endif//MYENGINE_PRODUCTPLACE_H

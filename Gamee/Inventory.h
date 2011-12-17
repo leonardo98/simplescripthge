@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef INVENTORY_H
-#define INVENTORY_H
+#ifndef MYENGINE_INVENTORY_H
+#define MYENGINE_INVENTORY_H
 
 #include "../Core/Messager.h"
 #include "../Core/InputSystem.h"
@@ -36,4 +36,4 @@ private:
 	Texture *_active;
 };
 
-#endif//INVENTORY_H
+#endif//MYENGINE_INVENTORY_H

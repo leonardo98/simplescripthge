@@ -1,5 +1,5 @@
-#ifndef SPLINE_H
-#define SPLINE_H
+#ifndef MYENGINE_SPLINE_H
+#define MYENGINE_SPLINE_H
 
 inline float SplineInterpolation(float x1, float x2, float r1, float r2, float t)
 {

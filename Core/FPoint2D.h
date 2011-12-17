@@ -1,19 +1,9 @@
 // sources token from HGE
 
-#ifndef FPOINT2D_H
-#define FPOINT2D_H
+#ifndef MYENGINE_FPOINT2D_H
+#define MYENGINE_FPOINT2D_H
 
 #include <math.h>
-
-#ifdef M_PI
-#undef M_PI
-#define M_PI 3.141592f
-#endif 
-
-#ifdef M_PI_2
-#undef M_PI_2
-#define M_PI_2 1.570796f
-#endif 
 
 namespace Point2dMath {
     float InvSqrt(float x);
@@ -58,4 +48,4 @@ inline FPoint2D operator* (const float s, const FPoint2D &v)		{ return v*s; }
 inline float	 operator^ (const FPoint2D &v, const FPoint2D &u) { return v.Angle(&u); }
 inline float	 operator% (const FPoint2D &v, const FPoint2D &u) { return v.Dot(&u); }
 
-#endif//FPOINT2D_H
+#endif//MYENGINE_FPOINT2D_H

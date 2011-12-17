@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef INPUTSYSTEM_H
-#define INPUTSYSTEM_H
+#ifndef MYENGINE_INPUTSYSTEM_H
+#define MYENGINE_INPUTSYSTEM_H
 
 #include "types.h"
 #include "Object.h"
@@ -69,4 +69,4 @@ public:
 
 };
 
-#endif//INPUTSYSTEM_H
+#endif//MYENGINE_INPUTSYSTEM_H

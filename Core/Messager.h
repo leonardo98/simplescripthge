@@ -1,6 +1,6 @@
 // Messager.h: interface for the Messager class.
-#ifndef MESSAGER_H
-#define MESSAGER_H
+#ifndef MYENGINE_MESSAGER_H
+#define MYENGINE_MESSAGER_H
 
 #include "types.h"
 
@@ -52,4 +52,4 @@ private:
 	static AllMessages _messages;
 };
 
-#endif//MESSAGER_H
+#endif//MYENGINE_MESSAGER_H

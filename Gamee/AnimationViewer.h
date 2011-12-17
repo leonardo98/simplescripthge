@@ -1,5 +1,5 @@
-#ifndef ANIMATION_VIEWER
-#define ANIMATION_VIEWER
+#ifndef MYENGINE_ANIMATION_VIEWER
+#define MYENGINE_ANIMATION_VIEWER
 
 #include "../Core/Object.h"
 #include "../Core/Render.h"
@@ -19,4 +19,4 @@ private:
 	Animation *_animation;
 };
 
-#endif//ANIMATION_VIEWER
+#endif//MYENGINE_ANIMATION_VIEWER

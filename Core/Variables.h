@@ -1,7 +1,7 @@
 // Variables.h: interface for the Variables class.
 
-#ifndef VARIABLES_H
-#define VARIABLES_H
+#ifndef MYENGINE_VARIABLES_H
+#define MYENGINE_VARIABLES_H
 
 #include "types.h"
 
@@ -21,4 +21,4 @@ private:
 	friend class TestObject;
 };
 
-#endif//VARIABLES_H
+#endif//MYENGINE_VARIABLES_H

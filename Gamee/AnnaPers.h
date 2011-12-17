@@ -1,5 +1,5 @@
-#ifndef ANNAPERS_H
-#define ANNAPERS_H
+#ifndef MYENGINE_ANNAPERS_H
+#define MYENGINE_ANNAPERS_H
 
 #include "../Core/Animation.h"
 #include "BaseElement.h"
@@ -46,4 +46,4 @@ private:
 
 };
 
-#endif//ANNAPERS_H
+#endif//MYENGINE_ANNAPERS_H

@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef STATICTEXTURE_H
-#define STATICTEXTURE_H
+#ifndef MYENGINE_STATICTEXTURE_H
+#define MYENGINE_STATICTEXTURE_H
 
 #include "../Core/Object.h"
 #include "../Core/Render.h"
@@ -20,4 +20,4 @@ private:
 	std::string _textureId;
 };
 
-#endif//STATICTEXTURE_H
+#endif//MYENGINE_STATICTEXTURE_H

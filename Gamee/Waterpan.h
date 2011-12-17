@@ -1,5 +1,5 @@
-#ifndef WATERPAN_H
-#define WATERPAN_H
+#ifndef MYENGINE_WATERPAN_H
+#define MYENGINE_WATERPAN_H
 
 #include "BaseElement.h"
 #include "../Core/Render.h"
@@ -14,19 +14,21 @@ public:
 	virtual void Update(float dt);
 	virtual void OnMouseDown(const FPoint2D &mousePos);
 	virtual bool IsUnderMouse(const FPoint2D &mousePos);
+	bool Empty();
 	FPoint2D annaPos;
 	FPoint2D bobPos;
 	FPoint2D grandpaPos;
-	void SomeAction();
+	void FillWater();
+	void DrinkWater();
 protected:
 	StaticSprite _shadow;
 	StaticSprite _down;
 	StaticSprite _up;
 	StaticSprite _water;
 	float _effect;
-	const int MAX_LEVELS;
 	float _oldLevel;
 	float _level;
+	float _pause;
 };
 
-#endif//WATERPAN_H
+#endif//MYENGINE_WATERPAN_H

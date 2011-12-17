@@ -1,5 +1,5 @@
-#ifndef SERVINGELEMENT_H 
-#define SERVINGELEMENT_H 
+#ifndef MYENGINE_SERVINGELEMENT_H 
+#define MYENGINE_SERVINGELEMENT_H 
 
 class ServingElement {
 public:
@@ -10,4 +10,4 @@ private:
 	bool _waiting;
 };
 
-#endif//SERVINGELEMENT_H 
+#endif//MYENGINE_SERVINGELEMENT_H 

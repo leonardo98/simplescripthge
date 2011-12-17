@@ -1,5 +1,5 @@
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#ifndef MYENGINE_INTERFACE_H
+#define MYENGINE_INTERFACE_H
 
 #include "types.h"
 
@@ -21,4 +21,4 @@ public:
 	static void Init();
 };
 
-#endif//INTERFACE_H
+#endif//MYENGINE_INTERFACE_H

@@ -1,5 +1,5 @@
-#ifndef LUASCRIPT_H
-#define LUASCRIPT_H
+#ifndef MYENGINE_LUASCRIPT_H
+#define MYENGINE_LUASCRIPT_H
 
 #include "types.h"
 #include <string>
@@ -21,4 +21,4 @@ private:
 	string scriptfile;
 };
 
-#endif//LUASCRIPT_H
+#endif//MYENGINE_LUASCRIPT_H

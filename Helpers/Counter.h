@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef COUNTER_H
-#define COUNTER_H
+#ifndef MYENGINE_COUNTER_H
+#define MYENGINE_COUNTER_H
 
 class Counter  
 {
@@ -20,4 +20,4 @@ private:
 	float _actionTimeCounter;
 };
 
-#endif//COUNTER_H
+#endif//MYENGINE_COUNTER_H

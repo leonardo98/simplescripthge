@@ -1,5 +1,5 @@
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#ifndef MYENGINE_SIMULATOR_H
+#define MYENGINE_SIMULATOR_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/Messager.h"
@@ -234,4 +234,4 @@ protected:
 	inline void DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 };
 
-#endif//SIMULATOR_H
+#endif//MYENGINE_SIMULATOR_H

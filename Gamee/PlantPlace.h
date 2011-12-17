@@ -1,5 +1,5 @@
-#ifndef PLANTPLACE_H
-#define PLANTPLACE_H
+#ifndef MYENGINE_PLANTPLACE_H
+#define MYENGINE_PLANTPLACE_H
 
 #include "../Core/Matrix.h"
 #include "BaseElement.h"
@@ -50,4 +50,4 @@ private:
 	float CHOP_TIME;
 };
 
-#endif//PLANTPLACE_H
+#endif//MYENGINE_PLANTPLACE_H

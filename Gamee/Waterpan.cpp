@@ -4,7 +4,6 @@
 
 Waterpan::Waterpan(int index) 
 : _effect(0.f)
-, MAX_LEVELS(3)
 {
 	Matrix m;
 	m.Move(1024, 0);
@@ -31,6 +30,7 @@ Waterpan::Waterpan(int index)
 	bobPos = PersPaths::SearchNearest(bobPos);
 	grandpaPos = PersPaths::SearchNearest(grandpaPos);
 	_oldLevel = _level = 0.f;
+	_pause = 0.f;
 }
 
 void Waterpan::DrawBottom() {
@@ -76,6 +76,10 @@ void Waterpan::Draw() {
 }
 
 void Waterpan::Update(float dt) {
+	if (_pause > 0.f) {
+		_pause -= dt;
+		return;
+	}
 	if (_effect > 0.f) {
 		_effect -= dt * 3;
 		if (_effect <= 0.f) {
@@ -86,26 +90,27 @@ void Waterpan::Update(float dt) {
 
 void Waterpan::OnMouseDown(const FPoint2D &mousePos) {
 	BobPers::NewAction("", this);
-	/*
-	if (_state == empty) {
-		_effect = 1.f;
-	} else if (_state == level) {
-		_level -= 1.f / MAX_LEVELS;
-		_effect = 1.f;
-	}
-	*/
 }
 
 bool Waterpan::IsUnderMouse(const FPoint2D &mousePos) {
 	return (_up.PixelCheck(mousePos) || _down.PixelCheck(mousePos));
 }
 
-void Waterpan::SomeAction() {
-	if (_level < MAX_LEVELS) {
-		_effect = 1.f;
-		_oldLevel = _level;
-		_level = 1.f;
-	}
+void Waterpan::FillWater() {
+	_effect = 1.f;
+	_oldLevel = _level;
+	_level = 1.f;
 }
 
-//f = _level + _effect / MAX_LEVELS;
+void Waterpan::DrinkWater() {
+	assert(!Empty());
+	_effect = 1.f;
+	_oldLevel = _level;
+	int PORTION = 2;// столько раз можно попить из поилки
+	_level -= 1.f / PORTION;
+	_pause = 0.5f;
+}
+
+bool Waterpan::Empty() {
+	return (_level < 1e-3 || (_level > 1.f - 1e-3 && _effect > 0.f));
+}

@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef FPSCOUNTER_H
-#define FPSCOUNTER_H
+#ifndef MYENGINE_FPSCOUNTER_H
+#define MYENGINE_FPSCOUNTER_H
 
 #include "../Core/Object.h"
 
@@ -16,4 +16,4 @@ public:
 private:
 };
 
-#endif//FPSCOUNTER_H
+#endif//MYENGINE_FPSCOUNTER_H

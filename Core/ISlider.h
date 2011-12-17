@@ -1,5 +1,5 @@
-#ifndef ISLIDER_H
-#define ISLIDER_H
+#ifndef MYENGINE_ISLIDER_H
+#define MYENGINE_ISLIDER_H
 
 #include "InputSystem.h"
 #include "Interface.h"
@@ -34,4 +34,4 @@ private:
 	virtual float GetNumberValue(const std::string &variableName);
 };
 
-#endif//ISLIDER_H
+#endif//MYENGINE_ISLIDER_H

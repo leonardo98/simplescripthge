@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef ILABEL_H
-#define ILABEL_H
+#ifndef MYENGINE_ILABEL_H
+#define MYENGINE_ILABEL_H
 
 #include "Object.h"
 #include "Render.h"
@@ -19,4 +19,4 @@ private:
 	std::string _variableName;
 };
 
-#endif//ILABEL_H
+#endif//MYENGINE_ILABEL_H

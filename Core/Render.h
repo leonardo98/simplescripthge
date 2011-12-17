@@ -1,6 +1,6 @@
 // device specified function
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef MYENGINE_RENDER_H
+#define MYENGINE_RENDER_H
 
 #include "types.h"
 
@@ -121,4 +121,4 @@ public:
 };
 
 
-#endif//RENDER_H
+#endif//MYENGINE_RENDER_H

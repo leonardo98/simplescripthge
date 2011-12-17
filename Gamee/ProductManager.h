@@ -1,5 +1,5 @@
-#ifndef PRODUCTMANAGER_H
-#define PRODUCTMANAGER_H
+#ifndef MYENGINE_PRODUCTMANAGER_H
+#define MYENGINE_PRODUCTMANAGER_H
 
 #include "ProductPlace.h"
 
@@ -14,4 +14,4 @@ private:
 	static Places _places;
 };
 
-#endif//PRODUCTMANAGER_H
+#endif//MYENGINE_PRODUCTMANAGER_H

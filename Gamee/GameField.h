@@ -1,5 +1,5 @@
-#ifndef GAMEFIELD_H
-#define GAMEFIELD_H
+#ifndef MYENGINE_GAMEFIELD_H
+#define MYENGINE_GAMEFIELD_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/Core.h"
@@ -113,4 +113,4 @@ private:
 	//StaticSprite _testBackground;
 };
 
-#endif//GAMEFIELD_H
+#endif//MYENGINE_GAMEFIELD_H

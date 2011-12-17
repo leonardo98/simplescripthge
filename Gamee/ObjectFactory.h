@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef ObjectFactory_h
-#define ObjectFactory_h
+#ifndef MYENGINE_ObjectFactory_h
+#define MYENGINE_ObjectFactory_h
 
 #include "../Core/Object.h"
 
@@ -13,4 +13,4 @@ public:
 	static Object * Create(TiXmlElement *xe);
 };
 
-#endif//ObjectFactory_h
+#endif//MYENGINE_ObjectFactory_h

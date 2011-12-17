@@ -1,5 +1,5 @@
-#ifndef IPANEL_H
-#define IPANEL_H
+#ifndef MYENGINE_IPANEL_H
+#define MYENGINE_IPANEL_H
 
 #include "Object.h"
 #include "Interface.h"
@@ -35,4 +35,4 @@ private:
 	Objects _objects;
 };
 
-#endif//IPANEL_H
+#endif//MYENGINE_IPANEL_H

@@ -1,5 +1,5 @@
-#ifndef TREEPLACE_H
-#define TREEPLACE_H
+#ifndef MYENGINE_TREEPLACE_H
+#define MYENGINE_TREEPLACE_H
 
 #include "../Core/Matrix.h"
 #include "BaseElement.h"
@@ -64,4 +64,4 @@ private:
 	float CHOP_TIME;
 };
 
-#endif//TREEPLACE_H
+#endif//MYENGINE_TREEPLACE_H

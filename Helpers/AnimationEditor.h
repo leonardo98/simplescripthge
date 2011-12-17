@@ -1,5 +1,5 @@
-#ifndef ANIMATIONEDITOR_H
-#define ANIMATIONEDITOR_H
+#ifndef MYENGINE_ANIMATIONEDITOR_H
+#define MYENGINE_ANIMATIONEDITOR_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/Render.h"
@@ -35,4 +35,4 @@ private:
 	bool _mirror;
 };
 
-#endif//ANIMATIONEDITOR_H
+#endif//MYENGINE_ANIMATIONEDITOR_H

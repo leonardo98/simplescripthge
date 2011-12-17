@@ -1,5 +1,5 @@
-#ifndef POPUPMENU_H
-#define POPUPMENU_H
+#ifndef MYENGINE_POPUPMENU_H
+#define MYENGINE_POPUPMENU_H
 
 #include "../Core/Matrix.h"
 #include "../Core/Render.h"
@@ -50,4 +50,4 @@ private:
 	SplinePath _riseUp;
 };
 
-#endif//POPUPMENU_H
+#endif//MYENGINE_POPUPMENU_H

@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef TEXTBOX_H
-#define TEXTBOX_H
+#ifndef MYENGINE_TEXTBOX_H
+#define MYENGINE_TEXTBOX_H
 
 #include "../Core/Object.h"
 #include "../Core/Render.h"
@@ -39,4 +39,4 @@ private:
 	Counter _hide;
 };
 
-#endif//TEXTBOX_H
+#endif//MYENGINE_TEXTBOX_H
