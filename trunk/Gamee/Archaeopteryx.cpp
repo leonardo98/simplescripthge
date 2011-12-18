@@ -8,7 +8,7 @@ const float Archaeopteryx::SPEED = 80.f;
 Archaeopteryx::Archaeopteryx() 
 : _mirror(rand() % 2 == 1)
 {
-	BirdsManager::_positions.push_back(this);
+	BirdsManager::_birds.push_back(this);
 
 	if (rand() % 2 == 1) {
 		_birdsType = "archaeopteryx";
@@ -50,6 +50,18 @@ Archaeopteryx::Archaeopteryx()
 	_region.push_back(FPoint2D(790, 680));
 	_region.push_back(FPoint2D(720, 500));
 
+	float WIDTH_RUN = 65;
+	float HEIGHT_RUN = 40;
+	_runAway.push_back(FPoint2D(865 - WIDTH_RUN, 550));
+	_runAway.push_back(FPoint2D(865, 550 - HEIGHT_RUN));
+	_runAway.push_back(FPoint2D(865 + WIDTH_RUN, 550));
+	_runAway.push_back(FPoint2D(865, 550 + HEIGHT_RUN));
+	_runAway.push_back(FPoint2D(865 - WIDTH_RUN, 550));
+	_runAway.push_back(FPoint2D(865, 550 - HEIGHT_RUN));
+	_runAway.push_back(FPoint2D(865 + WIDTH_RUN, 550));
+	_runAway.push_back(FPoint2D(865, 550 + HEIGHT_RUN));
+	_runAway.push_back(FPoint2D(1100, 550 + HEIGHT_RUN));
+    
 	_pos = _region[rand() % _region.size()];
 	_pos = (_pos + _region[rand() % _region.size()]) / 2;
 
@@ -69,7 +81,7 @@ Archaeopteryx::Archaeopteryx()
     _waterPos = FPoint2D(771, 628);
     _foodPos = FPoint2D(733, 540);
     _turnPoint = FPoint2D(900, 595);
-    
+
     _nextState = state_none;
 }
 
@@ -87,7 +99,7 @@ void Archaeopteryx::SetupAnimation() {
 
 
 void Archaeopteryx::Draw() {
-	assert(0 <= _pos.x && _pos.x <= 1024);
+	assert(0 <= _pos.x && _pos.x <= 1124);
 	assert(0 <= _pos.y && _pos.y <= 768);
 	_shadow->Render(_pos.x - _shadow->Width() / 2, _pos.y - _shadow->Height() / 2);
 	Render::PushMatrix();
@@ -106,9 +118,9 @@ void Archaeopteryx::Draw() {
     //    _waitingProgress.Draw(0.f);
     //}
 	
-	char buffer[100];
-	sprintf(buffer, "lifeTimer:%f", _lifeTimeCounter);
-	Render::PrintString(_pos.x, _pos.y - 50, "", buffer);
+	//char buffer[100];
+	//sprintf(buffer, "lifeTimer:%f", _lifeTimeCounter);
+	//Render::PrintString(_pos.x, _pos.y - 50, "", buffer);
 	
 }
 
@@ -116,6 +128,9 @@ void Archaeopteryx::Update(float dt) {
 	_timeCounter += (dt / _current->Time());
 	while (_timeCounter >= 1.f) {
 		_timeCounter -= 1.f;
+	}
+	if (_runAwayTimeCounter > 0.f) {
+		_runAwayTimeCounter -= dt;
 	}
     if (_waitingTimeCounter > 0.f) {
         _waitingTimeCounter -= dt / 40.f; // время ожидания(40)
@@ -125,27 +140,33 @@ void Archaeopteryx::Update(float dt) {
 			_actionTimeCounter = 1.f;
 			_waitingTimeCounter = 0.f;
 			BirdsManager::DrinkWater();
-			BirdsManager::SetWaterBusy(false);
 		} else if (_state == state_want_eat && !BirdsManager::IsFoodEmpty()) {
 			_state = state_idle;
 			_current = _lefteat;
 			_actionTimeCounter = 1.f;
 			_waitingTimeCounter = 0.f;
 			BirdsManager::EatFood();
-			BirdsManager::SetFoodBusy(false);
 		} else if (_waitingTimeCounter > 0.f) {
             return;
 		} else {
-			dt += _waitingTimeCounter;
-			if (_state == state_want_eat) {
-				BirdsManager::SetWaterBusy(false);
-			} else if (_state == state_want_drink) {
-				BirdsManager::SetFoodBusy(false);
-			}
+			_adultCircleStates.push_front(_state);
 			_state = state_walk;
+			_runAwayPoint = 0;
+			_runAwayTimeCounter = 10.f;
+			_actionTimeCounter = dt / 2.f;
 		}
     }
-	if (_actionTimeCounter >= 0.f) {
+	if (_runAwayTimeCounter > 0.f) {
+		_pos += *(_currentTarget - _pos).Normalize() * SPEED * 2 * dt;
+//		BirdsManager::UpdatePosition(this, dt);
+		if ((_currentTarget - _pos).Length() < SPEED * 2 * dt) {
+			if (_runAwayPoint < _runAway.size()) {
+				_currentTarget = _runAway[_runAwayPoint++];
+				SwitchAnimation();
+			}
+		}
+		return;
+	} else if (_actionTimeCounter >= 0.f) {
 		_actionTimeCounter -= dt;
 		if (_state == state_walk) {
 			_pos += *(_currentTarget - _pos).Normalize() * SPEED * dt;
@@ -193,22 +214,22 @@ void Archaeopteryx::Update(float dt) {
         if (_lifeTimeCounter <= 0.f) {
             _lifeTimeCounter = Math::random(0.5f, 2.f);
             if (_adultCircleStates.size()) {
-                _nextState = _adultCircleStates.front();
-                if (_nextState == state_want_eat && !BirdsManager::IsFoodBusy()) {
+                BirdsStates ns = _adultCircleStates.front();
+                if (ns == state_want_eat && !BirdsManager::IsFoodBusy()) {
                     _waitingProgress.SetIcon("grain");
-                    BirdsManager::SetFoodBusy(true);
                     SwitchToWalk();
                     _actionTimeCounter = 20.f;
-                } else if (_nextState == state_want_drink && !BirdsManager::IsWaterBusy()) {
+					_nextState = ns;
+	                _adultCircleStates.pop_front();
+                } else if (ns == state_want_drink && !BirdsManager::IsWaterBusy()) {
                     _waitingProgress.SetIcon("water");
-                    BirdsManager::SetWaterBusy(true);
                     SwitchToWalk();
                     _actionTimeCounter = 20.f;
+					_nextState = ns;
+	                _adultCircleStates.pop_front();
                 } else {
-                    _nextState = state_none;
                     return;
                 }
-                _adultCircleStates.pop_front();
                 return;
             } else if (_sex == "b") {
                 _sex = "m";
@@ -238,7 +259,7 @@ void Archaeopteryx::SwitchToWalk() {
 	FPoint2D newPos;
 	do {
 		newPos = GetNewDirection();
-	} while (fabs(newPos.x - _pos.x) < fabs(newPos.y - _pos.y));
+	} while (fabs(newPos.x - _pos.x) * 1.7f < fabs(newPos.y - _pos.y));
 	_currentTarget = newPos;
 	SwitchAnimation();
 }
@@ -253,9 +274,9 @@ FPoint2D Archaeopteryx::GetDirection() {
 FPoint2D Archaeopteryx::GetNewDirection() {
 	//i = rand() % 2;
 	//return _region[1 + 2 * i];
-    if (_nextState == state_want_drink && (fabs(_waterPos.x - _pos.x) >= fabs(_waterPos.y - _pos.y))) {
+	if (_nextState == state_want_drink && (fabs(_waterPos.x - _pos.x) * 1.7f >= fabs(_waterPos.y - _pos.y))) {
         return _waterPos;
-    } else if (_nextState == state_want_eat && (fabs(_foodPos.x - _pos.x) >= fabs(_foodPos.y - _pos.y))) {
+    } else if (_nextState == state_want_eat && (fabs(_foodPos.x - _pos.x) * 1.7f >= fabs(_foodPos.y - _pos.y))) {
         return _foodPos;
     } else if (_nextState == state_want_eat || _nextState == state_want_drink) {
         return _turnPoint;

@@ -48,7 +48,8 @@ private:
 		state_angry,
 		state_want_eat,
 		state_want_drink,
-		state_none
+		state_none,
+		state_run_away
 	};
     BirdsStates _state;
     BirdsStates _nextState;
@@ -65,6 +66,11 @@ private:
     FPoint2D _waterPos;
     FPoint2D _turnPoint;
     bool _waitBasePosition;
+	std::vector<FPoint2D> _runAway;
+	int _runAwayPoint;
+	float _runAwayTimeCounter;
+
+	friend class BirdsManager;
 };
 
 #endif//MYENGINE_ARCHAEOPTERYX_H

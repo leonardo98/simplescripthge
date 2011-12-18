@@ -1,11 +1,9 @@
 #include "BirdsManager.h"
 #include "../Core/Math.h"
 
-std::vector<Archaeopteryx *> BirdsManager::_positions;
+std::vector<Archaeopteryx *> BirdsManager::_birds;
 
 void BirdsManager::Init(Waterpan *waterpan, Foodpan *foodpan) {
-    _foodBusy = false;
-    _waterBusy = false;
 	_waterpan = waterpan;
 	_foodpan = foodpan;
 }
@@ -17,15 +15,15 @@ float BirdsManager::Distance(const Archaeopteryx *a, const Archaeopteryx *b) {
 }
 
 void BirdsManager::UpdatePosition(Archaeopteryx *a, float dt) {
-	assert(0 <= a->_pos.x && a->_pos.x <= 1024);
+	assert(0 <= a->_pos.x && a->_pos.x <= 1124);
 	assert(0 <= a->_pos.y && a->_pos.y <= 768);
 	FPoint2D force(0.f, 0.f);
 	const float MIN_DIST = 35;
-	for (unsigned int i = 0; i < _positions.size(); ++i) {
-		float dist = Distance(_positions[i], a) + 1.f;
-		if (_positions[i] != a && dist < 2 * MIN_DIST) {
+	for (unsigned int i = 0; i < _birds.size(); ++i) {
+		float dist = Distance(_birds[i], a) + 1.f;
+		if (_birds[i] != a && dist < 2 * MIN_DIST) {
 			float f = 0.2f * MIN_DIST / dist;
-			force += f * (a->_pos - _positions[i]->_pos);
+			force += f * (a->_pos - _birds[i]->_pos);
 		}
 	}
 	FPoint2D dir = a->GetDirection();
@@ -40,7 +38,7 @@ void BirdsManager::UpdatePosition(Archaeopteryx *a, float dt) {
 			a->_pos += force;
 		}
 	}
-	assert(0 <= a->_pos.x && a->_pos.x <= 1024);
+	assert(0 <= a->_pos.x && a->_pos.x <= 1124);
 	assert(0 <= a->_pos.y && a->_pos.y <= 768);
 }
 
@@ -48,10 +46,10 @@ bool BirdsManager::FreePosition(Archaeopteryx *a) {
 	const float MIN_DIST = 25;
 	float dist;
 	FPoint2D dir;
-	for (unsigned int i = 0; i < _positions.size(); ++i) {
-		dist = Distance(_positions[i], a) + 1.f;
-		dir = _positions[i]->GetDirection();
-		if (_positions[i] != a && dir.Length() < 1.f && dist < 2 * MIN_DIST) {
+	for (unsigned int i = 0; i < _birds.size(); ++i) {
+		dist = Distance(_birds[i], a) + 1.f;
+		dir = _birds[i]->GetDirection();
+		if (_birds[i] != a && dir.Length() < 1.f && dist < 2 * MIN_DIST) {
 			return false;
 		}
 	}
@@ -59,27 +57,27 @@ bool BirdsManager::FreePosition(Archaeopteryx *a) {
 }
 
 int BirdsManager::Size() {
-	return _positions.size();
-}
-
-void BirdsManager::SetWaterBusy(bool busy) {
-    _waterBusy = busy;
+	return _birds.size();
 }
 
 bool BirdsManager::IsWaterBusy() {
-    return _waterBusy;
-}
-
-void BirdsManager::SetFoodBusy(bool busy) {
-    _foodBusy = busy;
+	for (Birds::iterator i = _birds.begin(), e = _birds.end(); i != e; ++i) {
+		if ((*i)->_state == Archaeopteryx::state_want_drink ||(*i)->_nextState == Archaeopteryx::state_want_drink) {
+			return true;
+		}
+	}
+    return false;
 }
 
 bool BirdsManager::IsFoodBusy() {
-    return _foodBusy;
+	for (Birds::iterator i = _birds.begin(), e = _birds.end(); i != e; ++i) {
+		if ((*i)->_state == Archaeopteryx::state_want_eat ||(*i)->_nextState == Archaeopteryx::state_want_eat) {
+			return true;
+		}
+	}
+    return false;
 }
 
-bool BirdsManager::_foodBusy;
-bool BirdsManager::_waterBusy;
 Waterpan *BirdsManager::_waterpan = NULL;
 Foodpan *BirdsManager::_foodpan = NULL;
 
