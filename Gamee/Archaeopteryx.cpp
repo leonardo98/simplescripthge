@@ -66,9 +66,9 @@ Archaeopteryx::Archaeopteryx()
     _adultCircleStates.push_back(state_want_drink);
     _adultCircleStates.push_back(state_want_eat);
     
-    _waterPos = FPoint2D(790, 680);
-    _foodPos = FPoint2D(720, 500);
-    _turnPoint = FPoint2D(1000, 590);
+    _waterPos = FPoint2D(771, 628);
+    _foodPos = FPoint2D(733, 540);
+    _turnPoint = FPoint2D(900, 595);
     
     _nextState = state_none;
 }
@@ -149,8 +149,8 @@ void Archaeopteryx::Update(float dt) {
 		_actionTimeCounter -= dt;
 		if (_state == state_walk) {
 			_pos += *(_currentTarget - _pos).Normalize() * SPEED * dt;
-            if ((_nextState == state_want_eat && (_pos - _foodPos).Length() < 10.f) 
-				|| (_nextState == state_want_drink && (_pos - _waterPos).Length() < 10.f)) {
+            if ((_nextState == state_want_eat && (_pos - _foodPos).Length() < SPEED * dt) 
+				|| (_nextState == state_want_drink && (_pos - _waterPos).Length() < SPEED * dt)) {
 				_state = _nextState;
 				_current = _leftIdle;
 				_nextState = state_none;
@@ -159,7 +159,7 @@ void Archaeopteryx::Update(float dt) {
 				return;
             }
 		}
-		if (_actionTimeCounter <= 0.f || (_state == state_walk && (_currentTarget - _pos).Length() < 10.f)) {
+		if (_actionTimeCounter <= 0.f || (_state == state_walk && (_currentTarget - _pos).Length() < SPEED * dt)) {
 			_actionTimeCounter = Math::random(1.5f, 4.f);
 			if (_state == state_eat0) {
 				if (Math::random(0.f, 1.f) > 0.5f) {
