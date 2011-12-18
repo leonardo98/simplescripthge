@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="SimpleScriptHGE"
+	Name="MyEngine"
 	ProjectGUID="{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}"
 	RootNamespace="SimpleScriptHGE"
 	AssemblyReferenceSearchPaths="&quot;..\..\CppLib\hge18&quot;;&quot;..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D&quot;;&quot;..\..\CppLib\lua&quot;;&quot;..\..\CppLib\tinyxml&quot;"
