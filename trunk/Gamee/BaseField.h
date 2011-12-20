@@ -24,6 +24,7 @@ protected:
 	void InnerDraw();
 	StaticSprite _empty;
 	StaticSprite _tab;
+	StaticSprite _tabIcon;
 	StaticSprite _tabShadow;
 	StaticSprite _cut;
 	std::vector<StaticSprite> _state;

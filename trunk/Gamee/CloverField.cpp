@@ -40,6 +40,8 @@ CloverField::CloverField() {
 	}
 
 	_stoneshelve_set1_c.Set(Core::getTexture("stoneshelve_set1_c"), 379, 232);
+
+	_tabIcon.Set(Core::getTexture("textures\\clouds\\icon_clover.png"), 545, 104);
 }
 
 void CloverField::DrawBottom() {
