@@ -18,21 +18,25 @@ void BaseField::DrawBottom() {
 		InnerDraw();
 		if (_capacity == -1) {
 			_tab.Render();
+			_tabIcon.Render();
 		}
 		Render::MatrixMove(2 * b, 0);
 		InnerDraw();
 		if (_capacity == -1) {
 			_tab.Render();
+			_tabIcon.Render();
 		}
 		Render::MatrixMove(-b, b);
 		InnerDraw();
 		if (_capacity == -1) {
 			_tab.Render();
+			_tabIcon.Render();
 		}
 		Render::MatrixMove(0, -2 * b);
 		InnerDraw();
 		if (_capacity == -1) {
 			_tab.Render();
+			_tabIcon.Render();
 		}
 		Render::PopMatrix();
 		Render::SetBlendMode(BLEND_DEFAULT);
@@ -47,12 +51,14 @@ void BaseField::Draw() {
 			Render::SetAlpha(alpha);
 			_tabShadow.Render();
 			_tab.Render();
+			_tabIcon.Render();
 			Render::SetAlpha(0xFF);
 		} else if (_capacity == 6) {
 			DWORD alpha = char(_effect * 0xFF);
 			Render::SetAlpha(alpha);
 			_tabShadow.Render();
 			_tab.Render();
+			_tabIcon.Render();
 			Render::SetAlpha(0xFF);
 		}
 		return;
@@ -60,6 +66,7 @@ void BaseField::Draw() {
 	if (_capacity == -1) {
 		_tabShadow.Render();
 		_tab.Render();
+		_tabIcon.Render();
 	}
 }
 

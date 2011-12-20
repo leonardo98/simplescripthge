@@ -30,5 +30,7 @@ GrainField::GrainField() {
 	for (int i = 0; i < grandpaPos.size(); ++i) {
 		grandpaPos[i] = PersPaths::SearchNearest(grandpaPos[i]);
 	}
+
+	_tabIcon.Set(Core::getTexture("textures\\clouds\\icon_grain.png"), 361, 104);
 }
 
