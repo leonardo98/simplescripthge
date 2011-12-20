@@ -272,6 +272,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\Client.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\ClientManager.cpp"
 					>
 				</File>
@@ -530,6 +534,10 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\CircleProgress.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\Client.h"
 					>
 				</File>
 				<File
