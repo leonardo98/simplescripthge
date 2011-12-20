@@ -259,7 +259,7 @@ void Archaeopteryx::SwitchToWalk() {
 	FPoint2D newPos;
 	do {
 		newPos = GetNewDirection();
-	} while (fabs(newPos.x - _pos.x) * 1.7f < fabs(newPos.y - _pos.y));
+	} while (_nextState != state_want_eat && _nextState != state_want_drink && fabs(newPos.x - _pos.x) * 1.7f < fabs(newPos.y - _pos.y));
 	_currentTarget = newPos;
 	SwitchAnimation();
 }
@@ -274,9 +274,9 @@ FPoint2D Archaeopteryx::GetDirection() {
 FPoint2D Archaeopteryx::GetNewDirection() {
 	//i = rand() % 2;
 	//return _region[1 + 2 * i];
-	if (_nextState == state_want_drink && (fabs(_waterPos.x - _pos.x) * 1.7f >= fabs(_waterPos.y - _pos.y))) {
+	if (_nextState == state_want_drink) {// && (fabs(_waterPos.x - _pos.x) * 1.7f >= fabs(_waterPos.y - _pos.y))) {
         return _waterPos;
-    } else if (_nextState == state_want_eat && (fabs(_foodPos.x - _pos.x) * 1.7f >= fabs(_foodPos.y - _pos.y))) {
+	} else if (_nextState == state_want_eat) {// && (fabs(_foodPos.x - _pos.x) * 1.7f >= fabs(_foodPos.y - _pos.y))) {
         return _foodPos;
     } else if (_nextState == state_want_eat || _nextState == state_want_drink) {
         return _turnPoint;
@@ -310,9 +310,9 @@ void Archaeopteryx::SwitchAnimation() {
 	} else if (angle <= M_PI / 8) {
 		_current = _left;
 	} else if (3 * M_PI / 8 <= angle && angle <= 5 * M_PI / 8) {
-		assert(false);
+		_current = _leftFront;
 	} else if (11 * M_PI / 8 <= angle && angle <= 13 * M_PI / 8) {
-		assert(false);
+		_current = _leftBack;
 	} else {
 		_current = _left;
 	}
