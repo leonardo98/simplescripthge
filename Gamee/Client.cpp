@@ -1,5 +1,6 @@
 #include "Client.h"
 #include "../Core/Math.h"
+#include "../Core/Variables.h"
 
 Client::Client(float positionX) 
 : SPEED(100.f)
@@ -428,6 +429,14 @@ void Client::SetProduct() {
 	_state = state_go_out;
 	_waitProductCounter = 0.f;
 	_coinsEffect = 0.f;
+
+	if (_coinsCounter > 6) {
+		Variables::SetAsInt("money", Variables::GetAsInt("money") + 30);
+	} else if (_coinsCounter > 3) {
+		Variables::SetAsInt("money", Variables::GetAsInt("money") + 20);
+	} else {
+		Variables::SetAsInt("money", Variables::GetAsInt("money") + 10);
+	}
 }
 
 ClientStates Client::GetState() {
@@ -455,7 +464,7 @@ bool Client::PixelCheck(const FPoint2D &mousePos) {
 }
 
 void Client::SetPos(float positionX) {
-	if (_state == state_stay || _state == state_go || _state == state_go_first) { // hack
+	if (_state == state_stay || _state == state_go) { // hack
 		_state = state_go;
 	}
 	float f = _positionX;

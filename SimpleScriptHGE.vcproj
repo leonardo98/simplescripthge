@@ -316,6 +316,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\Moneypod.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\MultiTexture.cpp"
 					>
 				</File>
@@ -586,6 +590,10 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\Mask.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\Moneypod.h"
 					>
 				</File>
 				<File

@@ -19,6 +19,17 @@ void Variables::Set(const char *variableName, const char *value)
 	assert(err == lua_gettop(l));
 }
 
+void Variables::SetAsInt(const char *variableName, int value)
+{
+	char buff[10];
+	sprintf(buff, "%i", value);
+	int err = lua_gettop(l);
+	lua_pushstring(l, variableName);
+	lua_pushstring(l, buff);
+	lua_settable(l, LUA_GLOBALSINDEX);
+	assert(err == lua_gettop(l));
+}
+
 std::string Variables::Get(const char *variableName)
 {
 	int err = lua_gettop(l);
@@ -33,4 +44,8 @@ std::string Variables::Get(const char *variableName)
 	lua_pop(l, 1);
 	assert(err == lua_gettop(l));
 	return value;
+}
+
+int Variables::GetAsInt(const char *variableName) {
+	return atoi(Get(variableName).c_str());
 }

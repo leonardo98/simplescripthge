@@ -20,6 +20,7 @@
 #include "Waterpan.h"
 #include "Foodpan.h"
 #include "ClientManager.h"
+#include "Moneypod.h"
 
 class GameField 
 	:public InputSystem
@@ -109,6 +110,8 @@ private:
 	static PopupMenus _popupMenus;
 
 	BaseElement *_lockMouseMove;
+
+	Moneypod _moneypod;
 
 	//StaticSprite _testBackground;
 };
