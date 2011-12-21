@@ -10,7 +10,9 @@ class Variables
 public:
 	static void Init(lua_State *L);
 	static void Set(const char *variableName, const char *value);
+	static void SetAsInt(const char *variableName, int value);
 	static std::string Get(const char *variableName);
+	static int GetAsInt(const char *variableName);
 private:
 	static lua_State *l;
 	friend class Mask;

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "../Core/Variables.h"
 #include "GameField.h"
 #include "BirdsManager.h"
 
@@ -74,6 +75,7 @@ GameField::GameField(TiXmlElement *xe)
 , _foodPan1(1)
 , _foodPan2(2)
 {
+	Variables::Set("money", "0");
 	BirdsManager::Init(&_waterPan2, &_foodPan2);
 	_buckPlace = new ProductPlace(pt_water);
 	_well = new EnvWell();
@@ -276,12 +278,9 @@ void GameField::Draw() {
 	Render::PopMatrix();
 	DrawBushes();
 	_clientsManager.Draw();
+	_moneypod.Draw();
 
 	_persPaths.Draw();
-
-	/*Render::SetAlpha(0x7F);
-	_testBackground.Render();
-	Render::SetAlpha(0xFF);*/
 }
 
 void GameField::OnMouseUp() {
@@ -323,6 +322,7 @@ void GameField::Update(float dt) {
 		//_updateList.push_back(a);
 	}
 	_clientsManager.Update(dt);
+	_moneypod.Update(dt);
 }
 
 GameField::~GameField(void) {
