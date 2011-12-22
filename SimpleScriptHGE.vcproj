@@ -59,6 +59,7 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="2"
 				PrecompiledHeaderFile=".\bin\Release/SimpleScriptHGE.pch"
 				AssemblerListingLocation=".\bin\Release/"
 				ObjectFile=".\bin\Release/"
@@ -155,8 +156,11 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TIXML_USE_STLWIN32;TIXML_USE_STL;HGE_COMPILE_KEY"
 				IgnoreStandardIncludePath="false"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="2"
+				SmallerTypeCheck="true"
 				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="0"
+				FloatingPointExceptions="false"
 				PrecompiledHeaderFile=".\bin\Debug/SimpleScriptHGE.pch"
 				AssemblerListingLocation=".\bin\Debug/"
 				ObjectFile=".\bin\Debug/"
@@ -274,6 +278,15 @@
 				<File
 					RelativePath=".\Gamee\Client.cpp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							BasicRuntimeChecks="2"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Gamee\ClientManager.cpp"
