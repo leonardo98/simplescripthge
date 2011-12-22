@@ -105,7 +105,6 @@ public:
 	void Update(float dt);
 	float Time();
 	void SetPos(const FPoint2D &pos, bool mirror);
-	void SetPos(const Matrix &transform);
 	bool PixelCheck(const FPoint2D &pos);
 	bool ReplaceTexture(const std::string &boneName, const char *texture);
 	//bool RemoveBone(const std::string &boneName, Bone *bone); 

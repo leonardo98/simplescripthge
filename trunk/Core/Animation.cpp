@@ -137,14 +137,6 @@ MovingPart::MovingPart(MovingPart &movinPart)
 
 void MovingPart::Draw(const Matrix &transform, float p) {
 	assert(0.f <= p && p < 1);
-	/*
-	_transform.Unit();
-	_transform.Move(-_center.x, -_center.y);
-	_transform.Scale(_scaleX.getGlobalFrame(p), _scaleY.getGlobalFrame(p));
-	_transform.Rotate(_angle.getGlobalFrame(p));
-	_transform.Move(_x.getGlobalFrame(p), _y.getGlobalFrame(p));	
-	_transform.Mul(transform);
-	*/
 	Render::PushMatrix();
 	float dp = p;
 	if (_discontinuous) {
@@ -153,6 +145,7 @@ void MovingPart::Draw(const Matrix &transform, float p) {
 		} else {
 			dp = static_cast<int>(p * _x.keys.size()) / static_cast<float>(_x.keys.size());
 		}
+		assert(0.f <= dp && dp < 1);
 	}
 	Render::MatrixMove(_x.getGlobalFrame(dp), _y.getGlobalFrame(dp));
 	Render::MatrixRotate(_angle.getGlobalFrame(dp));
@@ -307,6 +300,7 @@ IKTwoBone::IKTwoBone(IKTwoBone &twoBone)
 }
 
 void IKTwoBone::Draw(const Matrix &transform, float p) { // [ 0<= p <= 1 ]
+	assert(0 <= p && p < 1);
 	_local = &transform;
 	SetPos(_x.getGlobalFrame(p), _y.getGlobalFrame(p));
 	_firstTransform.Mul(transform);
@@ -452,9 +446,6 @@ void Animation::SetPos(const FPoint2D &pos, bool mirror) {
 		_mainMatrix.Scale(-1.f, 1.f);
 	}
 	_mainMatrix.Move(pos.x, pos.y);
-}
-
-void Animation::SetPos(const Matrix &transform) {
 }
 
 bool Animation::PixelCheck(const FPoint2D &pos) {

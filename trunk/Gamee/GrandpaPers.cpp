@@ -18,6 +18,7 @@ GrandpaPers::~GrandpaPers()
 GrandpaPers::GrandpaPers() 
 : SPEED(150.f)
 , _mirror(true)
+, _showAnimationCounter(0.f)
 {
 	_pos = PersPaths::RandomPos();
 
