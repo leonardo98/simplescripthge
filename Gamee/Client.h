@@ -29,6 +29,11 @@ public:
 	float GetPos();
 	std::string _productWant;
 	bool IsWaitProduct();
+
+	bool Seller();
+
+	void CreateSeller(const std::string &buyingType, int price);
+
 private:
 	float _positionX;
 	void DrawClient(float x, float y);
@@ -87,6 +92,13 @@ private:
 	int _coinsCounter;
 	int _oldCoinsCounter;
 	FPoint2D _pos;
+
+	// for rabbit seller
+	int _price;
+	std::string _buyingType;
+	Animation *_buying;
+
+	std::string _priceStr;
 };
 
 #endif//GAME1_CLIENT

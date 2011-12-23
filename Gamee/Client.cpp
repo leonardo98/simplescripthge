@@ -14,6 +14,7 @@ Client::Client(float positionX)
 , _basketWaveCounter(0.f)
 , _product(NULL)
 , _coinsEffect(0.f)
+, _buying(NULL)
 {
 	_oldCoinsCounter = _coinsCounter = MAX_COINS;
 	_positionX = 1100.f;
@@ -160,73 +161,80 @@ Client::Client(float positionX)
 	}
 	_progress.SetIcon("gui_" + _productWant);
 	_progress.Move(37, 44);
+
+	_silverAmount = Math::random(2, MAX_COINS - 2);
+	_xOffset.resize(MAX_COINS);
+	for (int i = 0; i < MAX_COINS; ++i) {
+		_xOffset[i] = Math::random(-2.5f, 2.5f);
+	}
 }
 
 void Client::DrawLeftHand() {
-	//_rightHandDrop.Render();
-	if (_xOffset.size() == 0) {
-		_silverAmount = Math::random(2, MAX_COINS - 2);
-		_xOffset.resize(MAX_COINS);
-		for (int i = 0; i < MAX_COINS; ++i) {
-			_xOffset[i] = Math::random(-2.5f, 2.5f);
-		}
-	}
-	if (_waitProductCounter > 0.f) {
-		_coinsCounter = 1 + (MAX_COINS - 1) * min(1.f, 1.3 * _waitProductCounter / WAIT_PRODUCT_TIME);
-		if (_oldCoinsCounter != _coinsCounter) {
-			_coinsEffect = 1.f;
-			_oldCoinsCounter = _coinsCounter;
-		}
-	} else if (_state == state_go_out) {
-		_coinsCounter = 0;
-	}
-	int n = MAX_COINS;
-	int i = MAX_COINS - _coinsCounter;
-	if (i < MAX_COINS) {
-		_xOffset[i] = 0.f;
-	}
-	float y = 0;
-	if (_coinsEffect > 0.f) {
-		const float UPEFFECT = 13.f;
-		float effectStep = STEP_UP + 2.f * sinf(M_PI * _coinsEffect);
-		if (_coinsEffect > 0.5f) {
-			i--; 
-			if (i < 0) {
-				int f = 0;
+	if (_buying == NULL) {
+		//_rightHandDrop.Render();
+		if (_waitProductCounter > 0.f) {
+			_coinsCounter = 1 + (MAX_COINS - 1) * min(1.f, 1.3 * _waitProductCounter / WAIT_PRODUCT_TIME);
+			if (_oldCoinsCounter != _coinsCounter) {
+				_coinsEffect = 1.f;
+				_oldCoinsCounter = _coinsCounter;
 			}
-			y -= UPEFFECT * sin (M_PI * _coinsEffect);
+		} else if (_state == state_go_out) {
+			_coinsCounter = 0;
+		}
+		int n = MAX_COINS;
+		int i = MAX_COINS - _coinsCounter;
+		if (i < MAX_COINS) {
+			_xOffset[i] = 0.f;
+		}
+		float y = 0;
+		if (_coinsEffect > 0.f) {
+			const float UPEFFECT = 13.f;
+			float effectStep = STEP_UP + 2.f * sinf(M_PI * _coinsEffect);
+			if (_coinsEffect > 0.5f) {
+				i--; 
+				if (i < 0) {
+					int f = 0;
+				}
+				y -= UPEFFECT * sin (M_PI * _coinsEffect);
+			} else {
+				y -= (UPEFFECT + STEP_UP) * sin (M_PI * _coinsEffect);
+			}
+			bool first = _coinsEffect > 0.5f;
+			for (; i < n; ++i) {
+				if (first) {
+					Render::SetAlpha(0xFF * max(0.f, (_coinsEffect - 0.5f)) / 0.5f);
+				}
+				if (i < _silverAmount) {
+					_coinGold->Render(_xOffset[i], y);
+				} else {
+					_coinSilver->Render(_xOffset[i], y);
+				}
+				y -= effectStep;
+				if (first) {
+					Render::SetAlpha(0xFF);
+					first = false;
+				}
+			}
+			Render::PushMatrix();
+			Render::MatrixMove(0.f, -UPEFFECT * sin (M_PI * _coinsEffect));
+			_leftHand.Render();
+			Render::PopMatrix();
 		} else {
-			y -= (UPEFFECT + STEP_UP) * sin (M_PI * _coinsEffect);
+			for (; i < n; ++i) {
+				if (i < _silverAmount) {
+					_coinGold->Render(_xOffset[i], y);
+				} else {
+					_coinSilver->Render(_xOffset[i], y);
+				}
+				y -= STEP_UP;
+			}
+			_leftHand.Render();
 		}
-		bool first = _coinsEffect > 0.5f;
-		for (; i < n; ++i) {
-			if (first) {
-				Render::SetAlpha(0xFF * max(0.f, (_coinsEffect - 0.5f)) / 0.5f);
-			}
-			if (i < _silverAmount) {
-				_coinGold->Render(_xOffset[i], y);
-			} else {
-				_coinSilver->Render(_xOffset[i], y);
-			}
-			y -= effectStep;
-			if (first) {
-				Render::SetAlpha(0xFF);
-				first = false;
-			}
-		}
-		Render::PushMatrix();
-		Render::MatrixMove(0.f, -UPEFFECT * sin (M_PI * _coinsEffect));
-		_leftHand.Render();
-		Render::PopMatrix();
 	} else {
-		for (; i < n; ++i) {
-			if (i < _silverAmount) {
-				_coinGold->Render(_xOffset[i], y);
-			} else {
-				_coinSilver->Render(_xOffset[i], y);
-			}
-			y -= STEP_UP;
-		}
+		Render::PushMatrix();
+		Render::MatrixMove(120, 136);
+		_buying->Draw();
+		Render::PopMatrix();
 		_leftHand.Render();
 	}
 }
@@ -262,7 +270,7 @@ void Client::DrawRightHand() {
 		_basketWire[_basketType].Render();
 	} else {
 		_rightHand.Render();
-	}
+	}	
 	if (_product) {
 		_product->Render(11, 90);// иконка чуток не попадала - подвинул
 	}
@@ -275,7 +283,9 @@ void Client::DrawRightHand() {
 void Client::DrawClient(float x, float y) {
 	Render::PushMatrix();
 	Render::MatrixMove(x, y);
-	DrawRightHand();
+	if (_buying == NULL) {
+		DrawRightHand();
+	}
 	_body.Render(); 
 	Render::PushMatrix();
 	Render::MatrixMove(97.f, 103.f);// точка качания головы
@@ -314,6 +324,9 @@ void Client::DrawClient(float x, float y) {
 		_progress.Draw(0.f);
 	}
 	Render::PopMatrix();
+	if (_waitProductCounter > 0.f) {
+		Render::PrintString(_pos.x + 37, _pos.y + 30, "data\\fonts\\arialblack20.fnt", _priceStr, 0xFF000000);
+	}
 }
 
 void Client::Draw() {
@@ -389,7 +402,7 @@ void Client::Update(float dt) {
 		_headAngle.addKey(0.f);
 		_headAngle.CalculateGradient(true);
 	}
-	if (_waitProductCounter > 0.f) {
+	if (_waitProductCounter > 0.f && _buying == NULL) {
 		_waitProductCounter -= dt;
 		if (_waitProductCounter <= 0.f) {
 			//_state = state_time_out;
@@ -482,4 +495,27 @@ float Client::GetPos() {
 
 bool Client::IsWaitProduct() {
 	return _waitProductCounter > 0.f;
+}
+
+void Client::CreateSeller(const std::string &buyingType, int price) {
+	std::string birdsType, sex;
+	if (rand() % 2 == 1) {
+		birdsType = "archaeopteryx";
+	} else {
+		birdsType = "dodo";
+	}
+	if (rand() % 2 == 1) {
+		sex = "g";
+	} else {
+		sex = "b";
+	}
+
+	_buying = new Animation(*Core::getAnimation( birdsType + "_" + sex + "_left"));
+	_buyingType = buyingType;
+	_price = price;
+	_progress.SetText(_priceStr = Math::IntToStr(price));	
+}
+
+bool Client::Seller() {
+	return _buying != NULL;
 }

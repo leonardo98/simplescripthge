@@ -20,6 +20,8 @@ private:
 	Clients _clients;
 	float _newClientTimeCounter;
 	int _clientCounter;
+
+	Clients _sellers;
 };
 
 #endif//MYENGINE_CLIENTMANAGER_H
