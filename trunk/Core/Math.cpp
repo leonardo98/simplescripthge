@@ -149,3 +149,9 @@ bool Math::GetCirclesIntersect2(float x1, float y1, float r1, float x2, float y2
 	q2 = o - po;
 	return true;
 }
+
+std::string Math::IntToStr(int i) {
+	char buff[10];
+	sprintf(buff, "%i", i);
+	return buff;
+}

@@ -19,10 +19,26 @@ ClientManager::ClientManager()
 {
 }
 
+void ClientManager::OnMouseDown(const FPoint2D &mousePos) {
+	if (_activeClient->Seller()) {
+
+	} else if (_activeClient != NULL && _activeClient->IsWaitProduct() && _activeClient->_productWant == AnnaPers::GetProductType()) {
+		AnnaPers::DropProduct();
+		_activeClient->SetProduct();
+		_newClientTimeCounter = Math::random(0.1f, 0.3f);
+	}
+}
+
 void ClientManager::OnMouseMove(const FPoint2D &mousePos) {
 	Client *old = _activeClient;
 	_activeClient = NULL;
 	for (Clients::iterator i = _clients.begin(), e = _clients.end(); i != e; ++i) {
+		if ((*i)->IsWaitProduct() && (*i)->PixelCheck(mousePos)) {
+			_activeClient = (*i);
+			break;
+		}
+	}
+	for (Clients::iterator i = _sellers.begin(), e = _sellers.end(); i != e; ++i) {
 		if ((*i)->IsWaitProduct() && (*i)->PixelCheck(mousePos)) {
 			_activeClient = (*i);
 			break;
@@ -57,9 +73,36 @@ void ClientManager::Draw() {
 		}
 		(*i)->Draw();
 	}
+	for (Clients::iterator i = _sellers.begin(), e = _sellers.end(); i != e; ++i) {
+		if (_activeClient == (*i)) {
+			float b = 2;
+			Render::SetBlendMode(3);
+			Render::PushMatrix();
+			Render::MatrixMove(-b, 0);
+			(*i)->Draw();
+			Render::MatrixMove(2 * b, 0);
+			(*i)->Draw();
+			Render::MatrixMove(-b, b);
+			(*i)->Draw();
+			Render::MatrixMove(0, -2 * b);
+			(*i)->Draw();
+			Render::PopMatrix();
+			Render::SetBlendMode(BLEND_DEFAULT);
+		}
+		(*i)->Draw();
+	}
 }
 
 void ClientManager::Update(float dt) {
+	for (Clients::iterator i = _sellers.begin(); i != _sellers.end(); ) {
+		(*i)->Update(dt);
+		if ((*i)->GetState() == state_finish) {
+			delete (*i);
+			i = _sellers.erase(i);
+		} else {
+			++i;
+		}
+	}
 	std::vector<Client *> freePosition(MAX, NULL);
 	for (Clients::iterator i = _clients.begin(); i != _clients.end(); ) {
 		(*i)->Update(dt);
@@ -82,6 +125,11 @@ void ClientManager::Update(float dt) {
 			if (_clientCounter < 4) {
 				_newClientTimeCounter = Math::random(2.f, 4.f);
 			} else {
+				if (_sellers.size() == 0) {
+					Client *s = new Client(FIRST + STEP * 4);
+					s->CreateSeller("", 100);
+					_sellers.push_back(s);
+				}
 				_newClientTimeCounter = Math::random(0.1f, 0.3f);
 			}
 			for (int i = 0; i < MAX; ++i) {
@@ -105,13 +153,5 @@ void ClientManager::Update(float dt) {
 				}
 			}
 		}
-	}
-}
-
-void ClientManager::OnMouseDown(const FPoint2D &mousePos) {
-	if (_activeClient != NULL && _activeClient->IsWaitProduct() && _activeClient->_productWant == AnnaPers::GetProductType()) {
-		AnnaPers::DropProduct();
-		_activeClient->SetProduct();
-		_newClientTimeCounter = Math::random(0.1f, 0.3f);
 	}
 }

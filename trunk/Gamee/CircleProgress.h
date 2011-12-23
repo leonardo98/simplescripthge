@@ -12,6 +12,7 @@ public:
 	void Move(float x, float y);
 	bool PixelCheck(const FPoint2D &pos);
 	void SetIcon(const std::string &icon);
+	void SetText(const std::string &text);
 private:
 	std::vector<hgeTriple> _cover;
 	FPoint2D _offset;
@@ -19,6 +20,7 @@ private:
 	int _filled;
 	StaticSprite _origin;
 	StaticSprite _icon;
+	std::string _text;
 	float _cx;
 	float _cy;
 };

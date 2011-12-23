@@ -1,7 +1,9 @@
 #include "CircleProgress.h"
 #include "../Core/Core.h"
 
-CircleProgress::CircleProgress() {
+CircleProgress::CircleProgress()
+: _text("")
+{
 	Texture *texture = Core::getTexture("textures\\clouds\\icon_b_bubble.png");
 	_origin.Set(texture);
 	_center.x = 59;
@@ -49,8 +51,12 @@ void CircleProgress::DrawShow(float p) {
 	_origin.SetTransform(t);
 	_origin.Render();
 	Render::PushMatrix();
-	Render::MatrixMove(_offset.x - _icon.SpriteWidth() / 2, _offset.y - _icon.SpriteHeight() / 2);
-	_icon.Render();
+	if (_text.size()) {
+		Render::PrintString(_offset.x - _origin.SpriteWidth() / 2, _offset.y - _origin.SpriteHeight() / 2, "data\\fonts\\arialblack20.fnt", _text);
+	} else {
+		Render::MatrixMove(_offset.x - _icon.SpriteWidth() / 2, _offset.y - _icon.SpriteHeight() / 2 - 3);
+		_icon.Render();
+	}
 	Render::PopMatrix();
 }
 
@@ -96,7 +102,6 @@ void CircleProgress::Draw(float p) {
 		Render::Draw(t);
 	}
 	int last = static_cast<int>(8 * p);
-	//p = 8 * p - static_cast<int>(8 * p);
 	float x = sin(2 * M_PI * p);
 	float y = cos(2 * M_PI * p);
 
@@ -118,8 +123,12 @@ void CircleProgress::Draw(float p) {
 	}
 	Render::Draw(t);
 	Render::PushMatrix();
-	Render::MatrixMove(_offset.x - _icon.SpriteWidth() / 2, _offset.y - _icon.SpriteHeight() / 2);
-	_icon.Render();
+	if (_text.size()) {
+		Render::PrintString(_offset.x - _origin.SpriteWidth() / 2, _offset.y - _origin.SpriteHeight() / 2, "data\\fonts\\arialblack20.fnt", _text, 0xFF000000);
+	} else {
+		Render::MatrixMove(_offset.x - _icon.SpriteWidth() / 2, _offset.y - _icon.SpriteHeight() / 2 - 3);
+		_icon.Render();
+	}
 	Render::PopMatrix();
 }
 
@@ -127,7 +136,6 @@ void CircleProgress::Move(float x, float y) {
 	Matrix t;
 	t.Move(x - _center.x, y - _center.y);
 	_origin.SetTransform(t);
-	//_icon.SetTransform(t);
 	_offset.x = x;
 	_offset.y = y;
 }
@@ -142,4 +150,8 @@ void CircleProgress::SetIcon(const std::string &icon) {
 	} else {
 		_icon.Set(Core::getTexture(icon));
 	}
+}
+
+void CircleProgress::SetText(const std::string &text) {
+	_text = text;
 }
