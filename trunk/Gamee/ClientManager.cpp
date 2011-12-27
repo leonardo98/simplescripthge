@@ -103,7 +103,7 @@ void ClientManager::Update(float dt) {
 			++i;
 		}
 	}
-	std::vector<Client *> freePosition(MAX, NULL);
+	std::vector<Client *> freePosition(MAX, (Client *)NULL);
 	for (Clients::iterator i = _clients.begin(); i != _clients.end(); ) {
 		(*i)->Update(dt);
 		int screenPosition = ((*i)->GetPos() - FIRST) / STEP;
