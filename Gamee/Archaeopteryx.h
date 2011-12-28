@@ -8,7 +8,7 @@
 class Archaeopteryx : public BaseElement
 {
 public:
-	Archaeopteryx();
+	Archaeopteryx(const std::string &birdId = "");
 	virtual void Draw();
 	//virtual void DrawBottom();
 	virtual void Update(float dt);

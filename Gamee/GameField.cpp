@@ -75,7 +75,7 @@ GameField::GameField(TiXmlElement *xe)
 , _foodPan1(1)
 , _foodPan2(2)
 {
-	Variables::Set("money", "0");
+	Variables::Set("money", "1000");
 	BirdsManager::Init(&_waterPan2, &_foodPan2);
 	_buckPlace = new ProductPlace(pt_water);
 	_well = new EnvWell();
@@ -363,6 +363,16 @@ ProductPlace * GameField::GetBuckPlace() {
 EnvWell * GameField::GetWell() {
 	return _well;
 }
+
+GameField::Birds GameField::_archaeopteryx;
+GameField::RenderList GameField::_renderList;
+
+void GameField::AddBird(const std::string &birdId) {
+	Archaeopteryx *a = new Archaeopteryx(birdId);
+	_archaeopteryx.push_back(a);
+	_renderList.push_back(a);
+}
+
 
 ProductPlace * GameField::_buckPlace;
 EnvWell * GameField::_well;
