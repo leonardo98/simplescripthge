@@ -2,28 +2,9 @@
 #include "../Core/Math.h"
 #include "../Core/Variables.h"
 
-Client::Client(float positionX) 
-: SPEED(100.f)
-, WAIT_PRODUCT_TIME(180.f)
-, _stopEffect(0.f)
-, MAX_COINS(8)
-, STEP_UP(8)
-, _busketUpCounter(0.f)
-, _iActive(false)
-, _stableTime(0.f)
-, _basketWaveCounter(0.f)
-, _product(NULL)
-, _coinsEffect(0.f)
-, _buying(NULL)
-{
-	_oldCoinsCounter = _coinsCounter = MAX_COINS;
-	_positionX = 1100.f;
-	SetPos(positionX);
-	_state = state_go_first;
-	_waitProductCounter = 0.f;
-
+void Client::Init(int index) {
 	std::string id("Clients1set\\Client101\\c101");
-	int r = rand() % 10 + 1;
+	int r = index;
 	if (2 <= r && r <= 9) {
 		id[25] = id[20] = '0' + r;
 	} else {
@@ -95,9 +76,6 @@ Client::Client(float positionX)
 		_basketType = rand() % 6;
 	} 
 
-	_coinGold = Core::getTexture("Clients1set\\Client101\\coin_g.png");
-	_coinSilver = Core::getTexture("Clients1set\\Client101\\coin_s.png");
-
 	_hatBack = NULL;
 	int h = rand() % 6;
 	//_hat = Core::getTexture("Clients1set\\Client101\\builder_decorator_head_cl_hat.png");
@@ -134,6 +112,39 @@ Client::Client(float positionX)
 	} else {
 		_eyesGlass = NULL;
 	}
+}
+
+Client::~Client() {
+	if (_buying != NULL) {
+		delete _buying;
+	}
+}
+
+Client::Client(float positionX) 
+: SPEED(100.f)
+, WAIT_PRODUCT_TIME(180.f)
+, _stopEffect(0.f)
+, MAX_COINS(8)
+, STEP_UP(8)
+, _busketUpCounter(0.f)
+, _iActive(false)
+, _stableTime(0.f)
+, _basketWaveCounter(0.f)
+, _product(NULL)
+, _coinsEffect(0.f)
+, _buying(NULL)
+, _happy(false)
+{
+	_oldCoinsCounter = _coinsCounter = MAX_COINS;
+	_positionX = 1100.f;
+	SetPos(positionX);
+	_state = state_go_first;
+	_waitProductCounter = 0.f;
+
+	Init(rand() % 10 + 1);
+	_coinGold = Core::getTexture("Clients1set\\Client101\\coin_g.png");
+	_coinSilver = Core::getTexture("Clients1set\\Client101\\coin_s.png");
+
 
 	_headAngle.Clear();
 	_headAngle.addKey(0.f);
@@ -145,7 +156,7 @@ Client::Client(float positionX)
 	MUL_HEAD_COUNTER = 0.4f;
 	_eyesCounter = 0.f;
 
-	r = rand() % 6;
+	int r = rand() % 6;
 	if (r == 0) {
 		_productWant = "onion";
 	} else if (r == 1) {
@@ -240,6 +251,9 @@ void Client::DrawLeftHand() {
 }
 
 void Client::DrawRightHand() {
+	if (_happy) {
+		return;
+	}
 	Render::PushMatrix();
 	Render::MatrixMove(85, 120);// точка крепления плеча к телу
 	float angle = 0.f;
@@ -307,7 +321,7 @@ void Client::DrawClient(float x, float y) {
 		} else if (f < 0.2f) {
 			_angry.Render();
 		}
-	} else if (_state == state_go_first || _product != NULL) {
+	} else if (_state == state_go_first || _product != NULL || _happy) {
 		_smile.Render();
 	} else if (_product == NULL) {
 		_angry.Render();
@@ -405,7 +419,6 @@ void Client::Update(float dt) {
 	if (_waitProductCounter > 0.f && _buying == NULL) {
 		_waitProductCounter -= dt;
 		if (_waitProductCounter <= 0.f) {
-			//_state = state_time_out;
 			SetPos(-100.f);
 			_state = state_go_out;
 		}
@@ -456,24 +469,40 @@ ClientStates Client::GetState() {
 	return _state;
 }
 
+void Client::SetState(ClientStates state) {
+	_state = state;
+	if (state == state_go_out && _buying != NULL) {
+		delete _buying;
+		_buying = NULL;
+		_waitProductCounter = 0.f;
+		_hasBasket = false;
+		_happy = true;
+		_busketUpCounter = 0.f;
+	} 
+}
+
 bool Client::PixelCheck(const FPoint2D &mousePos) {
 	bool b = false;
 	FPoint2D startPos(109, 82 - _coinsCounter * STEP_UP);
 	startPos += _pos;
 	float w = 45;
 	float h = 32 + _coinsCounter * STEP_UP;
+	if (hgeRect(_pos.x + 20, _pos.y + 50, _pos.x + 140, _pos.y + 200).TestPoint(mousePos.x, mousePos.y)) {
+		return true;
+	}
 	if (hgeRect(startPos.x, startPos.y, startPos.x + w, startPos.y + h).TestPoint(mousePos.x, mousePos.y)) {
 		return true;
 	}
 	return 
-		(_body.PixelCheck(mousePos)
+		(_progress.PixelCheck(mousePos)
 		|| _head.PixelCheck(mousePos)
+		|| _body.PixelCheck(mousePos)
 		|| (_hasBasket && _basketBack[_basketType].PixelCheck(mousePos))
 		|| (_hasBasket && _basketFront[_basketType].PixelCheck(mousePos))
 		|| _leftHand.PixelCheck(mousePos)
 		|| _rightHand.PixelCheck(mousePos)
 		|| _rightUpperArm.PixelCheck(mousePos)
-		|| _progress.PixelCheck(mousePos));
+		);
 }
 
 void Client::SetPos(float positionX) {
@@ -498,24 +527,22 @@ bool Client::IsWaitProduct() {
 }
 
 void Client::CreateSeller(const std::string &buyingType, int price) {
-	std::string birdsType, sex;
-	if (rand() % 2 == 1) {
-		birdsType = "archaeopteryx";
-	} else {
-		birdsType = "dodo";
-	}
-	if (rand() % 2 == 1) {
-		sex = "g";
-	} else {
-		sex = "b";
-	}
 
-	_buying = new Animation(*Core::getAnimation( birdsType + "_" + sex + "_left"));
+	Init(6);// бабушка
 	_buyingType = buyingType;
+	_buying = new Animation(*Core::getAnimation( _buyingType + "_left"));
 	_price = price;
 	_progress.SetText(_priceStr = Math::IntToStr(price));	
 }
 
 bool Client::Seller() {
 	return _buying != NULL;
+}
+
+int Client::Price() {
+	return _price;
+}
+
+const std::string &Client::Good() {
+	return _buyingType;
 }

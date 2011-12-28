@@ -42,6 +42,7 @@ public:
 	static void RemovePopupMenu(PopupMenu *menu);
 	static ProductPlace * GetBuckPlace();
 	static EnvWell * GetWell();
+	static void AddBird(const std::string &birdId);
 
 private:
 
@@ -63,7 +64,7 @@ private:
 	StaticSprite _stoneshelve_set1_e;
 
 	typedef std::vector<BaseElement *> RenderList;
-	RenderList _renderList;
+	static RenderList _renderList;
 	RenderList _updateList;
 
 	PersPaths _persPaths;
@@ -91,7 +92,7 @@ private:
 	Foodpan _foodPan1;
 	Foodpan _foodPan2;
 	typedef std::vector<Archaeopteryx *> Birds;
-	Birds _archaeopteryx;
+	static Birds _archaeopteryx;
 	SwampPlace _swampPlace;
 
 	StaticSprite _bush1;

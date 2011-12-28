@@ -18,6 +18,7 @@ enum ClientStates {
 
 class Client {
 public:
+	~Client();
 	Client(float positionX);
 	void Draw();
 	void Update(float dt);
@@ -29,9 +30,12 @@ public:
 	float GetPos();
 	std::string _productWant;
 	bool IsWaitProduct();
+	void SetState(ClientStates state);
 
 	bool Seller();
 
+	int Price();
+	const std::string &Good();
 	void CreateSeller(const std::string &buyingType, int price);
 
 private:
@@ -39,6 +43,8 @@ private:
 	void DrawClient(float x, float y);
 	void DrawLeftHand();
 	void DrawRightHand();
+	void Init(int index);
+
 	StaticSprite _body;
 	StaticSprite _head;
 	StaticSprite _angry;
@@ -99,6 +105,7 @@ private:
 	Animation *_buying;
 
 	std::string _priceStr;
+	bool _happy;
 };
 
 #endif//GAME1_CLIENT

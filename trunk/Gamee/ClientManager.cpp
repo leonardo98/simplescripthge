@@ -2,6 +2,8 @@
 #include "../Core/Math.h"
 #include "ClientManager.h"
 #include "AnnaPers.h"
+#include "GameField.h"
+#include "../Core/Variables.h"
 
 ClientManager::~ClientManager() {
 	for (Clients::iterator i = _clients.begin(), e = _clients.end(); i != e; ++i) {
@@ -20,9 +22,17 @@ ClientManager::ClientManager()
 }
 
 void ClientManager::OnMouseDown(const FPoint2D &mousePos) {
+	if (_activeClient == NULL) {
+		return;
+	}
 	if (_activeClient->Seller()) {
-
-	} else if (_activeClient != NULL && _activeClient->IsWaitProduct() && _activeClient->_productWant == AnnaPers::GetProductType()) {
+		if (Variables::GetAsInt("money") > _activeClient->Price()) {
+			GameField::AddBird(_activeClient->Good());
+			Variables::SetAsInt("money", Variables::GetAsInt("money") - _activeClient->Price());
+			_activeClient->SetPos(-100.f);
+			_activeClient->SetState(state_go_out);
+		}
+	} else if (_activeClient->IsWaitProduct() && _activeClient->_productWant == AnnaPers::GetProductType()) {
 		AnnaPers::DropProduct();
 		_activeClient->SetProduct();
 		_newClientTimeCounter = Math::random(0.1f, 0.3f);
@@ -55,7 +65,7 @@ void ClientManager::OnMouseMove(const FPoint2D &mousePos) {
 }
 
 void ClientManager::Draw() {
-	for (Clients::iterator i = _clients.begin(), e = _clients.end(); i != e; ++i) {
+	for (Clients::iterator i = _sellers.begin(), e = _sellers.end(); i != e; ++i) {
 		if (_activeClient == (*i)) {
 			float b = 2;
 			Render::SetBlendMode(3);
@@ -73,7 +83,7 @@ void ClientManager::Draw() {
 		}
 		(*i)->Draw();
 	}
-	for (Clients::iterator i = _sellers.begin(), e = _sellers.end(); i != e; ++i) {
+	for (Clients::iterator i = _clients.begin(), e = _clients.end(); i != e; ++i) {
 		if (_activeClient == (*i)) {
 			float b = 2;
 			Render::SetBlendMode(3);
@@ -127,7 +137,20 @@ void ClientManager::Update(float dt) {
 			} else {
 				if (_sellers.size() == 0) {
 					Client *s = new Client(FIRST + STEP * 4);
-					s->CreateSeller("", 100);
+
+					std::string birdsType, sex;
+					if (rand() % 2 == 1) {
+						birdsType = "archaeopteryx";
+					} else {
+						birdsType = "dodo";
+					}
+					if (rand() % 2 == 1) {
+						sex = "g";
+					} else {
+						sex = "b";
+					}
+					s->CreateSeller(birdsType + "_" + sex, 100);
+
 					_sellers.push_back(s);
 				}
 				_newClientTimeCounter = Math::random(0.1f, 0.3f);

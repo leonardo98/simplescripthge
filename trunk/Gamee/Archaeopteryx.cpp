@@ -5,35 +5,42 @@
 
 const float Archaeopteryx::SPEED = 80.f;
 
-Archaeopteryx::Archaeopteryx() 
+Archaeopteryx::Archaeopteryx(const std::string &birdId) 
 : _mirror(rand() % 2 == 1)
 {
 	BirdsManager::_birds.push_back(this);
 
-	if (rand() % 2 == 1) {
-		_birdsType = "archaeopteryx";
+	if (birdId != "") {
+		_birdsType = birdId.substr(0, birdId.length() - 2);
+		_sex = birdId[birdId.length() - 1];
+		_boy = (_sex == "b");
+		_lifeTimeCounter = Math::random(0.1f, 2.f);
 	} else {
-		_birdsType = "dodo";
-	}
-
-	_boy = (rand() % 2 == 1);
-
-	if (rand() % 2 <= 1) {
-		_age = age_young;
-		if (_boy) {
-			_sex = "b";
+		if (rand() % 2 == 1) {
+			_birdsType = "archaeopteryx";
 		} else {
-			_sex = "g";            
+			_birdsType = "dodo";
 		}
-        _lifeTimeCounter = Math::random(0.1f, 2.f);
-	} else {
-		_age = age_adult;
-		if (_boy) {
-			_sex = "m";
+
+		_boy = (rand() % 2 == 1);
+
+		if (rand() % 2 <= 1) {
+			_age = age_young;
+			if (_boy) {
+				_sex = "b";
+			} else {
+				_sex = "g";            
+			}
+			_lifeTimeCounter = Math::random(0.1f, 2.f);
 		} else {
-			_sex = "w";
+			_age = age_adult;
+			if (_boy) {
+				_sex = "m";
+			} else {
+				_sex = "w";
+			}
+			_lifeTimeCounter = 0.f;
 		}
-        _lifeTimeCounter = 0.f;
 	}
     
     SetupAnimation();
