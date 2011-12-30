@@ -1,6 +1,7 @@
 #include "Archaeopteryx.h"
 #include "../Core/Core.h"
 #include "BirdsManager.h"
+#include "ProductManager.h"
 #include "../Core/Math.h"
 
 const float Archaeopteryx::SPEED = 80.f;
@@ -84,10 +85,16 @@ Archaeopteryx::Archaeopteryx(const std::string &birdId)
     _adultCircleStates.push_back(state_want_eat);
     _adultCircleStates.push_back(state_want_drink);
     _adultCircleStates.push_back(state_want_eat);
+
+	_productCircleStates.push_back(state_want_drink);
+    _productCircleStates.push_back(state_want_eat);
+    _productCircleStates.push_back(state_want_drink);
+    _productCircleStates.push_back(state_want_eat);
     
     _waterPos = FPoint2D(771, 628);
     _foodPos = FPoint2D(733, 540);
     _turnPoint = FPoint2D(900, 595);
+	_eggPos = FPoint2D(900, 595);
 
     _nextState = state_none;
 }
@@ -140,7 +147,7 @@ void Archaeopteryx::Update(float dt) {
 		_runAwayTimeCounter -= dt;
 	}
     if (_waitingTimeCounter > 0.f) {
-        _waitingTimeCounter -= dt / 40.f; // время ожидания(40)
+        _waitingTimeCounter -= dt / 60.f; // время ожидания(60)
 		if (_state == state_want_drink && !BirdsManager::IsWaterEmpty()) {
 			_state = state_idle;
 			_current = _lefteat;
@@ -185,7 +192,11 @@ void Archaeopteryx::Update(float dt) {
 				_mirror = false;
 				_waitingTimeCounter = 1.f;
 				return;
-            }
+			} else if (_nextState == state_dodo_egg && (_pos - _eggPos).Length() < SPEED * dt) {
+				ProductManager::PlaceProduct(pt_egg, "eggs_dodo", 0.f);
+				_nextState = state_none;
+				return;
+			}
 		}
 		if (_actionTimeCounter <= 0.f || (_state == state_walk && (_currentTarget - _pos).Length() < SPEED * dt)) {
 			_actionTimeCounter = Math::random(1.5f, 4.f);
@@ -220,39 +231,57 @@ void Archaeopteryx::Update(float dt) {
         _lifeTimeCounter -= dt * 0.5f;
         if (_lifeTimeCounter <= 0.f) {
             _lifeTimeCounter = Math::random(0.5f, 2.f);
+			BirdsStates ns;
+			CircleStates *currentStates = NULL;
             if (_adultCircleStates.size()) {
-                BirdsStates ns = _adultCircleStates.front();
-                if (ns == state_want_eat && !BirdsManager::IsFoodBusy()) {
-                    _waitingProgress.SetIcon("grain");
-                    SwitchToWalk();
-                    _actionTimeCounter = 20.f;
-					_nextState = ns;
-	                _adultCircleStates.pop_front();
-                } else if (ns == state_want_drink && !BirdsManager::IsWaterBusy()) {
-                    _waitingProgress.SetIcon("water");
-                    SwitchToWalk();
-                    _actionTimeCounter = 20.f;
-					_nextState = ns;
-	                _adultCircleStates.pop_front();
-                } else {
-                    return;
-                }
-                return;
-            } else if (_sex == "b") {
-                _sex = "m";
-            } else {
-                _sex = "w";
+                ns = _adultCircleStates.front();
+				currentStates = &_adultCircleStates;
+			} else if (_sex == "b" || _sex == "g") {
+				if (_sex == "b") {
+					_sex = "m";
+	            } else {
+		            _sex = "w";
+				}
+			    SetupAnimation();
+				return;
+			} else if (_productCircleStates.size()) {
+                ns = _productCircleStates.front();
+				currentStates = &_productCircleStates;
+			} else {
+				_productCircleStates.push_back(state_want_drink);
+				_productCircleStates.push_back(state_want_eat);
+				_productCircleStates.push_back(state_want_drink);
+				_productCircleStates.push_back(state_want_eat);
+				if (_sex == "w") {
+					if (_birdsType == "dodo") {
+						_nextState = state_dodo_egg;
+					} else {
+						_nextState = state_archaeopteryx_puh;
+					}
+					_nextState = state_dodo_egg;//test
+					SwitchToWalk();
+					_actionTimeCounter = 20.f;
+				}
+				return;
+			}
+            if (ns == state_want_eat && !BirdsManager::IsFoodBusy()) {
+                _waitingProgress.SetIcon("grain");
+                SwitchToWalk();
+                _actionTimeCounter = 20.f;
+				_nextState = ns;
+                currentStates->pop_front();
+            } else if (ns == state_want_drink && !BirdsManager::IsWaterBusy()) {
+                _waitingProgress.SetIcon("water");
+                SwitchToWalk();
+                _actionTimeCounter = 20.f;
+				_nextState = ns;
+                currentStates->pop_front();
             }
-            SetupAnimation();
         }
     }
 }
 
 void Archaeopteryx::SwitchToIdle() {
-
-	//SwitchToWalk();
-	//return;
-
 	_state = state_idle;
 	if (_current == _left) {
 		_current = _leftIdle;
@@ -266,7 +295,10 @@ void Archaeopteryx::SwitchToWalk() {
 	FPoint2D newPos;
 	do {
 		newPos = GetNewDirection();
-	} while (_nextState != state_want_eat && _nextState != state_want_drink && fabs(newPos.x - _pos.x) * 1.7f < fabs(newPos.y - _pos.y));
+	} while (_nextState != state_want_eat 
+		&& _nextState != state_want_drink 
+		&& _nextState != state_dodo_egg 
+		&& fabs(newPos.x - _pos.x) * 1.7f < fabs(newPos.y - _pos.y));
 	_currentTarget = newPos;
 	SwitchAnimation();
 }
@@ -279,12 +311,12 @@ FPoint2D Archaeopteryx::GetDirection() {
 }
 
 FPoint2D Archaeopteryx::GetNewDirection() {
-	//i = rand() % 2;
-	//return _region[1 + 2 * i];
-	if (_nextState == state_want_drink) {// && (fabs(_waterPos.x - _pos.x) * 1.7f >= fabs(_waterPos.y - _pos.y))) {
+	if (_nextState == state_want_drink) {
         return _waterPos;
-	} else if (_nextState == state_want_eat) {// && (fabs(_foodPos.x - _pos.x) * 1.7f >= fabs(_foodPos.y - _pos.y))) {
+	} else if (_nextState == state_want_eat) {
         return _foodPos;
+	} else if (_nextState == state_dodo_egg) {
+        return _eggPos;
     } else if (_nextState == state_want_eat || _nextState == state_want_drink) {
         return _turnPoint;
     }

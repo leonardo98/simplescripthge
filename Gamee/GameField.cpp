@@ -70,6 +70,7 @@ GameField::GameField(TiXmlElement *xe)
 , _productPlace3(pt_grain)
 , _productPlace4(pt_clover)
 , _productPlace5(pt_unknown)
+, _productPlace6(pt_egg)
 , _waterPan1(1)
 , _waterPan2(2)
 , _foodPan1(1)
@@ -170,6 +171,7 @@ GameField::GameField(TiXmlElement *xe)
 	_renderList.push_back(&_productPlace3);
 	_renderList.push_back(&_productPlace4);
 	_renderList.push_back(&_productPlace5);
+	_renderList.push_back(&_productPlace6);
 	_renderList.push_back(&_swampPlace);
 	_renderList.push_back(&_waterPan1);
 	_renderList.push_back(&_waterPan2);
@@ -195,6 +197,7 @@ GameField::GameField(TiXmlElement *xe)
 	_updateList.push_back(&_productPlace3);
 	_updateList.push_back(&_productPlace4);
 	_updateList.push_back(&_productPlace5);
+	_updateList.push_back(&_productPlace6);
 	_updateList.push_back(&_swampPlace);
 	_updateList.push_back(&_waterPan1);
 	_updateList.push_back(&_waterPan2);
@@ -203,14 +206,9 @@ GameField::GameField(TiXmlElement *xe)
 
 	std::sort(_updateList.rbegin(), _updateList.rend(), CmpBaseElement);
 
+	// test
 	_archaeopteryx.push_back(new Archaeopteryx());
 	_renderList.push_back(_archaeopteryx.back());
-//	_archaeopteryx.push_back(new Archaeopteryx());
-//	_renderList.push_back(_archaeopteryx.back());
-//	_archaeopteryx.push_back(new Archaeopteryx());
-//	_renderList.push_back(_archaeopteryx.back());
-//	_archaeopteryx.push_back(new Archaeopteryx());
-//	_renderList.push_back(_archaeopteryx.back());
 }
 
 void GameField::DrawBushes() {
