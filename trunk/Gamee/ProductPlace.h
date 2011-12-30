@@ -12,7 +12,8 @@ enum PlaceType {
 	pt_unknown,
 	pt_free1,
 	pt_free2,
-	pt_water
+	pt_water,
+	pt_egg
 };
 
 

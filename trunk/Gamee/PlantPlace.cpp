@@ -216,7 +216,7 @@ void PlantPlace::Update(float dt) {
 	}
 
 	if (_waitingCounter > 0.f) {
-		_waitingCounter -= dt / 20.f;
+		_waitingCounter -= dt / 60.f;
 		if (_waitingCounter < 0.f) {
 			_state = plant_fade;
 			_fadeCounter = 1.f;
@@ -226,7 +226,7 @@ void PlantPlace::Update(float dt) {
 
 	assert(_state != waiting_water && _state != waiting_chop && _state != waiting_harvest && _state != plant_fade);
 
-	_timeCounter += dt / 20.f;
+	_timeCounter += dt / 12.f;
 
 	if (_state == plant_growing1 && _timeCounter >= WATER_TIME) {
 		_state = waiting_water;

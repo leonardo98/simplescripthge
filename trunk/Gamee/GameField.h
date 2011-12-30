@@ -87,6 +87,7 @@ private:
 	ProductPlace _productPlace3;
 	ProductPlace _productPlace4;
 	ProductPlace _productPlace5;
+	ProductPlace _productPlace6;
 	Waterpan _waterPan1;
 	Waterpan _waterPan2;
 	Foodpan _foodPan1;

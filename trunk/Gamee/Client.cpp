@@ -372,6 +372,9 @@ void Client::SetActive(bool active) {
 }
 
 void Client::Update(float dt) {
+	if (_buying) {
+		_buying->Update(dt);
+	}
 	if (_coinsEffect > 0.f) {
 		_coinsEffect -= dt * 3.f;
 	}

@@ -62,6 +62,11 @@ ProductPlace::ProductPlace(PlaceType pt)
 		annaPos.x = 712; annaPos.y = 402;
 		bobPos.x = 712; bobPos.y = 402;
 		grandpaPos.x = 712; grandpaPos.y = 402;
+	} else if (pt == pt_egg) {
+		_pos.x = 900; _pos.y = 595;
+		annaPos.x = 870; annaPos.y = 595;
+		bobPos.x = 870; bobPos.y = 595;
+		grandpaPos.x = 870; grandpaPos.y = 595;
 	}
 	_product = NULL;
 	_placeType = pt;
@@ -72,27 +77,45 @@ ProductPlace::ProductPlace(PlaceType pt)
 }
 
 void ProductPlace::DrawBottom() {
-	_shadow.Render();
-	if (_active) {
-		float b = GameField::SELECTION_BORDER;
-		Render::SetBlendMode(3);
-		Render::PushMatrix();
-		Render::MatrixMove(-b, 0);
+	if (_placeType == pt_egg) {
+		if (_active) {
+			float b = GameField::SELECTION_BORDER;
+			Render::SetBlendMode(3);
+			Render::PushMatrix();
+			Render::MatrixMove(-b, 0);
+			Draw();
+			Render::MatrixMove(2 * b, 0);
+			Draw();
+			Render::MatrixMove(-b, b);
+			Draw();
+			Render::MatrixMove(0, -2 * b);
+			Draw();
+			Render::PopMatrix();
+			Render::SetBlendMode(BLEND_DEFAULT);
+		}
+	} else {
+		_shadow.Render();
+		if (_active) {
+			float b = GameField::SELECTION_BORDER;
+			Render::SetBlendMode(3);
+			Render::PushMatrix();
+			Render::MatrixMove(-b, 0);
+			_place.Render();
+			Draw();
+			Render::MatrixMove(2 * b, 0);
+			_place.Render();
+			Draw();
+			Render::MatrixMove(-b, b);
+			_place.Render();
+			Draw();
+			Render::MatrixMove(0, -2 * b);
+			_place.Render();
+			Draw();
+			Render::PopMatrix();
+			Render::SetBlendMode(BLEND_DEFAULT);
+		}
 		_place.Render();
-		Draw();
-		Render::MatrixMove(2 * b, 0);
-		_place.Render();
-		Draw();
-		Render::MatrixMove(-b, b);
-		_place.Render();
-		Draw();
-		Render::MatrixMove(0, -2 * b);
-		_place.Render();
-		Draw();
-		Render::PopMatrix();
-		Render::SetBlendMode(BLEND_DEFAULT);
 	}
-	_place.Render();
 }
 
 void ProductPlace::Draw() {
@@ -150,12 +173,16 @@ bool ProductPlace::IsBusy() {
 }
 
 void ProductPlace::SetProduct(const std::string &product, bool mirrorEffect) {
-	_mirrorEffect = mirrorEffect;
 	Texture *texture = Core::getTexture("gui_" + product);
 	_product = new StaticSprite();
 	_product->Set(texture, _pos.x - texture->Width() / 2, _pos.y - 2 * texture->Height() / 3);
 	_productType = product;
-	_effect = 1.f;
+	if (_placeType == pt_egg) {
+		_effect = 0.f;
+	} else {
+		_mirrorEffect = mirrorEffect;
+		_effect = 1.f;
+	}
 }
 
 std::string ProductPlace::WhatToDo() {

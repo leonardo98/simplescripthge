@@ -49,7 +49,9 @@ private:
 		state_want_eat,
 		state_want_drink,
 		state_none,
-		state_run_away
+		state_run_away,
+		state_dodo_egg,
+		state_archaeopteryx_puh
 	};
     BirdsStates _state;
     BirdsStates _nextState;
@@ -58,13 +60,16 @@ private:
 		age_young,
 		age_adult
 	} _age;
-    std::list<BirdsStates> _adultCircleStates;
+	typedef std::list<BirdsStates> CircleStates;
+    CircleStates _adultCircleStates;
+    CircleStates _productCircleStates;
     float _lifeTimeCounter;
     float _waitingTimeCounter;
     CircleProgress _waitingProgress;
     FPoint2D _foodPos;
     FPoint2D _waterPos;
     FPoint2D _turnPoint;
+	FPoint2D _eggPos;
     bool _waitBasePosition;
 	std::vector<FPoint2D> _runAway;
 	int _runAwayPoint;

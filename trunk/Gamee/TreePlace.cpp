@@ -221,7 +221,7 @@ void TreePlace::Update(float dt) {
 	}
 
 	if (_waitingCounter > 0.f) {
-		_waitingCounter -= dt / 20.f;
+		_waitingCounter -= dt / 60.f;
 		if (_waitingCounter < 0.f) {
 			_state = tps_plant_fade;
 			_fadeCounter = 1.f;
@@ -231,7 +231,7 @@ void TreePlace::Update(float dt) {
 	
 	assert(_state != tps_waiting_water && _state != tps_waiting_harvest && _state != tps_plant_fade);
 
-	_timeCounter += dt / 20.f;
+	_timeCounter += dt / 12.f;
 
 	if (_state == tps_plant_growing1 && _timeCounter >= WATER_TIME) {
 		_state = tps_waiting_water;
