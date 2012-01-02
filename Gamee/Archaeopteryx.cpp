@@ -97,6 +97,7 @@ Archaeopteryx::Archaeopteryx(const std::string &birdId)
 	_eggPos = FPoint2D(900, 595);
 
     _nextState = state_none;
+    _runAwayTimeCounter = 0.f;
 }
 
 void Archaeopteryx::SetupAnimation() {
