@@ -51,7 +51,9 @@ int Texture::Height() const {
 }
 
 Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int offsetY, int frameWidth, int frameHeight)
-: _width(w)
+: _top(y)
+, _left(x)
+, _width(w)
 , _height(h)
 , _frameWidth(frameWidth)
 , _frameHeight(frameHeight)
@@ -144,14 +146,11 @@ Texture::~Texture() {
 }
 
 bool Texture::IsNotTransparent(int x, int y) const {
-	if (x < 0 || y < 0) {
+	if (x < _left || y < _top || x > _left + _width || y > _top + _height) {
 		return false;
 	}
 	HTEXTURE h;
 	h = _texture->GetTexture();
-	if (x >= Render::GetDC()->Texture_GetWidth(h) || y >= Render::GetDC()->Texture_GetHeight(h)) {
-		return false;
-	}
 	DWORD *dw;
 	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;
@@ -159,13 +158,7 @@ bool Texture::IsNotTransparent(int x, int y) const {
 	return result;
 }
 
-void Texture::Render(float x, float y) {
-
-	_originQuad.v[0].x = _screenVertex[0].x; _originQuad.v[0].y = _screenVertex[0].y;
-	_originQuad.v[1].x = _screenVertex[1].x; _originQuad.v[1].y = _screenVertex[1].y;
-	_originQuad.v[2].x = _screenVertex[2].x; _originQuad.v[2].y = _screenVertex[2].y;
-	_originQuad.v[3].x = _screenVertex[3].x; _originQuad.v[3].y = _screenVertex[3].y;
-
+void Texture::Render(float x, float y) {    
 	_originQuad.v[0].col = Render::_currentColor;
 	_originQuad.v[1].col = Render::_currentColor;
 	_originQuad.v[2].col = Render::_currentColor;
@@ -176,23 +169,19 @@ void Texture::Render(float x, float y) {
 	Matrix m(Render::_matrixStack[Render::_currentMatrix]);
 	m.Move(x, y);
 
-	m.Mul(_originQuad.v[0].x, _originQuad.v[0].y);
-	m.Mul(_originQuad.v[1].x, _originQuad.v[1].y);
-	m.Mul(_originQuad.v[2].x, _originQuad.v[2].y);
-	m.Mul(_originQuad.v[3].x, _originQuad.v[3].y);
+	m.Mul(_screenVertex[0].x, _screenVertex[0].y, _originQuad.v[0].x, _originQuad.v[0].y);
+	m.Mul(_screenVertex[1].x, _screenVertex[1].y, _originQuad.v[1].x, _originQuad.v[1].y);
+	m.Mul(_screenVertex[2].x, _screenVertex[2].y, _originQuad.v[2].x, _originQuad.v[2].y);
+	m.Mul(_screenVertex[3].x, _screenVertex[3].y, _originQuad.v[3].x, _originQuad.v[3].y);
 	
-	Render::GetDC()->Gfx_RenderQuad(&_originQuad);}
+	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
+}
 
 void Texture::Render(const FPoint2D &pos) {
 	Render(pos.x, pos.y);
 }
 
 void Texture::Render(const Matrix &transform) {
-
-	_originQuad.v[0].x = _screenVertex[0].x; _originQuad.v[0].y = _screenVertex[0].y;
-	_originQuad.v[1].x = _screenVertex[1].x; _originQuad.v[1].y = _screenVertex[1].y;
-	_originQuad.v[2].x = _screenVertex[2].x; _originQuad.v[2].y = _screenVertex[2].y;
-	_originQuad.v[3].x = _screenVertex[3].x; _originQuad.v[3].y = _screenVertex[3].y;
 
 	_originQuad.v[0].col = Render::_currentColor;
 	_originQuad.v[1].col = Render::_currentColor;
@@ -204,10 +193,10 @@ void Texture::Render(const Matrix &transform) {
 	Matrix m(Render::_matrixStack[Render::_currentMatrix]);
 	m.Mul(transform);
 
-	m.Mul(_originQuad.v[0].x, _originQuad.v[0].y);
-	m.Mul(_originQuad.v[1].x, _originQuad.v[1].y);
-	m.Mul(_originQuad.v[2].x, _originQuad.v[2].y);
-	m.Mul(_originQuad.v[3].x, _originQuad.v[3].y);
+	m.Mul(_screenVertex[0].x, _screenVertex[0].y, _originQuad.v[0].x, _originQuad.v[0].y);
+	m.Mul(_screenVertex[1].x, _screenVertex[1].y, _originQuad.v[1].x, _originQuad.v[1].y);
+	m.Mul(_screenVertex[2].x, _screenVertex[2].y, _originQuad.v[2].x, _originQuad.v[2].y);
+	m.Mul(_screenVertex[3].x, _screenVertex[3].y, _originQuad.v[3].x, _originQuad.v[3].y);
 	
 	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
 

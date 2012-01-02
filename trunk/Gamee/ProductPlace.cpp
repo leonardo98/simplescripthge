@@ -165,7 +165,7 @@ std::string ProductPlace::GetProduct() {
 }
 
 bool ProductPlace::IsUnderMouse(const FPoint2D &mousePos) {
-	return (_place.PixelCheck(mousePos) || (_product && _product->PixelCheck(mousePos)));
+	return ((_placeType != pt_egg && _place.PixelCheck(mousePos)) || (_product != NULL && _product->PixelCheck(mousePos)));
 }
 
 bool ProductPlace::IsBusy() {

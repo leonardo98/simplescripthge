@@ -28,6 +28,8 @@ private:
 	int _height;
 	int _frameWidth;
 	int _frameHeight;
+    int _top;
+    int _left;
 	Texture(const std::string &fileName);
 	void LoadFromFile(const std::string &fileName);
 	HTEXTURE _hTexture;
