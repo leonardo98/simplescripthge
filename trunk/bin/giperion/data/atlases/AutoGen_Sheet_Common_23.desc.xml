@@ -1,0 +1,10 @@
+<Frames count="8">
+  <frame x="0" y="0" width="376" height="323" innerX="500" innerY="377" frameWidth="1024" frameHeight="768" path="data\street\bullfinch5_street.png" />
+  <frame x="376" y="0" width="365" height="323" innerX="490" innerY="377" frameWidth="1024" frameHeight="768" path="data\street\bullfinch2_street.png" />
+  <frame x="741" y="0" width="228" height="300" innerX="0" innerY="0" frameWidth="228" frameHeight="300" path="shtora_close1_room" />
+  <frame x="0" y="323" width="287" height="323" innerX="704" innerY="171" frameWidth="1024" frameHeight="768" path="bullfinch1_icebox" />
+  <frame x="287" y="323" width="347" height="313" innerX="303" innerY="405" frameWidth="1024" frameHeight="768" path="data\cabinet\bullfinch1_cabinet.png" />
+  <frame x="287" y="636" width="323" height="296" innerX="596" innerY="373" frameWidth="1024" frameHeight="768" path="bullfinch2_icebox" />
+  <frame x="634" y="323" width="357" height="305" innerX="462" innerY="47" frameWidth="1024" frameHeight="768" path="data\street\bullfinch4_street.png" />
+  <frame x="634" y="628" width="300" height="287" innerX="694" innerY="63" frameWidth="1024" frameHeight="768" path="bullfinch_closet" />
+</Frames>

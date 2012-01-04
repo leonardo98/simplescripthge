@@ -1,0 +1,7 @@
+<Frames count="5">
+  <frame x="0" y="0" width="253" height="543" innerX="211" innerY="51" frameWidth="1024" frameHeight="768" path="icebox_open_icebox" />
+  <frame x="0" y="543" width="191" height="314" innerX="167" innerY="222" frameWidth="1024" frameHeight="768" path="data\cabinet\cabinet_sharf.png" />
+  <frame x="253" y="0" width="577" height="533" innerX="60" innerY="144" frameWidth="1024" frameHeight="768" path="data\street\bobcat3_street.png" />
+  <frame x="253" y="533" width="298" height="481" innerX="91" innerY="133" frameWidth="1024" frameHeight="768" path="door_open_room" />
+  <frame x="551" y="533" width="382" height="480" innerX="357" innerY="42" frameWidth="1024" frameHeight="768" path="data\room_2\door_room2.png" />
+</Frames>

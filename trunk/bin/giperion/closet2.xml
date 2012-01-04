@@ -33,7 +33,6 @@
          end;
         </script>
    </MultiTexture>
-   <StaticTexture x="0" y="0" texture="shadow_icebox"/>
    <MultiTexture variableName="l3_bobcat">  <!-- рысенок -->
 		<states>
             <if value="one" x="0" y="0" texture="bobcat_closet"/>

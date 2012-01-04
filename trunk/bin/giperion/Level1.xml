@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <fileroot>
-  <script>
-    UnloadGroup("firstscreen");
-    LoadGroup("room");
-  </script>
 	<script name="onLoad">
     Level1Switch();
   </script>
 	<StaticTexture x="0" y="0" texture="fon_room"/>
-	<StaticTexture x="0" y="0" texture="shtora_palka_room"/>
-	<StaticTexture x="0" y="0" texture="cactus_room"/>
-	<Mask x="0" y="0" texture="cactus_room"> <!-- тап на кактус, может стоит поправить маску-->
+	<Mask x="834" y="282" width="104" height="196"> <!-- тап на кактус, может стоит поправить маску-->
 		<script>Level1Cactus()</script>
     </Mask>
     <MultiTexture variableName="cactus">

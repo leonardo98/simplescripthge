@@ -1,0 +1,6 @@
+<Frames count="4">
+  <frame x="0" y="0" width="600" height="768" innerX="0" innerY="0" frameWidth="1024" frameHeight="768" path="data\street_2\snowman_street2.png" />
+  <frame x="600" y="0" width="69" height="746" innerX="75" innerY="22" frameWidth="1024" frameHeight="768" path="data\cabinet\cabinet_open_cabinet1.png" />
+  <frame x="669" y="0" width="292" height="671" innerX="93" innerY="49" frameWidth="1024" frameHeight="768" path="data\cabinet\cabinet_close_cabinet.png" />
+  <frame x="669" y="671" width="338" height="344" innerX="492" innerY="370" frameWidth="1024" frameHeight="768" path="data\street\bullfinch_carrot_street.png" />
+</Frames>

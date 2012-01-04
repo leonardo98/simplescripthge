@@ -2,7 +2,7 @@
 <Resources>
 
   <group name="casket">
-    <texture id="fon_casket" path="data\casket\Fon_casket.png"/>
+    <texture id="fon_casket" path="data\casket\fon_casket.png"/>
     <texture id="bobcat_casket1" path="data\casket\bobcat_casket1.png"/>
     <texture id="bobcat_casket2" path="data\casket\bobcat_casket2.png"/>
     <texture id="table_casket" path="data\casket\table_casket.png"/>
