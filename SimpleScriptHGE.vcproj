@@ -297,6 +297,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\DropEffect.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\EnvWell.cpp"
 					>
 				</File>
@@ -563,6 +567,10 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\CloverField.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\DropEffect.h"
 					>
 				</File>
 				<File

@@ -2,15 +2,13 @@
 #include "Core.h"
 #include "Math.h"
 
-Bone::Bone(const char *name, const Matrix *main, const BoneType bt) 
+Bone::Bone(const char *name, const BoneType bt) 
 : boneName( name ? name : "" )
-, _mainTransform(main)
 , boneType(bt)
 {}
 
 Bone::Bone(Bone &bone) 
 : boneName(bone.boneName)
-, _mainTransform(bone._mainTransform)
 , boneType(bone.boneType)
 , _offparent(bone._offparent)
 {}
@@ -42,8 +40,8 @@ MovingPart::~MovingPart() {
 	}
 }
 
-MovingPart::MovingPart(TiXmlElement *xe, bool loop, const Matrix *main)
-: Bone(xe->Attribute("name"), main, BT_MovingPart)
+MovingPart::MovingPart(TiXmlElement *xe, bool loop)
+: Bone(xe->Attribute("name"), BT_MovingPart)
 {
 	_loop = loop;
 	_discontinuous = Math::Read(xe, "discontinuous", false);
@@ -93,9 +91,9 @@ MovingPart::MovingPart(TiXmlElement *xe, bool loop, const Matrix *main)
 	while (element) {
 		std::string name = element->Value();
 		if (name == "movingPart") {
-			_bones.push_back( new MovingPart(element, loop, main) );
+			_bones.push_back( new MovingPart(element, loop) );
 		} else if (name == "IKTwoBone") {
-			_bones.push_back( new IKTwoBone(element, loop, main) );
+			_bones.push_back( new IKTwoBone(element, loop) );
 		}
 		element = element->NextSiblingElement();
 	}
@@ -107,7 +105,6 @@ MovingPart::MovingPart(MovingPart &movinPart)
 {
 	_loop = movinPart._loop;
 	_discontinuous = movinPart._discontinuous;
-	_transform = movinPart._transform;
 	_x = movinPart._x;
 	_y = movinPart._y;
 	_angle = movinPart._angle;
@@ -135,7 +132,7 @@ MovingPart::MovingPart(MovingPart &movinPart)
 }
 
 
-void MovingPart::Draw(const Matrix &transform, float p) {
+void MovingPart::Draw(float p) {
 	assert(0.f <= p && p < 1);
 	Render::PushMatrix();
 	float dp = p;
@@ -153,17 +150,16 @@ void MovingPart::Draw(const Matrix &transform, float p) {
 	Render::MatrixMove(-_center.x, -_center.y);
 
 	for (int i = 0; i < _bottomBone.size(); ++i) {
-		_bottomBone[i]->Draw(_transform, p);
+		_bottomBone[i]->Draw(p);
 	}
 	if (_parts.size()) {
 		int i = static_cast<int>(p * _parts.size());
 		assert(0 <= i && i < _parts.size());
 		_last = _parts[i];
-		_last->SetTransform(_transform);
 		_last->Render();
 	}
 	for (int i = 0; i < _topBone.size(); ++i) {
-		_topBone[i]->Draw(_transform, p);
+		_topBone[i]->Draw(p);
 	}
 
 	Render::PopMatrix();
@@ -214,8 +210,8 @@ IKTwoBone::~IKTwoBone() {
 	}
 }
 
-IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop, const Matrix *main)
-: Bone(xe->Attribute("name"), main, BT_IKTwoBone)
+IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
+: Bone(xe->Attribute("name"), BT_IKTwoBone)
 {
 	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? bottom : top);
 	const char *tmp = xe->Attribute("order");
@@ -249,9 +245,9 @@ IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop, const Matrix *main)
 	while (element) {
 		std::string name = element->Value();
 		if (name == "movingPart") {
-			_bones.push_back( new MovingPart(element, loop, main) );
+			_bones.push_back( new MovingPart(element, loop) );
 		} else if (name == "IKTwoBone") {
-			_bones.push_back( new IKTwoBone(element, loop, main) );
+			_bones.push_back( new IKTwoBone(element, loop) );
 		}
 		element = element->NextSiblingElement();
 	}
@@ -277,13 +273,10 @@ IKTwoBone::IKTwoBone(IKTwoBone &twoBone)
 	_baseAngleSecond = twoBone._baseAngleSecond;
 	_lastScreenConnectPos = twoBone._lastScreenConnectPos;
 	_angleSign = twoBone._angleSign;
-	_firstTransform = twoBone._firstTransform;
-	_secondTransform = twoBone._secondTransform;
 	_x = twoBone._x;
 	_y = twoBone._y;
 
 	_freeBones = twoBone._freeBones;
-	_local = twoBone._local;
 
 	for (BoneList::iterator i = twoBone._bones.begin(), e = twoBone._bones.end(); i != e; ++i) {
 		Bone *b;
@@ -299,18 +292,15 @@ IKTwoBone::IKTwoBone(IKTwoBone &twoBone)
 	ResortBones();
 }
 
-void IKTwoBone::Draw(const Matrix &transform, float p) { // [ 0<= p <= 1 ]
+void IKTwoBone::Draw(float p) { // [ 0<= p <= 1 ]
 	assert(0 <= p && p < 1);
-	_local = &transform;
 	SetPos(_x.getGlobalFrame(p), _y.getGlobalFrame(p));
-	_firstTransform.Mul(transform);
-	_secondTransform.Mul(transform);
 
 	for (int i = 0; i < _bottomBone.size(); ++i) {
-		_bottomBone[i]->Draw(_secondTransform, p);
+		_bottomBone[i]->Draw(p);
 	}
-	_first.SetTransform(_firstTransform);
-	_second.SetTransform(_secondTransform);
+	//_first.SetTransform(_firstTransform);
+	//_second.SetTransform(_secondTransform);
 	if (_invert) {
 		_second.Render();
 		_first.Render();
@@ -319,7 +309,7 @@ void IKTwoBone::Draw(const Matrix &transform, float p) { // [ 0<= p <= 1 ]
 		_second.Render();
 	}
 	for (int i = 0; i < _topBone.size(); ++i) {
-		_topBone[i]->Draw(_secondTransform, p);
+		_topBone[i]->Draw(p);
 	}
 }
 
@@ -342,14 +332,6 @@ bool IKTwoBone::PixelCheck(const FPoint2D &pos) {
 
 void IKTwoBone::SetPos(float x, float y) 
 {
-	if (_freeBones) {
-		Matrix t0, t;
-		t0.Mul(*_local);
-		t.MakeRevers(*_mainTransform);
-		t0.Mul(t);
-		t.MakeRevers(t0);
-		t.Mul(x, y);
-	}
 	float angleFirst, angleSecond;
 	FPoint2D q1, q2;
 
@@ -374,6 +356,7 @@ void IKTwoBone::SetPos(float x, float y)
 		q1 = q2 = _anchorPos + *(_connectPos - _anchorPos).Rotate(angleFirst);
 	}
 
+	/*
 	_firstTransform.Unit();
 	_firstTransform.Move(-_anchorPos.x, -_anchorPos.y);
 	_firstTransform.Rotate(angleFirst);
@@ -383,7 +366,7 @@ void IKTwoBone::SetPos(float x, float y)
 	_secondTransform.Move(-_connectPos.x, -_connectPos.y);
 	_secondTransform.Rotate(angleSecond);
 	_secondTransform.Move(q1.x, q1.y);
-
+	*/
 	_lastScreenConnectPos = q1;
 }
 
@@ -406,22 +389,22 @@ Animation::Animation(TiXmlElement *xe)
 	while (element) {
 		std::string name = element->Value();
 		if (name == "movingPart") {
-			_bones.push_back(new MovingPart(element, loop, &_mainMatrix));
+			_bones.push_back(new MovingPart(element, loop));
 		} else if (name == "IKTwoBone") {
-			_bones.push_back( new IKTwoBone(element, loop, &_mainMatrix) );
+			_bones.push_back( new IKTwoBone(element, loop) );
 		}
 		element = element->NextSiblingElement();
 	}
 
 	FPoint2D pos(Math::Read(xe, "x", 0.f), Math::Read(xe, "y", 0.f));
-	_mainMatrix.Unit();
-	_mainMatrix.Move(-_pivotPos.x, -_pivotPos.y);
-	_mainMatrix.Move(pos.x, pos.y);
+	_subPosition.Unit();
+	_subPosition.Move(-_pivotPos.x, -_pivotPos.y);
+	_subPosition.Move(pos.x, pos.y);
 }
 
 Animation::Animation(Animation &animation) {
 	_pivotPos = animation._pivotPos;
-	_mainMatrix = animation._mainMatrix;
+	_subPosition = animation._subPosition;
 	_time = animation._time;
 	_timeCounter = animation._timeCounter;
 	
@@ -440,12 +423,12 @@ Animation::Animation(Animation &animation) {
 }
 
 void Animation::SetPos(const FPoint2D &pos, bool mirror) {
-	_mainMatrix.Unit();
-	_mainMatrix.Move(-_pivotPos.x, -_pivotPos.y);
+	_subPosition.Unit();
+	_subPosition.Move(-_pivotPos.x, -_pivotPos.y);
 	if (mirror) {
-		_mainMatrix.Scale(-1.f, 1.f);
+		_subPosition.Scale(-1.f, 1.f);
 	}
-	_mainMatrix.Move(pos.x, pos.y);
+	_subPosition.Move(pos.x, pos.y);
 }
 
 bool Animation::PixelCheck(const FPoint2D &pos) {
@@ -462,7 +445,7 @@ void Animation::Draw() {
 	Render::MatrixMove(-_pivotPos.x, -_pivotPos.y);
 	float p = _timeCounter / _time;
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
-		(*i)->Draw(_mainMatrix, p);
+		(*i)->Draw(p);
 	}
 	Render::PopMatrix();
 }
@@ -472,7 +455,7 @@ void Animation::Draw(float position) {
 	Render::PushMatrix();
 	Render::MatrixMove(-_pivotPos.x, -_pivotPos.y);
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
-		(*i)->Draw(_mainMatrix, position);
+		(*i)->Draw(position);
 	}
 	Render::PopMatrix();
 }

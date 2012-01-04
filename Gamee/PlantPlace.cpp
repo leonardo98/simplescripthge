@@ -176,7 +176,6 @@ void PlantPlace::Draw() {
 }
 
 void PlantPlace::Update(float dt) {
-	_popupMenu.Update(dt);
 	if (_state == no_plant || _state == waiting_seed) {
 		return;
 	}

@@ -155,3 +155,7 @@ std::string Math::IntToStr(int i) {
 	sprintf(buff, "%i", i);
 	return buff;
 }
+
+const FPoint2D & lerp(const FPoint2D &one, const FPoint2D &two, float p) {
+	return FPoint2D((two.x - one.x) * p + one.x, (two.y - one.y) * p + one.y);
+}

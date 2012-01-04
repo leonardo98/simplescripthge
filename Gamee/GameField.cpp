@@ -35,7 +35,7 @@ void GameField::OnMouseDown(const FPoint2D &mousePos) {
 		_persPaths.OnMouseDown(mousePos);
 		return;
 	}
-	for (RenderList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
 		if ((*i)->IsUnderMouse(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
 			return;
@@ -257,10 +257,10 @@ void GameField::Draw() {
 	_grass_set1_f.Render();
 
 	SortElements();
-	for (RenderList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
 		(*i)->DrawBottom();
 	}
-	for (RenderList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
 		(*i)->Draw();
 	}
 
@@ -290,7 +290,7 @@ void GameField::OnMouseMove(const FPoint2D &mousePos) {
 
 	_lastMousePos = mousePos;
 	bool isActive = false;
-	for (RenderList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
 		if (!isActive && (*i)->IsUnderMouse(mousePos)) {
 			(*i)->SetActive(isActive = true);
 		} else {
@@ -302,7 +302,10 @@ void GameField::OnMouseMove(const FPoint2D &mousePos) {
 }
 
 void GameField::Update(float dt) {
-	for (RenderList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
+	for (PopupMenus::iterator i = _popupMenus.begin(), e = _popupMenus.end(); i != e; ++i) {
+		(*i)->Update(dt);
+	}
+	for (ElementList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
 		(*i)->Update(dt);
 	}
 	int MAX = 10;
@@ -363,7 +366,7 @@ EnvWell * GameField::GetWell() {
 }
 
 GameField::Birds GameField::_archaeopteryx;
-GameField::RenderList GameField::_renderList;
+GameField::ElementList GameField::_renderList;
 
 void GameField::AddBird(const std::string &birdId) {
 	Archaeopteryx *a = new Archaeopteryx(birdId);
