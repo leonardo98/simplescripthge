@@ -98,6 +98,8 @@ Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int
 
 Texture::Texture(const std::string &fileName) 
 {
+	_top = 0;
+	_left = 0;
 	_offsetX = 0.f;
 	_offsetY = 0.f;
 	_hTexture = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str()));
@@ -146,13 +148,13 @@ Texture::~Texture() {
 }
 
 bool Texture::IsNotTransparent(int x, int y) const {
-	if (x < _left || y < _top || x > _left + _width || y > _top + _height) {
+	if (x < _offsetX || y < _offsetY || x >= _offsetX + _width || y >= _offsetY + _height) {
 		return false;
 	}
 	HTEXTURE h;
 	h = _texture->GetTexture();
 	DWORD *dw;
-	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
+	dw = Render::GetDC()->Texture_Lock(h, true, _left + x - _offsetX, _top + y - _offsetY, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;
 	Render::GetDC()->Texture_Unlock(h);
 	return result;
