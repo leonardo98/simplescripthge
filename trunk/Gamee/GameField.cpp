@@ -4,6 +4,10 @@
 #include "BirdsManager.h"
 
 const float GameField::SELECTION_BORDER = 1.8f;
+AnnaPers *GameField::_annaPtr;
+BobPers *GameField::_bobPtr;
+GrandpaPers *GameField::_grandpaPtr;
+
 
 bool CmpBaseElement(BaseElement *one, BaseElement *two) {
 	return (one->_pos.y < two->_pos.y);
@@ -76,6 +80,9 @@ GameField::GameField(TiXmlElement *xe)
 , _foodPan1(1)
 , _foodPan2(2)
 {
+	_annaPtr = &_anna;
+	_bobPtr = &_bob;
+	_grandpaPtr = &_grandpa;
 	Variables::Set("money", "1000");
 	BirdsManager::Init(&_waterPan2, &_foodPan2);
 	_buckPlace = new ProductPlace(pt_water);
@@ -277,8 +284,13 @@ void GameField::Update(float dt) {
 	for (PopupMenus::iterator i = _popupMenus.begin(), e = _popupMenus.end(); i != e; ++i) {
 		(*i)->Update(dt);
 	}
-	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _elementList.begin(); i != _elementList.end(); ) {
 		(*i)->Update(dt);
+		if ((*i)->Dead()) {
+			i = _elementList.erase(i);
+		} else {
+			++i;
+		}
 	}
 /*	int MAX = 10;
 	for (int k = 0; k < MAX; ++k) {
@@ -349,3 +361,26 @@ void GameField::AddBird(const std::string &birdId) {
 
 ProductPlace * GameField::_buckPlace;
 EnvWell * GameField::_well;
+
+void GameField::AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height) {
+	Pers *pers = NULL;
+	std::string product;
+	if (persName == "Anna") {
+		pers = _annaPtr;
+		product = _annaPtr->GetProductType();
+	} else if (persName == "Bob") {
+		pers = _bobPtr;
+		product = "";//_bobPtr->GetProductType();
+	} else if (persName == "Grandpa") {
+		pers = _grandpaPtr;
+		product = "";//_grandpaPtr->GetProductType();
+	} else {
+		assert(false);
+	}
+	DropEffect *e = new DropEffect(pers->_pos, 
+						FPoint2D(pers->_mirror ? - pers->_productOffset.x : pers->_productOffset.x, pers->_productOffset.y),
+						endPos, 
+						FPoint2D(0, - height), product);
+
+	_elementList.push_back(e);
+}

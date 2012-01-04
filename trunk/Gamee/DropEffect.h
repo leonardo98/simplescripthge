@@ -1,3 +1,6 @@
+#ifndef GAME1_DROPEFFECT_H
+#define GAME1_DROPEFFECT_H
+
 #include "../Core/types.h"
 #include "../Core/Render.h"
 #include "BaseElement.h"
@@ -19,3 +22,5 @@ private:
 	Texture *_shadow;
 	Texture *_product;
 };
+
+#endif//GAME1_DROPEFFECT_H

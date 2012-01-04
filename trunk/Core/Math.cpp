@@ -159,3 +159,7 @@ std::string Math::IntToStr(int i) {
 FPoint2D Math::lerp(const FPoint2D &one, const FPoint2D &two, float p) {
 	return FPoint2D((two.x - one.x) * p + one.x, (two.y - one.y) * p + one.y);
 }
+
+float Math::lerp(float one, float two, float p) {
+	return (two - one) * p + one;
+}
