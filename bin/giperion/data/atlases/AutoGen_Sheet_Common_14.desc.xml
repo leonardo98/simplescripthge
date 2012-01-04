@@ -1,0 +1,8 @@
+<Frames count="6">
+  <frame x="0" y="0" width="362" height="616" innerX="521" innerY="94" frameWidth="1024" frameHeight="768" path="data\street_2\bobcat1_street2.png" />
+  <frame x="0" y="616" width="358" height="371" innerX="0" innerY="0" frameWidth="358" frameHeight="371" path="chair_icebox" />
+  <frame x="362" y="0" width="509" height="605" innerX="515" innerY="136" frameWidth="1024" frameHeight="768" path="data\room_2\bobcat_room2.png" />
+  <frame x="871" y="0" width="145" height="298" innerX="0" innerY="0" frameWidth="145" frameHeight="298" path="shtora_open1_room" />
+  <frame x="871" y="298" width="139" height="260" innerX="8" innerY="0" frameWidth="147" frameHeight="260" path="data\room_2\clock_room2.png" />
+  <frame x="362" y="605" width="595" height="415" innerX="429" innerY="353" frameWidth="1024" frameHeight="768" path="table_casket" />
+</Frames>

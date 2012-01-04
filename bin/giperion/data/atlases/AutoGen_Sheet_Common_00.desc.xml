@@ -1,0 +1,9 @@
+<Frames count="7">
+  <frame x="0" y="0" width="1024" height="768" innerX="0" innerY="0" frameWidth="1024" frameHeight="768" path="fon_room" />
+  <frame x="0" y="768" width="147" height="252" innerX="0" innerY="0" frameWidth="147" frameHeight="260" path="data\room_2\clock2_room2.png" />
+  <frame x="147" y="768" width="359" height="231" innerX="623" innerY="353" frameWidth="1024" frameHeight="768" path="casket_close" />
+  <frame x="147" y="999" width="64" height="24" innerX="429" innerY="232" frameWidth="1024" frameHeight="768" path="data\street\comok_eyes_street.png" />
+  <frame x="211" y="999" width="41" height="22" innerX="310" innerY="341" frameWidth="1024" frameHeight="768" path="data\street\bobcat_eyes_street.png" />
+  <frame x="506" y="768" width="352" height="231" innerX="651" innerY="353" frameWidth="1024" frameHeight="768" path="casket_open" />
+  <frame x="858" y="768" width="149" height="229" innerX="54" innerY="143" frameWidth="1024" frameHeight="768" path="data\street\fon_tree_street1.png" />
+</Frames>

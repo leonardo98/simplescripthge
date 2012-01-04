@@ -1,0 +1,5 @@
+<Frames count="3">
+  <frame x="0" y="0" width="840" height="303" innerX="119" innerY="32" frameWidth="1024" frameHeight="768" path="data\room\_text_room.png" />
+  <frame x="0" y="303" width="296" height="268" innerX="665" innerY="71" frameWidth="1024" frameHeight="768" path="bullfinch2_closet" />
+  <frame x="0" y="571" width="293" height="268" innerX="279" innerY="324" frameWidth="1024" frameHeight="768" path="bullfinch1_room" />
+</Frames>

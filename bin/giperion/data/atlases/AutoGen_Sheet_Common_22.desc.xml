@@ -1,0 +1,6 @@
+<Frames count="4">
+  <frame x="0" y="0" width="891" height="467" innerX="71" innerY="298" frameWidth="1024" frameHeight="768" path="bobcat4_room" />
+  <frame x="0" y="467" width="269" height="366" innerX="0" innerY="334" frameWidth="1024" frameHeight="768" path="stool_closet" />
+  <frame x="269" y="467" width="370" height="324" innerX="561" innerY="365" frameWidth="1024" frameHeight="768" path="data\street\bullfinch1_street.png" />
+  <frame x="639" y="467" width="380" height="323" innerX="499" innerY="377" frameWidth="1024" frameHeight="768" path="data\street\bullfinch6_street.png" />
+</Frames>

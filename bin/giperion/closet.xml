@@ -46,12 +46,8 @@
 			<if value="two" x="0" y="0" texture="broom_closet_mask"/>
 		</states>
 		<script>
-		if (inHand ~= "None") then
-        SendMessage("messageWindow" , "сей высокотехнологичный девайс расколупать не получится" )
-      elseif (broom == "one") then
+      if (broom == "one") then
         broom = "two"
-      else
-        SendMessage("messageWindow" , "Отличная метла!" )
       end
       </script>
    </MultiTexture>
@@ -61,208 +57,19 @@
 			<if value="two" x="382" y="227" texture="bucket_closet_mask"/>
 		</states>
 		<script>
-		if (inHand ~= "None") then
-        SendMessage("messageWindow" , "сей высокотехнологичный девайс расколупать не получится" )
-      elseif (bucket == "one") then
+		if (bucket == "one") then
         bucket = "two"
-      else
-        SendMessage("messageWindow" , "Отличная метла!" )
       end
       </script>
    </MultiTexture>
-    <!--
-	<Mask x="0" y="178" texture="firesafe_mask">
-		<script>
-      if (inHand == "otvertka") then
-        SendMessage("messageWindow" , "огнетушитель отверткой не проткнешь" ) ;
-      else
-        SendMessage("messageWindow" , "огнетушитель,... мне? нет не нужен" ) ;
-      end
-    </script>
-	</Mask>
-	<Mask x="498" y="134" texture="messsage1_mask">
-		<script>
-        if (inHand ~= "None") then
-          SendMessage("messageWindow" , "даже в минуту глубоко безделья я туда не полезу ради такой ерунды" ) ;
-        else
-          SendMessage("messageWindow" , "надпись: 'в случае аварии разбить стекло' - бородатая космическая шутка" ) ;
-        end
-    </script>
-	</Mask>
-	<Mask x="726" y="144" texture="messsage2_mask">
-		<script>
-        if (inHand ~= "None") then
-          SendMessage("messageWindow" , "нет,... не буду выполнять столь странное задание" ) ;
-        else
-  				SendMessage("messageWindow" , "надпись:   'ОСТОРОЖНО: ОТКРЫТЫЙ КОСМОС!'" ) ;
-        end
-		</script>
-	</Mask>
-	<Mask x="206" y="306" texture="rot_mask">
-		<script>
-        if (inHand ~= "None") then
-          SendMessage("messageWindow" , "нет, это совершенно бесполезно" ) ;
-        else
-  				SendMessage("messageWindow" , "это механизм для аварийного открывания двери,... но он давно заржавел" ) ;
-        end
-		</script>
-	</Mask>
-	<Mask x="360" y="159" texture="windows_mask">
-		<script>
-        if (inHand ~= "None") then
-          SendMessage("messageWindow" , "нет, этим стекло не сломать - тут танк нужен" ); 
-        else
-				  SendMessage("messageWindow" , "космос, глубокий и безмятежный - постойка,.. кажется, корабль абсолютно неподвижен - это странно" );
-        end
-		</script>
-	</Mask>
-	<Mask x="0" y="23" texture="trube_mask">
-		<script>
-        if (inHand ~= "None") then
-          SendMessage("messageWindow" , "глупо,.. ну ведь это же глупо!!!" ) ;
-        else
-          SendMessage("messageWindow" , "трубы какие-то,... сейчас мне от них пользы ноль, но в дороге они меня грели" ) ;
-        end
-    </script>
-	</Mask>
-	<Mask x="267" y="0" texture="svet_mask">
-		<script>
-				SendMessage("messageWindow" , "это современный источник света" ) ;
-		</script>
-	</Mask>
-	<Mask x="293" y="362" texture="nary_mask">
-		<script>
-				SendMessage("messageWindow" , "нары, спал я на них аки бомж" ) ;
-		</script>
-	</Mask>
-	<Mask x="207" y="266" texture="comp_mask">
-		<script>
-				SendMessage("messageWindow" , "компьютер,... но без личного кода он меня не выпустит" ) ;
-		</script>
-	</Mask>
-	<Mask x="143" y="126" texture="luk_mask">
-		<script>
-				SendMessage("messageWindow" , "люк,... там проводка, наверное" ) ;
-		</script>
-	</Mask>
-	<Mask x="82" y="104" texture="luk_mask">
-		<script>
-				SendMessage("messageWindow" , "система аварийной световой сигнализации..., не мигает, значит аварии нет" ) ;
-		</script>
-	</Mask>
-	<Mask x="81" y="193" texture="door_mask">
-		<script>
-				if (inHand == "otvertka") then
-					SendMessage("messageWindow" , "не,... отверкой эту дверь не сломать..." ) ;
-				else
-					SendMessage("messageWindow" , "через дверь мне из этого склада без личного кода не выйти - это, так сказать, минусы путешествия зайцем.." ) ;
-				end
-		</script>
-	</Mask>
-	<Mask x="279" y="254" texture="banki_mask">
-		<script>
-				SendMessage("messageWindow" , "банки с хлоркой" ) ;
-		</script>
-	</Mask>
-  <InventoryObject x="764" y="347" id="key"/>
-  <MultiTexture variableName="box">
-    <states>
-      <if value="faze1" x="683" y="318" texture="box_faze1"/>
-      <if value="faze2" x="649" y="319" texture="box_faze2"/>
-    </states>
-    <script>
-        if (box == "faze1") then
-          box = "faze2";
-        else
-          if (inHand == "otvertka") then
-            SendMessage("messageWindow" , "тыкать коробки отверткой - совершенно бесполезное занятие" ) ;
-          else
-            SendMessage("messageWindow" , "пустые картонные коробки из под провианта" ) ;
-          end
-        end
-    </script>
-  </MultiTexture>
-  <InventoryObject x="275" y="327" id="otvertka"/>
-	<MultiTexture variableName="shkaf">
-		<states>
-      <if value="locked" x="263" y="214" texture="shkaf_close"/>
-      <if value="closed" x="263" y="214" texture="shkaf_close"/>
-      <if value="opened" x="230" y="208" texture="shkaf_open"/>
-		</states>
-	  <script>
-        if (shkaf == "closed") then
-          shkaf = "opened";
-        elseif (shkaf == "opened") then
-          shkaf = "closed";
-        elseif (inHand == "key") then
-           shkaf = "opened";
-           SendMessage("inventory" , "remove from hand" );
-        else
-          SendMessage("messageWindow" , "ключик нада, где тут валялся - простенький такой" ) ;
-        end
-    </script>
-	</MultiTexture>
-	<MultiTexture variableName="vent">
-		<states>
-			<if value="closed" x="129" y="55" texture="closed_vent"/>
-		</states>
-	</MultiTexture>
-	<Mask x="129" y="55" texture="closed_vent_mask">
-	  <script>
-      if (toolboxfaze ~= "last") then
-        SendMessage("messageWindow" , "высоковато - не достать,... подставить бы чего-нибудь" )
-      elseif (inHand ~= "otvertka" and vent == "closed") then
-        SendMessage("messageWindow" , "эх, ответрку бы... в миг можно было бы решетку открутить" )
-      elseif (inHand == "otvertka" and vent == "closed") then
-        vent = "opened"
-      elseif (inHand ~= "None") then
-        SendMessage("messageWindow" , "не удобно лезть с занятой рукой" )
-      else
-          SendMessage("Core", "load xml Level1.xml");
-      end
-    </script>
-
-    </Mask>
-	</Mask>
-	<MultiTexture variableName="toolboxfaze">
-		<states>
-			<if value="one" x="0" y="396" texture="toolbox_faze1"/>
-			<if value="onetwo" x="89" y="393" texture="toolbox_faze12"/>
-			<if value="two" x="191" y="393" texture="toolbox_faze2"/>
-			<if value="last" x="153" y="354" texture="toolbox_faze3"/>
-		</states>
-	  <script>
-      if (inHand ~= "None") then
-        SendMessage("messageWindow" , "сей высокотехнологичный девайс расколупать не получится" ) 
-      elseif (toolboxfaze == "one") then
-        toolboxfaze = "onetwo"
-      elseif (toolboxfaze == "onetwo") then
-        toolboxfaze = "two"
-      elseif (toolboxfaze == "two") then
-        toolboxfaze = "last"
-      else
-        SendMessage("messageWindow" , "отличная подставка получилась" ) 
-      end
-    </script>
-      -->
 	<MultiTexture variableName="switch">
 		<states>
 			<if value="off" x="0" y="0" texture="dark_closet"/>
 		</states>
 	</MultiTexture>
-    <!--
-	<MultiTexture variableName="broom">
-		<states>
-			<if value="off" x="0" y="0" texture="broom_closet"/>
-		</states>
-	</MultiTexture>
-	-->
 	<TextBox name="messageWindow" x="500" y="695" width="600" height="50" font="data\a_futuraRound_24.fnt" hideTime="2.5">
     <background texture="textback1" x="0" y="0"/>
 	</TextBox>
-	<!--
-	<Inventory name="inventory" x="85" y="520" texture="inventory_bar"/>
-	-->
       <IButton name="new" x="0" y="0" width="40" height="40" caption="Reload">
         SendMessage("Core", "load xml start.xml");
       </IButton>

@@ -1,0 +1,6 @@
+<Frames count="4">
+  <frame x="0" y="0" width="593" height="516" innerX="259" innerY="17" frameWidth="1024" frameHeight="768" path="data\room_2\fon_street_room2.png" />
+  <frame x="593" y="0" width="324" height="507" innerX="99" innerY="157" frameWidth="1024" frameHeight="768" path="data\street\bobcat_street.png" />
+  <frame x="0" y="516" width="579" height="508" innerX="58" innerY="169" frameWidth="1024" frameHeight="768" path="data\street\bobcat4_street.png" />
+  <frame x="579" y="516" width="304" height="505" innerX="16" innerY="173" frameWidth="1024" frameHeight="768" path="bobcat1_icebox" />
+</Frames>
