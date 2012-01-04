@@ -14,11 +14,11 @@ void GameField::SortElements() {
 	int startFrom = 0;
 	do {
 		swap = false;
-		for (int i = startFrom; i < _renderList.size() - 1; ++i) {
-			if (CmpBaseElement(_renderList[i + 1], _renderList[i])) {
-				BaseElement *tmp = _renderList[i];
-				_renderList[i] = _renderList[i + 1];
-				_renderList[i + 1] = tmp;
+		for (int i = startFrom; i < _elementList.size() - 1; ++i) {
+			if (CmpBaseElement(_elementList[i + 1], _elementList[i])) {
+				BaseElement *tmp = _elementList[i];
+				_elementList[i] = _elementList[i + 1];
+				_elementList[i + 1] = tmp;
 				swap = true;
 			}
 		}
@@ -35,7 +35,7 @@ void GameField::OnMouseDown(const FPoint2D &mousePos) {
 		_persPaths.OnMouseDown(mousePos);
 		return;
 	}
-	for (ElementList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
 		if ((*i)->IsUnderMouse(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
 			return;
@@ -152,63 +152,35 @@ GameField::GameField(TiXmlElement *xe)
 	_bush6.Set(Core::getTexture("bush"), 648, 682);
 	_bush7.Set(Core::getTexture("bush"), 772, 682);
 
-	_renderList.push_back(&_anna);
-	_renderList.push_back(&_bob);
-	_renderList.push_back(&_grandpa);
-	_renderList.push_back(&_grainField);
-	_renderList.push_back(&_cloverField);
-	_renderList.push_back(&_treeBed1);
-	_renderList.push_back(&_treeBed2);
-	_renderList.push_back(&_plantBed1);
-	_renderList.push_back(&_plantBed2);
-	_renderList.push_back(&_plantBed3);
-	_renderList.push_back(&_plantBed4);
-	_renderList.push_back(_well);
-	_renderList.push_back(&_storagePlace1);
-	_renderList.push_back(&_storagePlace2);
-	_renderList.push_back(_buckPlace);
-	_renderList.push_back(&_productPlace2);
-	_renderList.push_back(&_productPlace3);
-	_renderList.push_back(&_productPlace4);
-	_renderList.push_back(&_productPlace5);
-	_renderList.push_back(&_productPlace6);
-	_renderList.push_back(&_swampPlace);
-	_renderList.push_back(&_waterPan1);
-	_renderList.push_back(&_waterPan2);
-	_renderList.push_back(&_foodPan1);
-	_renderList.push_back(&_foodPan2);
-
-	_updateList.push_back(&_anna);
-	_updateList.push_back(&_bob);
-	_updateList.push_back(&_grandpa);
-	_updateList.push_back(&_grainField);
-	_updateList.push_back(&_cloverField);
-	_updateList.push_back(&_treeBed1);
-	_updateList.push_back(&_treeBed2);
-	_updateList.push_back(&_plantBed1);
-	_updateList.push_back(&_plantBed2);
-	_updateList.push_back(&_plantBed3);
-	_updateList.push_back(&_plantBed4);
-	_updateList.push_back(_well);
-	_updateList.push_back(&_storagePlace1);
-	_updateList.push_back(&_storagePlace2);
-	_updateList.push_back(_buckPlace);
-	_updateList.push_back(&_productPlace2);
-	_updateList.push_back(&_productPlace3);
-	_updateList.push_back(&_productPlace4);
-	_updateList.push_back(&_productPlace5);
-	_updateList.push_back(&_productPlace6);
-	_updateList.push_back(&_swampPlace);
-	_updateList.push_back(&_waterPan1);
-	_updateList.push_back(&_waterPan2);
-	_updateList.push_back(&_foodPan1);
-	_updateList.push_back(&_foodPan2);
-
-	std::sort(_updateList.rbegin(), _updateList.rend(), CmpBaseElement);
+	_elementList.push_back(&_anna);
+	_elementList.push_back(&_bob);
+	_elementList.push_back(&_grandpa);
+	_elementList.push_back(&_grainField);
+	_elementList.push_back(&_cloverField);
+	_elementList.push_back(&_treeBed1);
+	_elementList.push_back(&_treeBed2);
+	_elementList.push_back(&_plantBed1);
+	_elementList.push_back(&_plantBed2);
+	_elementList.push_back(&_plantBed3);
+	_elementList.push_back(&_plantBed4);
+	_elementList.push_back(_well);
+	_elementList.push_back(&_storagePlace1);
+	_elementList.push_back(&_storagePlace2);
+	_elementList.push_back(_buckPlace);
+	_elementList.push_back(&_productPlace2);
+	_elementList.push_back(&_productPlace3);
+	_elementList.push_back(&_productPlace4);
+	_elementList.push_back(&_productPlace5);
+	_elementList.push_back(&_productPlace6);
+	_elementList.push_back(&_swampPlace);
+	_elementList.push_back(&_waterPan1);
+	_elementList.push_back(&_waterPan2);
+	_elementList.push_back(&_foodPan1);
+	_elementList.push_back(&_foodPan2);
 
 	// test
 	_archaeopteryx.push_back(new Archaeopteryx());
-	_renderList.push_back(_archaeopteryx.back());
+	_elementList.push_back(_archaeopteryx.back());
 }
 
 void GameField::DrawBushes() {
@@ -257,10 +229,10 @@ void GameField::Draw() {
 	_grass_set1_f.Render();
 
 	SortElements();
-	for (ElementList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
 		(*i)->DrawBottom();
 	}
-	for (ElementList::iterator i = _renderList.begin(), e = _renderList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
 		(*i)->Draw();
 	}
 
@@ -290,7 +262,7 @@ void GameField::OnMouseMove(const FPoint2D &mousePos) {
 
 	_lastMousePos = mousePos;
 	bool isActive = false;
-	for (ElementList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
 		if (!isActive && (*i)->IsUnderMouse(mousePos)) {
 			(*i)->SetActive(isActive = true);
 		} else {
@@ -305,22 +277,22 @@ void GameField::Update(float dt) {
 	for (PopupMenus::iterator i = _popupMenus.begin(), e = _popupMenus.end(); i != e; ++i) {
 		(*i)->Update(dt);
 	}
-	for (ElementList::iterator i = _updateList.begin(), e = _updateList.end(); i != e; ++i) {
+	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
 		(*i)->Update(dt);
 	}
-	int MAX = 10;
+/*	int MAX = 10;
 	for (int k = 0; k < MAX; ++k) {
 		for (Birds::iterator i = _archaeopteryx.begin(), e = _archaeopteryx.end(); i != e; ++i) {
 			(*i)->Update(dt / MAX);
 		}
 	}
+*/
 	if (Render::GetDC()->Input_KeyDown(HGEK_D)) {
 		_persPaths.SetVisible_debug(Render::GetDC()->Input_GetKeyState(HGEK_SHIFT));
 	} else if (Render::GetDC()->Input_KeyDown(HGEK_A)) {
 		Archaeopteryx *a = new Archaeopteryx();
 		_archaeopteryx.push_back(a);
-		_renderList.push_back(a);
-		//_updateList.push_back(a);
+		_elementList.push_back(a);
 	}
 	_clientsManager.Update(dt);
 	_moneypod.Update(dt);
@@ -366,12 +338,12 @@ EnvWell * GameField::GetWell() {
 }
 
 GameField::Birds GameField::_archaeopteryx;
-GameField::ElementList GameField::_renderList;
+GameField::ElementList GameField::_elementList;
 
 void GameField::AddBird(const std::string &birdId) {
 	Archaeopteryx *a = new Archaeopteryx(birdId);
 	_archaeopteryx.push_back(a);
-	_renderList.push_back(a);
+	_elementList.push_back(a);
 }
 
 
