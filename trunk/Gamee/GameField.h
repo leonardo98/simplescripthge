@@ -63,9 +63,9 @@ private:
 	StaticSprite _stoneshelve_set1_d, _stoneshelve_set1_d_m;
 	StaticSprite _stoneshelve_set1_e;
 
-	typedef std::vector<BaseElement *> RenderList;
-	static RenderList _renderList;
-	RenderList _updateList;
+	typedef std::vector<BaseElement *> ElementList;
+	static ElementList _renderList;
+	ElementList _updateList;
 
 	PersPaths _persPaths;
 	AnnaPers _anna;

@@ -110,7 +110,6 @@ void PopupMenu::SetIcons(const std::string &first, const std::string &second, co
 }
 
 std::string PopupMenu::GetActive(const FPoint2D &mousePos) {
-	assert(_state == state_visible);
 	if (_firstTab.PixelCheck(mousePos)) {
 		return _iconsName[0];
 	}

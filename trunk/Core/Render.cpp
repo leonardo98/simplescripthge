@@ -148,13 +148,10 @@ Texture::~Texture() {
 }
 
 bool Texture::IsNotTransparent(int x, int y) const {
-	if (x < _offsetX || y < _offsetY || x >= _offsetX + _width || y >= _offsetY + _height) {
-		return false;
-	}
 	HTEXTURE h;
 	h = _texture->GetTexture();
 	DWORD *dw;
-	dw = Render::GetDC()->Texture_Lock(h, true, _left + x - _offsetX, _top + y - _offsetY, 1, 1);
+	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;
 	Render::GetDC()->Texture_Unlock(h);
 	return result;

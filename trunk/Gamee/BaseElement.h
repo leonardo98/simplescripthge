@@ -6,7 +6,7 @@
 class BaseElement {
 public:
 	FPoint2D _pos;
-	BaseElement() : _active(false) {}
+	BaseElement() : _active(false) , _dead(false) {}
 	virtual void Draw() = 0;
 	virtual void DrawBottom() {}
 	virtual void Update(float dt) {}
@@ -14,8 +14,10 @@ public:
 	virtual void OnMouseDown(const FPoint2D &mousePos) {}
 	virtual void OnMouseMove(const FPoint2D &mousePos) {}
 	virtual void SetActive(bool active) { _active = active; }
+	inline bool Dead() { return _dead; }
 protected:
 	bool _active;
+	bool _dead;
 };
 
 enum PlantPlaceState {

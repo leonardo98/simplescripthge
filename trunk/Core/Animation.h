@@ -17,9 +17,9 @@ typedef std::vector<Bone *> BoneList;
 class Bone
 {
 public:
-	Bone(const char *id, const Matrix *main, const BoneType bt);
+	Bone(const char *id, const BoneType bt);
 	Bone(Bone &bone);
-	virtual void Draw(const Matrix &transform, float p) = 0; // [ 0<= p <= 1 ]
+	virtual void Draw(float p) = 0; // [ 0<= p <= 1 ]
 	virtual bool PixelCheck(const FPoint2D &pos) = 0;
 	virtual bool ReplaceTexture(const std::string &boneName, const char *texture);
 	virtual ~Bone() {}
@@ -27,7 +27,6 @@ public:
 	const BoneType boneType;
 protected:
 	void ResortBones();
-	const Matrix *_mainTransform;
 	BoneList _topBone;// links
 	BoneList _bottomBone;// links
 	BoneList _bones;
@@ -45,13 +44,12 @@ class MovingPart : public Bone
 {
 public:
 	~MovingPart();
-	MovingPart(TiXmlElement *xe, bool loop, const Matrix *main);
+	MovingPart(TiXmlElement *xe, bool loop);
 	MovingPart(MovingPart &movinPart);
-	virtual void Draw(const Matrix &transform, float p); // [ 0<= p <= 1 ]
+	virtual void Draw(float p); // [ 0<= p <= 1 ]
 	virtual bool PixelCheck(const FPoint2D &pos);
 	virtual bool ReplaceTexture(const std::string &boneName, const char *texture);
 private:
-	Matrix _transform;
 	SplinePath _x;
 	SplinePath _y;
 	SplinePath _angle;
@@ -67,9 +65,9 @@ private:
 class IKTwoBone : public Bone {
 public:
 	~IKTwoBone();
-	IKTwoBone(TiXmlElement *xe, bool loop, const Matrix *main);
+	IKTwoBone(TiXmlElement *xe, bool loop);
 	IKTwoBone(IKTwoBone &twoBone);
-	virtual void Draw(const Matrix &transform, float p); // [ 0<= p <= 1 ]
+	virtual void Draw(float p); // [ 0<= p <= 1 ]
 	virtual bool PixelCheck(const FPoint2D &pos);
 private:
 	void SetPos(float x, float y);
@@ -85,13 +83,10 @@ private:
 	float _baseAngleSecond;
 	FPoint2D _lastScreenConnectPos;
 	int _angleSign;
-	Matrix _firstTransform;
-	Matrix _secondTransform;
 	SplinePath _x;
 	SplinePath _y;
 
 	bool _freeBones;//unsafe to rotate|scale animation;
-	const Matrix *_local;
 };
 
 class Animation
@@ -110,10 +105,10 @@ public:
 	//bool RemoveBone(const std::string &boneName, Bone *bone); 
 private:
 	FPoint2D _pivotPos;
-	Matrix _mainMatrix;
 	float _time;
 	float _timeCounter;
 	BoneList _bones;
+	Matrix _subPosition;
 
 	friend class AnimationEditor;
 };

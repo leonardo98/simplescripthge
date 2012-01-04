@@ -190,7 +190,6 @@ void TreePlace::Update(float dt) {
 	if (_shakeTimeCounter > 0.f) {
 		_shakeTimeCounter -= dt;
 	}
-	_popupMenu.Update(dt);
 	if (_state == tps_no_plant || _state == tps_waiting_seed) {
 		return;
 	}

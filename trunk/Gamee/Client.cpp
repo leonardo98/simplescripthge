@@ -533,7 +533,7 @@ void Client::CreateSeller(const std::string &buyingType, int price) {
 
 	Init(6);// бабушка
 	_buyingType = buyingType;
-	_buying = new Animation(*Core::getAnimation( _buyingType + "_left"));
+	_buying = new Animation(*Core::getAnimation( _buyingType + "_leftidle"));
 	_price = price;
 	_progress.SetText(_priceStr = Math::IntToStr(price));	
 }
