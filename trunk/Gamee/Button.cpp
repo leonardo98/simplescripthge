@@ -24,10 +24,8 @@ bool Button::IsMouseOver(const FPoint2D &mousePos) {
 }
 
 void Button::OnMouseDown(const FPoint2D &mousePos) {
-	if (IsMouseOver(mousePos)) {
-		_current = _pressed;
-		_down = true;
-	}
+	_current = _pressed;
+	_down = true;
 }
 
 void Button::OnMouseMove(const FPoint2D &mousePos) {

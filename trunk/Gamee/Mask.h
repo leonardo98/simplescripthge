@@ -20,6 +20,8 @@ private:
 	virtual void OnMouseDown(const FPoint2D &mousePos);
 	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	FPoint2D _pos;
+	int _width;
+	int _height;
 	Texture *_texture;
 	LuaScript *_luaScript;
 };
