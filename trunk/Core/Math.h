@@ -13,7 +13,7 @@ public:
 	static bool GetCirclesIntersect2(float x1, float y1, float r1, float x2, float y2, float r2, FPoint2D &q1, FPoint2D &q2);
 	static float VMul(const FPoint2D &one, const FPoint2D &two);
 	static float SMul(const FPoint2D &one, const FPoint2D &two);
-	static const FPoint2D & lerp(const FPoint2D &one, const FPoint2D &two, float p);
+	static FPoint2D lerp(const FPoint2D &one, const FPoint2D &two, float p);
 	static bool STrinagle(float a, float b, float c, float &s);
 	static std::string IntToStr(int i);
 };
