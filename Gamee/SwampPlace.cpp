@@ -1,6 +1,7 @@
 #include "SwampPlace.h"
 #include "../Core/Core.h"
 #include "GameField.h"
+#include "ProductManager.h"
 
 SwampPlace::SwampPlace() {
 	_grass.Set(Core::getTexture("textures\\env_jungle\\swamp_grass.png"));
@@ -8,22 +9,10 @@ SwampPlace::SwampPlace() {
 	_tabDn.Set(Core::getTexture("textures\\env_jungle\\swamp_tab_dn.png"));
 	_tabUp.Set(Core::getTexture("textures\\env_jungle\\swamp_tab_up.png"));
 	_shakeTimeCounter = 0.f;
+	_pos = FPoint2D(968, 498);
 }
 
 void SwampPlace::Draw() {
-	_swamp.Render();
-	if (_shakeTimeCounter > 0.f) {
-		Render::PushMatrix();
-		Render::MatrixMove(984.f, 496.f);
-		Render::MatrixRotate(_shakeTimeCounter * 0.075f * sin(M_PI * 4 * _shakeTimeCounter));
-		Render::MatrixMove(-984.f, -496.f);
-		_tabDn.Render();
-		_tabUp.Render();
-		Render::PopMatrix();
-	} else {
-		_tabDn.Render();
-		_tabUp.Render();
-	}
 }
 
 void SwampPlace::DrawBottom() {
@@ -43,6 +32,19 @@ void SwampPlace::DrawBottom() {
 		Render::PopMatrix();
 		Render::SetBlendMode(BLEND_DEFAULT);
 	}
+	_swamp.Render();
+	if (_shakeTimeCounter > 0.f) {
+		Render::PushMatrix();
+		Render::MatrixMove(984.f, 496.f);
+		Render::MatrixRotate(_shakeTimeCounter * 0.075f * sin(M_PI * 4 * _shakeTimeCounter));
+		Render::MatrixMove(-984.f, -496.f);
+		_tabDn.Render();
+		_tabUp.Render();
+		Render::PopMatrix();
+	} else {
+		_tabDn.Render();
+		_tabUp.Render();
+	}
 }
 
 void SwampPlace::Update(float dt) {
@@ -57,6 +59,7 @@ bool SwampPlace::IsUnderMouse(const FPoint2D &mousePos) {
 
 void SwampPlace::OnMouseDown(const FPoint2D &mousePos) {
 	_shakeTimeCounter = 1.f;
+	GameField::AddDropEffect("Anna", _pos, 20.f);
 	AnnaPers::DropProduct();
 }
 

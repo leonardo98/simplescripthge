@@ -21,6 +21,7 @@
 #include "Foodpan.h"
 #include "ClientManager.h"
 #include "Moneypod.h"
+#include "DropEffect.h"
 
 class GameField 
 	:public InputSystem
@@ -40,6 +41,7 @@ public:
 	static void HideAllPopupMenu();
 	static void AddPopupMenu(PopupMenu *menu);
 	static void RemovePopupMenu(PopupMenu *menu);
+	static void AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height);
 	static ProductPlace * GetBuckPlace();
 	static EnvWell * GetWell();
 	static void AddBird(const std::string &birdId);
@@ -70,6 +72,9 @@ private:
 	AnnaPers _anna;
 	BobPers _bob;
 	GrandpaPers _grandpa;
+	static AnnaPers *_annaPtr;
+	static BobPers *_bobPtr;
+	static GrandpaPers *_grandpaPtr;
 	CloverField _cloverField;
 	GrainField _grainField;
 	TreePlace _treeBed1;

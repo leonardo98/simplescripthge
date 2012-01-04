@@ -14,7 +14,6 @@ BobPers::~BobPers() {
 
 BobPers::BobPers() 
 : SPEED(150.f)
-, _mirror(true)
 , _showAnimationCounter(0.f)
 {
 	assert(_current == NULL);
@@ -44,6 +43,7 @@ BobPers::BobPers()
 	_current = _leftFrontIdle[0];
 	_current->SetPos(_pos, _mirror);
 	_currentAction.complete = true;// null action for begining is complete
+	_mirror = _pos.x < 512.f;
 }
 
 void BobPers::Draw() {

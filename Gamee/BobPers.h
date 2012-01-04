@@ -2,10 +2,10 @@
 #define MYENGINE_BOBPERS_H
 
 #include "../Core/Animation.h"
-#include "BaseElement.h"
+#include "Pers.h"
 #include "Action.h"
 
-class BobPers : public BaseElement
+class BobPers : public Pers
 {
 public:
 	~BobPers();
@@ -29,7 +29,6 @@ private:
 	static Animation *_leftBack[2];
 	static Animation *_hoe;
 	Texture *_shadow;
-	bool _mirror;
 	float _showAnimationCounter;
 
 	FPoint2D _currentTarget;

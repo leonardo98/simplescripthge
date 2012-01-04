@@ -1,4 +1,5 @@
 #include "ProductManager.h"
+#include "GameField.h"
 
 ProductManager::Places ProductManager::_places;
 

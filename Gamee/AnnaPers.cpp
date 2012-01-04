@@ -15,7 +15,6 @@ AnnaPers::~AnnaPers()
 
 AnnaPers::AnnaPers() 
 : SPEED(150.f)
-, _mirror(true)
 , _harvesting(NULL)
 {
 	_showAnimationCounter = 0.f;
@@ -47,6 +46,8 @@ AnnaPers::AnnaPers()
 	_current = _leftFrontIdle[0];
 	_current->SetPos(_pos, _mirror);
 	_currentAction.complete = true;
+	_mirror = _pos.x < 512.f;
+	_productOffset = FPoint2D(0.f, -100);
 }
 
 void AnnaPers::Draw() {

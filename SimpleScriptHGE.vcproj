@@ -626,6 +626,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\Pers.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\PersPaths.h"
 					>
 				</File>

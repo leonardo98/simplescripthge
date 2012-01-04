@@ -17,7 +17,6 @@ GrandpaPers::~GrandpaPers()
 
 GrandpaPers::GrandpaPers() 
 : SPEED(150.f)
-, _mirror(true)
 , _showAnimationCounter(0.f)
 {
 	_pos = PersPaths::RandomPos();
@@ -45,6 +44,7 @@ GrandpaPers::GrandpaPers()
 	_current = _leftFrontIdle[0];
 	_current->SetPos(_pos, _mirror);
 	_currentAction.complete = true;
+	_mirror = _pos.x < 512.f;
 }
 
 void GrandpaPers::Draw() {

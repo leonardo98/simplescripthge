@@ -14,6 +14,7 @@ public:
 	static float VMul(const FPoint2D &one, const FPoint2D &two);
 	static float SMul(const FPoint2D &one, const FPoint2D &two);
 	static FPoint2D lerp(const FPoint2D &one, const FPoint2D &two, float p);
+	static float lerp(float one, float two, float p);
 	static bool STrinagle(float a, float b, float c, float &s);
 	static std::string IntToStr(int i);
 };

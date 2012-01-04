@@ -2,10 +2,10 @@
 #define MYENGINE_GRANDPAPERS_H
 
 #include "../Core/Animation.h"
-#include "BaseElement.h"
+#include "Pers.h"
 #include "Action.h"
 
-class GrandpaPers : public BaseElement
+class GrandpaPers : public Pers
 {
 public:
 	~GrandpaPers();
@@ -30,7 +30,6 @@ private:
 	static Animation *_seeding;
 	static Animation *_scythe;
 	Texture *_shadow;
-	bool _mirror;
 
 	FPoint2D _currentTarget;
 	FPoint2D _endTarget;

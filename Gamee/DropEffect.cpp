@@ -8,7 +8,7 @@ DropEffect::DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos,
 {
 	_shadow = Core::getTexture("persshadow");
 	_product = Core::getTexture("gui_" + product);
-	const float SPEED = 900;
+	const float SPEED = 500;
 	_timeCounter = _time = ((startPos + offsetStartPos) - (endPos + offsetEndPos)).Length() / SPEED;
 	_startPos.x += offsetStartPos.x;
 	_endPos.x += offsetEndPos.x;
@@ -20,7 +20,9 @@ DropEffect::DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos,
 void DropEffect::Draw() {
 	Render::PushMatrix();
 	Render::MatrixMove(_pos.x, _pos.y);
-	_product->Render( - _product->Width() / 2, - _startHeight - _product->Height() / 2);
+	float p = _timeCounter / _time;
+	float h = Math::lerp(_endHeight, _startHeight, p);
+	_product->Render( - _product->Width() / 2, - 100.f * sinf(M_PI * p) - h - _product->Height() / 2);
 	Render::PopMatrix();
 }
 
