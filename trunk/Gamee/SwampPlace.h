@@ -8,7 +8,8 @@ class SwampPlace : public BaseElement
 {
 public:
 	SwampPlace();
-	virtual void Draw();
+	virtual void Draw() {};
+	virtual void InnerDraw();
 	virtual void DrawBottom();
 	virtual void Update(float dt);
 	virtual bool IsUnderMouse(const FPoint2D &mousePos);
@@ -21,6 +22,7 @@ private:
 	StaticSprite _tabUp;
 	bool _isUnderMouse;
 	float _shakeTimeCounter;
+	float _waitShakeTimeCounter;
 };
 
 #endif//MYENGINE_SWAMPPLACE_H

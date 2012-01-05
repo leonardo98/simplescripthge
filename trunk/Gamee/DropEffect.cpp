@@ -43,3 +43,7 @@ void DropEffect::Update(float dt) {
 		}
 	}
 }
+
+float DropEffect::Time() {
+	return _time;
+}

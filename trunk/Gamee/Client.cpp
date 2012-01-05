@@ -134,6 +134,7 @@ Client::Client(float positionX)
 , _coinsEffect(0.f)
 , _buying(NULL)
 , _happy(false)
+, _pauseTime(0.f)
 {
 	_oldCoinsCounter = _coinsCounter = MAX_COINS;
 	_positionX = 1100.f;
@@ -321,7 +322,7 @@ void Client::DrawClient(float x, float y) {
 		} else if (f < 0.2f) {
 			_angry.Render();
 		}
-	} else if (_state == state_go_first || _product != NULL || _happy) {
+	} else if (_state == state_go_first || _state == state_wait_dropeffect || _product != NULL || _happy) {
 		_smile.Render();
 	} else if (_product == NULL) {
 		_angry.Render();
@@ -360,6 +361,9 @@ void Client::Draw() {
 }
 
 void Client::SetActive(bool active) {
+	if (!active && (_state == state_go_out || _state == state_wait_dropeffect)) {
+		return;
+	}
 	if ((_iActive != active && _product == NULL) || (_product != NULL && !_iActive && _iActive != active)) {
 		_iActive = active;
 		_busketUpCounter = 1.f - _busketUpCounter;
@@ -426,7 +430,15 @@ void Client::Update(float dt) {
 			_state = state_go_out;
 		}
 	}
-	if (_walkCounter > 0.f) {
+	if (_pauseTime > 0.f) {
+		_pauseTime -= dt;
+		if (_pauseTime <= 0.f) {
+			_state = state_go_out;
+			std::string id = "gui_" + _productWant;
+			_product = Core::getTexture(id);
+			SetPos(-100.f);
+		}
+	} else if (_walkCounter > 0.f) {
 		_walkCounter -= dt;
 		if (_walkCounter <= 0.f) {
 			if (_state == state_go_first) {
@@ -451,13 +463,16 @@ void Client::Update(float dt) {
 	}
 }
 
-void Client::SetProduct() {
-	std::string id = "gui_" + _productWant;
-	_product = Core::getTexture(id);
-	SetPos(-100.f);
-	_state = state_go_out;
+void Client::SetProduct(float time) {
+	_pauseTime = time;
+	_state = state_wait_dropeffect;
 	_waitProductCounter = 0.f;
 	_coinsEffect = 0.f;
+	//_happy = true; WARNING - use "_happy" for seller only!!!!
+	if (!_iActive) {
+		_iActive = true;
+		_busketUpCounter = 1.f - _busketUpCounter;
+	}
 
 	if (_coinsCounter > 6) {
 		Variables::SetAsInt("money", Variables::GetAsInt("money") + 30);
@@ -472,9 +487,9 @@ ClientStates Client::GetState() {
 	return _state;
 }
 
-void Client::SetState(ClientStates state) {
+void Client::SetState(ClientStates state) {//
 	_state = state;
-	if (state == state_go_out && _buying != NULL) {
+	if (state == state_go_out && _buying != NULL) {// для торгаша / for bird's seller
 		delete _buying;
 		_buying = NULL;
 		_waitProductCounter = 0.f;
@@ -526,7 +541,7 @@ float Client::GetPos() {
 }
 
 bool Client::IsWaitProduct() {
-	return _waitProductCounter > 0.f;
+	return _waitProductCounter > 0.f && _pauseTime <= 0.f;
 }
 
 void Client::CreateSeller(const std::string &buyingType, int price) {

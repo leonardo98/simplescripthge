@@ -255,6 +255,9 @@ void GameField::Draw() {
 	Render::PopMatrix();
 	DrawBushes();
 	_clientsManager.Draw();
+	for (ElementList::iterator i = _cover.begin(), e = _cover.end(); i != e; ++i) {
+		(*i)->Draw();
+	}
 	_moneypod.Draw();
 
 	_persPaths.Draw();
@@ -287,7 +290,20 @@ void GameField::Update(float dt) {
 	for (ElementList::iterator i = _elementList.begin(); i != _elementList.end(); ) {
 		(*i)->Update(dt);
 		if ((*i)->Dead()) {
+			delete (*i);
 			i = _elementList.erase(i);
+		} else if ((*i)->_pos.y >= 768.f) {
+			_cover.push_back(*i);
+			i = _elementList.erase(i);
+		} else {
+			++i;
+		}
+	}
+	for (ElementList::iterator i = _cover.begin(); i != _cover.end(); ) {
+		(*i)->Update(dt);
+		if ((*i)->Dead()) {
+			delete (*i);
+			i = _cover.erase(i);
 		} else {
 			++i;
 		}
@@ -362,7 +378,7 @@ void GameField::AddBird(const std::string &birdId) {
 ProductPlace * GameField::_buckPlace;
 EnvWell * GameField::_well;
 
-void GameField::AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height) {
+float GameField::AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height) {
 	Pers *pers = NULL;
 	std::string product;
 	if (persName == "Anna") {
@@ -380,7 +396,7 @@ void GameField::AddDropEffect(const std::string &persName, const FPoint2D &endPo
 	DropEffect *e = new DropEffect(pers->_pos, 
 						FPoint2D(pers->_mirror ? - pers->_productOffset.x : pers->_productOffset.x, pers->_productOffset.y),
 						endPos, 
-						FPoint2D(0, - height), product);
-
+						FPoint2D(0, - height), product);	
 	_elementList.push_back(e);
+	return e->Time();
 }
