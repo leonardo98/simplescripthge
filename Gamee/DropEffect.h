@@ -12,6 +12,7 @@ public:
 	virtual void Draw();
 	virtual void DrawBottom();
 	virtual void Update(float dt);
+	float Time();
 private:
 	FPoint2D _startPos;
 	float _startHeight;

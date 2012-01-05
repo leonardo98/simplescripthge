@@ -13,6 +13,7 @@ enum ClientStates {
 	state_stay,
 	state_time_out,
 	state_go_out,
+	state_wait_dropeffect,
 	state_finish
 };
 
@@ -25,7 +26,7 @@ public:
 	ClientStates GetState();
 	bool PixelCheck(const FPoint2D &mousePos);
 	void SetActive(bool active);
-	void SetProduct();
+	void SetProduct(float time);
 	void SetPos(float positionX);
 	float GetPos();
 	std::string _productWant;
@@ -92,6 +93,7 @@ private:
 	float _basketWaveCounter;
 	float _coinsEffect;
 	bool _hasBasket;
+	float _pauseTime;
 
 	const int MAX_COINS;
 	const int STEP_UP;

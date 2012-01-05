@@ -9,29 +9,11 @@ SwampPlace::SwampPlace() {
 	_tabDn.Set(Core::getTexture("textures\\env_jungle\\swamp_tab_dn.png"));
 	_tabUp.Set(Core::getTexture("textures\\env_jungle\\swamp_tab_up.png"));
 	_shakeTimeCounter = 0.f;
+	_waitShakeTimeCounter = 0.f;
 	_pos = FPoint2D(968, 498);
 }
 
-void SwampPlace::Draw() {
-}
-
-void SwampPlace::DrawBottom() {
-	_grass.Render();
-	if (_active) {
-		float b = GameField::SELECTION_BORDER;
-		Render::SetBlendMode(3);
-		Render::PushMatrix();
-		Render::MatrixMove(-b, 0);
-		Draw();
-		Render::MatrixMove(2 * b, 0);
-		Draw();
-		Render::MatrixMove(-b, b);
-		Draw();
-		Render::MatrixMove(0, -2 * b);
-		Draw();
-		Render::PopMatrix();
-		Render::SetBlendMode(BLEND_DEFAULT);
-	}
+void SwampPlace::InnerDraw() {
 	_swamp.Render();
 	if (_shakeTimeCounter > 0.f) {
 		Render::PushMatrix();
@@ -47,8 +29,33 @@ void SwampPlace::DrawBottom() {
 	}
 }
 
+void SwampPlace::DrawBottom() {
+	_grass.Render();
+	if (_active) {
+		float b = GameField::SELECTION_BORDER;
+		Render::SetBlendMode(3);
+		Render::PushMatrix();
+		Render::MatrixMove(-b, 0);
+		InnerDraw();
+		Render::MatrixMove(2 * b, 0);
+		InnerDraw();
+		Render::MatrixMove(-b, b);
+		InnerDraw();
+		Render::MatrixMove(0, -2 * b);
+		InnerDraw();
+		Render::PopMatrix();
+		Render::SetBlendMode(BLEND_DEFAULT);
+	}
+	InnerDraw();
+}
+
 void SwampPlace::Update(float dt) {
-	if (_shakeTimeCounter > 0.f) {
+	if (_waitShakeTimeCounter > 0.f) {
+		_waitShakeTimeCounter -= dt;
+		if (_waitShakeTimeCounter <= 0.f) {
+			_shakeTimeCounter = 1.f;
+		}
+	} else if (_shakeTimeCounter > 0.f) {
 		_shakeTimeCounter -= dt;
 	}
 }
@@ -59,8 +66,10 @@ bool SwampPlace::IsUnderMouse(const FPoint2D &mousePos) {
 
 void SwampPlace::OnMouseDown(const FPoint2D &mousePos) {
 	_shakeTimeCounter = 1.f;
-	GameField::AddDropEffect("Anna", _pos, 20.f);
-	AnnaPers::DropProduct();
+	if (AnnaPers::GetProductType() != "") {
+		_waitShakeTimeCounter = GameField::AddDropEffect("Anna", _pos, 20.f);
+		AnnaPers::DropProduct();
+	}
 }
 
 void SwampPlace::OnMouseMove(const FPoint2D &mousePos) {
