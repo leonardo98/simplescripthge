@@ -47,7 +47,7 @@ AnnaPers::AnnaPers()
 	_current->SetPos(_pos, _mirror);
 	_currentAction.complete = true;
 	_mirror = _pos.x < 512.f;
-	_productOffset = FPoint2D(0.f, -100);
+	_productOffset = FPoint2D(-24, -59);
 }
 
 void AnnaPers::Draw() {
