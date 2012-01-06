@@ -29,6 +29,7 @@ public:
 	void SetProduct(float time);
 	void SetPos(float positionX);
 	float GetPos();
+	float GetRealPos();
 	std::string _productWant;
 	bool IsWaitProduct();
 	void SetState(ClientStates state);

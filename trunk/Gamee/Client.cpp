@@ -135,6 +135,7 @@ Client::Client(float positionX)
 , _buying(NULL)
 , _happy(false)
 , _pauseTime(0.f)
+, _walkCounter(0.f)
 {
 	_oldCoinsCounter = _coinsCounter = MAX_COINS;
 	_positionX = 1100.f;
@@ -346,7 +347,7 @@ void Client::DrawClient(float x, float y) {
 
 void Client::Draw() {
 	float f;
-	if (_state == state_go_first || _state == state_go_out || _state == state_go) {
+	if (_walkCounter > 0.f) {//_state == state_go_first || _state == state_go_out || _state == state_go) {
 		 f = -fabs(5.5f * sinf(0 + 2 * M_PI * _walkCounter));
 		_pos.x = _positionX + SPEED * _walkCounter - 100.f;
 	} else {
@@ -538,6 +539,10 @@ void Client::SetPos(float positionX) {
 
 float Client::GetPos() {
 	return _positionX;
+}
+
+float Client::GetRealPos() {
+	return _pos.x;
 }
 
 bool Client::IsWaitProduct() {
