@@ -15,6 +15,7 @@ DropEffect::DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos,
 	_startHeight = - offsetStartPos.y;
 	_endHeight = - offsetEndPos.y;
 	_pos = _startPos;
+	_dugaHeight = 50.f + (_startPos - _endPos).Length() / SPEED * 100.f;
 }
 
 void DropEffect::Draw() {
@@ -22,7 +23,7 @@ void DropEffect::Draw() {
 	Render::MatrixMove(_pos.x, _pos.y);
 	float p = _timeCounter / _time;
 	float h = Math::lerp(_endHeight, _startHeight, p);
-	_product->Render( - _product->Width() / 2, - 150.f * sinf(M_PI * p) - h - _product->Height() / 2);
+	_product->Render( - _product->Width() / 2, - _dugaHeight * sinf(M_PI * p) - h - _product->Height() / 2);
 	Render::PopMatrix();
 }
 

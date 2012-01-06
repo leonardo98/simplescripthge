@@ -94,9 +94,10 @@ void AnnaPers::Update(float dt) {
 		} else if (_currentAction.productPlace) {
 			std::string action = _currentAction.productPlace->WhatToDo();
 			if (action == "put" && _product == 1) {
-				_currentAction.productPlace->SetProduct(_productType, _pos.x > _currentAction.productPlace->_pos.x);
+				//_currentAction.productPlace->SetProduct(_productType, _pos.x > _currentAction.productPlace->_pos.x);
+				//DropProduct();
+				_currentAction.productPlace->OnMouseDown(_currentAction.productPlace->_pos);
 				_currentAction.complete = true;
-				DropProduct();
 			} else if ((_pos - _currentAction.productPlace->annaPos).Length() < 16.f) {
 				CheckAction();
 			} else {
@@ -269,8 +270,9 @@ bool AnnaPers::CheckAction() {
 		if (_currentAction.productPlace) {
 			std::string action = _currentAction.productPlace->WhatToDo();
 			if (action == "put" && _product == 1) {
-				_currentAction.productPlace->SetProduct(_productType, _pos.x > _currentAction.productPlace->_pos.x);
-				DropProduct();
+				_currentAction.productPlace->OnMouseDown(_currentAction.productPlace->_pos);
+				//_currentAction.productPlace->SetProduct(_productType, _pos.x > _currentAction.productPlace->_pos.x);
+				//DropProduct();
 			} else if (action == "take" && _product == 0) {
 				std::string pt = _currentAction.productPlace->GetProduct();
 				if (pt != "") {
@@ -292,8 +294,9 @@ bool AnnaPers::CheckAction() {
 				return true;
 			} else if (s == waiting_water && _product == 1 && _productType == "water") {
 				assert(false);// bob should do it
-				DropProduct();
-				_currentAction.plantPlace->SomeAction();
+				//DropProduct();
+				//_currentAction.plantPlace->SomeAction();
+				_currentAction.productPlace->OnMouseDown(_currentAction.productPlace->_pos);
 			} else if (s == waiting_seed) {
 				_showAnimationCounter = 2.f;
 				_currentAction.plantPlace->SomeAction(_showAnimationCounter);

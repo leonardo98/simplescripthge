@@ -22,6 +22,7 @@ private:
 	float _time;
 	Texture *_shadow;
 	Texture *_product;
+	float _dugaHeight;
 };
 
 #endif//GAME1_DROPEFFECT_H

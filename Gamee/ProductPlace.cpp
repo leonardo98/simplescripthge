@@ -6,6 +6,7 @@
 
 ProductPlace::ProductPlace(PlaceType pt) 
 : _effect(0.f)
+, _waitDropEffect(0.f)
 {
 	Matrix m;
 	m.Scale(-1.f, 1.f);
@@ -119,18 +120,18 @@ void ProductPlace::DrawBottom() {
 }
 
 void ProductPlace::Draw() {
-	if (_product) {
+	if (_product && _waitDropEffect <= 0.f) {
 		if (_effect > 0.f) {
 			Render::PushMatrix();
-			float fx = 20.f * _effect * _effect;
+			float f = max(0.f, _effect * 3 - 2.f);
+			float fx = 10.f * f;
 			float fy = 20.f * _effect * fabs(sin(3 * M_PI_2 * _effect));
 			if (_mirrorEffect) {
 				fx = -fx;
 			}
-			float f = _effect * 2 - 1.f;
-			Render::SetAlpha(0xFF - 0xFF * max(0.f, f));
+			Render::SetAlpha(0xFF - 0xFF * f);
 			Render::MatrixMove(_pos.x - fx, _pos.y - fy);
-			Render::MatrixRotate(_effect * 0.3f * sin(M_PI * 2 * _effect));
+			Render::MatrixRotate(_effect * 0.3f * sin(M_PI * 3 * _effect));
 			Render::MatrixMove(-_pos.x, -_pos.y);
 			_product->Render();
 			Render::SetAlpha(0xFF);
@@ -142,6 +143,14 @@ void ProductPlace::Draw() {
 }
 
 void ProductPlace::Update(float dt) {
+	if (_waitDropEffect > 0.f) {
+		_waitDropEffect -= dt;
+		if (_waitDropEffect <= 0.f) {
+			dt += _waitDropEffect;
+		} else {
+			return;
+		}
+	}
 	if (_effect > 0.f) {
 		_effect -= dt * 3;
 	}
@@ -150,6 +159,15 @@ void ProductPlace::Update(float dt) {
 void ProductPlace::OnMouseDown(const FPoint2D &mousePos) {
 	if (_placeType == pt_water || _placeType == pt_grain || _placeType == pt_clover) {
 		BobPers::NewAction("", this);
+	} else if ((_placeType == pt_free1 || _placeType == pt_free2) && AnnaPers::GetProductType() != "" && _product == NULL) {
+		_waitDropEffect = GameField::AddDropEffect("Anna", _pos, 20.f);
+		_productType = AnnaPers::GetProductType();
+		Texture *texture = Core::getTexture("gui_" + _productType);
+		_product = new StaticSprite();
+		_product->Set(texture, _pos.x - texture->Width() / 2, _pos.y - 2 * texture->Height() / 3);
+		_mirrorEffect = false;
+		_effect = 2.f / 3.f;
+		AnnaPers::DropProduct();
 	} else {
 		AnnaPers::NewAction("", this);
 	}
