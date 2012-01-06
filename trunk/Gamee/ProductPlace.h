@@ -43,6 +43,7 @@ protected:
 	float _effect;
 	std::string _productType;
 	bool _mirrorEffect;
+	float _waitDropEffect;
 };
 
 #endif//MYENGINE_PRODUCTPLACE_H
