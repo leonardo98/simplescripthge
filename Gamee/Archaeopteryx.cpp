@@ -9,23 +9,28 @@ const float Archaeopteryx::SPEED = 80.f;
 Archaeopteryx::Archaeopteryx(const std::string &birdId) 
 : _mirror(rand() % 2 == 1)
 {
+    _waterPos = FPoint2D(771, 628);
+    _foodPos = FPoint2D(733, 540);
+    _turnPoint = FPoint2D(900, 595);
+	_eggPos = FPoint2D(900, 595);
+
 	BirdsManager::_birds.push_back(this);
 
 	if (birdId != "") {
 		_birdsType = birdId.substr(0, birdId.length() - 2);
 		_sex = birdId[birdId.length() - 1];
-		_boy = (_sex == "b");
+		_boy = (_sex == "b") && false;// test/debug only
 		_lifeTimeCounter = Math::random(0.1f, 2.f);
 	} else {
-		if (rand() % 2 == 1) {
+		if (rand() % 2 == 1 && false) {// test/debug only
 			_birdsType = "archaeopteryx";
 		} else {
 			_birdsType = "dodo";
 		}
 
-		_boy = (rand() % 2 == 1);
+		_boy = (rand() % 2 == 1) && false;// test/debug only
 
-		if (rand() % 2 <= 1) {
+		if (rand() % 2 < 1 || true) {// test/debug only
 			_age = age_young;
 			if (_boy) {
 				_sex = "b";
@@ -35,6 +40,8 @@ Archaeopteryx::Archaeopteryx(const std::string &birdId)
 			_lifeTimeCounter = Math::random(0.1f, 2.f);
 		} else {
 			_age = age_adult;
+			_waterPos.x += 10;
+			_foodPos.x += 10;
 			if (_boy) {
 				_sex = "m";
 			} else {
@@ -91,11 +98,6 @@ Archaeopteryx::Archaeopteryx(const std::string &birdId)
     _productCircleStates.push_back(state_want_drink);
     _productCircleStates.push_back(state_want_eat);
     
-    _waterPos = FPoint2D(771, 628);
-    _foodPos = FPoint2D(733, 540);
-    _turnPoint = FPoint2D(900, 595);
-	_eggPos = FPoint2D(900, 595);
-
     _nextState = state_none;
     _runAwayTimeCounter = 0.f;
 }
@@ -243,6 +245,9 @@ void Archaeopteryx::Update(float dt) {
 	            } else {
 		            _sex = "w";
 				}
+				_age = age_adult;
+				_waterPos.x += 10;
+				_foodPos.x += 10;
 			    SetupAnimation();
 				return;
 			} else if (_productCircleStates.size()) {

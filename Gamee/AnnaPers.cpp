@@ -93,10 +93,10 @@ void AnnaPers::Update(float dt) {
 			}
 		} else if (_currentAction.productPlace) {
 			std::string action = _currentAction.productPlace->WhatToDo();
-			if (action == "put" && _product == 1) {
+			if (action == "put" && _product == 1 && _productType != "eggs_dodo") {
 				//_currentAction.productPlace->SetProduct(_productType, _pos.x > _currentAction.productPlace->_pos.x);
 				//DropProduct();
-				_currentAction.productPlace->OnMouseDown(_currentAction.productPlace->_pos);
+				_currentAction.productPlace->OnMouseDown(_currentAction.productPlace->_pos);// hack
 				_currentAction.complete = true;
 			} else if ((_pos - _currentAction.productPlace->annaPos).Length() < 16.f) {
 				CheckAction();
@@ -270,9 +270,9 @@ bool AnnaPers::CheckAction() {
 		if (_currentAction.productPlace) {
 			std::string action = _currentAction.productPlace->WhatToDo();
 			if (action == "put" && _product == 1) {
-				_currentAction.productPlace->OnMouseDown(_currentAction.productPlace->_pos);
-				//_currentAction.productPlace->SetProduct(_productType, _pos.x > _currentAction.productPlace->_pos.x);
-				//DropProduct();
+				//_currentAction.productPlace->OnMouseDown(_currentAction.productPlace->_pos);
+				_currentAction.productPlace->SetProduct(_productType, _pos.x > _currentAction.productPlace->_pos.x);
+				DropProduct();
 			} else if (action == "take" && _product == 0) {
 				std::string pt = _currentAction.productPlace->GetProduct();
 				if (pt != "") {
