@@ -27,8 +27,9 @@ void VipClient::Init(int index) {
 	}
 	_lastBag = _oldLastBag = &_bagLarge;
 
-	_state = vip_state_wait_product;
-	_waitProductCounter = WAIT_PRODUCT_TIME;
+	_state = vip_state_show;
+	_effect = 1.f;
+	_waitProductCounter = 0.f;
 }
 
 VipClient::~VipClient() {
@@ -43,6 +44,7 @@ VipClient::VipClient()
 , _product(NULL)
 , _bagEffect(0.f)
 , _waitProductCounter(0.f)
+, _invisibleTimeCounter(0.f)
 {
 	_state = vip_state_invisible;
 
@@ -88,7 +90,17 @@ VipClient::VipClient()
 	_progress.SetIcon("gui_" + _productWant);
 	_progress.Move(0, 44);
 
-	_pos = FPoint2D(900, 200);
+	_pos = FPoint2D(898, 150);
+	_posx.Clear();
+	_posx.addKey(0.f);
+	_posx.addKey(10.f);
+	_posx.addKey(150.f);
+	_posx.CalculateGradient();
+	_posAngle.Clear();
+	_posAngle.addKey(0.f);
+	_posAngle.addKey(-0.05f);
+	_posAngle.addKey(0.8f);
+	_posAngle.CalculateGradient();
 }
 
 void VipClient::DrawLeftHand() {
@@ -204,7 +216,7 @@ void VipClient::DrawClient(float x, float y) {
 		} else if (f < 0.2f) {
 			_angry.Render();
 		}
-	} else if (_state == vip_state_wait_dropeffect || (_state == vip_state_hide && _product != NULL)) {
+	} else if (_state == vip_state_wait_dropeffect || _state == vip_state_show || (_product != NULL)) {
 		_smile.Render();
 	} else if (_product == NULL) {
 		_angry.Render();
@@ -221,7 +233,9 @@ void VipClient::DrawClient(float x, float y) {
 }
 
 void VipClient::Draw() {
-	float f;
+	if (_state == vip_state_invisible) {
+		return;
+	}
 	//if (_walkCounter > 0.f) {//_state == state_go_first || _state == state_go_out || _state == state_go) {
 	//	 f = -fabs(5.5f * sinf(0 + 2 * M_PI * _walkCounter));
 	//	_pos.x = _positionX + SPEED * _walkCounter - 100.f;
@@ -233,6 +247,39 @@ void VipClient::Draw() {
 	//	_pos.x = _positionX - 100.f;
 	//}	
 	//_pos.y = f + 635.f;
+	if (_effect > 0.f) {
+		float f;
+		if (_state == vip_state_show) {
+			f = _effect;
+		} else if (_state == vip_state_hide) {
+			f = 1 - _effect;
+		} else {
+			assert(false);
+		}
+		Render::PushMatrix();
+		Render::MatrixMove(_pos.x + _posx.getGlobalFrame(f), _pos.y);
+		Render::MatrixMove(126, 126);
+		Render::MatrixRotate(_posAngle.getGlobalFrame(f));
+		Render::MatrixMove(-126, -126);
+		DrawClient(0, 0);
+		Render::PopMatrix();
+		return;
+	}
+	if (_iActive) {
+		float b = 2;
+		Render::SetBlendMode(3);
+		Render::PushMatrix();
+		Render::MatrixMove(-b, 0);
+		DrawClient(_pos.x, _pos.y);
+		Render::MatrixMove(2 * b, 0);
+		DrawClient(_pos.x, _pos.y);
+		Render::MatrixMove(-b, b);
+		DrawClient(_pos.x, _pos.y);
+		Render::MatrixMove(0, -2 * b);
+		DrawClient(_pos.x, _pos.y);
+		Render::PopMatrix();
+		Render::SetBlendMode(BLEND_DEFAULT);
+	}
 	DrawClient(_pos.x, _pos.y);
 }
 
@@ -252,6 +299,28 @@ void VipClient::SetActive(bool active) {
 }
 
 void VipClient::Update(float dt) {
+	if (_invisibleTimeCounter > 0.f) {
+		_invisibleTimeCounter -= dt;
+		if (_invisibleTimeCounter <= 0.f) {
+			Init(rand() % 3 + 1);
+			_state = vip_state_show;
+			_effect = 1.f;
+		}
+	}
+	if (_effect > 0.f) {
+		_effect -= dt / 0.8f;
+		if (_effect < 0.f) {
+			if (_state == vip_state_show) {
+				_state = vip_state_wait_product;
+				_waitProductCounter = WAIT_PRODUCT_TIME;
+			} else if (_state == vip_state_hide) {
+				_state = vip_state_invisible;
+				_invisibleTimeCounter = Math::random(0.1f, 1.f);
+			}
+		} else {
+			return;
+		}
+	}
 	if (_bagEffect > 0.f) {
 		_bagEffect -= dt * 3.f;
 	}
@@ -297,6 +366,7 @@ void VipClient::Update(float dt) {
 		_waitProductCounter -= dt;
 		if (_waitProductCounter <= 0.f) {
 			_state = vip_state_hide;
+			_effect = 1.f;
 		}
 	}
 }
@@ -353,5 +423,8 @@ void VipClient::OnMouseMove(const FPoint2D &mousePos) {
 }
 
 void VipClient::OnMouseDown(const FPoint2D &mousePos) {
-	Init(rand() % 3 + 1);
+	_state = vip_state_hide;
+	_effect = 1.f;
+	_iActive = false;
+	_waitProductCounter = 0.f;
 }

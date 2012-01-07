@@ -9,7 +9,7 @@
 
 enum VipClientStates {
 	vip_state_invisible,
-	vip_state_shoe,
+	vip_state_show,
 	vip_state_hide,
 	vip_state_wait_product,
 	vip_state_wait_dropeffect
@@ -77,6 +77,10 @@ private:
 	float _basketWaveCounter;
 	bool _hasBasket;
 	float _bagEffect;
+	float _effect;
+	float _invisibleTimeCounter;
+	SplinePath _posx;
+	SplinePath _posAngle;
 
 	FPoint2D _pos;
 };
