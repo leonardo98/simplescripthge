@@ -81,6 +81,7 @@ private:
 	float _invisibleTimeCounter;
 	SplinePath _posx;
 	SplinePath _posAngle;
+	float _pauseTime;
 
 	FPoint2D _pos;
 };

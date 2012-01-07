@@ -8,7 +8,7 @@
 class DropEffect : public BaseElement
 {
 public:
-	DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos, const FPoint2D &endPos, const FPoint2D &offsetEndPos, const std::string &product);
+	DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos, const FPoint2D &endPos, const FPoint2D &offsetEndPos, const std::string &product, unsigned char endAlpha, float endScale);
 	virtual void Draw();
 	virtual void DrawBottom();
 	virtual void Update(float dt);
@@ -23,6 +23,8 @@ private:
 	Texture *_shadow;
 	Texture *_product;
 	float _dugaHeight;
+	unsigned char _endAlpha;
+	float _endScale;
 };
 
 #endif//GAME1_DROPEFFECT_H

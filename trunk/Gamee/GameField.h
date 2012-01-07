@@ -42,7 +42,7 @@ public:
 	static void HideAllPopupMenu();
 	static void AddPopupMenu(PopupMenu *menu);
 	static void RemovePopupMenu(PopupMenu *menu);
-	static float AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height);
+	static float AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height, unsigned char endAlpha = 0xFF, float endScale = 1.f);
 	static ProductPlace * GetBuckPlace();
 	static EnvWell * GetWell();
 	static void AddBird(const std::string &birdId);
