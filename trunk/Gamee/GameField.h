@@ -22,6 +22,7 @@
 #include "ClientManager.h"
 #include "Moneypod.h"
 #include "DropEffect.h"
+#include "VipClient.h"
 
 class GameField 
 	:public InputSystem
@@ -100,6 +101,7 @@ private:
 	typedef std::vector<Archaeopteryx *> Birds;
 	static Birds _archaeopteryx;
 	SwampPlace _swampPlace;
+	VipClient _vipClients;
 
 	StaticSprite _bush1;
 	StaticSprite _bush2;

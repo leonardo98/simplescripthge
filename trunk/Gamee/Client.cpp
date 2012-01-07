@@ -340,7 +340,7 @@ void Client::DrawClient(float x, float y) {
 		_progress.Draw(0.f);
 	}
 	Render::PopMatrix();
-	if (_waitProductCounter > 0.f) {
+	if (_waitProductCounter > 0.f && _buying != NULL) {
 		Render::PrintString(_pos.x + 37, _pos.y + 30, "data\\fonts\\arialblack20.fnt", _priceStr, 0xFF000000);
 	}
 }

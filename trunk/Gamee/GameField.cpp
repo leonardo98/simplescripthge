@@ -39,6 +39,10 @@ void GameField::OnMouseDown(const FPoint2D &mousePos) {
 		_persPaths.OnMouseDown(mousePos);
 		return;
 	}
+	if (_vipClients.IsUnderMouse(mousePos)) {
+		_vipClients.OnMouseDown(mousePos);
+		return;
+	}
 	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
 		if ((*i)->IsUnderMouse(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
@@ -258,6 +262,7 @@ void GameField::Draw() {
 	for (ElementList::iterator i = _cover.begin(), e = _cover.end(); i != e; ++i) {
 		(*i)->Draw();
 	}
+	_vipClients.Draw();
 	_moneypod.Draw();
 
 	_persPaths.Draw();
@@ -269,6 +274,8 @@ void GameField::OnMouseUp() {
 
 void GameField::OnMouseMove(const FPoint2D &mousePos) {
 	_persPaths.OnMouseMove(mousePos);
+
+	_vipClients.OnMouseMove(mousePos);
 
 	_lastMousePos = mousePos;
 	bool isActive = false;
@@ -284,6 +291,7 @@ void GameField::OnMouseMove(const FPoint2D &mousePos) {
 }
 
 void GameField::Update(float dt) {
+	_vipClients.Update(dt);
 	for (PopupMenus::iterator i = _popupMenus.begin(), e = _popupMenus.end(); i != e; ++i) {
 		(*i)->Update(dt);
 	}

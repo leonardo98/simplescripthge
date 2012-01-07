@@ -33,7 +33,7 @@ void ClientManager::OnMouseDown(const FPoint2D &mousePos) {
 			_activeClient->SetState(state_go_out);
 		}
 	} else if (_activeClient->IsWaitProduct() && _activeClient->_productWant == AnnaPers::GetProductType()) {
-		float time = GameField::AddDropEffect("Anna", FPoint2D(_activeClient->GetRealPos() + 30, 753.f + 100), 100.f);
+		float time = GameField::AddDropEffect("Anna", FPoint2D(_activeClient->GetRealPos() + 33, 753.f + 100), 100.f);
 		AnnaPers::DropProduct();
 		_activeClient->SetProduct(time);
 		_newClientTimeCounter = /*time + */Math::random(0.1f, 0.3f);

@@ -6,6 +6,7 @@
 class BaseElement {
 public:
 	FPoint2D _pos;
+	virtual ~BaseElement() {}
 	BaseElement() : _active(false) , _dead(false) {}
 	virtual void Draw() = 0;
 	virtual void DrawBottom() {}
