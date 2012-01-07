@@ -384,6 +384,7 @@ void VipClient::Update(float dt) {
 		if (_waitProductCounter <= 0.f) {
 			_state = vip_state_hide;
 			_effect = 1.f;
+			_basketWaveCounter = 1.f;
 		}
 	}
 }
@@ -393,9 +394,10 @@ void VipClient::SetProduct(float time) {
 	_waitProductCounter = 0.f;
 	_pauseTime = time;
 	_bagEffect = 0.f;
-	if (!_iActive) {
-		_iActive = true;
+	if (_iActive) {
+		_iActive = false;
 		_busketUpCounter = 1.f - _busketUpCounter;
+		_stableTime = 0.f;
 	}
 
 	if (_lastBag == &_bagLarge) {
@@ -428,6 +430,9 @@ bool VipClient::IsUnderMouse(const FPoint2D &mousePos) {
 }
 
 void VipClient::OnMouseMove(const FPoint2D &mousePos) {
+	if (_state != vip_state_wait_product && !_iActive) {
+		return;
+	}
 	bool b = IsUnderMouse(mousePos);
 	if (!_iActive && b) {
 		_iActive = true;

@@ -133,11 +133,21 @@ void ProductPlace::Draw() {
 			Render::MatrixMove(_pos.x - fx, _pos.y - fy);
 			Render::MatrixRotate(_effect * 0.3f * sin(M_PI * 3 * _effect));
 			Render::MatrixMove(-_pos.x, -_pos.y);
+			if (_placeType == pt_egg) {
+				Render::MatrixMove(0, - 18);//_product->SpriteHeight() / 2 = 32
+			}
 			_product->Render();
 			Render::SetAlpha(0xFF);
 			Render::PopMatrix();
 		} else {
-			_product->Render();
+			if (_placeType == pt_egg) {
+				Render::PushMatrix();
+				Render::MatrixMove(0, - 18);//_product->SpriteHeight() / 2 = 32
+				_product->Render();
+				Render::PopMatrix();
+			} else {
+				_product->Render();
+			}
 		}
 	}
 }
@@ -159,7 +169,7 @@ void ProductPlace::Update(float dt) {
 void ProductPlace::OnMouseDown(const FPoint2D &mousePos) {
 	if (_placeType == pt_water || _placeType == pt_grain || _placeType == pt_clover) {
 		BobPers::NewAction("", this);
-	} else if ((_placeType == pt_free1 || _placeType == pt_free2) && AnnaPers::GetProductType() != "" && _product == NULL) {
+	} else if ((_placeType == pt_free1 || _placeType == pt_free2) && AnnaPers::GetProductType() != "eggs_dodo" && AnnaPers::GetProductType() != "" && _product == NULL) {
 		_waitDropEffect = GameField::AddDropEffect("Anna", _pos, 20.f);
 		_productType = AnnaPers::GetProductType();
 		Texture *texture = Core::getTexture("gui_" + _productType);
@@ -195,7 +205,7 @@ void ProductPlace::SetProduct(const std::string &product, bool mirrorEffect) {
 	_product = new StaticSprite();
 	_product->Set(texture, _pos.x - texture->Width() / 2, _pos.y - 2 * texture->Height() / 3);
 	_productType = product;
-	if (_placeType == pt_egg) {
+	if (_placeType == pt_egg || _productType == "eggs_dodo") {
 		_effect = 0.f;
 	} else {
 		_mirrorEffect = mirrorEffect;
