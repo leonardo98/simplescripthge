@@ -386,7 +386,7 @@ void GameField::AddBird(const std::string &birdId) {
 ProductPlace * GameField::_buckPlace;
 EnvWell * GameField::_well;
 
-float GameField::AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height) {
+float GameField::AddDropEffect(const std::string &persName, const FPoint2D &endPos, float height, unsigned char endAlpha, float endScale) {
 	Pers *pers = NULL;
 	std::string product;
 	if (persName == "Anna") {
@@ -404,7 +404,8 @@ float GameField::AddDropEffect(const std::string &persName, const FPoint2D &endP
 	DropEffect *e = new DropEffect(pers->_pos, 
 						FPoint2D(pers->_mirror ? - pers->_productOffset.x : pers->_productOffset.x, pers->_productOffset.y),
 						endPos, 
-						FPoint2D(0, - height), product);	
+						FPoint2D(0, - height), product, 
+						endAlpha, endScale);	
 	_elementList.push_back(e);
 	return e->Time();
 }

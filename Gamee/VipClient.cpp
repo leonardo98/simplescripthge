@@ -1,4 +1,6 @@
 #include "VipClient.h"
+#include "AnnaPers.h"
+#include "GameField.h"
 #include "../Core/Math.h"
 #include "../Core/Variables.h"
 
@@ -30,13 +32,31 @@ void VipClient::Init(int index) {
 	_state = vip_state_show;
 	_effect = 1.f;
 	_waitProductCounter = 0.f;
+
+	r = rand() % 6;
+	if (r == 0) {
+		_productWant = "onion";
+	} else if (r == 1) {
+		_productWant = "beet";
+	} else if (r == 2) {
+		_productWant = "pumpkin";
+	} else if (r == 3) {
+		_productWant = "avocado";
+	} else if (r == 4) {
+		_productWant = "banana";
+	} else {
+		_productWant = "peach";
+	}
+	_progress.SetIcon("gui_" + _productWant);
+	_pauseTime = 0.f;
+	_product = NULL;
 }
 
 VipClient::~VipClient() {
 }
 
 VipClient::VipClient() 
-: WAIT_PRODUCT_TIME(10.f)
+: WAIT_PRODUCT_TIME(90.f)
 , _busketUpCounter(0.f)
 , _iActive(false)
 , _stableTime(0.f)
@@ -73,21 +93,6 @@ VipClient::VipClient()
 	MUL_HEAD_COUNTER = 0.4f;
 	_eyesCounter = 0.f;
 
-	int r = rand() % 6;
-	if (r == 0) {
-		_productWant = "onion";
-	} else if (r == 1) {
-		_productWant = "beet";
-	} else if (r == 2) {
-		_productWant = "pumpkin";
-	} else if (r == 3) {
-		_productWant = "avocado";
-	} else if (r == 4) {
-		_productWant = "banana";
-	} else {
-		_productWant = "peach";
-	}
-	_progress.SetIcon("gui_" + _productWant);
 	_progress.Move(0, 44);
 
 	_pos = FPoint2D(898, 150);
@@ -191,7 +196,11 @@ void VipClient::DrawRightHand() {
 		_rightHand.Render();
 	}	
 	if (_product) {
-		_product->Render(11, 90);// иконка чуток не попадала - подвинул
+		Render::PushMatrix();
+		Render::MatrixMove(18, 133);
+		Render::MatrixScale(0.75f, 0.75f);
+		_product->Render(0, 0);// иконка чуток не попадала - подвинул
+		Render::PopMatrix();
 	}
 	if (_hasBasket) {
 		_basketFront[_basketType].Render();
@@ -362,7 +371,15 @@ void VipClient::Update(float dt) {
 		_headAngle.addKey(0.f);
 		_headAngle.CalculateGradient(true);
 	}
-	if (_waitProductCounter > 0.f) {
+	if (_pauseTime > 0.f) {
+		_pauseTime -= dt;
+		if (_pauseTime <= 0.f) {
+			_state = vip_state_hide;
+			_effect = 1.f;
+			std::string id = "gui_" + _productWant;
+			_product = Core::getTexture(id);
+		}
+	} else if (_waitProductCounter > 0.f) {
 		_waitProductCounter -= dt;
 		if (_waitProductCounter <= 0.f) {
 			_state = vip_state_hide;
@@ -374,6 +391,7 @@ void VipClient::Update(float dt) {
 void VipClient::SetProduct(float time) {
 	_state = vip_state_wait_dropeffect;
 	_waitProductCounter = 0.f;
+	_pauseTime = time;
 	_bagEffect = 0.f;
 	if (!_iActive) {
 		_iActive = true;
@@ -423,8 +441,9 @@ void VipClient::OnMouseMove(const FPoint2D &mousePos) {
 }
 
 void VipClient::OnMouseDown(const FPoint2D &mousePos) {
-	_state = vip_state_hide;
-	_effect = 1.f;
-	_iActive = false;
-	_waitProductCounter = 0.f;
+	if (AnnaPers::GetProductType() == _productWant) {
+		assert(_productWant != "");
+		SetProduct(GameField::AddDropEffect("Anna", FPoint2D(_pos.x + 18 + 32*0.75f, _pos.y + 133 + 32*0.75f + 100.f), 100.f, 0, 0.75f));
+		AnnaPers::DropProduct();
+	}
 }

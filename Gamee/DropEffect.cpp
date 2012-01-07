@@ -2,9 +2,11 @@
 #include "../Core/Core.h"
 #include "../Core/Math.h"
 
-DropEffect::DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos, const FPoint2D &endPos, const FPoint2D &offsetEndPos, const std::string &product) 
+DropEffect::DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos, const FPoint2D &endPos, const FPoint2D &offsetEndPos, const std::string &product, unsigned char endAlpha, float endScale) 
 : _startPos(startPos)
 , _endPos(endPos)
+, _endAlpha(endAlpha)
+, _endScale(endScale)
 {
 	_shadow = Core::getTexture("persshadow");
 	_product = Core::getTexture("gui_" + product);
@@ -20,17 +22,24 @@ DropEffect::DropEffect(const FPoint2D &startPos, const FPoint2D &offsetStartPos,
 
 void DropEffect::Draw() {
 	Render::PushMatrix();
-	Render::MatrixMove(_pos.x, _pos.y);
 	float p = _timeCounter / _time;
 	float h = Math::lerp(_endHeight, _startHeight, p);
-	_product->Render( - _product->Width() / 2, - _dugaHeight * sinf(M_PI * p) - h - _product->Height() / 2);
+	Render::MatrixMove(_pos.x, _pos.y  - _dugaHeight * sinf(M_PI * p) - h);
+	Render::MatrixScale(Math::lerp(_endScale, 1.f, p), Math::lerp(_endScale, 1.f, p));
+	_product->Render( - _product->Width() / 2, - _product->Height() / 2);
 	Render::PopMatrix();
 }
 
 void DropEffect::DrawBottom() {
 	Render::PushMatrix();
 	Render::MatrixMove(_pos.x, _pos.y);
-	_shadow->Render( - _shadow->Width() / 2,  - _shadow->Height() / 2);
+	if (_endAlpha != 0xFF) {
+		Render::SetAlpha(Math::lerp(_endAlpha / 255.f, 1.f, _timeCounter / _time) * 0xFF);
+		_shadow->Render( - _shadow->Width() / 2,  - _shadow->Height() / 2);
+		Render::SetAlpha(0xFF);
+	} else {
+		_shadow->Render( - _shadow->Width() / 2,  - _shadow->Height() / 2);
+	}
 	Render::PopMatrix();
 }
 
