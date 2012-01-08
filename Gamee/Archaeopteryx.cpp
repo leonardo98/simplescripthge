@@ -414,3 +414,16 @@ void Archaeopteryx::SwitchAnimation() {
 bool Archaeopteryx::IsUnderMouse(const FPoint2D &mousePos) {
 	return _state == state_archaeopteryx_puh && hgeRect(_pos.x - 50, _pos.y - 100, _pos.x + 50, _pos.y).TestPoint(mousePos.x, mousePos.y);
 }
+
+void Archaeopteryx::OnMouseDown(const FPoint2D &mousePos) {
+	AnnaPers::NewAction("", this);
+}
+
+Archaeopteryx::BirdsStates Archaeopteryx::GetState() {
+	return _state;
+}
+
+void Archaeopteryx::CutFluff() {
+	_waitingTimeCounter = 0.f;
+	SwitchToWalk();
+}

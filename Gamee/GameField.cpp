@@ -190,8 +190,8 @@ GameField::GameField(TiXmlElement *xe)
 	_elementList.push_back(&_foodPan2);
 
 	// test/debug only
-	//AddBird("dodo_b");
-	//AddBird("dodo_w");
+	AddBird("dodo_b");
+	AddBird("dodo_w");
 	AddBird("archaeopteryx_w");
 }
 

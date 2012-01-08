@@ -8,14 +8,33 @@
 class Archaeopteryx : public BaseElement
 {
 public:
+	enum BirdsStates {
+		state_walk,
+		state_idle,
+		state_eat0,
+		state_eat,
+		state_drink,
+		state_happy,
+		state_hangry,
+		state_angry,
+		state_want_eat,
+		state_want_drink,
+		state_none,
+		state_run_away,
+		state_dodo_egg,
+		state_archaeopteryx_puh
+	};
 	Archaeopteryx(const std::string &birdId = "");
 	void InnerDraw();
 	virtual void Draw();
 	virtual void DrawBottom();
 	virtual void Update(float dt);
 	virtual bool IsUnderMouse(const FPoint2D &mousePos);
+	virtual void OnMouseDown(const FPoint2D &mousePos);
 	FPoint2D GetDirection();
 	static const float SPEED;
+	BirdsStates GetState();
+	void CutFluff();
 private:
 	FPoint2D GetNewDirection();
 	void SwitchAnimation();
@@ -39,22 +58,7 @@ private:
 	FPoint2D _endTarget;
 	float _timeCounter;
 	float _actionTimeCounter;
-	enum BirdsStates {
-		state_walk,
-		state_idle,
-		state_eat0,
-		state_eat,
-		state_drink,
-		state_happy,
-		state_hangry,
-		state_angry,
-		state_want_eat,
-		state_want_drink,
-		state_none,
-		state_run_away,
-		state_dodo_egg,
-		state_archaeopteryx_puh
-	};
+
     BirdsStates _state;
     BirdsStates _nextState;
 	bool _boy;

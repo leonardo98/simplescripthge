@@ -23,3 +23,27 @@ ProductPlace * ProductManager::GetPlaceProduct(PlaceType pt) {
 	}
 	return NULL;
 }
+
+std::string ProductManager::ProductWant() {
+	int r = rand() % 8;
+	if (r == 0) {
+		return "onion";
+	} else if (r == 1) {
+		return "beet";
+	} else if (r == 2) {
+		return "pumpkin";
+	} else if (r == 3) {
+		return "avocado";
+	} else if (r == 4) {
+		return "banana";
+	} else if (r == 5) {
+		return "peach";
+	} else if (r == 6) {
+		return "eggs_dodo";
+	} else if (r == 7) {
+		return "fluff";
+	} else {
+		assert(false);
+		return "";
+	}
+}

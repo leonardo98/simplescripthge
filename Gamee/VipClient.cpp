@@ -3,6 +3,7 @@
 #include "GameField.h"
 #include "../Core/Math.h"
 #include "../Core/Variables.h"
+#include "ProductManager.h"
 
 void VipClient::Init(int index) {
 	_basketType = rand() % 3;
@@ -33,20 +34,7 @@ void VipClient::Init(int index) {
 	_effect = 1.f;
 	_waitProductCounter = 0.f;
 
-	r = rand() % 6;
-	if (r == 0) {
-		_productWant = "onion";
-	} else if (r == 1) {
-		_productWant = "beet";
-	} else if (r == 2) {
-		_productWant = "pumpkin";
-	} else if (r == 3) {
-		_productWant = "avocado";
-	} else if (r == 4) {
-		_productWant = "banana";
-	} else {
-		_productWant = "peach";
-	}
+	_productWant = ProductManager::ProductWant();
 	_progress.SetIcon("gui_" + _productWant);
 	_pauseTime = 0.f;
 	_product = NULL;

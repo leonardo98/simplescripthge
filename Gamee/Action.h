@@ -8,6 +8,7 @@
 #include "EnvWell.h"
 #include "Waterpan.h"
 #include "Foodpan.h"
+#include "Archaeopteryx.h"
 #include "BaseField.h"
 
 struct Action {
@@ -18,7 +19,9 @@ struct Action {
 	Foodpan *foodPlace;
 	Waterpan *waterPlace;
 	BaseField *fieldPlace;
+	Archaeopteryx *archaeopteryx;
 	std::string type;
+	FPoint2D pos;
 	bool complete;
 	typedef std::list<std::pair<float, Animation *> > AnimationList;
 	AnimationList animations;
