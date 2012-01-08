@@ -324,7 +324,7 @@ void VipClient::Update(float dt) {
 				_waitProductCounter = WAIT_PRODUCT_TIME;
 			} else if (_state == vip_state_hide) {
 				_state = vip_state_invisible;
-				_invisibleTimeCounter = Math::random(0.1f, 1.f);
+				_invisibleTimeCounter = Math::random(0.1f, 10.f);
 			}
 		} else {
 			return;

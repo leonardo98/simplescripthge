@@ -150,6 +150,10 @@ void ClientManager::Update(float dt) {
 					} else {
 						sex = "b";
 					}
+					// test/debug only
+						birdsType = "archaeopteryx";
+						sex = "b";
+
 					s->CreateSeller(birdsType + "_" + sex, 100);
 
 					_sellers.push_back(s);
