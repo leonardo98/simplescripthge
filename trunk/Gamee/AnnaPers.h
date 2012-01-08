@@ -18,6 +18,7 @@ public:
 	static std::string DropProduct();
 	static void NewAction(const std::string &action, ProductPlace *productPlace);
 	static void NewAction(const std::string &action, PlantPlace *plantPlace);
+	static void NewAction(const std::string &action, Archaeopteryx *archaeopteryx);
 private:
 	static Animation *_current;
 	static Animation *_front[2];

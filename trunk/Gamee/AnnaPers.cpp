@@ -103,6 +103,12 @@ void AnnaPers::Update(float dt) {
 			} else {
 				Goto(_currentAction.productPlace->annaPos);
 			}
+		} else if (_currentAction.archaeopteryx) {
+			if ((_pos - _currentAction.pos).Length() < 16.f) {
+				CheckAction();
+			} else {
+				Goto(_currentAction.pos);
+			}
 		} else {
 			assert(false);
 		}
@@ -251,7 +257,6 @@ std::list<Action> AnnaPers::_actions;
 void AnnaPers::NewAction(const std::string &action, ProductPlace *productPlace) {
 	Action a;
 	a.type = action;
-	a.plantPlace = NULL;
 	a.productPlace = productPlace;
 	_actions.push_back(a);
 }
@@ -260,7 +265,14 @@ void AnnaPers::NewAction(const std::string &action, PlantPlace *plantPlace) {
 	Action a;
 	a.type = action;
 	a.plantPlace = plantPlace;
-	a.productPlace = NULL;
+	_actions.push_back(a);
+}
+
+void AnnaPers::NewAction(const std::string &action, Archaeopteryx *archaeopteryx) {
+	Action a;
+	a.type = action;
+	a.archaeopteryx = archaeopteryx;
+	a.pos = PersPaths::SearchNearest(archaeopteryx->_pos);
 	_actions.push_back(a);
 }
 
@@ -306,6 +318,9 @@ bool AnnaPers::CheckAction() {
 				_currentAction.animations.push_back(std::make_pair(_showAnimationCounter, _current));
 				return true;
 			}
+		} else if (_currentAction.archaeopteryx && _currentAction.archaeopteryx->GetState() == Archaeopteryx::state_archaeopteryx_puh) {
+			SetProduct("fluff");
+			_currentAction.archaeopteryx->CutFluff();
 		}
 	}
 	return false;

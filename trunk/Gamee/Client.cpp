@@ -1,6 +1,7 @@
 #include "Client.h"
 #include "../Core/Math.h"
 #include "../Core/Variables.h"
+#include "ProductManager.h"
 
 void Client::Init(int index) {
 	std::string id("Clients1set\\Client101\\c101");
@@ -158,20 +159,7 @@ Client::Client(float positionX)
 	MUL_HEAD_COUNTER = 0.4f;
 	_eyesCounter = 0.f;
 
-	int r = rand() % 6;
-	if (r == 0) {
-		_productWant = "onion";
-	} else if (r == 1) {
-		_productWant = "beet";
-	} else if (r == 2) {
-		_productWant = "pumpkin";
-	} else if (r == 3) {
-		_productWant = "avocado";
-	} else if (r == 4) {
-		_productWant = "banana";
-	} else {
-		_productWant = "peach";
-	}
+	_productWant = ProductManager::ProductWant();
 	_progress.SetIcon("gui_" + _productWant);
 	_progress.Move(37, 44);
 
