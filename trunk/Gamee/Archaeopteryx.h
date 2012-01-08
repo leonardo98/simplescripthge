@@ -9,9 +9,11 @@ class Archaeopteryx : public BaseElement
 {
 public:
 	Archaeopteryx(const std::string &birdId = "");
+	void InnerDraw();
 	virtual void Draw();
-	//virtual void DrawBottom();
+	virtual void DrawBottom();
 	virtual void Update(float dt);
+	virtual bool IsUnderMouse(const FPoint2D &mousePos);
 	FPoint2D GetDirection();
 	static const float SPEED;
 private:
@@ -70,6 +72,7 @@ private:
     FPoint2D _waterPos;
     FPoint2D _turnPoint;
 	FPoint2D _eggPos;
+	FPoint2D _puhPos;
     bool _waitBasePosition;
 	std::vector<FPoint2D> _runAway;
 	int _runAwayPoint;

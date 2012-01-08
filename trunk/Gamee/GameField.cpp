@@ -43,7 +43,7 @@ void GameField::OnMouseDown(const FPoint2D &mousePos) {
 		_vipClients.OnMouseDown(mousePos);
 		return;
 	}
-	for (ElementList::iterator i = _elementList.begin(), e = _elementList.end(); i != e; ++i) {
+	for (ElementList::reverse_iterator i = _elementList.rbegin(), e = _elementList.rend(); i != e; ++i) {
 		if ((*i)->IsUnderMouse(mousePos)) {
 			(*i)->OnMouseDown(mousePos);
 			return;
@@ -189,9 +189,10 @@ GameField::GameField(TiXmlElement *xe)
 	_elementList.push_back(&_foodPan1);
 	_elementList.push_back(&_foodPan2);
 
-	// test
-	_archaeopteryx.push_back(new Archaeopteryx());
-	_elementList.push_back(_archaeopteryx.back());
+	// test/debug only
+	//AddBird("dodo_b");
+	//AddBird("dodo_w");
+	AddBird("archaeopteryx_w");
 }
 
 void GameField::DrawBushes() {
