@@ -78,7 +78,7 @@ MovingPart::MovingPart(TiXmlElement *xe, bool loop)
 	_angle.CalculateGradient(loop);
 
 	TiXmlElement *part = xe->FirstChildElement("part");
-	assert((part == NULL && _parts.size() == 1) || (part != NULL && _parts.size() == 0));
+	assert(!(part != NULL && xe->Attribute("texture") != NULL));// двойное заполнение 
 	while (part) {
 		const char *name = part->Attribute("texture"); 
 		StaticSprite *s = new StaticSprite();
