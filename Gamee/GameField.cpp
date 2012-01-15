@@ -2,6 +2,7 @@
 #include "../Core/Variables.h"
 #include "GameField.h"
 #include "BirdsManager.h"
+#include "AnimalsManager.h"
 
 const float GameField::SELECTION_BORDER = 1.8f;
 AnnaPers *GameField::_annaPtr;
@@ -89,6 +90,7 @@ GameField::GameField(TiXmlElement *xe)
 	_grandpaPtr = &_grandpa;
 	Variables::Set("money", "1000");
 	BirdsManager::Init(&_waterPan2, &_foodPan2);
+	AnimalsManager::Init(&_waterPan1, &_foodPan1);
 	_buckPlace = new ProductPlace(pt_water);
 	_well = new EnvWell();
 	//_testBackground.Set(Core::getTexture("data\\EnvironmentJungle_Bob_HT.jpg"));
@@ -193,6 +195,8 @@ GameField::GameField(TiXmlElement *xe)
 	AddBird("dodo_b");
 	AddBird("dodo_w");
 	AddBird("archaeopteryx_w");
+	AddAnimal("rabbit_b");
+	AddAnimal("rabbit_g");
 }
 
 void GameField::DrawBushes() {
@@ -375,11 +379,18 @@ EnvWell * GameField::GetWell() {
 }
 
 GameField::Birds GameField::_archaeopteryx;
+GameField::AnimalPtrs GameField::_animalPtrs;
 GameField::ElementList GameField::_elementList;
 
 void GameField::AddBird(const std::string &birdId) {
 	Archaeopteryx *a = new Archaeopteryx(birdId);
 	_archaeopteryx.push_back(a);
+	_elementList.push_back(a);
+}
+
+void GameField::AddAnimal(const std::string &animalId) {
+	Animal *a = new Animal(animalId);
+	_animalPtrs.push_back(a);
 	_elementList.push_back(a);
 }
 

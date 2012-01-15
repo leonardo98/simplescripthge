@@ -16,6 +16,7 @@
 #include "ProductPlace.h"
 #include "PopupMenu.h"
 #include "Archaeopteryx.h"
+#include "Animal.h"
 #include "SwampPlace.h"
 #include "Waterpan.h"
 #include "Foodpan.h"
@@ -46,6 +47,7 @@ public:
 	static ProductPlace * GetBuckPlace();
 	static EnvWell * GetWell();
 	static void AddBird(const std::string &birdId);
+	static void AddAnimal(const std::string &animalId);
 
 private:
 
@@ -100,6 +102,8 @@ private:
 	Foodpan _foodPan2;
 	typedef std::vector<Archaeopteryx *> Birds;
 	static Birds _archaeopteryx;
+	typedef std::vector<Animal *> AnimalPtrs;
+	static AnimalPtrs _animalPtrs;
 	SwampPlace _swampPlace;
 	VipClient _vipClients;
 

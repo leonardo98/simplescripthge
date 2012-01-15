@@ -9,6 +9,7 @@
 #include "Waterpan.h"
 #include "Foodpan.h"
 #include "Archaeopteryx.h"
+#include "Animal.h"
 #include "BaseField.h"
 
 struct Action {
@@ -20,6 +21,7 @@ struct Action {
 	Waterpan *waterPlace;
 	BaseField *fieldPlace;
 	Archaeopteryx *archaeopteryx;
+	Animal *animal;
 	std::string type;
 	FPoint2D pos;
 	bool complete;

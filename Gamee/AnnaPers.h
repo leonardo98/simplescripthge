@@ -19,6 +19,7 @@ public:
 	static void NewAction(const std::string &action, ProductPlace *productPlace);
 	static void NewAction(const std::string &action, PlantPlace *plantPlace);
 	static void NewAction(const std::string &action, Archaeopteryx *archaeopteryx);
+	static void NewAction(const std::string &action, Animal *animal);
 private:
 	static Animation *_current;
 	static Animation *_front[2];

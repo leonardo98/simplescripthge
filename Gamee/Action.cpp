@@ -22,6 +22,7 @@ void Action::Reset() {
 	waterPlace = NULL;
 	fieldPlace = NULL;
 	archaeopteryx = NULL;
+	animal = NULL;
 	type = "has reset";
 	complete = false;
 }
@@ -36,6 +37,7 @@ Action &Action::operator=(Action &one) {
 	waterPlace = one.waterPlace;
 	fieldPlace = one.fieldPlace;
 	archaeopteryx = one.archaeopteryx;
+	animal = one.animal;
 	pos = one.pos;
 	type = one.type;
 	complete = one.complete;
