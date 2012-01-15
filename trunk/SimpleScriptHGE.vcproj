@@ -236,6 +236,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\Animal.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\AnimalsManager.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\AnimationViewer.cpp"
 					>
 				</File>
@@ -515,6 +523,14 @@
 				>
 				<File
 					RelativePath=".\Gamee\Action.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\Animal.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\AnimalsManager.h"
 					>
 				</File>
 				<File

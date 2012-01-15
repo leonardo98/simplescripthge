@@ -276,6 +276,14 @@ void AnnaPers::NewAction(const std::string &action, Archaeopteryx *archaeopteryx
 	_actions.push_back(a);
 }
 
+void AnnaPers::NewAction(const std::string &action, Animal *animal) {
+	Action a;
+	a.type = action;
+	a.animal = animal;
+	a.pos = PersPaths::SearchNearest(animal->_pos);
+	_actions.push_back(a);
+}
+
 bool AnnaPers::CheckAction() {
 	if (!_currentAction.complete) {
 		_currentAction.complete = true;
