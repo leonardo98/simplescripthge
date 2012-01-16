@@ -449,6 +449,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Core\CoreFactory.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Core\FPoint2D.cpp"
 					>
 				</File>
@@ -518,6 +522,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\Core\CoreFactory.h"
+				>
+			</File>
 			<Filter
 				Name="Game"
 				>

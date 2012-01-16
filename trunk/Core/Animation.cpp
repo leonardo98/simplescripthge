@@ -20,7 +20,7 @@ bool Bone::ReplaceTexture(const std::string &boneName, const char *texture) {
 void Bone::ResortBones() {
 	_topBone.clear();
 	_bottomBone.clear();
-	for (int i = 0; i < _bones.size(); ++i) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		if (_bones[i]->_offparent == top) {
 			_topBone.push_back(_bones[i]);
 		} else if (_bones[i]->_offparent == bottom) {
@@ -32,10 +32,10 @@ void Bone::ResortBones() {
 }
 
 MovingPart::~MovingPart() {
-	for (int i = 0; i < _parts.size(); ++i) {
+	for (unsigned int i = 0; i < _parts.size(); ++i) {
 		delete _parts[i];
 	}
-	for (int i = 0; i < _bones.size(); ++i) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		delete _bones[i];
 	}
 }
@@ -149,16 +149,16 @@ void MovingPart::Draw(float p) {
 	Render::MatrixScale(_scaleX.getGlobalFrame(dp), _scaleY.getGlobalFrame(dp));
 	Render::MatrixMove(-_center.x, -_center.y);
 
-	for (int i = 0; i < _bottomBone.size(); ++i) {
+	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
 		_bottomBone[i]->Draw(p);
 	}
 	if (_parts.size()) {
 		int i = static_cast<int>(p * _parts.size());
-		assert(0 <= i && i < _parts.size());
+		assert(0 <= i && i < static_cast<int>(_parts.size()));
 		_last = _parts[i];
 		_last->Render();
 	}
-	for (int i = 0; i < _topBone.size(); ++i) {
+	for (unsigned int i = 0; i < _topBone.size(); ++i) {
 		_topBone[i]->Draw(p);
 	}
 
@@ -170,12 +170,12 @@ bool MovingPart::PixelCheck(const FPoint2D &pos) {
 	if (_last && _last->PixelCheck(pos)) {
 		return true;
 	}
-	for (int i = 0; i < _bottomBone.size(); ++i) {
+	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
 		if (_bottomBone[i]->PixelCheck(pos)) {
 			return true;
 		}
 	}
-	for (int i = 0; i < _topBone.size(); ++i) {
+	for (unsigned int i = 0; i < _topBone.size(); ++i) {
 		if (_topBone[i]->PixelCheck(pos)) {
 			return true;
 		}
@@ -186,7 +186,7 @@ bool MovingPart::PixelCheck(const FPoint2D &pos) {
 bool MovingPart::ReplaceTexture(const std::string &boneName, const char *texture) {
 	bool success = (Bone::boneName == boneName);
 	if (success) {
-		for (int i = 0; i < _parts.size(); ++i) {
+		for (unsigned int i = 0; i < _parts.size(); ++i) {
 			delete _parts[i];
 		}
 		_parts.clear();
@@ -205,7 +205,7 @@ bool MovingPart::ReplaceTexture(const std::string &boneName, const char *texture
 
 
 IKTwoBone::~IKTwoBone() {
-	for (int i = 0; i < _bones.size(); ++i) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		delete _bones[i];
 	}
 }
@@ -296,7 +296,7 @@ void IKTwoBone::Draw(float p) { // [ 0<= p <= 1 ]
 	assert(0 <= p && p < 1);
 	SetPos(_x.getGlobalFrame(p), _y.getGlobalFrame(p));
 
-	for (int i = 0; i < _bottomBone.size(); ++i) {
+	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
 		_bottomBone[i]->Draw(p);
 	}
 	//_first.SetTransform(_firstTransform);
@@ -308,7 +308,7 @@ void IKTwoBone::Draw(float p) { // [ 0<= p <= 1 ]
 		_first.Render();
 		_second.Render();
 	}
-	for (int i = 0; i < _topBone.size(); ++i) {
+	for (unsigned int i = 0; i < _topBone.size(); ++i) {
 		_topBone[i]->Draw(p);
 	}
 }
@@ -317,12 +317,12 @@ bool IKTwoBone::PixelCheck(const FPoint2D &pos) {
 	if (_second.PixelCheck(pos) || _first.PixelCheck(pos)) {
 		return true;
 	}
-	for (int i = 0; i < _bottomBone.size(); ++i) {
+	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
 		if (_bottomBone[i]->PixelCheck(pos)) {
 			return true;
 		}
 	}
-	for (int i = 0; i < _topBone.size(); ++i) {
+	for (unsigned int i = 0; i < _topBone.size(); ++i) {
 		if (_topBone[i]->PixelCheck(pos)) {
 			return true;
 		}
@@ -372,7 +372,7 @@ void IKTwoBone::SetPos(float x, float y)
 
 
 Animation::~Animation() {
-	for (int i = 0; i < _bones.size(); ++i) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		delete _bones[i];
 	}
 }

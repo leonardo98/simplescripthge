@@ -15,7 +15,9 @@ class Core
 {
 public:
 	static void Init();
+#ifndef ENGINE_AS_LIBRARY
 	static void Load(const char *fileName);
+#endif//ENGINE_AS_LIBRARY
 	static void Unload();
 	static void Draw();
 	static void Update(float deltaTime);

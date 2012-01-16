@@ -179,7 +179,6 @@ void Core::Init() {
 
 void Core::LoadAnimations(const char *fileName) {
 	TiXmlDocument doc;
-	bool load;
     std::string s =Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str());
 	if ((fileName[1] == ':' && doc.LoadFile(fileName)) || doc.LoadFile(s.c_str())) {
 		TiXmlElement *root = doc.RootElement();
@@ -206,6 +205,8 @@ Animation *Core::getAnimation(const std::string &animationId) {
 	LOG("animation " + animationId + " not found.");
 	exit(-8);
 }
+
+#ifndef ENGINE_AS_LIBRARY
 
 void Core::Load(const char *fileName)
 {
@@ -245,6 +246,8 @@ void Core::Load(const char *fileName)
 	}
 }
 
+#endif//ENGINE_AS_LIBRARY
+
 void Core::OnMessage(const std::string &message)
 {
 	_messages.push_back(message);
@@ -270,10 +273,12 @@ void Core::Update(float deltaTime)
 			LoadGroup(message);
 		} else if (Messager::CanCut(message, "UnloadGroup ", message)) {
 			UnloadGroup(message);
+#ifndef ENGINE_AS_LIBRARY
 		} else if (Messager::CanCut(message, "load xml ", message)) {
 			InputSystem::Reset();
 			Unload();
 			Load(message.c_str());
+#endif//ENGINE_AS_LIBRARY
 		} else {
 			assert(false);
 		}
