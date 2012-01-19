@@ -1,3 +1,9 @@
-#pragma once
+#ifndef ANIMEDITOR_H
+#define ANIMEDITOR_H
 
-#include "resource.h"
+class AnimEditor {
+public:
+	static bool exitPressed;
+};
+
+#endif//ANIMEDITOR_H

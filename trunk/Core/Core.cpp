@@ -200,6 +200,9 @@ void Core::LoadAnimations(const char *fileName) {
 Animation *Core::getAnimation(const std::string &animationId) {
 	AnimationMap::iterator find = _animations.find(animationId);
 	if (find != _animations.end()) {
+		if (find->second->TextureLoaded() == false) {
+			find->second->LoadTextures();
+		}
 		return (find->second);
 	}
 	LOG("animation " + animationId + " not found.");
@@ -301,6 +304,13 @@ void Core::Unload() {
 	_objects.clear();
 	_animations.clear();
 	_scripts.clear();
+}
+
+void Core::GetAnimationsList(std::vector<std::string> &names) {
+	names.clear();
+	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; i++) {
+		names.push_back(i->first);
+	}
 }
 
 void Core::Release()

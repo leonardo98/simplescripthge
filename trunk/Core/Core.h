@@ -28,6 +28,7 @@ public:
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	static void OnMessage(const std::string &message);
 	static void LoadAnimations(const char *fileName);
+	static void GetAnimationsList(std::vector<std::string> &names);
 
 	typedef std::list<Object *> Objects;
 	typedef std::map<std::string, LuaScript *> ScriptMap;

@@ -214,6 +214,9 @@ void Texture::SetColor(DWORD color) {
 
 void StaticSprite::Set(const Texture *texture, float x, float y) {
 	_origin = texture;
+	if (_origin == NULL) {
+		return;
+	}
 	_originWidth = Render::GetDC()->Texture_GetWidth(_origin->_originQuad.tex);
 	_originHeight = Render::GetDC()->Texture_GetHeight(_origin->_originQuad.tex);
 	_matrix.Unit();

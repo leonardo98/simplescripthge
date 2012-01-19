@@ -8,6 +8,8 @@
 #include "resource.h"
 
 
+
+
 //
 // Menu resources
 //
@@ -89,7 +91,7 @@ CAPTION "Animation editor"
 MENU IDR_MAIN_MENU
 FONT 8, "Ms Shell Dlg"
 {
-    COMBOBOX        IDC_ANIMATION_COMBO, 2, 16, 132, 12, CBS_DROPDOWN | CBS_HASSTRINGS
+    COMBOBOX        IDC_ANIMATION_COMBO, 2, 16, 132, 200, WS_VSCROLL | CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_HASSTRINGS | CBS_SORT
     LTEXT           "animations list", IDC_STATIC, 4, 4, 44, 8, SS_LEFT
     PUSHBUTTON      "play", IDC_PLAY_BUTTON, 138, 15, 19, 14
     DEFPUSHBUTTON   "stop", IDC_STOP_BUTTON, 162, 15, 19, 14
