@@ -31,6 +31,24 @@ void Bone::ResortBones() {
 	}
 }
 
+void MovingPart::LoadTextures() {
+	for (unsigned int i = 0; i < _parts.size(); ++i) {
+		_parts[i]->Set(Core::getTexture(_parts[i]->fileName));
+	}
+	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
+		(*i)->LoadTextures();
+	}
+}
+
+void MovingPart::UnloadTextures() {
+	for (unsigned int i = 0; i < _parts.size(); ++i) {
+		_parts[i]->Set(NULL);
+	}
+	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
+		(*i)->UnloadTextures();
+	}
+}
+
 MovingPart::~MovingPart() {
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
 		delete _parts[i];
@@ -50,9 +68,7 @@ MovingPart::MovingPart(TiXmlElement *xe, bool loop)
 	_center.y = Math::Read(xe, "centerY", 0.f);
 	const char *name = xe->Attribute("texture"); 
 	if (name) {
-		StaticSprite *s = new StaticSprite();
-		s->Set(Core::getTexture(name));
-		_parts.push_back(s);
+		_parts.push_back(new AnimationPart(name));
 	}
 	TiXmlElement *pos = xe->FirstChildElement("pos");
 	if (pos == NULL) {
@@ -80,10 +96,7 @@ MovingPart::MovingPart(TiXmlElement *xe, bool loop)
 	TiXmlElement *part = xe->FirstChildElement("part");
 	assert(!(part != NULL && xe->Attribute("texture") != NULL));// двойное заполнение 
 	while (part) {
-		const char *name = part->Attribute("texture"); 
-		StaticSprite *s = new StaticSprite();
-		s->Set(Core::getTexture(name));
-		_parts.push_back(s);
+		_parts.push_back(new AnimationPart(part->Attribute("texture")));
 		part = part->NextSiblingElement("part");
 	}
 	_last = NULL;
@@ -113,8 +126,8 @@ MovingPart::MovingPart(MovingPart &movinPart)
 	_scaleY = movinPart._scaleY;
 	_last = movinPart._last;
 
-	for (std::vector<StaticSprite *>::iterator i = movinPart._parts.begin(), e = movinPart._parts.end(); i != e; ++i) {
-		_parts.push_back(new StaticSprite(*(*i)));
+	for (std::vector<AnimationPart *>::iterator i = movinPart._parts.begin(), e = movinPart._parts.end(); i != e; ++i) {
+		_parts.push_back(new AnimationPart(*(*i)));
 	}
 
 	for (BoneList::iterator i = movinPart._bones.begin(), e = movinPart._bones.end(); i != e; ++i) {
@@ -190,7 +203,7 @@ bool MovingPart::ReplaceTexture(const std::string &boneName, const char *texture
 			delete _parts[i];
 		}
 		_parts.clear();
-		StaticSprite *s = new StaticSprite();
+		AnimationPart *s = new AnimationPart(texture);
 		s->Set(Core::getTexture(texture));
 		_parts.push_back(s);
 	}
@@ -202,7 +215,6 @@ bool MovingPart::ReplaceTexture(const std::string &boneName, const char *texture
 	}
 	return success;
 }
-
 
 IKTwoBone::~IKTwoBone() {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
@@ -379,6 +391,7 @@ Animation::~Animation() {
 
 Animation::Animation(TiXmlElement *xe)
 : _timeCounter(0.f)
+, _texturesLoaded(false)
 {
 	bool loop = (std::string(xe->Attribute("loop")) == "true");
 	_time = atof(xe->Attribute("time"));
@@ -407,6 +420,7 @@ Animation::Animation(Animation &animation) {
 	_subPosition = animation._subPosition;
 	_time = animation._time;
 	_timeCounter = animation._timeCounter;
+	_texturesLoaded = animation._texturesLoaded;
 	
 	_bones;
 	for (BoneList::iterator i = animation._bones.begin(), e = animation._bones.end(); i != e; ++i) {
@@ -477,4 +491,22 @@ bool Animation::ReplaceTexture(const std::string &boneName, const char *texture)
 		success |= (*i)->ReplaceTexture(boneName, texture);
 	}
 	return success;
+}
+
+void Animation::LoadTextures() {
+	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
+		(*i)->LoadTextures();
+	}
+	_texturesLoaded = true;
+}
+
+void Animation::UnloadTextures() {
+	_texturesLoaded = false;
+	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
+		(*i)->UnloadTextures();
+	}
+}
+
+bool Animation::TextureLoaded() {
+	return _texturesLoaded;
 }

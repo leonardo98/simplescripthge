@@ -14,6 +14,12 @@ class Bone;
 
 typedef std::vector<Bone *> BoneList;
 
+class AnimationPart : public StaticSprite {
+public:
+	const std::string fileName;
+	AnimationPart(const char *FileName) : fileName(FileName) {}
+};
+
 class Bone
 {
 public:
@@ -25,6 +31,8 @@ public:
 	virtual ~Bone() {}
 	const std::string boneName;
 	const BoneType boneType;
+	virtual void LoadTextures() {}
+	virtual void UnloadTextures() {}
 protected:
 	void ResortBones();
 	BoneList _topBone;// links
@@ -39,7 +47,6 @@ protected:
 	friend class AnimationEditor;
 };
 
-
 class MovingPart : public Bone
 {
 public:
@@ -49,6 +56,8 @@ public:
 	virtual void Draw(float p); // [ 0<= p <= 1 ]
 	virtual bool PixelCheck(const FPoint2D &pos);
 	virtual bool ReplaceTexture(const std::string &boneName, const char *texture);
+	virtual void LoadTextures();
+	virtual void UnloadTextures();
 private:
 	SplinePath _x;
 	SplinePath _y;
@@ -56,7 +65,7 @@ private:
 	FPoint2D _center;
 	SplinePath _scaleX;
 	SplinePath _scaleY;
-	std::vector<StaticSprite *> _parts;
+	std::vector<AnimationPart *> _parts;
 	StaticSprite *_last;
 	bool _discontinuous;
 	bool _loop;
@@ -102,8 +111,12 @@ public:
 	void SetPos(const FPoint2D &pos, bool mirror);
 	bool PixelCheck(const FPoint2D &pos);
 	bool ReplaceTexture(const std::string &boneName, const char *texture);
+	void LoadTextures();
+	void UnloadTextures();
+	bool TextureLoaded();
 	//bool RemoveBone(const std::string &boneName, Bone *bone); 
 private:
+	bool _texturesLoaded;
 	FPoint2D _pivotPos;
 	float _time;
 	float _timeCounter;
