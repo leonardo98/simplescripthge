@@ -124,7 +124,7 @@ Texture *TextureManager::getTexture(const std::string &textureId)
 	}
 }
 
-void TextureManager::Release() 
+void TextureManager::ReleaseAllTextures() 
 {
 	for (;_texturesMap.begin() != _texturesMap.end();) {
 		if (_texturesMap.begin()->second.texture != NULL) {

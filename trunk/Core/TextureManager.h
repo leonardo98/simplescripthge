@@ -20,9 +20,9 @@ public:
 	static bool isTexture(const std::string &textureId);
 	static void LoadGroup(std::string groupId);
 	static void UnloadGroup(std::string groupId);
+	static void ReleaseAllTextures();
 protected:
 	static void ReadDescriptions(std::string fileName);
-	static void Release();
 private:
 	static TextureMap _texturesMap;
 };

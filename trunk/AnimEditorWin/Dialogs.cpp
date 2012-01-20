@@ -5,15 +5,17 @@
 #include "../Core/Render.h"
 #include "../Core/Core.h"
 #include "Commdlg.h"
-#include "AnimEditor.h"
 #include "Windowsx.h"
 #include "Commctrl.h"
+#include "AnimEditor.h"
 
 HWND d_main = 0;
-HWND d_animation = 0;
 HWND d_bone = 0;
 HWND hAnimationCombo = 0;
-std::string lastOpenedDir = "c:\\";
+std::string lastOpenedDir = "C:\\Projects\\MyEngineMac&Win\\AnimEditorWin\\TestFiles";
+AnimEditor editor;
+std::string lastAnimationId;
+bool waitingNewAnimationId = false;
 
 std::string CutFileName(std::string filePath) {
 	std::string result;
@@ -25,19 +27,6 @@ std::string CutFileName(std::string filePath) {
 	}
 	return result;
 } 
-
-BOOL CALLBACK DialogProcAnimation(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message) // what are we doing ?
-	{ 	 
-		// this messages are the heart of the dialogs 
-		case WM_INITDIALOG: 
-		{
-		}
-		break;
-	}
-	return 0;
-}
 
 BOOL CALLBACK DialogProcBone(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -61,8 +50,21 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		{
 			InitCommonControls();
 			hAnimationCombo = GetDlgItem(hWnd, IDC_ANIMATION_COMBO);
-			//ComboBox_SetMinVisible(hAnimationCombo, 10);
-			//ComboBox_SetItemHeight(hAnimationCombo, 0, 14);
+		}
+		break;
+
+		case WM_PAINT:
+		{
+			if (waitingNewAnimationId) {
+				const int MAX = 100;
+				char buffer[MAX];
+				int len = ComboBox_GetText(hAnimationCombo, buffer, MAX);
+				if (len && lastAnimationId != buffer) {
+					editor.SetCurrent(buffer);
+					lastAnimationId = buffer;
+					waitingNewAnimationId = false;
+				}
+			}
 		}
 		break;
 
@@ -71,14 +73,13 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			{ 	 
 				case IDM_OPEN_XML:
 				{
-					const char *mask = "*.xml";
 					std::string file;
 					OPENFILENAME fn;
 					fn.lStructSize = sizeof(fn);
 					fn.hInstance = 0;
 					fn.hwndOwner = d_main;
 					fn.lpstrInitialDir = lastOpenedDir.c_str();
-					fn.lpstrFilter = mask;
+					fn.lpstrFilter = "Animation XML(*.XML)\0*.XML\0All(*.*)\0*.*\0";
 					fn.nFilterIndex = 0;
 					fn.lpstrFile = new char[1024];
 					fn.lpstrFile[0] = 0;
@@ -102,6 +103,7 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 						lastOpenedDir = CutFileName(fn.lpstrFile);
 						Core::Unload();
 						Core::LoadAnimations(fn.lpstrFile);
+						Render::SetDataDir(std::string(fn.lpstrFile) + "_files");
 
 						std::vector<std::string> allNames;
 						Core::GetAnimationsList(allNames);
@@ -116,7 +118,20 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				
 				case IDM_EXIT:
 				{
-					AnimEditor::exitPressed = true;
+					editor.exitPressed = true;
+				}
+				break;
+				
+				case IDC_ANIMATION_COMBO: 
+				{
+					switch (HIWORD(wParam)) 
+					{
+						case CBN_SELCHANGE://CBN_SELENDOK:
+						{
+							waitingNewAnimationId = true;
+						}
+						break;
+					}
 				}
 				break;
 
@@ -129,18 +144,26 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 void InitDialogs(HINSTANCE hInstance) {
 	d_main = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC)DialogProcMain);
 	ShowWindow(d_main, SW_SHOW); 
-	d_animation = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_ANIMATION_PROP), NULL, (DLGPROC)DialogProcAnimation);
-	ShowWindow(d_animation, SW_SHOW); 
 	d_bone = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_BONE_PROP), NULL, (DLGPROC)DialogProcBone);
 	ShowWindow(d_bone, SW_SHOW); 
 	SetWindowPos(d_main, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	SetWindowPos(d_bone, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-	SetWindowPos(d_animation, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 }
 
 bool SetDialogsOnTop() {
 	SetWindowPos(d_main, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	SetWindowPos(d_bone, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-	SetWindowPos(d_animation, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	return true;
+}
+
+void Draw() {
+	editor.Draw();
+}
+
+void Update(float dt) {
+	editor.Update(dt);
+}
+
+bool Exit() {
+	return editor.exitPressed;
 }

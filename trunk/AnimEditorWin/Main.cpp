@@ -20,6 +20,7 @@ bool RenderFunc()
 	Render::GetDC()->Gfx_Clear(BACKGROUND_FILL);
 	if (Render::GetDC()) {
 		Core::Draw();
+		Draw();
 	}
 	char buff[20];
 	sprintf_s(buff, "%f", TimeMul);
@@ -39,7 +40,8 @@ bool FrameFunc()
 	}
 	float dt = Render::GetDC()->Timer_GetDelta() * TimeMul;
 	Core::Update(dt);
-	return InputSystem::CheckForEvent(dt) || AnimEditor::exitPressed;
+	Update(dt);
+	return InputSystem::CheckForEvent(dt) || Exit();
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR argv, int argc)
@@ -51,9 +53,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR argv, int argc)
 		return (-13);
 	}
 	// инициализируем 
-	if(Render::InitApplication(FrameFunc, RenderFunc, argv)) {
+	if(Render::InitApplication(FrameFunc, RenderFunc)) {
 		Render::GetDC()->System_SetState(HGE_FOCUSGAINFUNC, SetDialogsOnTop);
 		Render::GetDC()->System_SetState(HGE_DONTSUSPEND, true);
+		Render::GetDC()->System_SetState(HGE_FPS, HGEFPS_VSYNC);
 		LOG(argv);
 		Interface::Init();
 		BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);
