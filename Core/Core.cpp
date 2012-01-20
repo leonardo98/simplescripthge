@@ -232,7 +232,7 @@ void Core::Load(const char *fileName)
 					l.Execute();
 				}
 			} else if (name == "Resources") {
-				TextureManager::Release();
+				TextureManager::ReleaseAllTextures();
 				ReadDescriptions(element->Attribute("fileName"));
 			} else if (name == "Animations") {
 				LoadAnimations(element->Attribute("fileName"));
@@ -317,7 +317,7 @@ void Core::Release()
 {
 	Unload();
 	lua_close(lua);
-	TextureManager::Release();
+	ReleaseAllTextures();
 }
 
 bool Core::DoLua(const char *code) {

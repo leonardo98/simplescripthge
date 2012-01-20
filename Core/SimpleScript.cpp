@@ -46,7 +46,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 		return (-13);
 	}
 	// инициализируем 
-	if(Render::InitApplication(FrameFunc, RenderFunc, argv)) {
+	Render::SetDataDir(argv);
+	if(Render::InitApplication(FrameFunc, RenderFunc)) {
 		LOG(argv);
 		Interface::Init();
 		BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);

@@ -107,7 +107,8 @@ public:
 	static std::string IniFileGetString(const char *section, const char *variable, const char *defaultValue);
 	static void PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF);
 	static void PrintString(int x, int y, const std::string &text, int align);
-	static bool InitApplication(hgeCallback frameFunc, hgeCallback renderFunc, const std::string &dataDir);
+	static bool InitApplication(hgeCallback frameFunc, hgeCallback renderFunc);
+	static void SetDataDir(const std::string &dataDir);
 	static void RunApplication();
 	static void ExitApplication();
 	static std::string Error();

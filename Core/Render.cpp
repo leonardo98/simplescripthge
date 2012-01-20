@@ -335,8 +335,11 @@ int Render::GetStringWidth(const std::string &fontName, const char *s) {
 	return font->GetStringWidth(s);
 }
 
-bool Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc, const std::string &dataDir) {
+void Render::SetDataDir(const std::string &dataDir) {
 	_dataDir = dataDir;
+}
+
+bool Render::InitApplication(hgeCallback frameFunc, hgeCallback renderFunc) {
 	_hge = hgeCreate(HGE_VERSION);
 	_hge->System_SetState(HGE_INIFILE, (GetDataDir() + "settings.ini").c_str());
 	_hge->System_SetState(HGE_LOGFILE, _hge->Ini_GetString("system", "logfile", "log.txt"));
