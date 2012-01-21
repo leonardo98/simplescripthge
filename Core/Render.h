@@ -76,7 +76,6 @@ class Render
 private:
 	static HGE *_hge;
 	static std::map<std::string, hgeFont*> _fonts;
-	static std::map<HTEXTURE, int> _storageTextures;
 	static DWORD _currentColor;
 	static std::string _dataDir;
 	char sdx[112];

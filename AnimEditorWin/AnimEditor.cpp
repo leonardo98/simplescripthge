@@ -12,7 +12,7 @@ AnimEditor::AnimEditor()
 void AnimEditor::Draw() {
 	if (_currentAnimation) {
 		Render::PushMatrix();
-		Render::MatrixMove(400, 300);
+		Render::MatrixMove(_position.x, _position.y);
 		_currentAnimation->Draw(_timeCounter / _currentAnimation->Time());
 		Render::PopMatrix();
 	}
@@ -33,5 +33,7 @@ bool AnimEditor::SetCurrent(const char *name) {
 		Core::ReleaseAllTextures();
 	}
 	_currentAnimation = Core::getAnimation(name);
+	_position.x = Render::GetDC()->System_GetState(HGE_SCREENWIDTH) / 2.f;
+	_position.y = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT) / 2.f;
 	return (_currentAnimation != NULL);
 }

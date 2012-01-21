@@ -67,6 +67,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR argv, int argc)
 		LOG("application start");
 		InputSystem::Init();
 		Render::RunApplication();
+		CloseDialogs();
 		Core::Release();
 	} else {	
 		LOG(Render::Error().c_str());

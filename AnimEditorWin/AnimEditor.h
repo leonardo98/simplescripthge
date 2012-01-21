@@ -13,6 +13,7 @@ public:
 private:
 	Animation *_currentAnimation;
 	float _timeCounter;
+	FPoint2D _position;
 };
 
 #endif//ANIMEDITOR_H
