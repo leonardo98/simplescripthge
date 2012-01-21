@@ -12,10 +12,15 @@
 HWND d_main = 0;
 HWND d_bone = 0;
 HWND hAnimationCombo = 0;
+HWND hAnimationTree = 0;
 std::string lastOpenedDir = "C:\\Projects\\MyEngineMac&Win\\AnimEditorWin\\TestFiles";
 AnimEditor editor;
-std::string lastAnimationId;
+#define MAX_LENGTH 256
+char lastAnimationId[MAX_LENGTH];
 bool waitingNewAnimationId = false;
+
+HTREEITEM tree_root = 0;             
+
 
 std::string CutFileName(std::string filePath) {
 	std::string result;
@@ -37,6 +42,7 @@ BOOL CALLBACK DialogProcBone(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		{
 		}
 		break;
+
 	}
 	return 0;
 }
@@ -50,21 +56,10 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		{
 			InitCommonControls();
 			hAnimationCombo = GetDlgItem(hWnd, IDC_ANIMATION_COMBO);
-		}
-		break;
+			hAnimationTree = GetDlgItem(hWnd, IDC_ANIMATION_TREE);
 
-		case WM_PAINT:
-		{
-			if (waitingNewAnimationId) {
-				const int MAX = 100;
-				char buffer[MAX];
-				int len = ComboBox_GetText(hAnimationCombo, buffer, MAX);
-				if (len && lastAnimationId != buffer) {
-					editor.SetCurrent(buffer);
-					lastAnimationId = buffer;
-					waitingNewAnimationId = false;
-				}
-			}
+			// creating image list and put it into the tree control
+			//====================================================//
 		}
 		break;
 
@@ -146,8 +141,36 @@ void InitDialogs(HINSTANCE hInstance) {
 	ShowWindow(d_main, SW_SHOW); 
 	d_bone = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_BONE_PROP), NULL, (DLGPROC)DialogProcBone);
 	ShowWindow(d_bone, SW_SHOW); 
-	SetWindowPos(d_main, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-	SetWindowPos(d_bone, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+	SetWindowPos(Render::GetDC()->System_GetState(HGE_HWND), HWND_TOP,
+				Render::GetDC()->Ini_GetInt("dialogs", "renderx", 0),
+				Render::GetDC()->Ini_GetInt("dialogs", "rendery", 0),
+				0, 0, SWP_NOACTIVATE | SWP_NOSIZE);
+	SetWindowPos(d_main, HWND_TOP,
+				Render::GetDC()->Ini_GetInt("dialogs", "mainx", 0),
+				Render::GetDC()->Ini_GetInt("dialogs", "mainy", 0),
+				0, 0, SWP_NOACTIVATE | SWP_NOSIZE);
+	SetWindowPos(d_bone, HWND_TOP, 
+				Render::GetDC()->Ini_GetInt("dialogs", "bonex", 0),
+				Render::GetDC()->Ini_GetInt("dialogs", "boney", 0),
+				0, 0, SWP_NOACTIVATE | SWP_NOSIZE);
+}
+
+void CloseDialogs() {
+	RECT rect;
+	if (GetWindowRect(d_main, &rect)) {
+		Render::GetDC()->Ini_SetInt("dialogs", "mainx", rect.left);
+		Render::GetDC()->Ini_SetInt("dialogs", "mainy", rect.top);
+	}
+	if (GetWindowRect(d_bone, &rect)) {
+		Render::GetDC()->Ini_SetInt("dialogs", "bonex", rect.left);
+		Render::GetDC()->Ini_SetInt("dialogs", "boney", rect.top);
+	}
+	if (GetWindowRect(Render::GetDC()->System_GetState(HGE_HWND), &rect)) {
+		Render::GetDC()->Ini_SetInt("dialogs", "renderx", rect.left);
+		Render::GetDC()->Ini_SetInt("dialogs", "rendery", rect.top);
+	}
+	DestroyWindow(d_main);
+	DestroyWindow(d_bone);
 }
 
 bool SetDialogsOnTop() {
@@ -161,9 +184,72 @@ void Draw() {
 }
 
 void Update(float dt) {
+	if (waitingNewAnimationId) {
+		char buffer[MAX_LENGTH];
+		int len = ComboBox_GetText(hAnimationCombo, buffer, MAX_LENGTH);
+		if (len && strcmp(lastAnimationId, buffer) != 0) {
+			editor.SetCurrent(buffer);
+			strcpy_s(lastAnimationId, buffer);
+			waitingNewAnimationId = false;
+			CreateAnimationTree();
+		}
+	}
 	editor.Update(dt);
 }
 
 bool Exit() {
 	return editor.exitPressed;
+}
+
+// creating root
+HTREEITEM AddRoot(char *id) {
+	TVINSERTSTRUCT tvinsert;   // struct to config out tree control
+	memset(&tvinsert, 0, sizeof(TVINSERTSTRUCT));
+	tvinsert.hParent = NULL;			// top most level no need handle
+	tvinsert.hInsertAfter = TVI_ROOT; // work as root level
+    tvinsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+    tvinsert.item.pszText = id;
+	tvinsert.item.iImage = 0;
+	tvinsert.item.iSelectedImage = 1;
+	return (HTREEITEM)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
+}
+
+// creating child
+HTREEITEM InsertEndChild(HTREEITEM parent, char *id) {
+	TVINSERTSTRUCT tvinsert;   // struct to config out tree control
+	memset(&tvinsert, 0, sizeof(TVINSERTSTRUCT));
+	tvinsert.hParent = parent;			// top most level no need handle
+	tvinsert.hInsertAfter = TVI_LAST; // work as root level
+    tvinsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+    tvinsert.item.pszText = id;
+	tvinsert.item.iImage = 0;
+	tvinsert.item.iSelectedImage = 1;
+	return (HTREEITEM)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
+}
+
+void CreateAnimationTree() {
+	//remove old
+	HTREEITEM oldRoot = tree_root;
+	if (tree_root) {
+		//TreeView_DeleteItem(hAnimationTree, tree_root);
+		//SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_DELETEITEM, 0, (LPARAM)(HTREEITEM)tree_root);
+	}
+	
+	// create new
+	tree_root = AddRoot(lastAnimationId);
+	HTREEITEM i = InsertEndChild(tree_root, "Hello");
+	i = InsertEndChild(tree_root, "Hello2");
+	i = InsertEndChild(tree_root, "Hello3");
+	// child
+	//tvinsert.hParent = tree_root;         // handle of the above data
+	//tvinsert.hInsertAfter = TVI_FIRST;  // below parent
+	//tvinsert.item.pszText = "Child 1";
+	//HTREEITEM item = (HTREEITEM)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
+	if (oldRoot) {
+		TreeView_DeleteItem(hAnimationTree, oldRoot);
+		//SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_DELETEITEM, 0, (LPARAM)(HTREEITEM)tree_root);
+	}
+
+	UpdateWindow(d_main);
+	return;
 }

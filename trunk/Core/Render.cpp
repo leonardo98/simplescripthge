@@ -31,7 +31,6 @@ DWORD Render::Parse(const std::string &s) {
 
 HGE *Render::_hge = NULL;
 std::map<std::string, hgeFont*> Render::_fonts;
-std::map<HTEXTURE, int> Render::_storageTextures;
 
 DWORD Render::_currentColor;
 Matrix Render::_matrixStack[MAX_MATRIX_AMOUNT];
@@ -60,19 +59,14 @@ Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int
 {
 	_offsetX = offsetX;
 	_offsetY = offsetY;
-	_hTexture = hTexture;
-	_texture = new hgeSprite(_hTexture, x, y, _width, _height);
-	if (Render::_storageTextures.find(_hTexture) == Render::_storageTextures.end()) {
-		Render::_storageTextures[_hTexture] = 1;
-	} else {
-		Render::_storageTextures[_hTexture]++;
-	}
+	_hTexture = 0;
+	_texture = new hgeSprite(hTexture, x, y, _width, _height);
 
 	{
-		float w = Render::GetDC()->Texture_GetWidth(_hTexture);
-		float h = Render::GetDC()->Texture_GetHeight(_hTexture);
+		float w = Render::GetDC()->Texture_GetWidth(hTexture);
+		float h = Render::GetDC()->Texture_GetHeight(hTexture);
 
-		_originQuad.tex = _hTexture;
+		_originQuad.tex = hTexture;
 		_originQuad.blend = BLEND_DEFAULT;
 
 		_originQuad.v[0].tx = x / w; _originQuad.v[0].ty = y / h;
@@ -103,9 +97,6 @@ Texture::Texture(const std::string &fileName)
 	_offsetX = 0.f;
 	_offsetY = 0.f;
 	_hTexture = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str()));
-	if (Render::_storageTextures.find(_hTexture) == Render::_storageTextures.end()) {
-		Render::_storageTextures[_hTexture] = 1;
-	}
 	if (_hTexture == NULL) {
 		LOG("Не могу открыть файл " + fileName);
 		exit(-7);
@@ -141,8 +132,7 @@ Texture::Texture(const std::string &fileName)
 
 Texture::~Texture() {
 	delete _texture;
-	Render::_storageTextures[_hTexture]--;
-	if (Render::_storageTextures[_hTexture] == 0) {
+	if (_hTexture) {
 		Render::GetDC()->Texture_Free(_hTexture);
 	}
 }
