@@ -13,6 +13,7 @@ enum BoneType {
 class Bone;
 
 typedef std::vector<Bone *> BoneList;
+typedef void *(* const CallBones)(void *, char *, void *); 
 
 class AnimationPart : public StaticSprite {
 public:
@@ -25,11 +26,13 @@ class Bone
 public:
 	Bone(const char *id, const BoneType bt);
 	Bone(Bone &bone);
+	void EditorCall(CallBones myCall, void *parent);
 	virtual void Draw(float p) = 0; // [ 0<= p <= 1 ]
 	virtual bool PixelCheck(const FPoint2D &pos) = 0;
 	virtual bool ReplaceTexture(const std::string &boneName, const char *texture);
 	virtual ~Bone() {}
-	const std::string boneName;
+#define MAX_LENGTH 256
+	char boneName[MAX_LENGTH];
 	const BoneType boneType;
 	virtual void LoadTextures() {}
 	virtual void UnloadTextures() {}
@@ -104,6 +107,7 @@ public:
 	Animation(TiXmlElement *xe);
 	Animation(Animation &animation);
 	virtual ~Animation();
+	void EditorCall(CallBones myCall, void *parent);
 	void Draw();
 	void Draw(float position);
 	void Update(float dt);

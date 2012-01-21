@@ -183,6 +183,11 @@ void Draw() {
 	editor.Draw();
 }
 
+void * InsertEndChild(void *, char *, void *);
+//void TreeCreater(HTREEITEM parent, char *name, void *ptr) {
+//
+//}
+
 void Update(float dt) {
 	if (waitingNewAnimationId) {
 		char buffer[MAX_LENGTH];
@@ -192,6 +197,8 @@ void Update(float dt) {
 			strcpy_s(lastAnimationId, buffer);
 			waitingNewAnimationId = false;
 			CreateAnimationTree();
+			editor.CreateTree(tree_root, InsertEndChild);
+			UpdateWindow(d_main);
 		}
 	}
 	editor.Update(dt);
@@ -215,16 +222,16 @@ HTREEITEM AddRoot(char *id) {
 }
 
 // creating child
-HTREEITEM InsertEndChild(HTREEITEM parent, char *id) {
+void * InsertEndChild(void *parent, char *id, void *) {
 	TVINSERTSTRUCT tvinsert;   // struct to config out tree control
 	memset(&tvinsert, 0, sizeof(TVINSERTSTRUCT));
-	tvinsert.hParent = parent;			// top most level no need handle
+	tvinsert.hParent = (HTREEITEM)parent;			// top most level no need handle
 	tvinsert.hInsertAfter = TVI_LAST; // work as root level
     tvinsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
     tvinsert.item.pszText = id;
 	tvinsert.item.iImage = 0;
 	tvinsert.item.iSelectedImage = 1;
-	return (HTREEITEM)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
+	return (void *)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
 }
 
 void CreateAnimationTree() {
@@ -237,9 +244,10 @@ void CreateAnimationTree() {
 	
 	// create new
 	tree_root = AddRoot(lastAnimationId);
-	HTREEITEM i = InsertEndChild(tree_root, "Hello");
-	i = InsertEndChild(tree_root, "Hello2");
-	i = InsertEndChild(tree_root, "Hello3");
+
+	//HTREEITEM i = InsertEndChild(tree_root, "Hello");
+	//i = InsertEndChild(tree_root, "Hello2");
+	//i = InsertEndChild(tree_root, "Hello3");
 	// child
 	//tvinsert.hParent = tree_root;         // handle of the above data
 	//tvinsert.hInsertAfter = TVI_FIRST;  // below parent
@@ -250,6 +258,5 @@ void CreateAnimationTree() {
 		//SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_DELETEITEM, 0, (LPARAM)(HTREEITEM)tree_root);
 	}
 
-	UpdateWindow(d_main);
 	return;
 }

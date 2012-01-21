@@ -3,15 +3,17 @@
 #include "Math.h"
 
 Bone::Bone(const char *name, const BoneType bt) 
-: boneName( name ? name : "" )
-, boneType(bt)
-{}
+: boneType(bt)
+{
+	strcpy(boneName, name);
+}
 
 Bone::Bone(Bone &bone) 
-: boneName(bone.boneName)
-, boneType(bone.boneType)
+: boneType(bone.boneType)
 , _offparent(bone._offparent)
-{}
+{
+	strcpy(boneName, bone.boneName);
+}
 
 bool Bone::ReplaceTexture(const std::string &boneName, const char *texture) {
 	return false;
@@ -28,6 +30,13 @@ void Bone::ResortBones() {
 		} else {
 			assert(false);
 		}
+	}
+}
+
+void Bone::EditorCall(CallBones myCall, void *parent) {
+	void *item = myCall(parent, boneName, this);
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->EditorCall(myCall, item);
 	}
 }
 
@@ -386,6 +395,12 @@ void IKTwoBone::SetPos(float x, float y)
 Animation::~Animation() {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		delete _bones[i];
+	}
+}
+
+void Animation::EditorCall(CallBones myCall, void *parent) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->EditorCall(myCall, parent);
 	}
 }
 

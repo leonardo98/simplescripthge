@@ -37,3 +37,7 @@ bool AnimEditor::SetCurrent(const char *name) {
 	_position.y = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT) / 2.f;
 	return (_currentAnimation != NULL);
 }
+
+void AnimEditor::CreateTree(void *parent, CallBones myCall) {
+	_currentAnimation->EditorCall(myCall, parent);
+}
