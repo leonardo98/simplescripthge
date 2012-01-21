@@ -9,6 +9,7 @@ public:
 	AnimEditor();
 	void Draw();
 	void Update(float dt);
+	void CreateTree(void *parent, CallBones myCall);
 	bool SetCurrent(const char *name);
 private:
 	Animation *_currentAnimation;
