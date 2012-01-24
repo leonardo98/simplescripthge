@@ -55,18 +55,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR argv, int argc)
 	// инициализируем 
 	if(Render::InitApplication(FrameFunc, RenderFunc)) {
 		Render::GetDC()->System_SetState(HGE_FOCUSGAINFUNC, SetDialogsOnTop);
-		Render::GetDC()->System_SetState(HGE_DONTSUSPEND, true);
-		Render::GetDC()->System_SetState(HGE_FPS, HGEFPS_VSYNC);
+		HWND h = InitDialogs(hInstance);
+		Render::GetDC()->System_SetState(HGE_HWNDPARENT, h);
 		LOG(argv);
 		Interface::Init();
 		BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);
 		// запускаем ядро
 		Core::Init();
 		//Core::Load("start.xml");
-		InitDialogs(hInstance);
 		LOG("application start");
 		InputSystem::Init();
-		Render::RunApplication();
+
+		MSG  msg;
+		while (true)
+		{
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) && !IsDialogMessage (h, & msg)) {
+				TranslateMessage ( & msg );
+				DispatchMessage ( & msg );
+			}
+			if(Render::GetDC()->System_GetState(HGE_HWND)) {
+				Sleep(30);
+				float dt = 0.030f;
+				Core::Update(dt);
+				Update(dt);
+				RenderFunc();
+			}
+		}
 		CloseDialogs();
 		Core::Release();
 	} else {	
