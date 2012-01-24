@@ -41,3 +41,7 @@ bool AnimEditor::SetCurrent(const char *name) {
 void AnimEditor::CreateTree(void *parent, CallBones myCall) {
 	_currentAnimation->EditorCall(myCall, parent);
 }
+
+Animation * AnimEditor::Anim() {
+	return _currentAnimation;
+}

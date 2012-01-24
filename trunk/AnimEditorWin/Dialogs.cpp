@@ -13,11 +13,18 @@ HWND d_main = 0;
 HWND d_bone = 0;
 HWND hAnimationCombo = 0;
 HWND hAnimationTree = 0;
+
+HWND hAnimationPivotX = 0;
+HWND hAnimationPivotY = 0;
+HWND hAnimationLoop = 0;
+HWND hAnimationTime = 0;
+
 std::string lastOpenedDir = "C:\\Projects\\MyEngineMac&Win\\AnimEditorWin\\TestFiles";
 AnimEditor editor;
 #define MAX_LENGTH 256
 char lastAnimationId[MAX_LENGTH];
 bool waitingNewAnimationId = false;
+bool updateAnimationState = false;
 
 HTREEITEM tree_root = 0;             
 
@@ -58,12 +65,25 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			hAnimationCombo = GetDlgItem(hWnd, IDC_ANIMATION_COMBO);
 			hAnimationTree = GetDlgItem(hWnd, IDC_ANIMATION_TREE);
 
+			hAnimationPivotX = GetDlgItem(hWnd, IDC_EDIT1);
+			hAnimationPivotY = GetDlgItem(hWnd, IDC_EDIT2);
+			hAnimationLoop = GetDlgItem(hWnd, IDC_CHECKBOX1);
+			hAnimationTime = GetDlgItem(hWnd, IDC_EDIT3);
 			// creating image list and put it into the tree control
 			//====================================================//
 		}
 		break;
 
-		case WM_COMMAND:
+		case WM_KEYDOWN :
+		case WM_KEYUP :
+		case WM_INPUT :
+		case WM_CHAR :
+			{
+				assert(false);
+			}
+		break;
+
+		case WM_COMMAND :
 			switch (LOWORD(wParam)) // what we pressed on?
 			{ 	 
 				case IDM_OPEN_XML:
@@ -132,11 +152,15 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 			}
 		break;
+		default: 
+		{
+			updateAnimationState = true;
+		}
 	}
 	return 0;
 }
 
-void InitDialogs(HINSTANCE hInstance) {
+HWND InitDialogs(HINSTANCE hInstance) {
 	d_main = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC)DialogProcMain);
 	ShowWindow(d_main, SW_SHOW); 
 	d_bone = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_BONE_PROP), NULL, (DLGPROC)DialogProcBone);
@@ -153,6 +177,7 @@ void InitDialogs(HINSTANCE hInstance) {
 				Render::GetDC()->Ini_GetInt("dialogs", "bonex", 0),
 				Render::GetDC()->Ini_GetInt("dialogs", "boney", 0),
 				0, 0, SWP_NOACTIVATE | SWP_NOSIZE);
+	return d_main;
 }
 
 void CloseDialogs() {
@@ -183,10 +208,35 @@ void Draw() {
 	editor.Draw();
 }
 
-void * InsertEndChild(void *, char *, void *);
+void * InsertEndChild(void *, char *, Bone *);
 //void TreeCreater(HTREEITEM parent, char *name, void *ptr) {
 //
 //}
+
+void SetAnimationParameters(AnimationInfo &info) {
+	char tmp[MAX_LENGTH];
+	Edit_GetText(hAnimationPivotX, tmp, MAX_LENGTH);
+	info.pivotPos.x = (float)atof(tmp);
+	Edit_GetText(hAnimationPivotY, tmp, MAX_LENGTH);
+	info.pivotPos.y = (float)atof(tmp);
+	Edit_GetText(hAnimationTime, tmp, MAX_LENGTH);
+	info.time = (float)atof(tmp);
+	info.loop = Button_GetCheck(hAnimationLoop) ? true : false;
+	editor.Anim()->Set(info);
+}
+
+void ReadAnimationParameters() {
+	AnimationInfo info;
+	editor.Anim()->Get(info);
+	char tmp[MAX_LENGTH];
+	sprintf_s(tmp, "%f", info.pivotPos.x);
+	Edit_SetText(hAnimationPivotX, tmp);
+	sprintf_s(tmp, "%f", info.pivotPos.y);
+	Edit_SetText(hAnimationPivotY, tmp);
+	sprintf_s(tmp, "%f", info.time);
+	Edit_SetText(hAnimationTime, tmp);
+	Button_SetCheck(hAnimationLoop, info.loop ? TRUE : FALSE);
+}
 
 void Update(float dt) {
 	if (waitingNewAnimationId) {
@@ -198,8 +248,23 @@ void Update(float dt) {
 			waitingNewAnimationId = false;
 			CreateAnimationTree();
 			editor.CreateTree(tree_root, InsertEndChild);
+			ReadAnimationParameters();
 			UpdateWindow(d_main);
 		}
+	}
+	if (updateAnimationState && editor.Anim() != NULL) {
+		AnimationInfo base;
+		editor.Anim()->Get(base);
+		AnimationInfo edit;
+		SetAnimationParameters(edit);
+		if (base.loop != edit.loop
+				|| fabs(base.time - edit.time) > 1e-3
+				|| fabs(base.pivotPos.x - edit.pivotPos.x) > 1e-3
+				|| fabs(base.pivotPos.y - edit.pivotPos.y) > 1e-3)
+		{
+			editor.Anim()->Set(edit);
+		}
+		updateAnimationState = false;
 	}
 	editor.Update(dt);
 }
@@ -222,7 +287,7 @@ HTREEITEM AddRoot(char *id) {
 }
 
 // creating child
-void * InsertEndChild(void *parent, char *id, void *) {
+void * InsertEndChild(void *parent, char *id, Bone *bone) {
 	TVINSERTSTRUCT tvinsert;   // struct to config out tree control
 	memset(&tvinsert, 0, sizeof(TVINSERTSTRUCT));
 	tvinsert.hParent = (HTREEITEM)parent;			// top most level no need handle
@@ -231,6 +296,7 @@ void * InsertEndChild(void *parent, char *id, void *) {
     tvinsert.item.pszText = id;
 	tvinsert.item.iImage = 0;
 	tvinsert.item.iSelectedImage = 1;
+	tvinsert.item.lParam = (LPARAM)bone;
 	return (void *)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
 }
 

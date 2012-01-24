@@ -1,5 +1,5 @@
 
-void InitDialogs(HINSTANCE hInstance);
+HWND InitDialogs(HINSTANCE hInstance);
 
 void CloseDialogs();
 
