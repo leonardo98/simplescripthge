@@ -11,6 +11,7 @@ public:
 	void Update(float dt);
 	void CreateTree(void *parent, CallBones myCall);
 	bool SetCurrent(const char *name);
+	Animation * Anim();
 private:
 	Animation *_currentAnimation;
 	float _timeCounter;

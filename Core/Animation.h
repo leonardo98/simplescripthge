@@ -10,15 +10,39 @@ enum BoneType {
 	BT_IKTwoBone
 };
 
+enum OffParentOrder {
+	top,
+	bottom
+};
+
 class Bone;
 
 typedef std::vector<Bone *> BoneList;
-typedef void *(* const CallBones)(void *, char *, void *); 
+typedef void *(* const CallBones)(void *, char *, Bone *); 
 
 class AnimationPart : public StaticSprite {
 public:
 	const std::string fileName;
 	AnimationPart(const char *FileName) : fileName(FileName) {}
+};
+
+struct MovingPartInfo {
+	SplinePath x;
+	SplinePath y;
+	SplinePath angle;
+	FPoint2D center;
+	SplinePath scaleX;
+	SplinePath scaleY;
+	std::vector<std::string> partsNames;
+	bool discontinuous;
+	bool loop;
+	OffParentOrder offparent;
+};
+
+struct AnimationInfo {
+	FPoint2D pivotPos;
+	float time;
+	bool loop;
 };
 
 class Bone
@@ -36,15 +60,14 @@ public:
 	const BoneType boneType;
 	virtual void LoadTextures() {}
 	virtual void UnloadTextures() {}
+	virtual void Get(MovingPartInfo &info) const {}
+	virtual void Set(const MovingPartInfo &info) {}
+	virtual void SetLoop(bool loop);
 protected:
 	void ResortBones();
 	BoneList _topBone;// links
 	BoneList _bottomBone;// links
 	BoneList _bones;
-	enum OffParentOrder {
-		top,
-		bottom
-	};
 	OffParentOrder _offparent;
 
 	friend class AnimationEditor;
@@ -54,18 +77,21 @@ class MovingPart : public Bone
 {
 public:
 	~MovingPart();
-	MovingPart(TiXmlElement *xe, bool loop);
+	MovingPart(TiXmlElement *xe);
 	MovingPart(MovingPart &movinPart);
 	virtual void Draw(float p); // [ 0<= p <= 1 ]
 	virtual bool PixelCheck(const FPoint2D &pos);
 	virtual bool ReplaceTexture(const std::string &boneName, const char *texture);
 	virtual void LoadTextures();
 	virtual void UnloadTextures();
+	virtual void Get(MovingPartInfo &info) const;
+	virtual void Set(const MovingPartInfo &info);
+	virtual void SetLoop(bool loop);
 private:
+	FPoint2D _center;
 	SplinePath _x;
 	SplinePath _y;
 	SplinePath _angle;
-	FPoint2D _center;
 	SplinePath _scaleX;
 	SplinePath _scaleY;
 	std::vector<AnimationPart *> _parts;
@@ -119,10 +145,14 @@ public:
 	void UnloadTextures();
 	bool TextureLoaded();
 	//bool RemoveBone(const std::string &boneName, Bone *bone); 
+	void Get(AnimationInfo &info) const;
+	void Set(const AnimationInfo &info);
+	void SetLoop(bool loop);
 private:
 	bool _texturesLoaded;
 	FPoint2D _pivotPos;
 	float _time;
+	bool _loop;
 	float _timeCounter;
 	BoneList _bones;
 	Matrix _subPosition;

@@ -5,7 +5,9 @@
 Bone::Bone(const char *name, const BoneType bt) 
 : boneType(bt)
 {
-	strcpy(boneName, name);
+	if (name) {
+		strcpy(boneName, name);
+	}
 }
 
 Bone::Bone(Bone &bone) 
@@ -40,6 +42,12 @@ void Bone::EditorCall(CallBones myCall, void *parent) {
 	}
 }
 
+void Bone::SetLoop(bool loop) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->SetLoop(loop);
+	}
+}
+
 void MovingPart::LoadTextures() {
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
 		_parts[i]->Set(Core::getTexture(_parts[i]->fileName));
@@ -67,10 +75,19 @@ MovingPart::~MovingPart() {
 	}
 }
 
-MovingPart::MovingPart(TiXmlElement *xe, bool loop)
+void MovingPart::SetLoop(bool loop) {
+	_x.CalculateGradient(loop);
+	_y.CalculateGradient(loop);
+	_angle.CalculateGradient(loop);
+	_scaleX.CalculateGradient(loop);
+	_scaleY.CalculateGradient(loop);
+	Bone::SetLoop(loop);
+	_loop = loop;
+}
+
+MovingPart::MovingPart(TiXmlElement *xe)
 : Bone(xe->Attribute("name"), BT_MovingPart)
 {
-	_loop = loop;
 	_discontinuous = Math::Read(xe, "discontinuous", false);
 	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? bottom : top);
 	_center.x = Math::Read(xe, "centerX", 0.f);
@@ -96,11 +113,6 @@ MovingPart::MovingPart(TiXmlElement *xe, bool loop)
 
 		pos = pos->NextSiblingElement("pos");
 	}
-	_x.CalculateGradient(loop);
-	_y.CalculateGradient(loop);
-	_scaleX.CalculateGradient(loop);
-	_scaleY.CalculateGradient(loop);
-	_angle.CalculateGradient(loop);
 
 	TiXmlElement *part = xe->FirstChildElement("part");
 	assert(!(part != NULL && xe->Attribute("texture") != NULL));// двойное заполнение 
@@ -113,9 +125,7 @@ MovingPart::MovingPart(TiXmlElement *xe, bool loop)
 	while (element) {
 		std::string name = element->Value();
 		if (name == "movingPart") {
-			_bones.push_back( new MovingPart(element, loop) );
-		} else if (name == "IKTwoBone") {
-			_bones.push_back( new IKTwoBone(element, loop) );
+			_bones.push_back( new MovingPart(element) );
 		}
 		element = element->NextSiblingElement();
 	}
@@ -266,7 +276,7 @@ IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
 	while (element) {
 		std::string name = element->Value();
 		if (name == "movingPart") {
-			_bones.push_back( new MovingPart(element, loop) );
+			_bones.push_back( new MovingPart(element) );
 		} else if (name == "IKTwoBone") {
 			_bones.push_back( new IKTwoBone(element, loop) );
 		}
@@ -408,7 +418,7 @@ Animation::Animation(TiXmlElement *xe)
 : _timeCounter(0.f)
 , _texturesLoaded(false)
 {
-	bool loop = (std::string(xe->Attribute("loop")) == "true");
+	_loop = (std::string(xe->Attribute("loop")) == "true");
 	_time = atof(xe->Attribute("time"));
 	_pivotPos.x = atoi(xe->Attribute("pivotX"));
 	_pivotPos.y = atoi(xe->Attribute("pivotY"));
@@ -417,9 +427,7 @@ Animation::Animation(TiXmlElement *xe)
 	while (element) {
 		std::string name = element->Value();
 		if (name == "movingPart") {
-			_bones.push_back(new MovingPart(element, loop));
-		} else if (name == "IKTwoBone") {
-			_bones.push_back( new IKTwoBone(element, loop) );
+			_bones.push_back(new MovingPart(element));
 		}
 		element = element->NextSiblingElement();
 	}
@@ -428,6 +436,7 @@ Animation::Animation(TiXmlElement *xe)
 	_subPosition.Unit();
 	_subPosition.Move(-_pivotPos.x, -_pivotPos.y);
 	_subPosition.Move(pos.x, pos.y);
+	SetLoop(_loop);
 }
 
 Animation::Animation(Animation &animation) {
@@ -436,6 +445,7 @@ Animation::Animation(Animation &animation) {
 	_time = animation._time;
 	_timeCounter = animation._timeCounter;
 	_texturesLoaded = animation._texturesLoaded;
+	_loop = animation._loop;
 	
 	_bones;
 	for (BoneList::iterator i = animation._bones.begin(), e = animation._bones.end(); i != e; ++i) {
@@ -525,3 +535,59 @@ void Animation::UnloadTextures() {
 bool Animation::TextureLoaded() {
 	return _texturesLoaded;
 }
+
+void MovingPart::Get(MovingPartInfo &info) const {
+	info.x = _x;
+	info.y = _y;
+	info.angle = _angle;
+	info.center = _center;
+	info.scaleX = _scaleX;
+	info.scaleY = _scaleY;
+	info.partsNames.clear();
+	for (unsigned int i = 0; i < _parts.size(); ++i) {
+		info.partsNames.push_back(_parts[i]->fileName);
+	}
+	info.discontinuous = _discontinuous;
+	info.loop = _loop;
+	info.offparent = _offparent;
+}
+
+void MovingPart::Set(const MovingPartInfo &info) {
+	_x = info.x;
+	_y = info.y;
+	_angle = info.angle;
+	_center = info.center;
+	_scaleX = info.scaleX;
+	_scaleY = info.scaleY;
+	for (unsigned int i = 0; i < _parts.size(); ++i) {
+		delete _parts[i];
+	}
+	_parts.clear();
+	for (unsigned int i = 0; i < info.partsNames.size(); ++i) {
+		_parts.push_back(new AnimationPart(info.partsNames[i].c_str()));
+	}
+	_discontinuous = info.discontinuous;
+	_loop = info.loop;
+	_offparent = info.offparent;
+}
+
+void Animation::Get(AnimationInfo &info) const {
+	info.pivotPos = _pivotPos;
+	info.time = _time;
+	info.loop = _loop;
+}
+
+void Animation::Set(const AnimationInfo &info) {
+	_pivotPos = info.pivotPos;
+	_time = info.time;
+	if (_loop != info.loop) {
+
+	}
+}
+
+void Animation::SetLoop(bool loop) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->SetLoop(loop);
+	}
+}
+
