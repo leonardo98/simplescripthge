@@ -46,12 +46,6 @@ bool FrameFunc()
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR argv, int argc)
 {
-	printf("SimpleScriptHGE Start");
-	if (argc != 1) {
-		printf(argv);
-		printf("usage: SimpleScriptHGE <dir>");
-		return (-13);
-	}
 	// инициализируем 
 	if(Render::InitApplication(FrameFunc, RenderFunc)) {
 		Render::GetDC()->System_SetState(HGE_FOCUSGAINFUNC, SetDialogsOnTop);
@@ -62,24 +56,36 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR argv, int argc)
 		BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);
 		// запускаем ядро
 		Core::Init();
-		//Core::Load("start.xml");
 		LOG("application start");
 		InputSystem::Init();
 
 		MSG  msg;
-		while (true)
+		DWORD time1 = GetTickCount();
+		DWORD time2;
+		float dt = 0.f;
+		while (!Exit())
 		{
-			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) && !IsDialogMessage (h, & msg)) {
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) && !IsDialogMessage (h, & msg)) {
 				TranslateMessage ( & msg );
+				if(msg.message == WM_DESTROY
+					|| msg.message == WM_CLOSE
+					|| msg.message == WM_QUIT) {
+					Exit(true);
+				}
 				DispatchMessage ( & msg );
 			}
 			if(Render::GetDC()->System_GetState(HGE_HWND)) {
-				Sleep(30);
-				float dt = 0.030f;
-				Core::Update(dt);
-				Update(dt);
-				RenderFunc();
+				time2 = GetTickCount();
+				dt += (time2 - time1) / 1000.f;
+				time1 = time2;
+				if (dt > 1.f / 50) {
+					Core::Update(dt);
+					Update(dt);
+					RenderFunc();
+					dt = 0.f;
+				}
 			}
+			Sleep(1);
 		}
 		CloseDialogs();
 		Core::Release();
@@ -87,6 +93,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR argv, int argc)
 		LOG(Render::Error().c_str());
 	}
 	Render::ExitApplication();
-
 	return 0;
 }
