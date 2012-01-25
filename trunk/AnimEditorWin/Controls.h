@@ -2,131 +2,85 @@
 #define CONTROLS_H
 
 #include <windows.h>
+#include "Commctrl.h"
+
+#define MAX_STR_LENGTH 256
 
 class SimpleControl
 {
 public:
-    SimpleControl (HWND hwndParent, int id, BOOL initialState=TRUE)
-        : _hWnd (GetDlgItem (hwndParent, id))
-    {
-        if (initialState == FALSE)
-         Disable();
-   }
-   void Hide ()
-   {
-      ::ShowWindow(_hWnd , SW_HIDE);
-   }
-   void Show ()
-   {
-      ::ShowWindow(_hWnd , SW_SHOW);
-   }
-   BOOL IsVisible()
-   {
-      return(::IsWindowVisible(_hWnd ));
-   }
-   void SetFocus ()
-   {
-       ::SetFocus (_hWnd);
-   }
-   void Enable()
-   {
-       ::EnableWindow(_hWnd , TRUE);
-   }
-   void Disable()
-   {
-       ::EnableWindow(_hWnd , FALSE);
-   }
-	HWND Hwnd () const { return _hWnd; }
+	SimpleControl(HWND hwndParent, int id, BOOL initialState = TRUE);
+	void Hide();
+	void Show();
+	BOOL IsVisible();
+	void SetFocus();
+	void Enable();
+	void Disable();
+	HWND Hwnd() const;
 
 protected:
-    HWND _hWnd;
+	HWND _hWnd;
 };
 
 class Button : public SimpleControl
 {
 public:
-   Button(HWND hwndParent, int id, BOOL initialState=TRUE)
-       : SimpleControl(hwndParent, id, initialState)
-   {}
-   void SetName( char const * newName )
-   {
-      SendMessage(_hWnd, WM_SETTEXT, 0, (LPARAM)newName );
-   }
+	Button(HWND hwndParent, int id, BOOL initialState = TRUE);
+	void SetName( char const * newName );
 };
 
 class CheckBox : public Button
 {
 public:
-   CheckBox (HWND hwndParent, int id, BOOL initialState=TRUE)
-       : Button(hwndParent, id, initialState)
-   {}
-   BOOL IsChecked()
-   {
-      return( SendMessage(_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED );
-   }
-   void Check()
-   {
-      SendMessage( _hWnd, BM_SETCHECK, (WPARAM) BST_CHECKED, 0);
-   }
-   void UnCheck()
-   {
-      SendMessage( _hWnd, BM_SETCHECK, (WPARAM) BST_UNCHECKED, 0);
-   }
+	CheckBox(HWND hwndParent, int id, BOOL initialState = TRUE);
+	BOOL IsChecked();
+	void Check();
+	void UnCheck();
 };
 
-class RadioButton: public Button
+class RadioButton : public Button
 {
 public:
-   RadioButton (HWND hwndParent, int id, BOOL initialState=TRUE)
-       : Button(hwndParent, id, initialState)
-   {}
-   BOOL IsSelected()
-   {
-      return( SendMessage( _hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED );
-   }
-   void Select()
-   {
-      SendMessage( _hWnd, BM_SETCHECK, (WPARAM) BST_CHECKED, 0);
-   }
+	RadioButton(HWND hwndParent, int id, BOOL initialState = TRUE);
+	BOOL IsSelected();
+	void Select();
 };
 
-class Edit: public SimpleControl
+class Edit : public SimpleControl
 {
 public:
-   Edit (HWND hwndParent, int id, BOOL initialState=TRUE)
-        :	SimpleControl (hwndParent, id, initialState)
-   {}
+	Edit(HWND hwndParent, int id, BOOL initialState = TRUE);
+	void SetString(char* buf);
+	void SetFloat(float f);
+	// code is the HIWORD (wParam)
+	static BOOL IsChanged(int code);
+	int GetLength();
+	void GetString(char* buf, int len);
+	float GetFloat();
+	void Select();
+	void ClearSelection();
+};
 
-   void SetString (char* buf)
-   {
-       SendMessage (_hWnd, WM_SETTEXT, 0, (LPARAM) buf);
-   }
+class ComboBox : public Edit
+{
+public:
+	ComboBox(HWND hwndParent, int id, BOOL initialState = TRUE);
+	void Reset();
+	void AddString(const char* s);
+	BOOL IsChanged(int code);
+	int GetString(char* s, int max);
+};
 
-   // code is the HIWORD (wParam)
-   static BOOL IsChanged (int code)
-   {
-       return code == EN_CHANGE;
-   }
-
-   int GetLength ()
-   {
-       return (int)(SendMessage (_hWnd, WM_GETTEXTLENGTH, 0, 0));
-   }
-
-   void GetString (char* buf, int len)
-   {
-       SendMessage (_hWnd, WM_GETTEXT, (WPARAM) len, (LPARAM) buf);
-   }
-
-   void Select ()
-   {
-       SendMessage (_hWnd, EM_SETSEL, 0, -1);
-   }
-
-   void ClearSelection ()
-   {
-       SendMessage (_hWnd, EM_SETSEL, -1, 0);
-   }
+class TreeView : public SimpleControl
+{
+public:
+	TreeView(HWND hwndParent, int id, BOOL initialState = TRUE);
+	HTREEITEM AddRoot(char* text);
+	HTREEITEM AddChild(HTREEITEM parent, char* text, void *samedata);
+	int DeleteItem(HTREEITEM item);
+private:
+	HWND _hwndParent;
+	int _id;
 };
 
 #endif // CONTROLS_H
