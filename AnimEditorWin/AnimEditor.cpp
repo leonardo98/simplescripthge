@@ -5,7 +5,6 @@
 AnimEditor::AnimEditor() 
 : _currentAnimation(NULL)
 , _timeCounter(0.f)
-, exitPressed(false)
 {
 }
 

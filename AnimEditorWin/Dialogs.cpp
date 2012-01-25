@@ -8,37 +8,20 @@
 #include "Windowsx.h"
 #include "Commctrl.h"
 #include "AnimEditor.h"
+#include "MainDialog.h"
 
 HWND d_main = 0;
 HWND d_bone = 0;
-HWND hAnimationCombo = 0;
-HWND hAnimationTree = 0;
 
-HWND hAnimationPivotX = 0;
-HWND hAnimationPivotY = 0;
-HWND hAnimationLoop = 0;
-HWND hAnimationTime = 0;
+MainDialog *_mainDialog;
 
-std::string lastOpenedDir = "C:\\Projects\\MyEngineMac&Win\\AnimEditorWin\\TestFiles";
 AnimEditor editor;
 #define MAX_LENGTH 256
 char lastAnimationId[MAX_LENGTH];
-bool waitingNewAnimationId = false;
 bool updateAnimationState = false;
 
 HTREEITEM tree_root = 0;             
 
-
-std::string CutFileName(std::string filePath) {
-	std::string result;
-	std::string::size_type index = filePath.find("\\");
-	while (index != std::string::npos) {
-		result += filePath.substr(0, index + 1);
-		filePath = filePath.substr(index + 1);
-		index = filePath.find("\\");
-	}
-	return result;
-} 
 
 BOOL CALLBACK DialogProcBone(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -62,100 +45,14 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case WM_INITDIALOG: 
 		{
 			InitCommonControls();
-			hAnimationCombo = GetDlgItem(hWnd, IDC_ANIMATION_COMBO);
-			hAnimationTree = GetDlgItem(hWnd, IDC_ANIMATION_TREE);
-
-			hAnimationPivotX = GetDlgItem(hWnd, IDC_EDIT1);
-			hAnimationPivotY = GetDlgItem(hWnd, IDC_EDIT2);
-			hAnimationLoop = GetDlgItem(hWnd, IDC_CHECKBOX1);
-			hAnimationTime = GetDlgItem(hWnd, IDC_EDIT3);
-			// creating image list and put it into the tree control
-			//====================================================//
+			_mainDialog = new MainDialog(hWnd);
 		}
-		break;
-
-		case WM_KEYDOWN :
-		case WM_KEYUP :
-		case WM_INPUT :
-		case WM_CHAR :
-			{
-				assert(false);
-			}
 		break;
 
 		case WM_COMMAND :
-			switch (LOWORD(wParam)) // what we pressed on?
-			{ 	 
-				case IDM_OPEN_XML:
-				{
-					std::string file;
-					OPENFILENAME fn;
-					fn.lStructSize = sizeof(fn);
-					fn.hInstance = 0;
-					fn.hwndOwner = d_main;
-					fn.lpstrInitialDir = lastOpenedDir.c_str();
-					fn.lpstrFilter = "Animation XML(*.XML)\0*.XML\0All(*.*)\0*.*\0";
-					fn.nFilterIndex = 0;
-					fn.lpstrFile = new char[1024];
-					fn.lpstrFile[0] = 0;
-					fn.nMaxFile = 1024 - 1;
-					fn.lpstrFileTitle = NULL;
-					fn.nMaxFileTitle = NULL;
-					fn.lpstrTitle = NULL;
-					fn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-					fn.lpstrCustomFilter = NULL;
-					fn.nMaxCustFilter = 0;
-					fn.nFileOffset = 0;
-					fn.nFileExtension = 0;
-					fn.lpstrDefExt = NULL;
-					fn.lCustData = NULL;
-					fn.lpfnHook = NULL;
-					fn.FlagsEx = 0;
-					fn.lpTemplateName = "";
-					fn.dwReserved = 0;
-					fn.pvReserved = 0;
-					if (GetOpenFileName(&fn)) {
-						lastOpenedDir = CutFileName(fn.lpstrFile);
-						Core::Unload();
-						Core::LoadAnimations(fn.lpstrFile);
-						Render::SetDataDir(std::string(fn.lpstrFile) + "_files");
-
-						std::vector<std::string> allNames;
-						Core::GetAnimationsList(allNames);
-
-						ComboBox_ResetContent(hAnimationCombo);
-						for (unsigned int i = 0; i < allNames.size(); ++i) {
-							ComboBox_AddString(hAnimationCombo, (LPCSTR)allNames[i].c_str());
-						}
-					}
-				}
-				break;
-				
-				case IDM_EXIT:
-				{
-					editor.exitPressed = true;
-				}
-				break;
-				
-				case IDC_ANIMATION_COMBO: 
-				{
-					switch (HIWORD(wParam)) 
-					{
-						case CBN_SELCHANGE://CBN_SELENDOK:
-						{
-							waitingNewAnimationId = true;
-						}
-						break;
-					}
-				}
-				break;
-
-			}
+			_mainDialog->OnCommand(hWnd, LOWORD(wParam), HIWORD (wParam));
 		break;
-		default: 
-		{
-			updateAnimationState = true;
-		}
+
 	}
 	return 0;
 }
@@ -209,50 +106,43 @@ void Draw() {
 }
 
 void * InsertEndChild(void *, char *, Bone *);
-//void TreeCreater(HTREEITEM parent, char *name, void *ptr) {
-//
-//}
 
 void SetAnimationParameters(AnimationInfo &info) {
-	char tmp[MAX_LENGTH];
-	Edit_GetText(hAnimationPivotX, tmp, MAX_LENGTH);
-	info.pivotPos.x = (float)atof(tmp);
-	Edit_GetText(hAnimationPivotY, tmp, MAX_LENGTH);
-	info.pivotPos.y = (float)atof(tmp);
-	Edit_GetText(hAnimationTime, tmp, MAX_LENGTH);
-	info.time = (float)atof(tmp);
-	info.loop = Button_GetCheck(hAnimationLoop) ? true : false;
+	info.pivotPos.x = _mainDialog->_pivotX.GetFloat();
+	info.pivotPos.y = _mainDialog->_pivotY.GetFloat();
+	info.time = _mainDialog->_time.GetFloat();
+	info.loop = _mainDialog->_loop.IsChecked() ? true : false;
 	editor.Anim()->Set(info);
 }
 
 void ReadAnimationParameters() {
 	AnimationInfo info;
 	editor.Anim()->Get(info);
-	char tmp[MAX_LENGTH];
-	sprintf_s(tmp, "%f", info.pivotPos.x);
-	Edit_SetText(hAnimationPivotX, tmp);
-	sprintf_s(tmp, "%f", info.pivotPos.y);
-	Edit_SetText(hAnimationPivotY, tmp);
-	sprintf_s(tmp, "%f", info.time);
-	Edit_SetText(hAnimationTime, tmp);
-	Button_SetCheck(hAnimationLoop, info.loop ? TRUE : FALSE);
+	_mainDialog->_pivotX.SetFloat(info.pivotPos.x);
+	_mainDialog->_pivotY.SetFloat(info.pivotPos.y);
+	_mainDialog->_time.SetFloat(info.time);
+	if (info.loop) {
+		_mainDialog->_loop.Check();
+	} else {
+		_mainDialog->_loop.UnCheck();
+	}
 }
 
 void Update(float dt) {
-	if (waitingNewAnimationId) {
+	if (_mainDialog->waitingNewAnimationId) {
 		char buffer[MAX_LENGTH];
-		int len = ComboBox_GetText(hAnimationCombo, buffer, MAX_LENGTH);
+		int len = _mainDialog->_animationList.GetString(buffer, MAX_LENGTH);
 		if (len && strcmp(lastAnimationId, buffer) != 0) {
 			editor.SetCurrent(buffer);
 			strcpy_s(lastAnimationId, buffer);
-			waitingNewAnimationId = false;
+			_mainDialog->waitingNewAnimationId = false;
 			CreateAnimationTree();
 			editor.CreateTree(tree_root, InsertEndChild);
 			ReadAnimationParameters();
 			UpdateWindow(d_main);
 		}
 	}
-	if (updateAnimationState && editor.Anim() != NULL) {
+	if (_mainDialog->updateAnimationState && editor.Anim() != NULL) {
 		AnimationInfo base;
 		editor.Anim()->Get(base);
 		AnimationInfo edit;
@@ -262,43 +152,24 @@ void Update(float dt) {
 				|| fabs(base.pivotPos.x - edit.pivotPos.x) > 1e-3
 				|| fabs(base.pivotPos.y - edit.pivotPos.y) > 1e-3)
 		{
+			if (edit.time < 0.01f) {
+				edit.time = base.time;
+			}
 			editor.Anim()->Set(edit);
 		}
-		updateAnimationState = false;
+		_mainDialog->updateAnimationState = false;
 	}
 	editor.Update(dt);
 }
 
 bool Exit(bool exit) {
-	editor.exitPressed |= exit;
-	return editor.exitPressed;
-}
-
-// creating root
-HTREEITEM AddRoot(char *id) {
-	TVINSERTSTRUCT tvinsert;   // struct to config out tree control
-	memset(&tvinsert, 0, sizeof(TVINSERTSTRUCT));
-	tvinsert.hParent = NULL;			// top most level no need handle
-	tvinsert.hInsertAfter = TVI_ROOT; // work as root level
-    tvinsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-    tvinsert.item.pszText = id;
-	tvinsert.item.iImage = 0;
-	tvinsert.item.iSelectedImage = 1;
-	return (HTREEITEM)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
+	_mainDialog->exitPressed |= exit;
+	return _mainDialog->exitPressed;
 }
 
 // creating child
 void * InsertEndChild(void *parent, char *id, Bone *bone) {
-	TVINSERTSTRUCT tvinsert;   // struct to config out tree control
-	memset(&tvinsert, 0, sizeof(TVINSERTSTRUCT));
-	tvinsert.hParent = (HTREEITEM)parent;			// top most level no need handle
-	tvinsert.hInsertAfter = TVI_LAST; // work as root level
-    tvinsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-    tvinsert.item.pszText = id;
-	tvinsert.item.iImage = 0;
-	tvinsert.item.iSelectedImage = 1;
-	tvinsert.item.lParam = (LPARAM)bone;
-	return (void *)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
+	return _mainDialog->_bonesTree.AddChild((HTREEITEM)parent, id, bone);
 }
 
 void CreateAnimationTree() {
@@ -310,7 +181,7 @@ void CreateAnimationTree() {
 	}
 	
 	// create new
-	tree_root = AddRoot(lastAnimationId);
+	tree_root = _mainDialog->_bonesTree.AddRoot(lastAnimationId);
 
 	//HTREEITEM i = InsertEndChild(tree_root, "Hello");
 	//i = InsertEndChild(tree_root, "Hello2");
@@ -321,7 +192,7 @@ void CreateAnimationTree() {
 	//tvinsert.item.pszText = "Child 1";
 	//HTREEITEM item = (HTREEITEM)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
 	if (oldRoot) {
-		TreeView_DeleteItem(hAnimationTree, oldRoot);
+		_mainDialog->_bonesTree.DeleteItem(oldRoot);
 		//SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_DELETEITEM, 0, (LPARAM)(HTREEITEM)tree_root);
 	}
 

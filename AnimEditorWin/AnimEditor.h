@@ -5,7 +5,6 @@
 
 class AnimEditor {
 public:
-	bool exitPressed;
 	AnimEditor();
 	void Draw();
 	void Update(float dt);
