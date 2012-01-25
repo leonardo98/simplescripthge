@@ -165,10 +165,10 @@ HWND InitDialogs(HINSTANCE hInstance) {
 	ShowWindow(d_main, SW_SHOW); 
 	d_bone = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_BONE_PROP), NULL, (DLGPROC)DialogProcBone);
 	ShowWindow(d_bone, SW_SHOW); 
-	//SetWindowPos(Render::GetDC()->System_GetState(HGE_HWND), HWND_TOP,
-	//			Render::GetDC()->Ini_GetInt("dialogs", "renderx", 0),
-	//			Render::GetDC()->Ini_GetInt("dialogs", "rendery", 0),
-	//			0, 0, SWP_NOACTIVATE | SWP_NOSIZE);
+	SetWindowPos(Render::GetDC()->System_GetState(HGE_HWND), HWND_TOP,
+				Render::GetDC()->Ini_GetInt("dialogs", "renderx", 0),
+				Render::GetDC()->Ini_GetInt("dialogs", "rendery", 0),
+				0, 0, SWP_NOACTIVATE | SWP_NOSIZE);
 	SetWindowPos(d_main, HWND_TOP,
 				Render::GetDC()->Ini_GetInt("dialogs", "mainx", 0),
 				Render::GetDC()->Ini_GetInt("dialogs", "mainy", 0),
@@ -190,10 +190,10 @@ void CloseDialogs() {
 		Render::GetDC()->Ini_SetInt("dialogs", "bonex", rect.left);
 		Render::GetDC()->Ini_SetInt("dialogs", "boney", rect.top);
 	}
-	//if (GetWindowRect(Render::GetDC()->System_GetState(HGE_HWND), &rect)) {
-	//	Render::GetDC()->Ini_SetInt("dialogs", "renderx", rect.left);
-	//	Render::GetDC()->Ini_SetInt("dialogs", "rendery", rect.top);
-	//}
+	if (GetWindowRect(Render::GetDC()->System_GetState(HGE_HWND), &rect)) {
+		Render::GetDC()->Ini_SetInt("dialogs", "renderx", rect.left);
+		Render::GetDC()->Ini_SetInt("dialogs", "rendery", rect.top);
+	}
 	DestroyWindow(d_main);
 	DestroyWindow(d_bone);
 }
@@ -269,7 +269,8 @@ void Update(float dt) {
 	editor.Update(dt);
 }
 
-bool Exit() {
+bool Exit(bool exit) {
+	editor.exitPressed |= exit;
 	return editor.exitPressed;
 }
 
