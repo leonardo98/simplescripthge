@@ -50,7 +50,7 @@ class Edit : public SimpleControl
 {
 public:
 	Edit(HWND hwndParent, int id, BOOL initialState = TRUE);
-	void SetString(char* buf);
+	void SetString(const char* s);
 	void SetFloat(float f);
 	// code is the HIWORD (wParam)
 	static BOOL IsChanged(int code);
@@ -61,7 +61,7 @@ public:
 	void ClearSelection();
 };
 
-class ComboBox : public Edit
+class ComboBox : public SimpleControl
 {
 public:
 	ComboBox(HWND hwndParent, int id, BOOL initialState = TRUE);
@@ -69,6 +69,7 @@ public:
 	void AddString(const char* s);
 	BOOL IsChanged(int code);
 	int GetString(char* s, int max);
+	int SetString(const char* s);
 };
 
 class TreeView : public SimpleControl
@@ -78,6 +79,7 @@ public:
 	HTREEITEM AddRoot(char* text);
 	HTREEITEM AddChild(HTREEITEM parent, char* text, void *samedata);
 	int DeleteItem(HTREEITEM item);
+	void * GetSelection();
 private:
 	HWND _hwndParent;
 	int _id;

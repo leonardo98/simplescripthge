@@ -119,5 +119,11 @@ void MainDialog::OnCommand(HWND hWnd, int controlID, int command) {
 			}
 		break;
 
+		//case IDC_ANIMATION_TREE: 
+		//	if (_bonesTree.ChangeS IsVisible(command)) {
+		//		updateAnimationState = true;
+		//	}
+		//break;
+
 	}
 }

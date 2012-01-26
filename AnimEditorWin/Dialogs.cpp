@@ -9,11 +9,13 @@
 #include "Commctrl.h"
 #include "AnimEditor.h"
 #include "MainDialog.h"
+#include "BonePropDialog.h"
 
 HWND d_main = 0;
 HWND d_bone = 0;
 
 MainDialog *_mainDialog;
+BonePropDialog *_bonePropDialog;
 
 AnimEditor editor;
 #define MAX_LENGTH 256
@@ -21,7 +23,7 @@ char lastAnimationId[MAX_LENGTH];
 bool updateAnimationState = false;
 
 HTREEITEM tree_root = 0;             
-
+void * last_selected = 0;
 
 BOOL CALLBACK DialogProcBone(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -30,6 +32,8 @@ BOOL CALLBACK DialogProcBone(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		// this messages are the heart of the dialogs 
 		case WM_INITDIALOG: 
 		{
+			_bonePropDialog = new BonePropDialog(hWnd);
+			_bonePropDialog->SetEnable(false);
 		}
 		break;
 
@@ -93,6 +97,8 @@ void CloseDialogs() {
 	}
 	DestroyWindow(d_main);
 	DestroyWindow(d_bone);
+	delete _mainDialog;
+	delete _bonePropDialog;
 }
 
 bool SetDialogsOnTop() {
@@ -128,6 +134,27 @@ void ReadAnimationParameters() {
 	}
 }
 
+bool Exit(bool exit) {
+	_mainDialog->exitPressed |= exit;
+	return _mainDialog->exitPressed;
+}
+
+void * InsertEndChild(void *parent, char *id, Bone *bone) {
+	return _mainDialog->_bonesTree.AddChild((HTREEITEM)parent, id, bone);
+}
+
+void CreateAnimationTree() {
+	HTREEITEM oldRoot = tree_root;
+	
+	// create new
+	tree_root = _mainDialog->_bonesTree.AddRoot(lastAnimationId);
+
+	//remove old
+	if (oldRoot) {
+		_mainDialog->_bonesTree.DeleteItem(oldRoot);
+	}
+}
+
 void Update(float dt) {
 	if (_mainDialog->waitingNewAnimationId) {
 		char buffer[MAX_LENGTH];
@@ -138,6 +165,7 @@ void Update(float dt) {
 			_mainDialog->waitingNewAnimationId = false;
 			CreateAnimationTree();
 			editor.CreateTree(tree_root, InsertEndChild);
+			TreeView_Expand(_mainDialog->_bonesTree.Hwnd(), tree_root, TVE_EXPAND);
 			ReadAnimationParameters();
 			UpdateWindow(d_main);
 		}
@@ -159,42 +187,31 @@ void Update(float dt) {
 		}
 		_mainDialog->updateAnimationState = false;
 	}
+	void * selected = _mainDialog->_bonesTree.GetSelection();
+	if (selected != last_selected) {
+		if (selected != 0) {
+			MovingPartInfo info;
+			((Bone*)selected)->Get(info);
+			_bonePropDialog->SetEnable(true);
+			_bonePropDialog->_pivotX.SetFloat(info.center.x);
+			_bonePropDialog->_pivotY.SetFloat(info.center.y);
+			if (info.offparent == OffParentOrder::bottom) {
+				_bonePropDialog->_order.SetString(_bonePropDialog->before);
+			} else {
+				_bonePropDialog->_order.SetString(_bonePropDialog->after);
+			}
+			if (info.discontinuous) {
+				_bonePropDialog->_movingType.SetString(_bonePropDialog->discontinuous);
+			} else {
+				_bonePropDialog->_movingType.SetString(_bonePropDialog->spline);
+			}
+			if (info.partsNames.size()) {
+				_bonePropDialog->_boneSprite.SetName(info.partsNames.front().c_str());
+			}
+		} else {
+			_bonePropDialog->SetEnable(false);
+		}
+		last_selected = selected;
+	}
 	editor.Update(dt);
-}
-
-bool Exit(bool exit) {
-	_mainDialog->exitPressed |= exit;
-	return _mainDialog->exitPressed;
-}
-
-// creating child
-void * InsertEndChild(void *parent, char *id, Bone *bone) {
-	return _mainDialog->_bonesTree.AddChild((HTREEITEM)parent, id, bone);
-}
-
-void CreateAnimationTree() {
-	//remove old
-	HTREEITEM oldRoot = tree_root;
-	if (tree_root) {
-		//TreeView_DeleteItem(hAnimationTree, tree_root);
-		//SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_DELETEITEM, 0, (LPARAM)(HTREEITEM)tree_root);
-	}
-	
-	// create new
-	tree_root = _mainDialog->_bonesTree.AddRoot(lastAnimationId);
-
-	//HTREEITEM i = InsertEndChild(tree_root, "Hello");
-	//i = InsertEndChild(tree_root, "Hello2");
-	//i = InsertEndChild(tree_root, "Hello3");
-	// child
-	//tvinsert.hParent = tree_root;         // handle of the above data
-	//tvinsert.hInsertAfter = TVI_FIRST;  // below parent
-	//tvinsert.item.pszText = "Child 1";
-	//HTREEITEM item = (HTREEITEM)SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_INSERTITEM, 0, (LPARAM)&tvinsert);
-	if (oldRoot) {
-		_mainDialog->_bonesTree.DeleteItem(oldRoot);
-		//SendDlgItemMessage(d_main, IDC_ANIMATION_TREE, TVM_DELETEITEM, 0, (LPARAM)(HTREEITEM)tree_root);
-	}
-
-	return;
 }

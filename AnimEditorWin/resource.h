@@ -31,8 +31,8 @@
 #define IDM_INSERT_NEW_BONE                     40010
 #define IDC_EDIT_X                              40011
 #define IDC_EDIT_Y                              40012
-#define IDC_PARTS_LIST                          40013
 #define IDOK_NAME                               40014
 #define IDCANCEL_NAME                           40015
 #define IDC_EDIT4                               40016
 #define IDC_EDIT5                               40017
+#define IDC_LOAD_IMAGE                          40018
