@@ -17,10 +17,12 @@ public:
 	bool exitPressed;
 	bool waitingNewAnimationId;
 	bool updateAnimationState;
+	static std::string CutFileName(const std::string &filePath);
+	static std::string CurrentFile();
 
 private:
-	std::string CutFileName(std::string filePath);
 	std::string _lastOpenedDir;
+	static std::string _currentFile;
 	HWND _hWnd;
 };
 

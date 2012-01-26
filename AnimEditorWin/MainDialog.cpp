@@ -4,6 +4,12 @@
 #include "Commdlg.h"
 #include "../Core/Core.h"
 
+std::string MainDialog::_currentFile;
+std::string MainDialog::CurrentFile() {
+	return _currentFile;
+}
+
+
 MainDialog::MainDialog(HWND hWnd) 
 : _animationList(hWnd, IDC_ANIMATION_COMBO)
 , _bonesTree(hWnd, IDC_ANIMATION_TREE)
@@ -17,22 +23,24 @@ MainDialog::MainDialog(HWND hWnd)
 	exitPressed = false;
 	waitingNewAnimationId = false;
 	updateAnimationState = false;
+	_currentFile = "";
 }
 
-std::string MainDialog::CutFileName(std::string filePath) {
+std::string MainDialog::CutFileName(const std::string &filePath) {
 	std::string result;
 	std::string::size_type index = filePath.find("\\");
+	std::string::size_type last = std::string::npos;
 	while (index != std::string::npos) {
-		result += filePath.substr(0, index + 1);
-		filePath = filePath.substr(index + 1);
-		index = filePath.find("\\");
+		last = index;
+		index = filePath.find("\\", index + 1);
 	}
-	return result;
+	if (last == std::string::npos) {
+		return "";
+	}
+	return filePath.substr(0, last);
 } 
 
 void MainDialog::OnCommand(HWND hWnd, int controlID, int command) {
-    char statusMessage[64];
-
     switch (controlID)
     {
         //case IDC_EDIT:
@@ -76,6 +84,7 @@ void MainDialog::OnCommand(HWND hWnd, int controlID, int command) {
 				_lastOpenedDir = CutFileName(fn.lpstrFile);
 				Core::Unload();
 				Core::LoadAnimations(fn.lpstrFile);
+				_currentFile = fn.lpstrFile;
 				Render::SetDataDir(std::string(fn.lpstrFile) + "_files");
 
 				std::vector<std::string> allNames;

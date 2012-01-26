@@ -37,6 +37,10 @@ BOOL CALLBACK DialogProcBone(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		}
 		break;
 
+		case WM_COMMAND :
+			_bonePropDialog->OnCommand(hWnd, LOWORD(wParam), HIWORD (wParam));
+		break;
+
 	}
 	return 0;
 }
@@ -63,9 +67,7 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 HWND InitDialogs(HINSTANCE hInstance) {
 	d_main = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC)DialogProcMain);
-	ShowWindow(d_main, SW_SHOW); 
 	d_bone = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_BONE_PROP), NULL, (DLGPROC)DialogProcBone);
-	ShowWindow(d_bone, SW_SHOW); 
 	SetWindowPos(Render::GetDC()->System_GetState(HGE_HWND), HWND_TOP,
 				Render::GetDC()->Ini_GetInt("dialogs", "renderx", 0),
 				Render::GetDC()->Ini_GetInt("dialogs", "rendery", 0),
@@ -78,6 +80,8 @@ HWND InitDialogs(HINSTANCE hInstance) {
 				Render::GetDC()->Ini_GetInt("dialogs", "bonex", 0),
 				Render::GetDC()->Ini_GetInt("dialogs", "boney", 0),
 				0, 0, SWP_NOACTIVATE | SWP_NOSIZE);
+	ShowWindow(d_main, SW_SHOW); 
+	ShowWindow(d_bone, SW_SHOW); 
 	return d_main;
 }
 

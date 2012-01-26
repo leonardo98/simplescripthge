@@ -1,6 +1,7 @@
 #ifndef BONE_PROP_DIALOG_H
 #define BONE_PROP_DIALOG_H
 
+#include "../Core/types.h"
 #include "Controls.h"
 
 class BonePropDialog {
@@ -19,6 +20,11 @@ public:
 	Edit _pivotX;
 	Edit _pivotY;
 	Button _boneSprite;
+
+private:
+	std::string _lastOpenedDir;
+	HWND _hWnd;
+
 };
 
 #endif//BONE_PROP_DIALOG_H
