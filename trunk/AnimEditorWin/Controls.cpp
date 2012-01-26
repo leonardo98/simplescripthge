@@ -78,16 +78,22 @@ Edit::Edit(HWND hwndParent, int id, BOOL initialState)
 :	SimpleControl(hwndParent, id, initialState)
 {}
 
-void Edit::SetString(char* buf) {
+void Edit::SetString(const char* buf) {
 	SendMessage (_hWnd, WM_SETTEXT, 0, (LPARAM) buf);
 }
 
 void Edit::SetFloat(float f) {
 	char tmp[MAX_STR_LENGTH];
-	sprintf_s(tmp, "%f", f);
-	int i = strlen(tmp);
-	while (i > 2 && tmp[i - 1] == '0' && tmp[i - 2] == '0') {
-		tmp[--i] = 0;
+	sprintf_s(tmp, "%g", f);
+	unsigned int i = 0;
+	unsigned int len = strlen(tmp);
+	while (i < len && (tmp[i] != '.' || tmp[i] != ',')) {
+		++i;
+	}
+	if (i == len) {
+		tmp[i++] = '.';
+		tmp[i++] = '0';
+		tmp[i] = 0;
 	}
 	SetString(tmp);
 }
@@ -119,7 +125,7 @@ void Edit::ClearSelection() {
 }
 
 ComboBox::ComboBox(HWND hwndParent, int id, BOOL initialState)
-: Edit(hwndParent, id, initialState)
+: SimpleControl(hwndParent, id, initialState)
 {}
 
 BOOL ComboBox::IsChanged(int code) {
@@ -136,6 +142,11 @@ void ComboBox::AddString(const char* s) {
 
 int ComboBox::GetString(char* s, int max) {
 	return ComboBox_GetText(_hWnd, s, max);
+}
+
+int ComboBox::SetString(const char* s) {
+	return ComboBox_SelectString(_hWnd, -1, s);
+	//return ComboBox_SetText(_hWnd, (LPCSTR)s);
 }
 
 TreeView::TreeView(HWND hwndParent, int id, BOOL initialState) 
@@ -161,7 +172,7 @@ HTREEITEM TreeView::AddChild(HTREEITEM parent, char* text, void *samedata) {
 	memset(&tvinsert, 0, sizeof(TVINSERTSTRUCT));
 	tvinsert.hParent = parent;			
 	tvinsert.hInsertAfter = TVI_LAST; 
-    tvinsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+    tvinsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM;
     tvinsert.item.pszText = text;
 	tvinsert.item.iImage = 0;
 	tvinsert.item.iSelectedImage = 1;
@@ -173,3 +184,17 @@ int TreeView::DeleteItem(HTREEITEM item) {
 	return TreeView_DeleteItem(_hWnd, item);
 }
 
+void * TreeView::GetSelection() {
+	HTREEITEM sel = TreeView_GetSelection(_hWnd);
+	if (sel == 0) {
+		return NULL;
+	}
+	TVITEM tvitem;
+	memset(&tvitem, 0, sizeof(TVITEM));
+	tvitem.hItem = sel;
+	tvitem.mask = TVIF_PARAM;
+	if (TreeView_GetItem(_hWnd, &tvitem)) {
+		return (void*)tvitem.lParam;
+	}
+	return NULL;
+}
