@@ -20,6 +20,8 @@ public:
 	Edit _pivotX;
 	Edit _pivotY;
 	Button _boneSprite;
+	bool updateBoneProp;
+	bool locked;
 
 private:
 	std::string _lastOpenedDir;

@@ -35,7 +35,6 @@ struct MovingPartInfo {
 	SplinePath scaleY;
 	std::vector<std::string> partsNames;
 	bool discontinuous;
-	bool loop;
 	OffParentOrder offparent;
 };
 

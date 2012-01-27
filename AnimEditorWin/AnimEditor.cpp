@@ -6,6 +6,15 @@ AnimEditor::AnimEditor()
 : _currentAnimation(NULL)
 , _timeCounter(0.f)
 {
+	h_base = Render::GetDC()->Texture_Load("resources\\red.png");
+	red_dot = new hgeSprite(h_base, 0, 0, 16, 16);
+	font = new hgeFont("resources\\font2.fnt");
+}
+
+AnimEditor::~AnimEditor() {
+	delete red_dot;
+	Render::GetDC()->Texture_Free(h_base);
+	delete font;
 }
 
 void AnimEditor::Draw() {

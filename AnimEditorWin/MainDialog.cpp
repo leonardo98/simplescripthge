@@ -43,15 +43,6 @@ std::string MainDialog::CutFileName(const std::string &filePath) {
 void MainDialog::OnCommand(HWND hWnd, int controlID, int command) {
     switch (controlID)
     {
-        //case IDC_EDIT:
-        //    if (_edit.IsChanged(command))
-        //    {
-        //        if (_edit.GetLength())
-        //            _clear.Enable();
-        //        else
-        //            _clear.Disable();
-        //    }
-        //    break;
 		case IDM_OPEN_XML:
 		{
 			std::string file;
@@ -128,11 +119,9 @@ void MainDialog::OnCommand(HWND hWnd, int controlID, int command) {
 			}
 		break;
 
-		//case IDC_ANIMATION_TREE: 
-		//	if (_bonesTree.ChangeS IsVisible(command)) {
-		//		updateAnimationState = true;
-		//	}
-		//break;
+		case IDC_CHECKBOX1: 
+			updateAnimationState = true;
+		break;
 
 	}
 }

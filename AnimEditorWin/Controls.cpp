@@ -46,6 +46,10 @@ void Button::SetName( char const * newName ) {
 	SendMessage(_hWnd, WM_SETTEXT, 0, (LPARAM)newName );
 }
 
+void Button::GetName(char* buf, int len) {
+	SendMessage (_hWnd, WM_GETTEXT, (WPARAM) len, (LPARAM) buf);
+}
+
 CheckBox::CheckBox(HWND hwndParent, int id, BOOL initialState)
 : Button(hwndParent, id, initialState)
 {}

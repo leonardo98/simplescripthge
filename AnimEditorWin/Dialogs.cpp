@@ -17,7 +17,7 @@ HWND d_bone = 0;
 MainDialog *_mainDialog;
 BonePropDialog *_bonePropDialog;
 
-AnimEditor editor;
+AnimEditor *editor;
 #define MAX_LENGTH 256
 char lastAnimationId[MAX_LENGTH];
 bool updateAnimationState = false;
@@ -38,7 +38,9 @@ BOOL CALLBACK DialogProcBone(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 
 		case WM_COMMAND :
-			_bonePropDialog->OnCommand(hWnd, LOWORD(wParam), HIWORD (wParam));
+			if (!_bonePropDialog->locked) {
+				_bonePropDialog->OnCommand(hWnd, LOWORD(wParam), HIWORD (wParam));
+			}
 		break;
 
 	}
@@ -66,6 +68,7 @@ BOOL CALLBACK DialogProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 }
 
 HWND InitDialogs(HINSTANCE hInstance) {
+	editor = new AnimEditor();
 	d_main = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC)DialogProcMain);
 	d_bone = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_BONE_PROP), NULL, (DLGPROC)DialogProcBone);
 	SetWindowPos(Render::GetDC()->System_GetState(HGE_HWND), HWND_TOP,
@@ -86,6 +89,7 @@ HWND InitDialogs(HINSTANCE hInstance) {
 }
 
 void CloseDialogs() {
+	delete editor;
 	RECT rect;
 	if (GetWindowRect(d_main, &rect)) {
 		Render::GetDC()->Ini_SetInt("dialogs", "mainx", rect.left);
@@ -112,22 +116,23 @@ bool SetDialogsOnTop() {
 }
 
 void Draw() {
-	editor.Draw();
+	editor->Draw();
 }
 
 void * InsertEndChild(void *, char *, Bone *);
 
+// заполняем структуру по данным из окна
 void SetAnimationParameters(AnimationInfo &info) {
 	info.pivotPos.x = _mainDialog->_pivotX.GetFloat();
 	info.pivotPos.y = _mainDialog->_pivotY.GetFloat();
 	info.time = _mainDialog->_time.GetFloat();
 	info.loop = _mainDialog->_loop.IsChecked() ? true : false;
-	editor.Anim()->Set(info);
 }
 
+// заполняем данными окно
 void ReadAnimationParameters() {
 	AnimationInfo info;
-	editor.Anim()->Get(info);
+	editor->Anim()->Get(info);
 	_mainDialog->_pivotX.SetFloat(info.pivotPos.x);
 	_mainDialog->_pivotY.SetFloat(info.pivotPos.y);
 	_mainDialog->_time.SetFloat(info.time);
@@ -135,6 +140,70 @@ void ReadAnimationParameters() {
 		_mainDialog->_loop.Check();
 	} else {
 		_mainDialog->_loop.UnCheck();
+	}
+}
+
+// заполняем структуру по данным из окна
+void SetBoneProp(MovingPartInfo &info) {
+	info.center.x = _bonePropDialog->_pivotX.GetFloat();
+	info.center.y = _bonePropDialog->_pivotY.GetFloat();
+	char tmp[MAX_STR_LENGTH];
+	int len = _bonePropDialog->_movingType.GetString(tmp, MAX_STR_LENGTH);
+	info.discontinuous = std::string(tmp) == _bonePropDialog->discontinuous;
+	len = _bonePropDialog->_order.GetString(tmp, MAX_STR_LENGTH);
+	info.offparent = (std::string(tmp) == _bonePropDialog->after ? OffParentOrder::top : OffParentOrder::bottom);
+	info.partsNames.clear();
+	_bonePropDialog->_boneSprite.GetName(tmp, MAX_STR_LENGTH);
+	if (std::string(tmp) != _bonePropDialog->loadimage) {
+		info.partsNames.push_back(tmp);
+	}	
+	info.x.Clear();
+	info.y.Clear();
+	info.angle.Clear();
+	info.scaleX.Clear();
+	info.scaleY.Clear();
+	for (unsigned int i = 0; i < editor->poses.size(); ++i) {
+		info.x.addKey(editor->poses[i].x);
+		info.y.addKey(editor->poses[i].y);
+		info.angle.addKey(editor->poses[i].angle);
+		info.scaleX.addKey(editor->poses[i].sx);
+		info.scaleY.addKey(editor->poses[i].sy);
+	}
+	bool loop = (_mainDialog->_loop.IsChecked() ? true : false);
+	info.x.CalculateGradient(loop);
+	info.y.CalculateGradient(loop);
+	info.angle.CalculateGradient(loop);
+	info.scaleX.CalculateGradient(loop);
+	info.scaleY.CalculateGradient(loop);
+}
+
+// заполняем данными окно
+void ReadBoneProp(Bone* selected) {
+	MovingPartInfo info;
+	selected->Get(info);
+	_bonePropDialog->_pivotX.SetFloat(info.center.x);
+	_bonePropDialog->_pivotY.SetFloat(info.center.y);
+	if (info.offparent == OffParentOrder::bottom) {
+		_bonePropDialog->_order.SetString(_bonePropDialog->before);
+	} else {
+		_bonePropDialog->_order.SetString(_bonePropDialog->after);
+	}
+	if (info.discontinuous) {
+		_bonePropDialog->_movingType.SetString(_bonePropDialog->discontinuous);
+	} else {
+		_bonePropDialog->_movingType.SetString(_bonePropDialog->spline);
+	}
+	if (info.partsNames.size()) {
+		_bonePropDialog->_boneSprite.SetName(info.partsNames.front().c_str());
+	}
+	editor->poses.clear();
+	for (unsigned int i = 0; i < info.angle.pushedKeys.size(); ++i) {
+		editor->poses.push_back(AnimEditor::key());
+		editor->poses.back().angle = info.angle.pushedKeys[i].first;
+		editor->poses.back().x = info.x.pushedKeys[i].first;
+		editor->poses.back().y = info.y.pushedKeys[i].first;
+		editor->poses.back().sx = info.scaleX.pushedKeys[i].first;
+		editor->poses.back().sy = info.scaleY.pushedKeys[i].first;
 	}
 }
 
@@ -164,58 +233,54 @@ void Update(float dt) {
 		char buffer[MAX_LENGTH];
 		int len = _mainDialog->_animationList.GetString(buffer, MAX_LENGTH);
 		if (len && strcmp(lastAnimationId, buffer) != 0) {
-			editor.SetCurrent(buffer);
+			editor->SetCurrent(buffer);
 			strcpy_s(lastAnimationId, buffer);
 			_mainDialog->waitingNewAnimationId = false;
 			CreateAnimationTree();
-			editor.CreateTree(tree_root, InsertEndChild);
+			editor->CreateTree(tree_root, InsertEndChild);
 			TreeView_Expand(_mainDialog->_bonesTree.Hwnd(), tree_root, TVE_EXPAND);
 			ReadAnimationParameters();
 			UpdateWindow(d_main);
 		}
 	}
-	if (_mainDialog->updateAnimationState && editor.Anim() != NULL) {
-		AnimationInfo base;
-		editor.Anim()->Get(base);
-		AnimationInfo edit;
-		SetAnimationParameters(edit);
-		if (base.loop != edit.loop
-				|| fabs(base.time - edit.time) > 1e-3
-				|| fabs(base.pivotPos.x - edit.pivotPos.x) > 1e-3
-				|| fabs(base.pivotPos.y - edit.pivotPos.y) > 1e-3)
-		{
-			if (edit.time < 0.01f) {
-				edit.time = base.time;
-			}
-			editor.Anim()->Set(edit);
-		}
+	if (_mainDialog->updateAnimationState) {
 		_mainDialog->updateAnimationState = false;
+		if (editor->Anim() != NULL) {
+			AnimationInfo base;
+			editor->Anim()->Get(base);
+			AnimationInfo edit;
+			SetAnimationParameters(edit);
+			if (base.loop != edit.loop
+					|| fabs(base.time - edit.time) > 1e-3
+					|| fabs(base.pivotPos.x - edit.pivotPos.x) > 1e-3
+					|| fabs(base.pivotPos.y - edit.pivotPos.y) > 1e-3)
+			{
+				if (edit.time < 0.01f) {
+					edit.time = base.time;
+				}
+				editor->Anim()->Set(edit);
+			}
+		}
 	}
 	void * selected = _mainDialog->_bonesTree.GetSelection();
 	if (selected != last_selected) {
 		if (selected != 0) {
-			MovingPartInfo info;
-			((Bone*)selected)->Get(info);
+			_bonePropDialog->locked = true;
+			ReadBoneProp((Bone *)selected);
 			_bonePropDialog->SetEnable(true);
-			_bonePropDialog->_pivotX.SetFloat(info.center.x);
-			_bonePropDialog->_pivotY.SetFloat(info.center.y);
-			if (info.offparent == OffParentOrder::bottom) {
-				_bonePropDialog->_order.SetString(_bonePropDialog->before);
-			} else {
-				_bonePropDialog->_order.SetString(_bonePropDialog->after);
-			}
-			if (info.discontinuous) {
-				_bonePropDialog->_movingType.SetString(_bonePropDialog->discontinuous);
-			} else {
-				_bonePropDialog->_movingType.SetString(_bonePropDialog->spline);
-			}
-			if (info.partsNames.size()) {
-				_bonePropDialog->_boneSprite.SetName(info.partsNames.front().c_str());
-			}
+			_bonePropDialog->locked = false;
 		} else {
 			_bonePropDialog->SetEnable(false);
 		}
 		last_selected = selected;
 	}
-	editor.Update(dt);
+	if (_bonePropDialog->updateBoneProp) {
+		_bonePropDialog->updateBoneProp = false;
+		if (last_selected) {
+			MovingPartInfo edit;
+			SetBoneProp(edit);
+			((Bone*)last_selected)->Set(edit);
+		}
+	}
+	editor->Update(dt);
 }

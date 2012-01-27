@@ -36,18 +36,20 @@ inline float GetGradient(float x1, float x2, float r1, float r2, float t)
 class SplinePath
 {
 public:
-	typedef std::pair<float, float> KeyFrame;
 
-	std::vector<KeyFrame> keys;
+	typedef std::pair<float, float> KeyFrame;
+	typedef std::vector<KeyFrame> Keys;
+	Keys keys;
+	Keys pushedKeys;
 
 	void Clear()
 	{
-		keys.clear();
+		pushedKeys.clear();
 	}
 
 	void addKey(const float& key)
 	{
-		keys.push_back(KeyFrame(key, key));
+		pushedKeys.push_back(KeyFrame(key, key));
 	}
 
 	float getFrame(int sector, float t)
@@ -89,6 +91,8 @@ public:
 
 	void CalculateGradient(bool cycled = false)
 	{
+		keys = pushedKeys;
+
 		if (cycled)
 		{
 			keys.push_back(keys[0]);
@@ -120,7 +124,9 @@ public:
 			g3 = g2-g1;
 			keys[i].second = g1+0.5f*g3;
 		}
+
 	}
+
 };
 
 #endif//SPLINE_H
