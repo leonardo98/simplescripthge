@@ -26,7 +26,8 @@ class Button : public SimpleControl
 {
 public:
 	Button(HWND hwndParent, int id, BOOL initialState = TRUE);
-	void SetName( char const * newName );
+	void SetName(char const *name);
+	void GetName(char* buf, int len);
 };
 
 class CheckBox : public Button

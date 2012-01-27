@@ -548,7 +548,6 @@ void MovingPart::Get(MovingPartInfo &info) const {
 		info.partsNames.push_back(_parts[i]->fileName);
 	}
 	info.discontinuous = _discontinuous;
-	info.loop = _loop;
 	info.offparent = _offparent;
 }
 
@@ -559,16 +558,26 @@ void MovingPart::Set(const MovingPartInfo &info) {
 	_center = info.center;
 	_scaleX = info.scaleX;
 	_scaleY = info.scaleY;
+	_discontinuous = info.discontinuous;
+	_offparent = info.offparent;
+
+	bool equal = _parts.size() == info.partsNames.size();
+	for (unsigned int i = 0; i < _parts.size() && equal; ++i) {
+		equal &= _parts[i]->fileName == info.partsNames[i];
+	}
+	if (equal) {
+		return;
+	}
+
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
+		_parts[i]->Set(NULL);
 		delete _parts[i];
 	}
 	_parts.clear();
 	for (unsigned int i = 0; i < info.partsNames.size(); ++i) {
 		_parts.push_back(new AnimationPart(info.partsNames[i].c_str()));
+		_parts.back()->Set(Core::getTexture(_parts[i]->fileName));
 	}
-	_discontinuous = info.discontinuous;
-	_loop = info.loop;
-	_offparent = info.offparent;
 }
 
 void Animation::Get(AnimationInfo &info) const {
@@ -581,7 +590,8 @@ void Animation::Set(const AnimationInfo &info) {
 	_pivotPos = info.pivotPos;
 	_time = info.time;
 	if (_loop != info.loop) {
-
+		SetLoop(info.loop);
+		_loop = info.loop;
 	}
 }
 

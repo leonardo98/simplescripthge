@@ -17,6 +17,8 @@ BonePropDialog::BonePropDialog(HWND hWnd)
 , discontinuous("discontinuous")
 , loadimage("<load image...>")
 , _hWnd(hWnd)
+, updateBoneProp(false)
+, locked(true)
 {
 	_boneSprite.SetName(loadimage);
 
@@ -31,14 +33,31 @@ BonePropDialog::BonePropDialog(HWND hWnd)
 
 	_movingType.SetString(spline);
 
-	_pivotX.SetFloat(0.f);
-	_pivotY.SetFloat(0.f);
-
 }
 
 void BonePropDialog::OnCommand(HWND hWnd, int controlID, int command) {
+	if (locked) {
+		return;
+	}
 	switch (controlID)
 	{
+		case IDC_COMBO_ORDER: 
+		case IDC_COMBO_MOVINGTYPE: 
+			updateBoneProp = true;
+		break;
+
+		case IDC_EDIT_X: 
+			if (_pivotX.IsChanged(command)) {
+				updateBoneProp = true;
+			}
+		break;
+
+		case IDC_EDIT_Y: 
+			if (_pivotY.IsChanged(command)) {
+				updateBoneProp = true;
+			}
+		break;
+
 		case IDC_LOAD_IMAGE:
 		{
 			std::string file;
@@ -70,19 +89,28 @@ void BonePropDialog::OnCommand(HWND hWnd, int controlID, int command) {
 			if (GetOpenFileName(&fn)) {
 				_lastOpenedDir = MainDialog::CutFileName(fn.lpstrFile);
 				std::string name(std::string(fn.lpstrFile).substr(_lastOpenedDir.length() + 1));
-				std::string tmp(MainDialog::CutFileName(_lastOpenedDir));
-				std::string dir;
-				if (tmp.size() != 0) {
-					dir = _lastOpenedDir.substr(tmp.length() + 1);
-					CreateDirectory((MainDialog::CurrentFile() + "_files\\" + dir).c_str(), NULL);
-					dir += "\\";
-				}
-				if (!CopyFile(fn.lpstrFile, (MainDialog::CurrentFile() + "_files\\" + dir + name).c_str(), TRUE)) {
-					// todo
-					// сравнить побайтам и если одинаковые - то пропускаем, если разные - говорим "у вас уже есть другой спрайт с таким же именем и каталогом - заменить? да/нет"
-					assert(false);
+				std::string dir = "";
+				if (_lastOpenedDir.find(MainDialog::CurrentFile() + "_files") != std::string::npos) {
+					std::string::size_type len = (MainDialog::CurrentFile() + "_files").length();
+					if (_lastOpenedDir.length() > len) {
+						dir = _lastOpenedDir.substr(len + 1);
+						dir += "\\";
+					}
+				} else {
+					std::string tmp(MainDialog::CutFileName(_lastOpenedDir));
+					if (tmp.size() != 0) {
+						dir = _lastOpenedDir.substr(tmp.length() + 1);
+						CreateDirectory((MainDialog::CurrentFile() + "_files\\" + dir).c_str(), NULL);
+						dir += "\\";
+					}
+					if (!CopyFile(fn.lpstrFile, (MainDialog::CurrentFile() + "_files\\" + dir + name).c_str(), FALSE)) {
+						// todo
+						// сравнить побайтам и если одинаковые - то пропускаем, если разные - говорим "у вас уже есть другой спрайт с таким же именем и каталогом - заменить? да/нет"
+						// assert(false);
+					}
 				}
 				_boneSprite.SetName((dir + name).c_str());
+				updateBoneProp = true;
 			}
 		}
 		break;
