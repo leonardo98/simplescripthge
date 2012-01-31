@@ -56,15 +56,12 @@ Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int
 , _height(h)
 , _frameWidth(frameWidth)
 , _frameHeight(frameHeight)
+, _textureHolder(false)
 {
-	_offsetX = offsetX;
-	_offsetY = offsetY;
-	_hTexture = 0;
-	_texture = new hgeSprite(hTexture, x, y, _width, _height);
-
+	_hTexture = hTexture;
 	{
-		float w = Render::GetDC()->Texture_GetWidth(hTexture);
-		float h = Render::GetDC()->Texture_GetHeight(hTexture);
+		float w = static_cast<float>(Render::GetDC()->Texture_GetWidth(hTexture));
+		float h = static_cast<float>(Render::GetDC()->Texture_GetHeight(hTexture));
 
 		_originQuad.tex = hTexture;
 		_originQuad.blend = BLEND_DEFAULT;
@@ -74,10 +71,10 @@ Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int
 		_originQuad.v[2].tx = (x + _width) / w; _originQuad.v[2].ty = (y + _height) / h;
 		_originQuad.v[3].tx = x / w; _originQuad.v[3].ty = (y + _height) / h;
 
-		_screenVertex[0].x = _offsetX; _screenVertex[0].y = _offsetY;
-		_screenVertex[1].x = _offsetX + _width; _screenVertex[1].y = _offsetY;
-		_screenVertex[2].x = _offsetX + _width; _screenVertex[2].y = _offsetY + _height;
-		_screenVertex[3].x = _offsetX; _screenVertex[3].y = _offsetY + _height;
+		_screenVertex[0].x = offsetX; _screenVertex[0].y = offsetY;
+		_screenVertex[1].x = offsetX + _width; _screenVertex[1].y = offsetY;
+		_screenVertex[2].x = offsetX + _width; _screenVertex[2].y = offsetY + _height;
+		_screenVertex[3].x = offsetX; _screenVertex[3].y = offsetY + _height;
 
 		for (int i = 0; i < 4; ++i) {
 			_originQuad.v[i].col = 0xFFFFFFFF;
@@ -91,22 +88,19 @@ Texture::Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int
 }
 
 Texture::Texture(const std::string &fileName) 
+: _textureHolder(true)
 {
 	_top = 0;
 	_left = 0;
-	_offsetX = 0.f;
-	_offsetY = 0.f;
 	_hTexture = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str()));
 	if (_hTexture == NULL) {
 		LOG("Не могу открыть файл " + fileName);
 		exit(-7);
 	}
 
-	float w = _frameWidth = _width = Render::GetDC()->Texture_GetWidth(_hTexture);
-	float h = _frameHeight = _height = Render::GetDC()->Texture_GetHeight(_hTexture);
+	float w = _frameWidth = _width = static_cast<float>(Render::GetDC()->Texture_GetWidth(_hTexture));
+	float h = _frameHeight = _height = static_cast<float>(Render::GetDC()->Texture_GetHeight(_hTexture));
 	
-	_texture = new hgeSprite(_hTexture, 0, 0, w, h);
-
 	_originQuad.tex = _hTexture;
 	_originQuad.blend = BLEND_DEFAULT;
 
@@ -131,19 +125,16 @@ Texture::Texture(const std::string &fileName)
 }
 
 Texture::~Texture() {
-	delete _texture;
-	if (_hTexture) {
+	if (_textureHolder) {
 		Render::GetDC()->Texture_Free(_hTexture);
 	}
 }
 
 bool Texture::IsNotTransparent(int x, int y) const {
-	HTEXTURE h;
-	h = _texture->GetTexture();
 	DWORD *dw;
-	dw = Render::GetDC()->Texture_Lock(h, true, x, y, 1, 1);
+	dw = Render::GetDC()->Texture_Lock(_hTexture, true, x, y, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;
-	Render::GetDC()->Texture_Unlock(h);
+	Render::GetDC()->Texture_Unlock(_hTexture);
 	return result;
 }
 
@@ -192,7 +183,7 @@ void Texture::Render(const Matrix &transform) {
 }
 
 HTEXTURE Texture::GetTexture() const {
-	return _texture->GetTexture();
+	return _hTexture;
 }
 
 void Texture::SetColor(DWORD color) {
@@ -207,8 +198,8 @@ void StaticSprite::Set(const Texture *texture, float x, float y) {
 	if (_origin == NULL) {
 		return;
 	}
-	_originWidth = Render::GetDC()->Texture_GetWidth(_origin->_originQuad.tex);
-	_originHeight = Render::GetDC()->Texture_GetHeight(_origin->_originQuad.tex);
+	_originWidth = static_cast<float>(Render::GetDC()->Texture_GetWidth(_origin->_originQuad.tex));
+	_originHeight = static_cast<float>(Render::GetDC()->Texture_GetHeight(_origin->_originQuad.tex));
 	_matrix.Unit();
 	_matrix.Move(x, y);
 }
@@ -267,6 +258,11 @@ int StaticSprite::SpriteHeight() {
 	return _origin->Height();
 }
 
+hgeSprite * StaticSprite::GetHGESprite() {
+	return new hgeSprite(_origin->GetTexture(), _origin->_left, _origin->_top, _origin->_width, _origin->_height);
+}
+
+
 void Render::IniFile(const std::string &fileName) {
 	_hge->System_SetState(HGE_INIFILE, fileName.c_str());
 }
@@ -283,7 +279,7 @@ std::string Render::IniFileGetString(const char *section, const char *variable, 
 	return _hge->Ini_GetString(section, variable, defaultValue);
 }
 
-void Render::PrintString(int x, int y, const std::string &text, int align) {
+void Render::PrintString(float x, float y, const std::string &text, int align) {
 	std::string fontName("data\\font2.fnt");
 	fontName = GetDataDir() + fontName;
 	hgeFont *font;
@@ -294,7 +290,7 @@ void Render::PrintString(int x, int y, const std::string &text, int align) {
 	font->Render(x, y, align, text.c_str());
 }
 
-void Render::PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color) {
+void Render::PrintString(float x, float y, std::string fontName, const std::string &text, DWORD color) {
 	if (fontName == "") {
 		fontName = "data\\font2.fnt";
 	}

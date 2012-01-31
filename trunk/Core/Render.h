@@ -11,31 +11,38 @@
 class Texture 
 {
 public:
-	Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int offsetY, int frameWidth, int frameHeight);
-	virtual ~Texture();
 	bool IsNotTransparent(int x, int y) const;
 	void Render(float x, float y);
 	void Render(const FPoint2D &pos);
 	void Render(const Matrix &transform);
 	HTEXTURE GetTexture() const;
-	//void SetBlendMode(DWORD mode);
 	int Width() const;
 	int Height() const;
 private:
 	void SetColor(DWORD color);
-	//DWORD _currentColor;
+
+	// высота и ширина спрайта
 	int _width;
 	int _height;
-	int _frameWidth;
-	int _frameHeight;
+
+	// положение спрайта на простыне(см. следующий комментарий)
     int _top;
     int _left;
+
+	// высоты и ширина оригинальной текстуры из которой сделан спрайт
+	// (на одной текструре может быть много спрайтов - "простыня")
+	int _frameWidth;
+	int _frameHeight;
+
+	// а вот от этих переменных надо как-то избавиться - они создают путаницу
+	//float _offsetX;
+	//float _offsetY;
+
+	Texture(HTEXTURE hTexture, int x, int y, int w, int h, int offsetX, int offsetY, int frameWidth, int frameHeight);
+	virtual ~Texture();
 	Texture(const std::string &fileName);
-	void LoadFromFile(const std::string &fileName);
 	HTEXTURE _hTexture;
-	hgeSprite *_texture;
-	float _offsetX;
-	float _offsetY;
+	bool _textureHolder;
 	hgeQuad _originQuad;
 	hgeQuad _forCopyQuad;
 	FPoint2D _screenVertex[4];
@@ -52,6 +59,7 @@ public:
 	bool PixelCheck(const FPoint2D &pos);
 	int SpriteWidth();
 	int SpriteHeight();
+	hgeSprite * GetHGESprite();
 	inline float GetOriginWidth() {
 		return _originWidth;
 	}
@@ -104,8 +112,8 @@ public:
 	static void IniFile(const std::string &fileName);
 	static int IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue);
 	static std::string IniFileGetString(const char *section, const char *variable, const char *defaultValue);
-	static void PrintString(int x, int y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF);
-	static void PrintString(int x, int y, const std::string &text, int align);
+	static void PrintString(float x, float y, std::string fontName, const std::string &text, DWORD color = 0xFFFFFFFF);
+	static void PrintString(float x, float y, const std::string &text, int align);
 	static bool InitApplication(hgeCallback frameFunc, hgeCallback renderFunc);
 	static void SetDataDir(const std::string &dataDir);
 	static void RunApplication();

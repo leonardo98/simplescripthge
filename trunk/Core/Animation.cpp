@@ -6,7 +6,7 @@ Bone::Bone(const char *name, const BoneType bt)
 : boneType(bt)
 {
 	if (name) {
-		strcpy(boneName, name);
+		strcpy_s(boneName, name);
 	}
 }
 
@@ -14,7 +14,7 @@ Bone::Bone(Bone &bone)
 : boneType(bone.boneType)
 , _offparent(bone._offparent)
 {
-	strcpy(boneName, bone.boneName);
+	strcpy_s(boneName, bone.boneName);
 }
 
 bool Bone::ReplaceTexture(const std::string &boneName, const char *texture) {
@@ -83,6 +83,13 @@ void MovingPart::SetLoop(bool loop) {
 	_scaleY.CalculateGradient(loop);
 	Bone::SetLoop(loop);
 	_loop = loop;
+}
+
+hgeSprite * MovingPart::GetSprite() {
+	if (_parts.size()) {
+		return _parts.front()->GetHGESprite();
+	}
+	return NULL;
 }
 
 MovingPart::MovingPart(TiXmlElement *xe)

@@ -62,6 +62,7 @@ public:
 	virtual void Get(MovingPartInfo &info) const {}
 	virtual void Set(const MovingPartInfo &info) {}
 	virtual void SetLoop(bool loop);
+	virtual hgeSprite * GetSprite() { return NULL; }
 protected:
 	void ResortBones();
 	BoneList _topBone;// links
@@ -86,6 +87,7 @@ public:
 	virtual void Get(MovingPartInfo &info) const;
 	virtual void Set(const MovingPartInfo &info);
 	virtual void SetLoop(bool loop);
+	virtual hgeSprite * GetSprite();
 private:
 	FPoint2D _center;
 	SplinePath _x;
