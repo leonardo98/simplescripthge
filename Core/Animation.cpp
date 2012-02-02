@@ -35,6 +35,12 @@ void Bone::ResortBones() {
 	}
 }
 
+void Bone::SetLoop(bool loop) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->SetLoop(loop);
+	}
+}
+
 void Bone::EditorCall(CallBones myCall, void *parent) {
 	void *item = myCall(parent, boneName, this);
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
@@ -42,10 +48,13 @@ void Bone::EditorCall(CallBones myCall, void *parent) {
 	}
 }
 
-void Bone::SetLoop(bool loop) {
+bool Bone::hasBone(const std::string &boneName) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		_bones[i]->SetLoop(loop);
+		if (_bones[i]->hasBone(boneName)) {
+			return true;
+		}
 	}
+	return false;
 }
 
 void MovingPart::LoadTextures() {
@@ -139,6 +148,28 @@ MovingPart::MovingPart(TiXmlElement *xe)
 	ResortBones();
 }
 
+void MovingPart::addBone(const std::string &boneName) {
+	_bones.push_back(new MovingPart(boneName));
+	ResortBones();
+}
+
+bool MovingPart::removeBone(MovingPart *movingPart) {
+	return false;
+}
+
+MovingPart::MovingPart(const std::string &boneName)
+: Bone(boneName.c_str(), BT_MovingPart){
+	_discontinuous = false;
+	_x.addKey(0.f);
+	_y.addKey(0.f);
+	_angle.addKey(0.f);
+	_center = FPoint2D(0.f, 0.f);
+	_scaleX.addKey(0.f);
+	_scaleY.addKey(0.f);
+	_last = NULL;
+	_offparent = OffParentOrder::top;
+}
+
 MovingPart::MovingPart(MovingPart &movinPart) 
 : Bone(movinPart)
 {
@@ -151,6 +182,7 @@ MovingPart::MovingPart(MovingPart &movinPart)
 	_scaleX = movinPart._scaleX;
 	_scaleY = movinPart._scaleY;
 	_last = movinPart._last;
+	_offparent = movinPart._offparent;
 
 	for (std::vector<AnimationPart *>::iterator i = movinPart._parts.begin(), e = movinPart._parts.end(); i != e; ++i) {
 		_parts.push_back(new AnimationPart(*(*i)));
@@ -456,6 +488,14 @@ Animation::Animation()
 	_loop = true;
 }
 
+void Animation::addBone(const std::string &boneName) {
+	_bones.push_back(new MovingPart(boneName));
+}
+
+bool Animation::removeBone(MovingPart *movingPart) {
+	return false;
+}
+
 Animation::Animation(Animation &animation) {
 	_pivotPos = animation._pivotPos;
 	_subPosition = animation._subPosition;
@@ -618,3 +658,11 @@ void Animation::SetLoop(bool loop) {
 	}
 }
 
+bool Animation::hasBone(const std::string &boneName) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		if (_bones[i]->hasBone(boneName)) {
+			return true;
+		}
+	}
+	return false;
+}

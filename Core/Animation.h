@@ -49,7 +49,6 @@ class Bone
 public:
 	Bone(const char *id, const BoneType bt);
 	Bone(Bone &bone);
-	void EditorCall(CallBones myCall, void *parent);
 	virtual void Draw(float p) = 0; // [ 0<= p <= 1 ]
 	virtual bool PixelCheck(const FPoint2D &pos) = 0;
 	virtual bool ReplaceTexture(const std::string &boneName, const char *texture);
@@ -62,7 +61,11 @@ public:
 	virtual void Get(MovingPartInfo &info) const {}
 	virtual void Set(const MovingPartInfo &info) {}
 	virtual void SetLoop(bool loop);
+
+	// for editor
 	virtual hgeSprite * GetSprite() { return NULL; }
+	void EditorCall(CallBones myCall, void *parent);
+	bool hasBone(const std::string &boneName); 
 protected:
 	void ResortBones();
 	BoneList _topBone;// links
@@ -88,6 +91,12 @@ public:
 	virtual void Set(const MovingPartInfo &info);
 	virtual void SetLoop(bool loop);
 	virtual hgeSprite * GetSprite();
+
+	// for editor
+	MovingPart(const std::string &boneName);
+	void addBone(const std::string &boneName);
+	bool removeBone(MovingPart *movingPart); 
+
 private:
 	FPoint2D _center;
 	SplinePath _x;
@@ -131,7 +140,6 @@ private:
 class Animation
 {
 public:
-	Animation();
 	Animation(TiXmlElement *xe);
 	Animation(Animation &animation);
 	virtual ~Animation();
@@ -146,10 +154,16 @@ public:
 	void LoadTextures();
 	void UnloadTextures();
 	bool TextureLoaded();
-	//bool RemoveBone(const std::string &boneName, Bone *bone); 
 	void Get(AnimationInfo &info) const;
 	void Set(const AnimationInfo &info);
 	void SetLoop(bool loop);
+	
+	// for editor
+	Animation();
+	void addBone(const std::string &boneName);
+	bool removeBone(MovingPart *movingPart); 
+	bool hasBone(const std::string &boneName); 
+
 private:
 	bool _texturesLoaded;
 	FPoint2D _pivotPos;
