@@ -206,8 +206,14 @@ Animation *Core::getAnimation(const std::string &animationId) {
 		return (find->second);
 	}
 	LOG("animation " + animationId + " not found.");
-	exit(-8);
+	return NULL;
 }
+
+void Core::addAnimation(const std::string &id, Animation *animation) {
+	assert(_animations.find(id) == _animations.end());
+	_animations[id] = animation;
+}
+
 
 #ifndef ENGINE_AS_LIBRARY
 

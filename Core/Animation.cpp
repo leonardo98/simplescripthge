@@ -446,6 +446,16 @@ Animation::Animation(TiXmlElement *xe)
 	SetLoop(_loop);
 }
 
+Animation::Animation() 
+{
+	_pivotPos = FPoint2D(0.f, 0.f);
+	_subPosition.Unit();
+	_time = 1.f;
+	_timeCounter = 0.f;
+	_texturesLoaded = false;
+	_loop = true;
+}
+
 Animation::Animation(Animation &animation) {
 	_pivotPos = animation._pivotPos;
 	_subPosition = animation._subPosition;

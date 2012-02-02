@@ -131,6 +131,7 @@ private:
 class Animation
 {
 public:
+	Animation();
 	Animation(TiXmlElement *xe);
 	Animation(Animation &animation);
 	virtual ~Animation();
