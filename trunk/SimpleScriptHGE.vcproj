@@ -417,10 +417,6 @@
 				Name="Helper"
 				>
 				<File
-					RelativePath=".\Helpers\AnimationEditor.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Helpers\Counter.cpp"
 					>
 				</File>
@@ -725,10 +721,6 @@
 			<Filter
 				Name="Helper"
 				>
-				<File
-					RelativePath=".\Helpers\AnimationEditor.h"
-					>
-				</File>
 				<File
 					RelativePath=".\Helpers\Counter.h"
 					>
