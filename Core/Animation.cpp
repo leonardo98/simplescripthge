@@ -171,8 +171,8 @@ MovingPart::MovingPart(const std::string &boneName)
 	_y.addKey(0.f);
 	_angle.addKey(0.f);
 	_center = FPoint2D(0.f, 0.f);
-	_scaleX.addKey(0.f);
-	_scaleY.addKey(0.f);
+	_scaleX.addKey(1.f);
+	_scaleY.addKey(1.f);
 	_last = NULL;
 	_offparent = OffParentOrder::top;
 }
