@@ -10,6 +10,10 @@ Bone::Bone(const char *name, const BoneType bt)
 	}
 }
 
+void Bone::Rename(const char *newName) {
+	strcpy_s(boneName, newName);
+}
+
 Bone::Bone(Bone &bone) 
 : boneType(bone.boneType)
 , _offparent(bone._offparent)

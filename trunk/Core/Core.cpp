@@ -339,3 +339,15 @@ bool Core::DoScript(const std::string &name) {
 	}
 	return false;
 }
+
+void Core::RenameAnimation(const std::string &oldName, const std::string &newName) {
+	AnimationMap::iterator i = _animations.find(oldName);
+	assert(i != _animations.end());
+	Animation *tmp = i->second;
+	_animations.erase(i);
+
+	i = _animations.find(newName);
+	assert(i == _animations.end());
+
+	_animations[newName] = tmp;
+}

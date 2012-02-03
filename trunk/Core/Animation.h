@@ -66,6 +66,7 @@ public:
 	virtual hgeSprite * GetSprite() { return NULL; }
 	void EditorCall(CallBones myCall, void *parent);
 	bool hasBone(const std::string &boneName); 
+	void Rename(const char *newName);
 protected:
 	void ResortBones();
 	BoneList _topBone;// links
