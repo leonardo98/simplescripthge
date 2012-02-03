@@ -50,7 +50,7 @@ void Bone::EditorCall(CallBones myCall, void *parent) {
 
 bool Bone::hasBone(const std::string &boneName) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		if (_bones[i]->hasBone(boneName)) {
+		if (boneName == _bones[i]->boneName || _bones[i]->hasBone(boneName)) {
 			return true;
 		}
 	}
@@ -148,9 +148,12 @@ MovingPart::MovingPart(TiXmlElement *xe)
 	ResortBones();
 }
 
-void MovingPart::addBone(const std::string &boneName) {
-	_bones.push_back(new MovingPart(boneName));
+MovingPart * MovingPart::addBone(const std::string &boneName) {
+	MovingPart *mp = new MovingPart(boneName);
+	_bones.push_back(mp);
+	mp->SetLoop(_loop);
 	ResortBones();
+	return mp;
 }
 
 bool MovingPart::removeBone(MovingPart *movingPart) {
@@ -488,8 +491,11 @@ Animation::Animation()
 	_loop = true;
 }
 
-void Animation::addBone(const std::string &boneName) {
-	_bones.push_back(new MovingPart(boneName));
+MovingPart * Animation::addBone(const std::string &boneName) {
+	MovingPart *mp = new MovingPart(boneName);
+	_bones.push_back(mp);
+	mp->SetLoop(_loop);
+	return mp;
 }
 
 bool Animation::removeBone(MovingPart *movingPart) {
@@ -660,7 +666,7 @@ void Animation::SetLoop(bool loop) {
 
 bool Animation::hasBone(const std::string &boneName) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		if (_bones[i]->hasBone(boneName)) {
+		if (boneName == _bones[i]->boneName || _bones[i]->hasBone(boneName)) {
 			return true;
 		}
 	}

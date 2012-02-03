@@ -94,7 +94,7 @@ public:
 
 	// for editor
 	MovingPart(const std::string &boneName);
-	void addBone(const std::string &boneName);
+	MovingPart * addBone(const std::string &boneName);
 	bool removeBone(MovingPart *movingPart); 
 
 private:
@@ -160,7 +160,7 @@ public:
 	
 	// for editor
 	Animation();
-	void addBone(const std::string &boneName);
+	MovingPart * addBone(const std::string &boneName);
 	bool removeBone(MovingPart *movingPart); 
 	bool hasBone(const std::string &boneName); 
 
