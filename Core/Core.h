@@ -30,6 +30,7 @@ public:
 	static void OnMessage(const std::string &message);
 	static void LoadAnimations(const char *fileName);
 	static void GetAnimationsList(std::vector<std::string> &names);
+	static void RenameAnimation(const std::string &oldName, const std::string &newName);
 
 	typedef std::list<Object *> Objects;
 	typedef std::map<std::string, LuaScript *> ScriptMap;
