@@ -31,6 +31,7 @@ public:
 	static void LoadAnimations(const char *fileName);
 	static void GetAnimationsList(std::vector<std::string> &names);
 	static void RenameAnimation(const std::string &oldName, const std::string &newName);
+	static void RemoveAnimation(const std::string &name);
 
 	typedef std::list<Object *> Objects;
 	typedef std::map<std::string, LuaScript *> ScriptMap;

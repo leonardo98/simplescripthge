@@ -351,3 +351,10 @@ void Core::RenameAnimation(const std::string &oldName, const std::string &newNam
 
 	_animations[newName] = tmp;
 }
+
+void Core::RemoveAnimation(const std::string &name) {
+	AnimationMap::iterator i = _animations.find(name);
+	assert(i != _animations.end());
+	delete i->second;
+	_animations.erase(i);
+}

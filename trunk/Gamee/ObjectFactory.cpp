@@ -16,7 +16,6 @@
 #include "Button.h"
 #include "Simulator.h"
 #include "ButtonList.h"
-#include "../Helpers/AnimationEditor.h"
 #include "AnimationViewer.h"
 #include "GameField.h"
 

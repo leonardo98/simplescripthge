@@ -61,6 +61,7 @@ public:
 	virtual void Get(MovingPartInfo &info) const {}
 	virtual void Set(const MovingPartInfo &info) {}
 	virtual void SetLoop(bool loop);
+	virtual bool removeBone(Bone *bone) {assert(false); return false;}
 
 	// for editor
 	virtual hgeSprite * GetSprite() { return NULL; }
@@ -96,7 +97,7 @@ public:
 	// for editor
 	MovingPart(const std::string &boneName);
 	MovingPart * addBone(const std::string &boneName);
-	bool removeBone(MovingPart *movingPart); 
+	bool removeBone(Bone *bone); 
 
 private:
 	FPoint2D _center;

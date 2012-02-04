@@ -160,7 +160,17 @@ MovingPart * MovingPart::addBone(const std::string &boneName) {
 	return mp;
 }
 
-bool MovingPart::removeBone(MovingPart *movingPart) {
+bool MovingPart::removeBone(Bone *bone) {
+	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
+		if (*i = bone) {
+			delete (*i);
+			_bones.erase(i);
+			ResortBones();
+			return true;
+		} else if ((*i)->removeBone(bone)) {
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -503,6 +513,15 @@ MovingPart * Animation::addBone(const std::string &boneName) {
 }
 
 bool Animation::removeBone(MovingPart *movingPart) {
+	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
+		if (*i = movingPart) {
+			delete (*i);
+			_bones.erase(i);
+			return true;
+		} else if ((*i)->removeBone(movingPart)) {
+			return true;
+		}
+	}
 	return false;
 }
 
