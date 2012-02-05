@@ -68,6 +68,7 @@ public:
 	void EditorCall(CallBones myCall, void *parent);
 	bool hasBone(const std::string &boneName); 
 	void Rename(const char *newName);
+	void *parent;
 protected:
 	void ResortBones();
 	BoneList _topBone;// links
@@ -96,7 +97,7 @@ public:
 
 	// for editor
 	MovingPart(const std::string &boneName);
-	MovingPart * addBone(const std::string &boneName);
+	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL);
 	bool removeBone(Bone *bone); 
 
 private:
@@ -162,7 +163,7 @@ public:
 	
 	// for editor
 	Animation();
-	MovingPart * addBone(const std::string &boneName);
+	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL);
 	bool removeBone(MovingPart *movingPart); 
 	bool hasBone(const std::string &boneName); 
 
