@@ -46,6 +46,7 @@ void Bone::SetLoop(bool loop) {
 }
 
 void Bone::EditorCall(CallBones myCall, void *parent) {
+	this->parent = parent;
 	void *item = myCall(parent, boneName, this);
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		_bones[i]->EditorCall(myCall, item);
@@ -152,17 +153,21 @@ MovingPart::MovingPart(TiXmlElement *xe)
 	ResortBones();
 }
 
-MovingPart * MovingPart::addBone(const std::string &boneName) {
-	MovingPart *mp = new MovingPart(boneName);
-	_bones.push_back(mp);
-	mp->SetLoop(_loop);
+MovingPart * MovingPart::addBone(const char *boneName, MovingPart *newChildBone) {
+	if (newChildBone == NULL) {
+		newChildBone = new MovingPart(boneName);
+	} else {
+		strcpy_s(newChildBone->boneName, boneName);
+	}
+	_bones.push_back(newChildBone);
+	newChildBone->SetLoop(_loop);
 	ResortBones();
-	return mp;
+	return newChildBone;
 }
 
 bool MovingPart::removeBone(Bone *bone) {
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
-		if (*i = bone) {
+		if (*i == bone) {
 			delete (*i);
 			_bones.erase(i);
 			ResortBones();
@@ -505,16 +510,20 @@ Animation::Animation()
 	_loop = true;
 }
 
-MovingPart * Animation::addBone(const std::string &boneName) {
-	MovingPart *mp = new MovingPart(boneName);
-	_bones.push_back(mp);
-	mp->SetLoop(_loop);
-	return mp;
+MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone) {
+	if (newChildBone == NULL) {
+		newChildBone = new MovingPart(boneName);
+	} else {
+		strcpy_s(newChildBone->boneName, boneName);
+	}
+	_bones.push_back(newChildBone);
+	newChildBone->SetLoop(_loop);
+	return newChildBone;
 }
 
 bool Animation::removeBone(MovingPart *movingPart) {
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
-		if (*i = movingPart) {
+		if (*i == movingPart) {
 			delete (*i);
 			_bones.erase(i);
 			return true;
