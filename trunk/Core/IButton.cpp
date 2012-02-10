@@ -37,7 +37,7 @@ void IButton::Draw() {
 	} else {
 		assert(false);
 	}
-	Render::PrintString(static_cast<int>(_pos.x + _width / 2), static_cast<int>(_pos.y + _height / 2) - Render::GetFontHeight("data\\font2.fnt") / 2, "data\\font2.fnt", _caption.c_str(), Interface::BUTTON_TEXT);
+	Render::PrintString(_width / 2 + _pos.x, (_height - Render::GetFontHeight("data\\font2.fnt")) / 2 + _pos.y, "data\\font2.fnt", _caption.c_str(), Interface::BUTTON_TEXT);
 }
 
 bool IButton::IsMouseOver(const FPoint2D &mousePos) {
