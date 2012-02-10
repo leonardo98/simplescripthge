@@ -11,8 +11,8 @@ enum BoneType {
 };
 
 enum OffParentOrder {
-	top,
-	bottom
+	OffParentOrder_top,
+	OffParentOrder_bottom
 };
 
 class Bone;
@@ -69,6 +69,7 @@ public:
 	bool hasBone(const std::string &boneName); 
 	void Rename(const char *newName);
 	void *parent;
+	FPoint2D pivotScreenPos;
 protected:
 	void ResortBones();
 	BoneList _topBone;// links

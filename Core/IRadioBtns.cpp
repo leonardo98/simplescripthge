@@ -31,7 +31,7 @@ void IRadioBtns::Draw() {
 		} else {
 			Render::DrawBar(pos.x, pos.y, _width, _height, 0xFF7F7F7F);
 		}
-		Render::PrintString(static_cast<int>(pos.x + _width / 2), static_cast<int>(pos.y + _height / 2) - Render::GetFontHeight("data\\font2.fnt") / 2, "", i->c_str(), Interface::BUTTON_TEXT);		
+		Render::PrintString(_width / 2 + pos.x, (_height - Render::GetFontHeight("data\\font2.fnt")) / 2 + pos.y, "", i->c_str(), Interface::BUTTON_TEXT);		
 		++counter;
 	}
 }

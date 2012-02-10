@@ -451,6 +451,10 @@ void Render::SetMatrix(const Matrix &matrix) {
 	_matrixStack[_currentMatrix] = matrix;
 }
 
+const Matrix & Render::GetCurrentMatrix() {
+	return _matrixStack[_currentMatrix];
+}
+
 void Render::SetBlendMode(DWORD mode) {
 	_blendMode = mode;
 }

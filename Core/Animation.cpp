@@ -2,6 +2,8 @@
 #include "Core.h"
 #include "Math.h"
 
+#define fatof(a) static_cast<float>(atof(a))
+
 Bone::Bone(const char *name, const BoneType bt) 
 : boneType(bt)
 {
@@ -29,9 +31,9 @@ void Bone::ResortBones() {
 	_topBone.clear();
 	_bottomBone.clear();
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		if (_bones[i]->_offparent == top) {
+		if (_bones[i]->_offparent == OffParentOrder_top) {
 			_topBone.push_back(_bones[i]);
-		} else if (_bones[i]->_offparent == bottom) {
+		} else if (_bones[i]->_offparent == OffParentOrder_bottom) {
 			_bottomBone.push_back(_bones[i]);
 		} else {
 			assert(false);
@@ -110,7 +112,7 @@ MovingPart::MovingPart(TiXmlElement *xe)
 : Bone(xe->Attribute("name"), BT_MovingPart)
 {
 	_discontinuous = Math::Read(xe, "discontinuous", false);
-	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? bottom : top);
+	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? OffParentOrder_bottom : OffParentOrder_top);
 	_center.x = Math::Read(xe, "centerX", 0.f);
 	_center.y = Math::Read(xe, "centerY", 0.f);
 	const char *name = xe->Attribute("texture"); 
@@ -189,7 +191,7 @@ MovingPart::MovingPart(const std::string &boneName)
 	_scaleX.addKey(1.f);
 	_scaleY.addKey(1.f);
 	_last = NULL;
-	_offparent = OffParentOrder::top;
+	_offparent = OffParentOrder_top;
 }
 
 MovingPart::MovingPart(MovingPart &movinPart) 
@@ -240,6 +242,8 @@ void MovingPart::Draw(float p) {
 	Render::MatrixMove(_x.getGlobalFrame(dp), _y.getGlobalFrame(dp));
 	Render::MatrixRotate(_angle.getGlobalFrame(dp));
 	Render::MatrixScale(_scaleX.getGlobalFrame(dp), _scaleY.getGlobalFrame(dp));
+	pivotScreenPos.x = 0.f; pivotScreenPos.y = 0.f; 
+	Render::GetCurrentMatrix().Mul(pivotScreenPos);
 	Render::MatrixMove(-_center.x, -_center.y);
 
 	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
@@ -305,15 +309,15 @@ IKTwoBone::~IKTwoBone() {
 IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
 : Bone(xe->Attribute("name"), BT_IKTwoBone)
 {
-	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? bottom : top);
+	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? OffParentOrder_bottom : OffParentOrder_top);
 	const char *tmp = xe->Attribute("order");
 	_invert = tmp && std::string(tmp) == "invert";
-	_anchorPos.x = atof(xe->Attribute("anchorX"));
-	_anchorPos.y = atof(xe->Attribute("anchorY"));
-	_connectPos.x = atof(xe->Attribute("connectX"));
-	_connectPos.y = atof(xe->Attribute("connectY"));
-	_targetPos.x = atof(xe->Attribute("targetX"));
-	_targetPos.y = atof(xe->Attribute("targetY"));
+	_anchorPos.x = fatof(xe->Attribute("anchorX"));
+	_anchorPos.y = fatof(xe->Attribute("anchorY"));
+	_connectPos.x = fatof(xe->Attribute("connectX"));
+	_connectPos.y = fatof(xe->Attribute("connectY"));
+	_targetPos.x = fatof(xe->Attribute("targetX"));
+	_targetPos.y = fatof(xe->Attribute("targetY"));
 	tmp = xe->Attribute("freeBones");
 	_freeBones = tmp && std::string(tmp) == "true";
 	_firstBoneLength = (_anchorPos - _connectPos).Length();
@@ -331,7 +335,7 @@ IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
 	_x.CalculateGradient(loop);
 	_y.CalculateGradient(loop);
 
-	_angleSign = Math::Read(xe, "angleSign", 0.f);
+	_angleSign = static_cast<int>(Math::Read(xe, "angleSign", 0.f));
 
 	TiXmlElement *element = xe->FirstChildElement();
 	while (element) {
@@ -480,9 +484,9 @@ Animation::Animation(TiXmlElement *xe)
 , _texturesLoaded(false)
 {
 	_loop = (std::string(xe->Attribute("loop")) == "true");
-	_time = atof(xe->Attribute("time"));
-	_pivotPos.x = atoi(xe->Attribute("pivotX"));
-	_pivotPos.y = atoi(xe->Attribute("pivotY"));
+	_time = fatof(xe->Attribute("time"));
+	_pivotPos.x = fatof(xe->Attribute("pivotX"));
+	_pivotPos.y = fatof(xe->Attribute("pivotY"));
 
 	TiXmlElement *element = xe->FirstChildElement();
 	while (element) {

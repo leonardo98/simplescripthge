@@ -101,6 +101,7 @@ public:
 	static void MatrixScale(float sx, float sy);
 	static void SetMatrixUnit();
 	static void SetMatrix(const Matrix &matrix);
+	static const Matrix & GetCurrentMatrix();
 
 	static std::string GetDataDir();
 	static void SetColor(DWORD color);
