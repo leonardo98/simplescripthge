@@ -41,6 +41,94 @@ HGE *Render::GetDC() {
 	return _hge;
 }
 
+Sprite::Sprite(HTEXTURE hTexture, int x, int y, int w, int h) {
+	_lastRender.blend = 0;
+	_lastRender.tex = hTexture;
+	float width = static_cast<float>(Render::GetDC()->Texture_GetWidth(hTexture));
+	float height = static_cast<float>(Render::GetDC()->Texture_GetHeight(hTexture));
+
+	_lastRender.v[0].tx = x / width; _lastRender.v[0].ty = y / height;
+	_lastRender.v[1].tx = (x + w) / width; _lastRender.v[1].ty = y / height;
+	_lastRender.v[2].tx = (x + w) / width; _lastRender.v[2].ty = (y + h) / height;
+	_lastRender.v[3].tx = x / width; _lastRender.v[3].ty = (y + h) / height;
+
+	_lastRender.v[0].z = 0.f;
+	_lastRender.v[1].z = 0.f;
+	_lastRender.v[2].z = 0.f;
+	_lastRender.v[3].z = 0.f;
+
+	_width = w;
+	_height = h;
+}
+
+bool Sprite::HasPixel(int x, int y) const// valid for last render only! 
+{
+	FPoint2D m(x - _lastRender.v[0].x, y - _lastRender.v[0].y);
+	FPoint2D a(_lastRender.v[1].x - _lastRender.v[0].x, _lastRender.v[1].y - _lastRender.v[0].y);
+	FPoint2D b(_lastRender.v[3].x - _lastRender.v[0].x, _lastRender.v[3].y - _lastRender.v[0].y);
+
+	float k1 = (m.x * b.y - m.y * b.x) / (a.x * b.y - a.y * b.x);
+	float k2 = (b.y > 1e-5) ? (m.y - k1 * a.y) / b.y : (m.x - k1 * a.x) / b.x;
+
+	if (k1 < 0 || k1 > 1 || k2 < 0 || k2 > 1) {
+		return false;
+	}
+
+	float originWidth = _width / (_lastRender.v[1].tx - _lastRender.v[0].tx);
+	float originHeight = _height / (_lastRender.v[3].ty - _lastRender.v[0].ty);
+
+	int i = (k1 * (_lastRender.v[1].tx - _lastRender.v[0].tx) + _lastRender.v[0].tx) * originWidth;
+	int j = (k2 * (_lastRender.v[3].ty - _lastRender.v[0].ty) + _lastRender.v[0].ty) * originHeight;
+
+	DWORD *dw;
+	dw = Render::GetDC()->Texture_Lock(_lastRender.tex, true, i, j, 1, 1);
+	bool result = ((*dw) >> 24) > 0x7F;
+	Render::GetDC()->Texture_Unlock(_lastRender.tex);
+	return result;
+}
+
+void Sprite::Render() {
+	_lastRender.v[0].col = Render::GetColor();
+	_lastRender.v[1].col = Render::GetColor();
+	_lastRender.v[2].col = Render::GetColor();
+	_lastRender.v[3].col = Render::GetColor();
+
+	_lastRender.blend = Render::GetBlendMode();
+
+	const Matrix &m = Render::GetCurrentMatrix();
+
+	m.Mul(   0.f,     0.f, _lastRender.v[0].x, _lastRender.v[0].y);
+	m.Mul(_width,     0.f, _lastRender.v[1].x, _lastRender.v[1].y);
+	m.Mul(_width, _height, _lastRender.v[2].x, _lastRender.v[2].y);
+	m.Mul(   0.f, _height, _lastRender.v[3].x, _lastRender.v[3].y);
+	
+	Render::GetDC()->Gfx_RenderQuad(&_lastRender);
+}
+
+void Sprite::Render(float x, float y) {
+	_lastRender.v[0].col = Render::GetColor();
+	_lastRender.v[1].col = Render::GetColor();
+	_lastRender.v[2].col = Render::GetColor();
+	_lastRender.v[3].col = Render::GetColor();
+
+	_lastRender.blend = Render::GetBlendMode();
+
+	const Matrix &m = Render::GetCurrentMatrix();
+
+	m.Mul(         x,           y, _lastRender.v[0].x, _lastRender.v[0].y);
+	m.Mul(x + _width,           y, _lastRender.v[1].x, _lastRender.v[1].y);
+	m.Mul(x + _width, y + _height, _lastRender.v[2].x, _lastRender.v[2].y);
+	m.Mul(         x, y + _height, _lastRender.v[3].x, _lastRender.v[3].y);
+	
+	Render::GetDC()->Gfx_RenderQuad(&_lastRender);
+}
+
+void Sprite::Render(const FPoint2D &pos) {
+	Render(pos.x, pos.y);
+}
+
+
+
 int Texture::Width() const {
 	return _frameWidth;
 }
@@ -403,10 +491,6 @@ void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
 	GetDC()->Gfx_RenderLine(x1, y1, x2, y2, color);
 }
 
-void Render::SetColor(DWORD color) {
-	_currentColor = color;
-}
-
 void Render::SetAlpha(DWORD alpha) {
 	_currentColor = (alpha << 24) | (_currentColor & 0xFFFFFF);
 }
@@ -453,10 +537,6 @@ void Render::SetMatrix(const Matrix &matrix) {
 
 const Matrix & Render::GetCurrentMatrix() {
 	return _matrixStack[_currentMatrix];
-}
-
-void Render::SetBlendMode(DWORD mode) {
-	_blendMode = mode;
 }
 
 void Render::Draw(hgeTriple &triple) {

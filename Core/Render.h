@@ -8,6 +8,28 @@
 //#include <hgeFont.h>
 #include "Matrix.h"
 
+class Sprite
+{
+public:
+	Sprite(HTEXTURE hTexture, int x, int y, int w, int h);
+	bool HasPixel(int x, int y) const;// valid for last render only!
+	void Render();
+	void Render(float x, float y);
+	void Render(const FPoint2D &pos);
+	inline int Width() const {
+		return _width;
+	}
+	inline int Height() const {
+		return _height;
+	}
+
+private:
+	hgeQuad _lastRender;
+	int _width;
+	int _height;
+};
+
+
 class Texture 
 {
 public:
@@ -104,9 +126,19 @@ public:
 	static const Matrix & GetCurrentMatrix();
 
 	static std::string GetDataDir();
-	static void SetColor(DWORD color);
+	static inline void SetColor(DWORD color) {
+		_currentColor = color;
+	}
+	static inline DWORD GetColor() {
+		return _currentColor;
+	}
 	static void SetAlpha(DWORD alpha);
-	static void SetBlendMode(DWORD blendMode);
+	static inline void SetBlendMode(DWORD blendMode) {
+		_blendMode = blendMode;
+	}
+	static inline DWORD GetBlendMode() {
+		return _blendMode;
+	}
 	static HGE *GetDC();
 	static DWORD Parse(const std::string &s);	
 

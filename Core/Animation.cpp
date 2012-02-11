@@ -2,8 +2,6 @@
 #include "Core.h"
 #include "Math.h"
 
-#define fatof(a) static_cast<float>(atof(a))
-
 Bone::Bone(const char *name, const BoneType bt) 
 : boneType(bt)
 {
@@ -242,8 +240,11 @@ void MovingPart::Draw(float p) {
 	Render::MatrixMove(_x.getGlobalFrame(dp), _y.getGlobalFrame(dp));
 	Render::MatrixRotate(_angle.getGlobalFrame(dp));
 	Render::MatrixScale(_scaleX.getGlobalFrame(dp), _scaleY.getGlobalFrame(dp));
-	pivotScreenPos.x = 0.f; pivotScreenPos.y = 0.f; 
-	Render::GetCurrentMatrix().Mul(pivotScreenPos);
+
+#ifdef ANIMATION_EDITOR
+	matrix = Render::GetCurrentMatrix();
+#endif
+
 	Render::MatrixMove(-_center.x, -_center.y);
 
 	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
