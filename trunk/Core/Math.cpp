@@ -9,7 +9,7 @@ float Math::random(float a, float b) {
 } 
 float Math::Read(TiXmlElement *xe, const char *name, const float defaultValue) {
 	const char *tmp = xe->Attribute(name);
-	return (tmp ? atof(tmp) : defaultValue);
+	return (tmp ? fatof(tmp) : defaultValue);
 }
 
 bool Math::Read(TiXmlElement *xe, const char *name, const bool defaultValue) {

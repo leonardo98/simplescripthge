@@ -64,12 +64,15 @@ public:
 	virtual bool removeBone(Bone *bone) {assert(false); return false;}
 
 	// for editor
+#ifdef ANIMATION_EDITOR
 	virtual hgeSprite * GetSprite() { return NULL; }
 	void EditorCall(CallBones myCall, void *parent);
 	bool hasBone(const std::string &boneName); 
 	void Rename(const char *newName);
 	void *parent;
-	FPoint2D pivotScreenPos;
+	Matrix matrix;
+#endif
+
 protected:
 	void ResortBones();
 	BoneList _topBone;// links

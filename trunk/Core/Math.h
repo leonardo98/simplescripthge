@@ -1,6 +1,8 @@
 #ifndef MYENGINE_MATH_H
 #define MYENGINE_MATH_H
 
+#define fatof(a) static_cast<float>(atof(a))
+
 #include "types.h"
 
 class Math {
