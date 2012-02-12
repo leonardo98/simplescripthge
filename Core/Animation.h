@@ -15,6 +15,14 @@ enum OffParentOrder {
 	OffParentOrder_bottom
 };
 
+struct MovingPartkey {
+	float x;
+	float y;
+	float angle;
+	float sx;
+	float sy;
+};
+
 class Bone;
 
 typedef std::vector<Bone *> BoneList;
@@ -102,7 +110,8 @@ public:
 	// for editor
 	MovingPart(const std::string &boneName);
 	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL);
-	bool removeBone(Bone *bone); 
+	bool removeBone(Bone *bone);
+	void SetKey(int index, const MovingPartkey &key);
 
 private:
 	FPoint2D _center;
