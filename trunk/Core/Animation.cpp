@@ -255,12 +255,12 @@ void MovingPart::Draw(float p) {
 		assert(0.f <= dp && dp < 1);
 	}
 	Render::MatrixMove(_x.getGlobalFrame(dp), _y.getGlobalFrame(dp));
-	Render::MatrixRotate(_angle.getGlobalFrame(dp));
-	Render::MatrixScale(_scaleX.getGlobalFrame(dp), _scaleY.getGlobalFrame(dp));
-
 #ifdef ANIMATION_EDITOR
 	matrix = Render::GetCurrentMatrix();
 #endif
+
+	Render::MatrixRotate(_angle.getGlobalFrame(dp));
+	Render::MatrixScale(_scaleX.getGlobalFrame(dp), _scaleY.getGlobalFrame(dp));
 
 	Render::MatrixMove(-_center.x, -_center.y);
 
