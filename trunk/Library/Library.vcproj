@@ -270,10 +270,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Core\SplinePath.h"
-				>
-			</File>
-			<File
 				RelativePath="..\Core\TextureManager.cpp"
 				>
 			</File>
@@ -349,6 +345,10 @@
 			</File>
 			<File
 				RelativePath="..\Core\Render.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Core\SplinePath.h"
 				>
 			</File>
 			<File

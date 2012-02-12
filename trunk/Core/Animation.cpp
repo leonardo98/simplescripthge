@@ -10,9 +10,29 @@ Bone::Bone(const char *name, const BoneType bt)
 	}
 }
 
+	// for editor
+#ifdef ANIMATION_EDITOR
 void Bone::Rename(const char *newName) {
 	strcpy_s(boneName, newName);
 }
+
+void Bone::EditorCall(CallBones myCall, void *parent) {
+	this->parent = parent;
+	void *item = myCall(parent, boneName, this);
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->EditorCall(myCall, item);
+	}
+}
+
+bool Bone::hasBone(const std::string &boneName) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		if (boneName == _bones[i]->boneName || _bones[i]->hasBone(boneName)) {
+			return true;
+		}
+	}
+	return false;
+}
+#endif
 
 Bone::Bone(Bone &bone) 
 : boneType(bone.boneType)
@@ -45,23 +65,6 @@ void Bone::SetLoop(bool loop) {
 	}
 }
 
-void Bone::EditorCall(CallBones myCall, void *parent) {
-	this->parent = parent;
-	void *item = myCall(parent, boneName, this);
-	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		_bones[i]->EditorCall(myCall, item);
-	}
-}
-
-bool Bone::hasBone(const std::string &boneName) {
-	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		if (boneName == _bones[i]->boneName || _bones[i]->hasBone(boneName)) {
-			return true;
-		}
-	}
-	return false;
-}
-
 void MovingPart::LoadTextures() {
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
 		_parts[i]->Set(Core::getTexture(_parts[i]->fileName));
@@ -78,6 +81,20 @@ void MovingPart::UnloadTextures() {
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
 		(*i)->UnloadTextures();
 	}
+}
+
+void MovingPart::SetKey(int index, const MovingPartkey &key) {
+	_x.pushedKeys[index] = SplinePath::KeyFrame(key.x, key.x);
+	_y.pushedKeys[index] = SplinePath::KeyFrame(key.y, key.y);
+	_angle.pushedKeys[index] = SplinePath::KeyFrame(key.angle, key.angle);
+	_scaleX.pushedKeys[index] = SplinePath::KeyFrame(key.sx, key.sx);
+	_scaleY.pushedKeys[index] = SplinePath::KeyFrame(key.sy, key.sy);
+
+	_x.CalculateGradient(_loop);
+	_y.CalculateGradient(_loop);
+	_angle.CalculateGradient(_loop);
+	_scaleX.CalculateGradient(_loop);
+	_scaleY.CalculateGradient(_loop);
 }
 
 MovingPart::~MovingPart() {
@@ -474,11 +491,22 @@ Animation::~Animation() {
 	}
 }
 
+#ifdef ANIMATION_EDITOR
 void Animation::EditorCall(CallBones myCall, void *parent) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		_bones[i]->EditorCall(myCall, parent);
 	}
 }
+
+bool Animation::hasBone(const std::string &boneName) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		if (boneName == _bones[i]->boneName || _bones[i]->hasBone(boneName)) {
+			return true;
+		}
+	}
+	return false;
+}
+#endif
 
 Animation::Animation(TiXmlElement *xe)
 : _timeCounter(0.f)
@@ -699,13 +727,4 @@ void Animation::SetLoop(bool loop) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		_bones[i]->SetLoop(loop);
 	}
-}
-
-bool Animation::hasBone(const std::string &boneName) {
-	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		if (boneName == _bones[i]->boneName || _bones[i]->hasBone(boneName)) {
-			return true;
-		}
-	}
-	return false;
 }
