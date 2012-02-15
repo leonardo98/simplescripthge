@@ -15,6 +15,12 @@ enum OffParentOrder {
 	OffParentOrder_bottom
 };
 
+enum MovingType {
+	MovingType_line,
+	MovingType_spline,
+	MovingType_discontinuous
+};
+
 struct MovingPartkey {
 	float x;
 	float y;
@@ -42,7 +48,7 @@ struct MovingPartInfo {
 	SplinePath scaleX;
 	SplinePath scaleY;
 	std::vector<std::string> partsNames;
-	bool discontinuous;
+	MovingType movingType;
 	OffParentOrder offparent;
 };
 
@@ -122,7 +128,7 @@ private:
 	SplinePath _scaleY;
 	std::vector<AnimationPart *> _parts;
 	StaticSprite *_last;
-	bool _discontinuous;
+	MovingType _movingType;
 	bool _loop;
 };
 
