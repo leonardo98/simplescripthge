@@ -126,7 +126,14 @@ hgeSprite * MovingPart::GetSprite() {
 MovingPart::MovingPart(TiXmlElement *xe)
 : Bone(xe->Attribute("name"), BT_MovingPart)
 {
-	_discontinuous = Math::Read(xe, "discontinuous", false);
+	const char *tmp = xe->Attribute("moving_type");
+	if (tmp == NULL || strcmp(tmp, "spline") == 0) {
+		_movingType = MovingType_spline;
+	} else if (strcmp(tmp, "line") == 0) {
+		_movingType = MovingType_line;
+	} else {
+		_movingType = MovingType_discontinuous;
+	}
 	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? OffParentOrder_bottom : OffParentOrder_top);
 	_center.x = Math::Read(xe, "centerX", 0.f);
 	_center.y = Math::Read(xe, "centerY", 0.f);
@@ -198,7 +205,7 @@ bool MovingPart::removeBone(Bone *bone) {
 
 MovingPart::MovingPart(const std::string &boneName)
 : Bone(boneName.c_str(), BT_MovingPart){
-	_discontinuous = false;
+	_movingType = MovingType_line;
 	_x.addKey(0.f);
 	_y.addKey(0.f);
 	_angle.addKey(0.f);
@@ -213,7 +220,7 @@ MovingPart::MovingPart(MovingPart &movinPart)
 : Bone(movinPart)
 {
 	_loop = movinPart._loop;
-	_discontinuous = movinPart._discontinuous;
+	_movingType = movinPart._movingType;
 	_x = movinPart._x;
 	_y = movinPart._y;
 	_angle = movinPart._angle;
@@ -246,7 +253,7 @@ void MovingPart::Draw(float p) {
 	assert(0.f <= p && p < 1);
 	Render::PushMatrix();
 	float dp = p;
-	if (_discontinuous) {
+	if (_movingType == MovingType_discontinuous) {
 		if (_loop) {
 			dp = static_cast<int>(p * (_x.keys.size() - 1)) / static_cast<float>(_x.keys.size() - 1);
 		} else {
@@ -675,7 +682,7 @@ void MovingPart::Get(MovingPartInfo &info) const {
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
 		info.partsNames.push_back(_parts[i]->fileName);
 	}
-	info.discontinuous = _discontinuous;
+	info.movingType = _movingType;
 	info.offparent = _offparent;
 }
 
@@ -686,7 +693,7 @@ void MovingPart::Set(const MovingPartInfo &info) {
 	_center = info.center;
 	_scaleX = info.scaleX;
 	_scaleY = info.scaleY;
-	_discontinuous = info.discontinuous;
+	_movingType = info.movingType;
 	_offparent = info.offparent;
 
 	bool equal = _parts.size() == info.partsNames.size();

@@ -1,6 +1,11 @@
 #ifndef MYENGINE_SPLINE_H
 #define MYENGINE_SPLINE_H
 
+inline float LineInterpolation(float x1, float x2, float t)
+{
+	return x1 + (x2 - x1) * t;
+}
+
 inline float SplineInterpolation(float x1, float x2, float r1, float r2, float t)
 {
 	float res;
@@ -37,14 +42,22 @@ class SplinePath
 {
 public:
 
+	bool line;
+
 	typedef std::pair<float, float> KeyFrame;
 	typedef std::vector<KeyFrame> Keys;
 	Keys keys;
 	Keys pushedKeys;
+	
+	SplinePath()
+		: line(false)
+	{
+	}
 
 	void Clear()
 	{
 		pushedKeys.clear();
+		line = false;
 	}
 
 	void addKey(const float& key)
@@ -55,12 +68,18 @@ public:
 	float getFrame(int sector, float t)
 	{
 		size_t i = static_cast<size_t>(sector);
+		if (line) {
+			return LineInterpolation(keys[i].first, keys[i+1].first, t);
+		}
 		return SplineInterpolation(keys[i].first, keys[i+1].first, keys[i].second, keys[i+1].second, t);
 	}
 
 	float getGradient(int sector, float t)
 	{
 		size_t i = static_cast<size_t>(sector);
+		if (line) {
+			return LineInterpolation(keys[i].first, keys[i+1].first, t);
+		}
 		return GetGradient(keys[i].first, keys[i+1].first, keys[i].second, keys[i+1].second, t);
 	}
 
