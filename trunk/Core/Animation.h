@@ -85,6 +85,7 @@ public:
 	void Rename(const char *newName);
 	void *parent;
 	Matrix matrix;
+	int order;
 #endif
 
 protected:
@@ -115,7 +116,7 @@ public:
 
 	// for editor
 	MovingPart(const std::string &boneName);
-	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL);
+	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL, MovingPart *afterBone = NULL);
 	bool removeBone(Bone *bone);
 	void SetKey(int index, const MovingPartkey &key);
 
@@ -182,7 +183,7 @@ public:
 	
 	// for editor
 	Animation();
-	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL);
+	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL, MovingPart *afterBone = NULL);
 	bool removeBone(MovingPart *movingPart); 
 	bool hasBone(const std::string &boneName); 
 

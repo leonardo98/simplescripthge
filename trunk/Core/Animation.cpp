@@ -2,6 +2,21 @@
 #include "Core.h"
 #include "Math.h"
 
+BoneList::iterator Find(BoneList::iterator start, BoneList::iterator end, Bone *item) {
+	while (start != end && (*start) != item) {
+		++start; 
+	} 
+	return start;
+}
+
+void ReOrder(BoneList::iterator start, BoneList::iterator end) {
+	int order = 1; 
+	while (start != end) { 
+		(*start)->order = order++; 
+		++start;
+	}
+}
+
 Bone::Bone(const char *name, const BoneType bt) 
 : boneType(bt)
 {
@@ -171,19 +186,30 @@ MovingPart::MovingPart(TiXmlElement *xe)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back( new MovingPart(element) );
+			_bones.back()->order = _bones.size();
 		}
 		element = element->NextSiblingElement();
 	}
 	ResortBones();
 }
 
-MovingPart * MovingPart::addBone(const char *boneName, MovingPart *newChildBone) {
+MovingPart * MovingPart::addBone(const char *boneName, MovingPart *newChildBone, MovingPart *afterBone) {
 	if (newChildBone == NULL) {
 		newChildBone = new MovingPart(boneName);
 	} else {
 		strcpy_s(newChildBone->boneName, boneName);
 	}
-	_bones.push_back(newChildBone);
+	if (afterBone) {
+		BoneList::iterator i = Find(_bones.begin(), _bones.end(), afterBone);
+		++i;
+		_bones.insert(i, newChildBone);
+		ReOrder(_bones.begin(), _bones.end());
+
+	} else {
+		_bones.push_back(newChildBone);
+		_bones.back()->order = _bones.size();
+	}
+
 	newChildBone->SetLoop(_loop);
 	ResortBones();
 	return newChildBone;
@@ -244,6 +270,7 @@ MovingPart::MovingPart(MovingPart &movinPart)
 			assert(false);
 		}
 		_bones.push_back(b);
+		_bones.back()->order = _bones.size();
 	}
 	ResortBones();
 }
@@ -367,8 +394,10 @@ IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back( new MovingPart(element) );
+			_bones.back()->order = _bones.size();
 		} else if (name == "IKTwoBone") {
 			_bones.push_back( new IKTwoBone(element, loop) );
+			_bones.back()->order = _bones.size();
 		}
 		element = element->NextSiblingElement();
 	}
@@ -409,6 +438,7 @@ IKTwoBone::IKTwoBone(IKTwoBone &twoBone)
 			assert(false);
 		}
 		_bones.push_back(b);
+		_bones.back()->order = _bones.size();
 	}
 	ResortBones();
 }
@@ -529,6 +559,7 @@ Animation::Animation(TiXmlElement *xe)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back(new MovingPart(element));
+			_bones.back()->order = _bones.size();
 		}
 		element = element->NextSiblingElement();
 	}
@@ -550,13 +581,24 @@ Animation::Animation()
 	_loop = true;
 }
 
-MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone) {
+MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone, MovingPart *afterBone) {
 	if (newChildBone == NULL) {
 		newChildBone = new MovingPart(boneName);
 	} else {
 		strcpy_s(newChildBone->boneName, boneName);
 	}
-	_bones.push_back(newChildBone);
+	if (afterBone) {
+
+		BoneList::iterator i = Find(_bones.begin(), _bones.end(), afterBone);
+		++i;
+		_bones.insert(i, newChildBone);
+		ReOrder(_bones.begin(), _bones.end());
+
+	} else {
+		_bones.push_back(newChildBone);
+		_bones.back()->order = _bones.size();
+	}
+
 	newChildBone->SetLoop(_loop);
 	return newChildBone;
 }
@@ -593,6 +635,7 @@ Animation::Animation(Animation &animation) {
 			assert(false);
 		}
 		_bones.push_back(b);
+		_bones.back()->order = _bones.size();
 	}
 }
 
