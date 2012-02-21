@@ -186,10 +186,10 @@ MovingPart::MovingPart(TiXmlElement *xe)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back( new MovingPart(element) );
-			_bones.back()->order = _bones.size();
 		}
 		element = element->NextSiblingElement();
 	}
+	ReOrder(_bones.begin(), _bones.end());
 	ResortBones();
 }
 
@@ -199,17 +199,15 @@ MovingPart * MovingPart::addBone(const char *boneName, MovingPart *newChildBone,
 	} else {
 		strcpy_s(newChildBone->boneName, boneName);
 	}
+	BoneList::iterator i = _bones.begin();
+
 	if (afterBone) {
-		BoneList::iterator i = Find(_bones.begin(), _bones.end(), afterBone);
+		i = Find(_bones.begin(), _bones.end(), afterBone);
 		++i;
-		_bones.insert(i, newChildBone);
-		ReOrder(_bones.begin(), _bones.end());
-
-	} else {
-		_bones.push_back(newChildBone);
-		_bones.back()->order = _bones.size();
 	}
+	_bones.insert(i, newChildBone);
 
+	ReOrder(_bones.begin(), _bones.end());
 	newChildBone->SetLoop(_loop);
 	ResortBones();
 	return newChildBone;
@@ -269,8 +267,8 @@ MovingPart::MovingPart(MovingPart &movinPart)
 			assert(false);
 		}
 		_bones.push_back(b);
-		_bones.back()->order = _bones.size();
 	}
+	ReOrder(_bones.begin(), _bones.end());
 	ResortBones();
 }
 
@@ -437,8 +435,8 @@ IKTwoBone::IKTwoBone(IKTwoBone &twoBone)
 			assert(false);
 		}
 		_bones.push_back(b);
-		_bones.back()->order = _bones.size();
 	}
+	ReOrder(_bones.begin(), _bones.end());
 	ResortBones();
 }
 
@@ -558,10 +556,10 @@ Animation::Animation(TiXmlElement *xe)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back(new MovingPart(element));
-			_bones.back()->order = _bones.size();
 		}
 		element = element->NextSiblingElement();
 	}
+	ReOrder(_bones.begin(), _bones.end());
 
 	FPoint2D pos(Math::Read(xe, "x", 0.f), Math::Read(xe, "y", 0.f));
 	_subPosition.Unit();
@@ -586,17 +584,14 @@ MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone, 
 	} else {
 		strcpy_s(newChildBone->boneName, boneName);
 	}
+	BoneList::iterator i = _bones.begin();
+
 	if (afterBone) {
-
-		BoneList::iterator i = Find(_bones.begin(), _bones.end(), afterBone);
+		i = Find(_bones.begin(), _bones.end(), afterBone);
 		++i;
-		_bones.insert(i, newChildBone);
-		ReOrder(_bones.begin(), _bones.end());
-
-	} else {
-		_bones.push_back(newChildBone);
-		_bones.back()->order = _bones.size();
 	}
+	_bones.insert(i, newChildBone);
+	ReOrder(_bones.begin(), _bones.end());
 
 	newChildBone->SetLoop(_loop);
 	return newChildBone;
@@ -633,8 +628,8 @@ Animation::Animation(Animation &animation) {
 			assert(false);
 		}
 		_bones.push_back(b);
-		_bones.back()->order = _bones.size();
 	}
+	ReOrder(_bones.begin(), _bones.end());
 }
 
 void Animation::SetPos(const FPoint2D &pos, bool mirror) {
