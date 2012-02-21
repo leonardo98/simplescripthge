@@ -31,7 +31,7 @@ struct MovingPartkey {
 
 class Bone;
 
-typedef std::vector<Bone *> BoneList;
+	typedef std::vector<Bone *> BoneList;
 typedef void *(* const CallBones)(void *, char *, Bone *); 
 
 class AnimationPart : public StaticSprite {
