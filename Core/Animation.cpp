@@ -218,7 +218,6 @@ MovingPart * MovingPart::addBone(const char *boneName, MovingPart *newChildBone,
 bool MovingPart::removeBone(Bone *bone) {
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
 		if (*i == bone) {
-			delete (*i);
 			_bones.erase(i);
 			ResortBones();
 			return true;
@@ -606,7 +605,6 @@ MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone, 
 bool Animation::removeBone(MovingPart *movingPart) {
 	for (BoneList::iterator i = _bones.begin(), e = _bones.end(); i != e; ++i) {
 		if (*i == movingPart) {
-			delete (*i);
 			_bones.erase(i);
 			return true;
 		} else if ((*i)->removeBone(movingPart)) {
