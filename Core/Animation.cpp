@@ -31,12 +31,13 @@ void Bone::Rename(const char *newName) {
 	strcpy_s(boneName, newName);
 }
 
-void Bone::EditorCall(CallBones myCall, void *parent) {
+void * Bone::EditorCall(CallBones myCall, void *parent) {
 	this->parent = parent;
 	void *item = myCall(parent, boneName, this);
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		_bones[i]->EditorCall(myCall, item);
 	}
+	return item;
 }
 
 bool Bone::hasBone(const std::string &boneName) {
@@ -391,10 +392,8 @@ IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back( new MovingPart(element) );
-			_bones.back()->order = _bones.size();
 		} else if (name == "IKTwoBone") {
 			_bones.push_back( new IKTwoBone(element, loop) );
-			_bones.back()->order = _bones.size();
 		}
 		element = element->NextSiblingElement();
 	}
@@ -526,10 +525,11 @@ Animation::~Animation() {
 }
 
 #ifdef ANIMATION_EDITOR
-void Animation::EditorCall(CallBones myCall, void *parent) {
+void * Animation::EditorCall(CallBones myCall, void *parent) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		_bones[i]->EditorCall(myCall, parent);
 	}
+	return NULL;
 }
 
 bool Animation::hasBone(const std::string &boneName) {
