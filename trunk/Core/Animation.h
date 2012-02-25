@@ -80,7 +80,7 @@ public:
 	// for editor
 #ifdef ANIMATION_EDITOR
 	virtual hgeSprite * GetSprite() { return NULL; }
-	void EditorCall(CallBones myCall, void *parent);
+	void * EditorCall(CallBones myCall, void *parent);
 	bool hasBone(const std::string &boneName); 
 	void Rename(const char *newName);
 	void *parent;
@@ -166,7 +166,7 @@ public:
 	Animation(TiXmlElement *xe);
 	Animation(Animation &animation);
 	virtual ~Animation();
-	void EditorCall(CallBones myCall, void *parent);
+	void * EditorCall(CallBones myCall, void *parent);
 	void Draw();
 	void Draw(float position);
 	void Update(float dt);
