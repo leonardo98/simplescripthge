@@ -12,6 +12,12 @@ float Math::Read(TiXmlElement *xe, const char *name, const float defaultValue) {
 	return (tmp ? fatof(tmp) : defaultValue);
 }
 
+void Math::Write(TiXmlElement *xe, const char *name, const float value) {
+	char buff[20];
+	sprintf_s(buff, "%f", value);
+	xe->SetAttribute(name, buff);
+}
+
 bool Math::Read(TiXmlElement *xe, const char *name, const bool defaultValue) {
 	const char *tmp = xe->Attribute(name);
 	return (tmp ? std::string(tmp) == "true" : defaultValue);
@@ -30,8 +36,7 @@ bool Math::GetCirclesIntersect(float X1, float Y1, float R1, float X2, float Y2,
 		a  = -4 * C2 * C2 - 4 * C3 * C3,
 		b  = (8 * C2 * C2 * Y2 + 4 * C1 * C3) / a,
 		c  = (4 * C2 * C2 * R2 * R2 - 4 * C2 * C2 * Y2 * Y2 - C1 * C1) / a,
-		X_1_1 = 0, X_1_2 = 0, Y_1 = 0, X_2_1 = 0, X_2_2 = 0, Y_2 = 0,
-		Leng1, Leng2;
+		X_1_1 = 0, X_1_2 = 0, Y_1 = 0, X_2_1 = 0, X_2_2 = 0, Y_2 = 0;
 	a = 1;
 	float  sqrtVal = b * b - 4 * a * c;
 	if (fabs(sqrtVal) < 0.5f) {
@@ -152,7 +157,7 @@ bool Math::GetCirclesIntersect2(float x1, float y1, float r1, float x2, float y2
 
 std::string Math::IntToStr(int i) {
 	char buff[10];
-	sprintf(buff, "%i", i);
+	sprintf_s(buff, "%i", i);
 	return buff;
 }
 

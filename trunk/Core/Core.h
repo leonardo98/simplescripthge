@@ -29,6 +29,7 @@ public:
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	static void OnMessage(const std::string &message);
 	static void LoadAnimations(const char *fileName);
+	static bool SaveAnimations(const char *fileName);
 	static void GetAnimationsList(std::vector<std::string> &names);
 	static void RenameAnimation(const std::string &oldName, const std::string &newName);
 	static void RemoveAnimation(const std::string &name);

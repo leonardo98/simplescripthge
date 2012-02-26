@@ -31,15 +31,6 @@ void Bone::Rename(const char *newName) {
 	strcpy_s(boneName, newName);
 }
 
-void * Bone::EditorCall(CallBones myCall, void *parent) {
-	this->parent = parent;
-	void *item = myCall(parent, boneName, this);
-	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		_bones[i]->EditorCall(myCall, item);
-	}
-	return item;
-}
-
 bool Bone::hasBone(const std::string &boneName) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		if (boneName == _bones[i]->boneName || _bones[i]->hasBone(boneName)) {
@@ -79,6 +70,15 @@ void Bone::SetLoop(bool loop) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		_bones[i]->SetLoop(loop);
 	}
+}
+
+void * MovingPart::EditorCall(CallBones myCall, void *parent) {
+	this->parent = parent;
+	void *item = myCall(parent, boneName, this);
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->EditorCall(myCall, item);
+	}
+	return item;
 }
 
 void MovingPart::LoadTextures() {
@@ -137,6 +137,60 @@ hgeSprite * MovingPart::GetSprite() {
 		return _parts.front()->GetHGESprite();
 	}
 	return NULL;
+}
+
+void MovingPart::SaveToXml(TiXmlElement *xe) {
+	xe->SetValue("movingPart");
+	xe->SetAttribute("name", boneName);
+	if (_movingType == MovingType_spline) {
+//		xe->SetAttribute("moving_type", "spline");
+	} else if (_movingType == MovingType_line) {
+		xe->SetAttribute("moving_type", "line");
+	} else {
+		xe->SetAttribute("moving_type", "discontinuous");
+	}
+	if (_offparent == OffParentOrder_bottom) {
+		xe->SetAttribute("offparent", "bottom");
+	}
+	if (fabs(_center.x) > 1e-3) {
+		Math::Write(xe, "centerX", _center.x);
+	}
+	if (fabs(_center.y) > 1e-3) {
+		Math::Write(xe, "centerY", _center.y);
+	}
+	if (_parts.size()) {
+		xe->SetAttribute("texture", _parts[0]->fileName.c_str());
+	}
+
+	TiXmlElement *poses = new TiXmlElement("poses");
+	xe->LinkEndChild(poses);
+	for (unsigned int i = 0; i < _x.pushedKeys.size(); ++i) {
+		TiXmlElement *pos = new TiXmlElement("pos");
+	
+		if (fabs(_x.pushedKeys[i].first) > 1e-3) {
+			Math::Write(xe, "x", _x.pushedKeys[i].first);
+		}
+		if (fabs(_y.pushedKeys[i].first) > 1e-3) {
+			Math::Write(xe, "y", _y.pushedKeys[i].first);
+		}
+		if (fabs(_scaleX.pushedKeys[i].first - 1.f) > 1e-3) {
+			Math::Write(xe, "scaleX", _scaleX.pushedKeys[i].first);
+		}
+		if (fabs(_scaleY.pushedKeys[i].first - 1.f) > 1e-3) {
+			Math::Write(xe, "scaleY", _scaleY.pushedKeys[i].first);
+		}
+		if (fabs(_angle.pushedKeys[i].first) > 1e-5) {
+			Math::Write(xe, "angle", _angle.pushedKeys[i].first);
+		}
+
+		poses->LinkEndChild(pos);
+	}
+
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		TiXmlElement *mp = new TiXmlElement("movingPart");
+		_bones[i]->SaveToXml(mp);
+		xe->LinkEndChild(mp);
+	}
 }
 
 MovingPart::MovingPart(TiXmlElement *xe)
@@ -259,11 +313,9 @@ MovingPart::MovingPart(MovingPart &movinPart)
 	}
 
 	for (BoneList::iterator i = movinPart._bones.begin(), e = movinPart._bones.end(); i != e; ++i) {
-		Bone *b;
+		MovingPart *b;
 		if ((*i)->boneType == BT_MovingPart) {
 			b = new MovingPart(*static_cast<MovingPart *>(*i));
-		} else if ((*i)->boneType == BT_IKTwoBone) {
-			b = new IKTwoBone(*static_cast<IKTwoBone *>(*i));
 		} else {
 			assert(false);
 		}
@@ -392,8 +444,6 @@ IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back( new MovingPart(element) );
-		} else if (name == "IKTwoBone") {
-			_bones.push_back( new IKTwoBone(element, loop) );
 		}
 		element = element->NextSiblingElement();
 	}
@@ -425,11 +475,9 @@ IKTwoBone::IKTwoBone(IKTwoBone &twoBone)
 	_freeBones = twoBone._freeBones;
 
 	for (BoneList::iterator i = twoBone._bones.begin(), e = twoBone._bones.end(); i != e; ++i) {
-		Bone *b;
+		MovingPart *b;
 		if ((*i)->boneType == BT_MovingPart) {
 			b = new MovingPart(*static_cast<MovingPart *>(*i));
-		} else if ((*i)->boneType == BT_IKTwoBone) {
-			b = new IKTwoBone(*static_cast<IKTwoBone *>(*i));
 		} else {
 			assert(false);
 		}
@@ -542,6 +590,20 @@ bool Animation::hasBone(const std::string &boneName) {
 }
 #endif
 
+void Animation::SaveToXml(TiXmlElement *xe) {
+	
+	xe->SetAttribute("loop", _loop ? "true" : "false");
+	Math::Write(xe, "time", _time);
+	Math::Write(xe, "pivotX", _pivotPos.x);
+	Math::Write(xe, "pivotY", _pivotPos.y);
+
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		TiXmlElement *mp = new TiXmlElement("movingPart");
+		_bones[i]->SaveToXml(mp);
+		xe->LinkEndChild(mp);
+	}
+}
+
 Animation::Animation(TiXmlElement *xe)
 : _timeCounter(0.f)
 , _texturesLoaded(false)
@@ -619,11 +681,9 @@ Animation::Animation(Animation &animation) {
 	
 	_bones;
 	for (BoneList::iterator i = animation._bones.begin(), e = animation._bones.end(); i != e; ++i) {
-		Bone *b;
+		MovingPart *b;
 		if ((*i)->boneType == BT_MovingPart) {
 			b = new MovingPart(*static_cast<MovingPart *>(*i));
-		} else if ((*i)->boneType == BT_IKTwoBone) {
-			b = new IKTwoBone(*static_cast<IKTwoBone *>(*i));
 		} else {
 			assert(false);
 		}
@@ -771,3 +831,4 @@ void Animation::SetLoop(bool loop) {
 		_bones[i]->SetLoop(loop);
 	}
 }
+
