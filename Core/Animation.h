@@ -29,10 +29,11 @@ struct MovingPartkey {
 	float sy;
 };
 
-class Bone;
+class MovingPart;
 
-	typedef std::vector<Bone *> BoneList;
-typedef void *(* const CallBones)(void *, char *, Bone *); 
+typedef std::vector<MovingPart *> BoneList;
+
+typedef void *(* const CallBones)(void *, char *, MovingPart *); 
 
 class AnimationPart : public StaticSprite {
 public:
@@ -80,7 +81,6 @@ public:
 	// for editor
 #ifdef ANIMATION_EDITOR
 	virtual hgeSprite * GetSprite() { return NULL; }
-	void * EditorCall(CallBones myCall, void *parent);
 	bool hasBone(const std::string &boneName); 
 	void Rename(const char *newName);
 	void *parent;
@@ -119,6 +119,8 @@ public:
 	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL, MovingPart *afterBone = NULL);
 	bool removeBone(Bone *bone);
 	void SetKey(int index, const MovingPartkey &key);
+	void SaveToXml(TiXmlElement *xe);
+	void * EditorCall(CallBones myCall, void *parent);
 
 private:
 	FPoint2D _center;
@@ -186,6 +188,7 @@ public:
 	MovingPart * addBone(const char *boneName, MovingPart *newChildBone = NULL, MovingPart *afterBone = NULL);
 	bool removeBone(MovingPart *movingPart); 
 	bool hasBone(const std::string &boneName); 
+	void SaveToXml(TiXmlElement *xe);
 
 private:
 	bool _texturesLoaded;

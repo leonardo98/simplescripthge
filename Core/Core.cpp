@@ -197,6 +197,23 @@ void Core::LoadAnimations(const char *fileName) {
 	}
 }
 
+bool Core::SaveAnimations(const char *fileName) {
+	TiXmlDocument doc(fileName);
+	TiXmlElement *version = new TiXmlElement("version");
+	version->SetAttribute("v", "2.0");
+	doc.LinkEndChild(version);
+	TiXmlElement *root = new TiXmlElement("root");
+	doc.LinkEndChild(root);
+
+	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; ++i) {
+		TiXmlElement *a = new TiXmlElement("Animation");
+		a->SetAttribute("id", i->first.c_str());
+		i->second->SaveToXml(a);
+		root->LinkEndChild(a);
+	}
+	return doc.SaveFile();
+}
+
 Animation *Core::getAnimation(const std::string &animationId) {
 	AnimationMap::iterator find = _animations.find(animationId);
 	if (find != _animations.end()) {
