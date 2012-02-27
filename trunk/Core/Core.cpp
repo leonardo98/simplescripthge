@@ -199,9 +199,9 @@ void Core::LoadAnimations(const char *fileName) {
 
 bool Core::SaveAnimations(const char *fileName) {
 	TiXmlDocument doc(fileName);
-	TiXmlElement *version = new TiXmlElement("version");
-	version->SetAttribute("v", "2.0");
-	doc.LinkEndChild(version);
+	char *header = "<?xml version=\"2.0\" encoding=\"utf-8\"?>";
+	TiXmlDeclaration *declaration = new TiXmlDeclaration("2.0", "utf-8", "no");
+	doc.LinkEndChild(declaration);
 	TiXmlElement *root = new TiXmlElement("root");
 	doc.LinkEndChild(root);
 
