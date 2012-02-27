@@ -14,7 +14,7 @@ float Math::Read(TiXmlElement *xe, const char *name, const float defaultValue) {
 
 void Math::Write(TiXmlElement *xe, const char *name, const float value) {
 	char buff[20];
-	sprintf_s(buff, "%f", value);
+	sprintf_s(buff, "%g", value);
 	xe->SetAttribute(name, buff);
 }
 

@@ -162,28 +162,26 @@ void MovingPart::SaveToXml(TiXmlElement *xe) {
 		xe->SetAttribute("texture", _parts[0]->fileName.c_str());
 	}
 
-	TiXmlElement *poses = new TiXmlElement("poses");
-	xe->LinkEndChild(poses);
 	for (unsigned int i = 0; i < _x.pushedKeys.size(); ++i) {
 		TiXmlElement *pos = new TiXmlElement("pos");
 	
 		if (fabs(_x.pushedKeys[i].first) > 1e-3) {
-			Math::Write(xe, "x", _x.pushedKeys[i].first);
+			Math::Write(pos, "x", _x.pushedKeys[i].first);
 		}
 		if (fabs(_y.pushedKeys[i].first) > 1e-3) {
-			Math::Write(xe, "y", _y.pushedKeys[i].first);
+			Math::Write(pos, "y", _y.pushedKeys[i].first);
 		}
 		if (fabs(_scaleX.pushedKeys[i].first - 1.f) > 1e-3) {
-			Math::Write(xe, "scaleX", _scaleX.pushedKeys[i].first);
+			Math::Write(pos, "scaleX", _scaleX.pushedKeys[i].first);
 		}
 		if (fabs(_scaleY.pushedKeys[i].first - 1.f) > 1e-3) {
-			Math::Write(xe, "scaleY", _scaleY.pushedKeys[i].first);
+			Math::Write(pos, "scaleY", _scaleY.pushedKeys[i].first);
 		}
 		if (fabs(_angle.pushedKeys[i].first) > 1e-5) {
-			Math::Write(xe, "angle", _angle.pushedKeys[i].first);
+			Math::Write(pos, "angle", _angle.pushedKeys[i].first);
 		}
 
-		poses->LinkEndChild(pos);
+		xe->LinkEndChild(pos);
 	}
 
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
