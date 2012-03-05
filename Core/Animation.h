@@ -77,6 +77,7 @@ public:
 	virtual void Set(const MovingPartInfo &info) {}
 	virtual void SetLoop(bool loop);
 	virtual bool removeBone(Bone *bone) {assert(false); return false;}
+	void ResortBones();
 
 	// for editor
 #ifdef ANIMATION_EDITOR
@@ -89,7 +90,6 @@ public:
 #endif
 
 protected:
-	void ResortBones();
 	BoneList _topBone;// links
 	BoneList _bottomBone;// links
 	BoneList _bones;
