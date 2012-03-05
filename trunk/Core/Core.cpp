@@ -177,7 +177,7 @@ void Core::Init() {
 	Variables::Init(lua);
 }
 
-void Core::LoadAnimations(const char *fileName) {
+bool Core::LoadAnimations(const char *fileName) {
 	TiXmlDocument doc;
     std::string s =Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str());
 	if ((fileName[1] == ':' && doc.LoadFile(fileName)) || doc.LoadFile(s.c_str())) {
@@ -192,8 +192,10 @@ void Core::LoadAnimations(const char *fileName) {
 			_animations[id] = new Animation(animation);
 			animation = animation->NextSiblingElement("Animation");
 		}
+		return true;
 	} else {
 		LOG("file not found: " + fileName);
+		return false;
 	}
 }
 
