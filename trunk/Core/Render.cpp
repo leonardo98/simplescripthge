@@ -382,7 +382,9 @@ void Render::PrintString(float x, float y, std::string fontName, const std::stri
 	if (fontName == "") {
 		fontName = "data\\font2.fnt";
 	}
-	fontName = GetDataDir() + fontName;
+	if (fontName[1] != ':') {
+		fontName = GetDataDir() + fontName;
+	}
 	hgeFont *font;
 	if (_fonts.find(fontName) == _fonts.end()) {
 		_fonts[fontName] = new hgeFont(fontName.c_str());
