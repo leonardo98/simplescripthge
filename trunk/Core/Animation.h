@@ -2,7 +2,7 @@
 #define MYENGINE_ANIMATION_H
 
 #include "Render.h"
-#include "SplinePath.h"
+#include "MotionValues.h"
 #include "Matrix.h"
 
 enum BoneType {
@@ -22,6 +22,7 @@ enum MovingType {
 };
 
 struct MovingPartkey {
+	float time;
 	float x;
 	float y;
 	float angle;
@@ -42,12 +43,12 @@ public:
 };
 
 struct MovingPartInfo {
-	SplinePath x;
-	SplinePath y;
-	SplinePath angle;
+	MotionValues x;
+	MotionValues y;
+	MotionValues angle;
+	MotionValues scaleX;
+	MotionValues scaleY;
 	FPoint2D center;
-	SplinePath scaleX;
-	SplinePath scaleY;
 	std::vector<std::string> partsNames;
 	MovingType movingType;
 	OffParentOrder offparent;
@@ -56,7 +57,6 @@ struct MovingPartInfo {
 struct AnimationInfo {
 	FPoint2D pivotPos;
 	float time;
-	bool loop;
 };
 
 class Bone
@@ -75,7 +75,7 @@ public:
 	virtual void UnloadTextures() {}
 	virtual void Get(MovingPartInfo &info) const {}
 	virtual void Set(const MovingPartInfo &info) {}
-	virtual void SetLoop(bool loop);
+	virtual void CalcGradient();
 	virtual bool removeBone(Bone *bone) {assert(false); return false;}
 	void ResortBones();
 
@@ -111,7 +111,7 @@ public:
 	virtual void UnloadTextures();
 	virtual void Get(MovingPartInfo &info) const;
 	virtual void Set(const MovingPartInfo &info);
-	virtual void SetLoop(bool loop);
+	virtual void CalcGradient();
 	virtual hgeSprite * GetSprite();
 
 	// for editor
@@ -124,42 +124,14 @@ public:
 
 private:
 	FPoint2D _center;
-	SplinePath _x;
-	SplinePath _y;
-	SplinePath _angle;
-	SplinePath _scaleX;
-	SplinePath _scaleY;
+	MotionValues _x;
+	MotionValues _y;
+	MotionValues _angle;
+	MotionValues _scaleX;
+	MotionValues _scaleY;
 	std::vector<AnimationPart *> _parts;
 	StaticSprite *_last;
 	MovingType _movingType;
-	bool _loop;
-};
-
-class IKTwoBone : public Bone {
-public:
-	~IKTwoBone();
-	IKTwoBone(TiXmlElement *xe, bool loop);
-	IKTwoBone(IKTwoBone &twoBone);
-	virtual void Draw(float p); // [ 0<= p <= 1 ]
-	virtual bool PixelCheck(const FPoint2D &pos);
-private:
-	void SetPos(float x, float y);
-	StaticSprite _first;
-	StaticSprite _second;
-	bool _invert;
-	FPoint2D _anchorPos;
-	FPoint2D _connectPos;
-	FPoint2D _targetPos;
-	float _firstBoneLength;
-	float _secondBoneLength;
-	float _baseAngleFirst;
-	float _baseAngleSecond;
-	FPoint2D _lastScreenConnectPos;
-	int _angleSign;
-	SplinePath _x;
-	SplinePath _y;
-
-	bool _freeBones;//unsafe to rotate|scale animation;
 };
 
 class Animation
@@ -181,7 +153,7 @@ public:
 	bool TextureLoaded();
 	void Get(AnimationInfo &info) const;
 	void Set(const AnimationInfo &info);
-	void SetLoop(bool loop);
+	void CalcGradient();
 	
 	// for editor
 	Animation();
@@ -194,7 +166,6 @@ private:
 	bool _texturesLoaded;
 	FPoint2D _pivotPos;
 	float _time;
-	bool _loop;
 	float _timeCounter;
 	BoneList _bones;
 	Matrix _subPosition;

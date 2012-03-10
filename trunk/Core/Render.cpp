@@ -44,9 +44,12 @@ HGE *Render::GetDC() {
 Sprite::Sprite(HTEXTURE hTexture, int x, int y, int w, int h) {
 	_lastRender.blend = 0;
 	_lastRender.tex = hTexture;
-	float width = static_cast<float>(Render::GetDC()->Texture_GetWidth(hTexture));
-	float height = static_cast<float>(Render::GetDC()->Texture_GetHeight(hTexture));
-
+	float width = 1.f;
+	float height = 1.f;
+	if (hTexture) {
+		width = static_cast<float>(Render::GetDC()->Texture_GetWidth(hTexture));
+		height = static_cast<float>(Render::GetDC()->Texture_GetHeight(hTexture));
+	}
 	_lastRender.v[0].tx = x / width; _lastRender.v[0].ty = y / height;
 	_lastRender.v[1].tx = (x + w) / width; _lastRender.v[1].ty = y / height;
 	_lastRender.v[2].tx = (x + w) / width; _lastRender.v[2].ty = (y + h) / height;

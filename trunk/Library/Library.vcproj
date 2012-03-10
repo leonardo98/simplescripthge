@@ -402,6 +402,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Core\MotionValues.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Core\Object.h"
 				>
 			</File>
