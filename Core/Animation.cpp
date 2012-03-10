@@ -66,9 +66,9 @@ void Bone::ResortBones() {
 	}
 }
 
-void Bone::SetLoop(bool loop) {
+void Bone::CalcGradient() {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		_bones[i]->SetLoop(loop);
+		_bones[i]->CalcGradient();
 	}
 }
 
@@ -100,17 +100,17 @@ void MovingPart::UnloadTextures() {
 }
 
 void MovingPart::SetKey(int index, const MovingPartkey &key) {
-	_x.pushedKeys[index] = SplinePath::KeyFrame(key.x, key.x);
-	_y.pushedKeys[index] = SplinePath::KeyFrame(key.y, key.y);
-	_angle.pushedKeys[index] = SplinePath::KeyFrame(key.angle, key.angle);
-	_scaleX.pushedKeys[index] = SplinePath::KeyFrame(key.sx, key.sx);
-	_scaleY.pushedKeys[index] = SplinePath::KeyFrame(key.sy, key.sy);
+	_x.keys[index].value = key.x;
+	_y.keys[index].value = key.y;
+	_angle.keys[index].value = key.angle;
+	_scaleX.keys[index].value = key.sx;
+	_scaleY.keys[index].value = key.sy;
 
-	_x.CalculateGradient(_loop);
-	_y.CalculateGradient(_loop);
-	_angle.CalculateGradient(_loop);
-	_scaleX.CalculateGradient(_loop);
-	_scaleY.CalculateGradient(_loop);
+	_x.CalculateGradient();
+	_y.CalculateGradient();
+	_angle.CalculateGradient();
+	_scaleX.CalculateGradient();
+	_scaleY.CalculateGradient();
 }
 
 MovingPart::~MovingPart() {
@@ -122,14 +122,13 @@ MovingPart::~MovingPart() {
 	}
 }
 
-void MovingPart::SetLoop(bool loop) {
-	_x.CalculateGradient(loop);
-	_y.CalculateGradient(loop);
-	_angle.CalculateGradient(loop);
-	_scaleX.CalculateGradient(loop);
-	_scaleY.CalculateGradient(loop);
-	Bone::SetLoop(loop);
-	_loop = loop;
+void MovingPart::CalcGradient() {
+	_x.CalculateGradient();
+	_y.CalculateGradient();
+	_angle.CalculateGradient();
+	_scaleX.CalculateGradient();
+	_scaleY.CalculateGradient();
+	Bone::CalcGradient();
 }
 
 hgeSprite * MovingPart::GetSprite() {
@@ -162,23 +161,26 @@ void MovingPart::SaveToXml(TiXmlElement *xe) {
 		xe->SetAttribute("texture", _parts[0]->fileName.c_str());
 	}
 
-	for (unsigned int i = 0; i < _x.pushedKeys.size(); ++i) {
+	for (unsigned int i = 0; i < _x.keys.size(); ++i) {
 		TiXmlElement *pos = new TiXmlElement("pos");
 	
-		if (fabs(_x.pushedKeys[i].first) > 1e-3) {
-			Math::Write(pos, "x", _x.pushedKeys[i].first);
+		if (fabs(_x.keys[i].value) > 1e-3) {
+			Math::Write(pos, "time", _x.keys[i].time);
 		}
-		if (fabs(_y.pushedKeys[i].first) > 1e-3) {
-			Math::Write(pos, "y", _y.pushedKeys[i].first);
+		if (fabs(_x.keys[i].value) > 1e-3) {
+			Math::Write(pos, "x", _x.keys[i].value);
 		}
-		if (fabs(_scaleX.pushedKeys[i].first - 1.f) > 1e-3) {
-			Math::Write(pos, "scaleX", _scaleX.pushedKeys[i].first);
+		if (fabs(_y.keys[i].value) > 1e-3) {
+			Math::Write(pos, "y", _y.keys[i].value);
 		}
-		if (fabs(_scaleY.pushedKeys[i].first - 1.f) > 1e-3) {
-			Math::Write(pos, "scaleY", _scaleY.pushedKeys[i].first);
+		if (fabs(_scaleX.keys[i].value - 1.f) > 1e-3) {
+			Math::Write(pos, "scaleX", _scaleX.keys[i].value);
 		}
-		if (fabs(_angle.pushedKeys[i].first) > 1e-5) {
-			Math::Write(pos, "angle", _angle.pushedKeys[i].first);
+		if (fabs(_scaleY.keys[i].value - 1.f) > 1e-3) {
+			Math::Write(pos, "scaleY", _scaleY.keys[i].value);
+		}
+		if (fabs(_angle.keys[i].value) > 1e-5) {
+			Math::Write(pos, "angle", _angle.keys[i].value);
 		}
 
 		xe->LinkEndChild(pos);
@@ -211,18 +213,19 @@ MovingPart::MovingPart(TiXmlElement *xe)
 	}
 	TiXmlElement *pos = xe->FirstChildElement("pos");
 	if (pos == NULL) {
-		_x.addKey(0.f);
-		_y.addKey(0.f);
-		_scaleX.addKey(1.f);
-		_scaleY.addKey(1.f);
-		_angle.addKey(0.f);
+		_x.AddKey(0.f, 0.f);
+		_y.AddKey(0.f, 0.f);
+		_scaleX.AddKey(0.f, 1.f);
+		_scaleY.AddKey(0.f, 1.f);
+		_angle.AddKey(0.f, 0.f);
 	}
 	while (pos) {
-		_x.addKey(Math::Read(pos, "x", 0.f));
-		_y.addKey(Math::Read(pos, "y", 0.f));	
-		_scaleX.addKey(Math::Read(pos, "scaleX", 1.f));
-		_scaleY.addKey(Math::Read(pos, "scaleY", 1.f));
-		_angle.addKey(Math::Read(pos, "angle", 0.f));
+		float time = Math::Read(pos, "time", 0.f);
+		_x.AddKey(time, Math::Read(pos, "x", 0.f));
+		_y.AddKey(time, Math::Read(pos, "y", 0.f));	
+		_scaleX.AddKey(time, Math::Read(pos, "scaleX", 1.f));
+		_scaleY.AddKey(time, Math::Read(pos, "scaleY", 1.f));
+		_angle.AddKey(time, Math::Read(pos, "angle", 0.f));
 
 		pos = pos->NextSiblingElement("pos");
 	}
@@ -261,7 +264,7 @@ MovingPart * MovingPart::addBone(const char *boneName, MovingPart *newChildBone,
 	_bones.insert(i, newChildBone);
 
 	ReOrder(_bones.begin(), _bones.end());
-	newChildBone->SetLoop(_loop);
+	newChildBone->CalcGradient();
 	ResortBones();
 	return newChildBone;
 }
@@ -282,12 +285,12 @@ bool MovingPart::removeBone(Bone *bone) {
 MovingPart::MovingPart(const std::string &boneName)
 : Bone(boneName.c_str(), BT_MovingPart){
 	_movingType = MovingType_line;
-	_x.addKey(0.f);
-	_y.addKey(0.f);
-	_angle.addKey(0.f);
+	_x.AddKey(0.f, 0.f);
+	_y.AddKey(0.f, 0.f);
+	_angle.AddKey(0.f, 0.f);
 	_center = FPoint2D(0.f, 0.f);
-	_scaleX.addKey(1.f);
-	_scaleY.addKey(1.f);
+	_scaleX.AddKey(0.f, 1.f);
+	_scaleY.AddKey(0.f, 1.f);
 	_last = NULL;
 	_offparent = OffParentOrder_top;
 }
@@ -295,7 +298,6 @@ MovingPart::MovingPart(const std::string &boneName)
 MovingPart::MovingPart(MovingPart &movinPart) 
 : Bone(movinPart)
 {
-	_loop = movinPart._loop;
 	_movingType = movinPart._movingType;
 	_x = movinPart._x;
 	_y = movinPart._y;
@@ -329,20 +331,16 @@ void MovingPart::Draw(float p) {
 	Render::PushMatrix();
 	float dp = p;
 	if (_movingType == MovingType_discontinuous) {
-		if (_loop) {
-			dp = static_cast<int>(p * (_x.keys.size() - 1)) / static_cast<float>(_x.keys.size() - 1);
-		} else {
-			dp = static_cast<int>(p * _x.keys.size()) / static_cast<float>(_x.keys.size());
-		}
+		dp = static_cast<int>(p * _x.keys.size()) / static_cast<float>(_x.keys.size());
 		assert(0.f <= dp && dp < 1);
 	}
-	Render::MatrixMove(_x.getGlobalFrame(dp), _y.getGlobalFrame(dp));
+	Render::MatrixMove(_x.Value(dp), _y.Value(dp));
 #ifdef ANIMATION_EDITOR
 	matrix = Render::GetCurrentMatrix();
 #endif
 
-	Render::MatrixRotate(_angle.getGlobalFrame(dp));
-	Render::MatrixScale(_scaleX.getGlobalFrame(dp), _scaleY.getGlobalFrame(dp));
+	Render::MatrixRotate(_angle.Value(dp));
+	Render::MatrixScale(_scaleX.Value(dp), _scaleY.Value(dp));
 
 	Render::MatrixMove(-_center.x, -_center.y);
 
@@ -400,169 +398,6 @@ bool MovingPart::ReplaceTexture(const std::string &boneName, const char *texture
 	return success;
 }
 
-IKTwoBone::~IKTwoBone() {
-	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		delete _bones[i];
-	}
-}
-
-IKTwoBone::IKTwoBone(TiXmlElement *xe, bool loop)
-: Bone(xe->Attribute("name"), BT_IKTwoBone)
-{
-	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? OffParentOrder_bottom : OffParentOrder_top);
-	const char *tmp = xe->Attribute("order");
-	_invert = tmp && std::string(tmp) == "invert";
-	_anchorPos.x = fatof(xe->Attribute("anchorX"));
-	_anchorPos.y = fatof(xe->Attribute("anchorY"));
-	_connectPos.x = fatof(xe->Attribute("connectX"));
-	_connectPos.y = fatof(xe->Attribute("connectY"));
-	_targetPos.x = fatof(xe->Attribute("targetX"));
-	_targetPos.y = fatof(xe->Attribute("targetY"));
-	tmp = xe->Attribute("freeBones");
-	_freeBones = tmp && std::string(tmp) == "true";
-	_firstBoneLength = (_anchorPos - _connectPos).Length();
-	_secondBoneLength = (_connectPos - _targetPos).Length();
-	tmp = xe->Attribute("firstTexture"); 
-	_first.Set(Core::getTexture(tmp));
-	tmp = xe->Attribute("secondTexture"); 
-	_second.Set(Core::getTexture(tmp));
-	TiXmlElement *pos = xe->FirstChildElement("pos");
-	while (pos) {
-		_x.addKey(Math::Read(pos, "x", 0.f));
-		_y.addKey(Math::Read(pos, "y", 0.f));
-		pos = pos->NextSiblingElement("pos");
-	}
-	_x.CalculateGradient(loop);
-	_y.CalculateGradient(loop);
-
-	_angleSign = static_cast<int>(Math::Read(xe, "angleSign", 0.f));
-
-	TiXmlElement *element = xe->FirstChildElement();
-	while (element) {
-		std::string name = element->Value();
-		if (name == "movingPart") {
-			_bones.push_back( new MovingPart(element) );
-		}
-		element = element->NextSiblingElement();
-	}
-	ResortBones();
-	_lastScreenConnectPos = _connectPos;
-
-	_baseAngleFirst = atan2(_connectPos.y - _anchorPos.y, _connectPos.x - _anchorPos.x);
-	_baseAngleSecond = atan2(_targetPos.y -  _connectPos.y, _targetPos.x -  _connectPos.x);
-}
-
-IKTwoBone::IKTwoBone(IKTwoBone &twoBone) 
-: Bone(twoBone)
-{
-	_first = twoBone._first;
-	_second = twoBone._second;
-	_invert = twoBone._invert;
-	_anchorPos = twoBone._anchorPos;
-	_connectPos = twoBone._connectPos;
-	_targetPos = twoBone._targetPos;
-	_firstBoneLength = twoBone._firstBoneLength;
-	_secondBoneLength = twoBone._secondBoneLength;
-	_baseAngleFirst = twoBone._baseAngleFirst;
-	_baseAngleSecond = twoBone._baseAngleSecond;
-	_lastScreenConnectPos = twoBone._lastScreenConnectPos;
-	_angleSign = twoBone._angleSign;
-	_x = twoBone._x;
-	_y = twoBone._y;
-
-	_freeBones = twoBone._freeBones;
-
-	for (BoneList::iterator i = twoBone._bones.begin(), e = twoBone._bones.end(); i != e; ++i) {
-		MovingPart *b;
-		if ((*i)->boneType == BT_MovingPart) {
-			b = new MovingPart(*static_cast<MovingPart *>(*i));
-		} else {
-			assert(false);
-		}
-		_bones.push_back(b);
-	}
-	ReOrder(_bones.begin(), _bones.end());
-	ResortBones();
-}
-
-void IKTwoBone::Draw(float p) { // [ 0<= p <= 1 ]
-	assert(0 <= p && p < 1);
-	SetPos(_x.getGlobalFrame(p), _y.getGlobalFrame(p));
-
-	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
-		_bottomBone[i]->Draw(p);
-	}
-	//_first.SetTransform(_firstTransform);
-	//_second.SetTransform(_secondTransform);
-	if (_invert) {
-		_second.Render();
-		_first.Render();
-	} else {
-		_first.Render();
-		_second.Render();
-	}
-	for (unsigned int i = 0; i < _topBone.size(); ++i) {
-		_topBone[i]->Draw(p);
-	}
-}
-
-bool IKTwoBone::PixelCheck(const FPoint2D &pos) {
-	if (_second.PixelCheck(pos) || _first.PixelCheck(pos)) {
-		return true;
-	}
-	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
-		if (_bottomBone[i]->PixelCheck(pos)) {
-			return true;
-		}
-	}
-	for (unsigned int i = 0; i < _topBone.size(); ++i) {
-		if (_topBone[i]->PixelCheck(pos)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void IKTwoBone::SetPos(float x, float y) 
-{
-	float angleFirst, angleSecond;
-	FPoint2D q1, q2;
-
-	if (FPoint2D(_anchorPos.x - x, _anchorPos.y - y).Length() < 1.f) {
-		angleFirst = - _baseAngleFirst;
-		angleSecond = M_PI - _baseAngleSecond;
-	} else if (Math::GetCirclesIntersect2(_anchorPos.x, _anchorPos.y, _firstBoneLength, 
-				x, y, _secondBoneLength, q1, q2)) {
-		if ((q1 - _lastScreenConnectPos).Length() > (q2 - _lastScreenConnectPos).Length() && _angleSign == 0) {
-			q1 = q2;
-		} else if (_angleSign == 1 && Math::VMul(FPoint2D(x, y) - q2, (q2 - _anchorPos)) > 0) {
-			q1 = q2;
-		} else if (_angleSign == -1 && Math::VMul(FPoint2D(x, y) - q2, (q2 - _anchorPos)) < 0) {
-			q1 = q2;
-		}
-		angleFirst = atan2(q1.y - _anchorPos.y, q1.x - _anchorPos.x) - _baseAngleFirst;
-		angleSecond = atan2(y - q1.y, x - q1.x) - _baseAngleSecond;
-	} else {
-		angleFirst = angleSecond = atan2(y - _anchorPos.y, x - _anchorPos.x);
-		angleFirst -= _baseAngleFirst;
-		angleSecond -= _baseAngleSecond;
-		q1 = q2 = _anchorPos + *(_connectPos - _anchorPos).Rotate(angleFirst);
-	}
-
-	/*
-	_firstTransform.Unit();
-	_firstTransform.Move(-_anchorPos.x, -_anchorPos.y);
-	_firstTransform.Rotate(angleFirst);
-	_firstTransform.Move(_anchorPos.x, _anchorPos.y);
-
-	_secondTransform.Unit();
-	_secondTransform.Move(-_connectPos.x, -_connectPos.y);
-	_secondTransform.Rotate(angleSecond);
-	_secondTransform.Move(q1.x, q1.y);
-	*/
-	_lastScreenConnectPos = q1;
-}
-
 
 Animation::~Animation() {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
@@ -589,8 +424,7 @@ bool Animation::hasBone(const std::string &boneName) {
 #endif
 
 void Animation::SaveToXml(TiXmlElement *xe) {
-	
-	xe->SetAttribute("loop", _loop ? "true" : "false");
+
 	Math::Write(xe, "time", _time);
 	Math::Write(xe, "pivotX", _pivotPos.x);
 	Math::Write(xe, "pivotY", _pivotPos.y);
@@ -606,7 +440,6 @@ Animation::Animation(TiXmlElement *xe)
 : _timeCounter(0.f)
 , _texturesLoaded(false)
 {
-	_loop = (std::string(xe->Attribute("loop")) == "true");
 	_time = fatof(xe->Attribute("time"));
 	_pivotPos.x = fatof(xe->Attribute("pivotX"));
 	_pivotPos.y = fatof(xe->Attribute("pivotY"));
@@ -625,7 +458,7 @@ Animation::Animation(TiXmlElement *xe)
 	_subPosition.Unit();
 	_subPosition.Move(-_pivotPos.x, -_pivotPos.y);
 	_subPosition.Move(pos.x, pos.y);
-	SetLoop(_loop);
+	CalcGradient();
 }
 
 Animation::Animation() 
@@ -635,7 +468,6 @@ Animation::Animation()
 	_time = 1.f;
 	_timeCounter = 0.f;
 	_texturesLoaded = false;
-	_loop = true;
 }
 
 MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone, MovingPart *afterBone) {
@@ -653,7 +485,7 @@ MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone, 
 	_bones.insert(i, newChildBone);
 	ReOrder(_bones.begin(), _bones.end());
 
-	newChildBone->SetLoop(_loop);
+	newChildBone->CalcGradient();
 	return newChildBone;
 }
 
@@ -675,7 +507,6 @@ Animation::Animation(Animation &animation) {
 	_time = animation._time;
 	_timeCounter = animation._timeCounter;
 	_texturesLoaded = animation._texturesLoaded;
-	_loop = animation._loop;
 	
 	_bones;
 	for (BoneList::iterator i = animation._bones.begin(), e = animation._bones.end(); i != e; ++i) {
@@ -812,21 +643,16 @@ void MovingPart::Set(const MovingPartInfo &info) {
 void Animation::Get(AnimationInfo &info) const {
 	info.pivotPos = _pivotPos;
 	info.time = _time;
-	info.loop = _loop;
 }
 
 void Animation::Set(const AnimationInfo &info) {
 	_pivotPos = info.pivotPos;
 	_time = info.time;
-	if (_loop != info.loop) {
-		SetLoop(info.loop);
-		_loop = info.loop;
-	}
 }
 
-void Animation::SetLoop(bool loop) {
+void Animation::CalcGradient() {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
-		_bones[i]->SetLoop(loop);
+		_bones[i]->CalcGradient();
 	}
 }
 
