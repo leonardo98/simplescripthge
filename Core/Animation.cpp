@@ -164,7 +164,7 @@ void MovingPart::SaveToXml(TiXmlElement *xe) {
 	for (unsigned int i = 0; i < _x.keys.size(); ++i) {
 		TiXmlElement *pos = new TiXmlElement("pos");
 	
-		if (fabs(_x.keys[i].value) > 1e-3) {
+		if (fabs(_x.keys[i].time) > 1e-3) {
 			Math::Write(pos, "time", _x.keys[i].time);
 		}
 		if (fabs(_x.keys[i].value) > 1e-3) {
