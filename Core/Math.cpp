@@ -168,3 +168,17 @@ FPoint2D Math::lerp(const FPoint2D &one, const FPoint2D &two, float p) {
 float Math::lerp(float one, float two, float p) {
 	return (two - one) * p + one;
 }
+
+void Math::FloatToChar(float f, char *s) {
+	sprintf(s, "%g", f);
+	unsigned int i = 0;
+	unsigned int len = strlen(s);
+	while (i < len && (s[i] != '.' && s[i] != ',')) {
+		++i;
+	}
+	if (i == len) {
+		s[i++] = '.';
+		s[i++] = '0';
+		s[i] = 0;
+	}
+}
