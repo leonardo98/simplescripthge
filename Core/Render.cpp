@@ -358,18 +358,6 @@ void Render::IniFile(const std::string &fileName) {
 	_hge->System_SetState(HGE_INIFILE, fileName.c_str());
 }
 
-int Render::IniFileGetUnsignedInt(const char *section, const char *variable, unsigned int defaultValue) {
-	std::string value = _hge->Ini_GetString(section, variable, "none");
-	if (value != "none") {
-		return Parse(value);
-	}
-	return defaultValue;
-}
-
-std::string Render::IniFileGetString(const char *section, const char *variable, const char *defaultValue) {
-	return _hge->Ini_GetString(section, variable, defaultValue);
-}
-
 void Render::PrintString(float x, float y, const std::string &text, int align) {
 	std::string fontName("data\\font2.fnt");
 	fontName = GetDataDir() + fontName;
