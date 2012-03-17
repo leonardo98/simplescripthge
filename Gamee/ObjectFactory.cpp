@@ -38,7 +38,6 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 	REG_TYPE("Button", Button);
 	REG_TYPE("ButtonList", ButtonList);
 	REG_TYPE("MyMessageBox", MyMessageBox);
-	REG_TYPE("AnimationEditor", AnimationEditor);
 	if(name == "FpsCounter") {
 		return new FpsCounter();
 	}

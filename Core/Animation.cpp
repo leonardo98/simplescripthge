@@ -9,14 +9,6 @@ BoneList::iterator Find(BoneList::iterator start, BoneList::iterator end, Bone *
 	return start;
 }
 
-void ReOrder(BoneList::iterator start, BoneList::iterator end) {
-	int order = 1; 
-	while (start != end) { 
-		(*start)->order = order++; 
-		++start;
-	}
-}
-
 Bone::Bone(const char *name, const BoneType bt) 
 : boneType(bt)
 {
@@ -25,8 +17,17 @@ Bone::Bone(const char *name, const BoneType bt)
 	}
 }
 
-	// for editor
+// for editor
 #ifdef ANIMATION_EDITOR
+
+void ReOrder(BoneList::iterator start, BoneList::iterator end) {
+	int order = 1; 
+	while (start != end) { 
+		(*start)->order = order++; 
+		++start;
+	}
+}
+
 void Bone::Rename(const char *newName) {
 	strcpy_s(boneName, newName);
 }
@@ -72,6 +73,7 @@ void Bone::CalcGradient() {
 	}
 }
 
+#ifdef ANIMATION_EDITOR
 void * MovingPart::EditorCall(CallBones myCall, void *parent) {
 	this->parent = parent;
 	void *item = myCall(parent, boneName, this);
@@ -80,6 +82,7 @@ void * MovingPart::EditorCall(CallBones myCall, void *parent) {
 	}
 	return item;
 }
+#endif
 
 void MovingPart::LoadTextures() {
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
