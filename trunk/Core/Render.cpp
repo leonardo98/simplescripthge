@@ -183,7 +183,7 @@ Texture::Texture(const std::string &fileName)
 {
 	_top = 0;
 	_left = 0;
-	_hTexture = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str()));
+	_hTexture = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath(fileName[1] == ':' ? fileName.c_str() : (Render::GetDataDir() + fileName).c_str()));
 	if (_hTexture == NULL) {
 		LOG("Не могу открыть файл " + fileName);
 		exit(-7);
