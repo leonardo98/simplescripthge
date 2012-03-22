@@ -5,6 +5,8 @@
 #include "MotionValues.h"
 #include "Matrix.h"
 
+typedef std::map<std::string, int> NameList;
+
 enum BoneType {
 	BT_MovingPart,
 	BT_IKTwoBone
@@ -87,6 +89,7 @@ public:
 	void *parent;
 	Matrix matrix;
 	int order;
+	void CollectFileNames(NameList &list);
 #endif
 
 protected:
@@ -94,6 +97,7 @@ protected:
 	BoneList _bottomBone;// links
 	BoneList _bones;
 	OffParentOrder _offparent;
+	std::vector<AnimationPart *> _parts;
 
 	friend class AnimationEditor;
 };
@@ -129,7 +133,6 @@ private:
 	MotionValues _angle;
 	MotionValues _scaleX;
 	MotionValues _scaleY;
-	std::vector<AnimationPart *> _parts;
 	StaticSprite *_last;
 	MovingType _movingType;
 };
@@ -161,6 +164,7 @@ public:
 	bool removeBone(MovingPart *movingPart); 
 	bool hasBone(const std::string &boneName); 
 	void SaveToXml(TiXmlElement *xe);
+	void CollectFileNames(NameList &list);
 
 private:
 	bool _texturesLoaded;
