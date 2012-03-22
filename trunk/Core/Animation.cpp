@@ -74,6 +74,16 @@ void Bone::CalcGradient() {
 }
 
 #ifdef ANIMATION_EDITOR
+
+void Bone::CollectFileNames(NameList &list) {
+	for (unsigned int i = 0; i < _parts.size(); ++i) {
+		list[_parts[i]->fileName] = 1;
+	}
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->CollectFileNames(list);
+	}
+}
+
 void * MovingPart::EditorCall(CallBones myCall, void *parent) {
 	this->parent = parent;
 	void *item = myCall(parent, boneName, this);
@@ -659,3 +669,8 @@ void Animation::CalcGradient() {
 	}
 }
 
+void Animation::CollectFileNames(NameList &list) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
+		_bones[i]->CollectFileNames(list);
+	}
+}
