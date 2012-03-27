@@ -215,10 +215,10 @@ bool Core::SaveAnimations(const char *fileName) {
 	return doc.SaveFile();
 }
 
-Animation *Core::getAnimation(const std::string &animationId) {
+Animation *Core::getAnimation(const std::string &animationId, bool uploadTextures) {
 	AnimationMap::iterator find = _animations.find(animationId);
 	if (find != _animations.end()) {
-		if (find->second->TextureLoaded() == false) {
+		if (uploadTextures && find->second->TextureLoaded() == false) {
 			find->second->LoadTextures();
 		}
 		return (find->second);

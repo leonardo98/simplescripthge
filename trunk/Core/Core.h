@@ -24,7 +24,7 @@ public:
 	static void Release();
 	static bool DoLua(const char *code);
 	static bool DoScript(const std::string &name);
-	static Animation *getAnimation(const std::string &animationId);
+	static Animation *getAnimation(const std::string &animationId, bool uploadTextures = true);
 	static void addAnimation(const std::string &id, Animation *animation);
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	static void OnMessage(const std::string &message);

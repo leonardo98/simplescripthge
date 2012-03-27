@@ -74,6 +74,7 @@ private:
 
 class StaticSprite {
 public:
+	StaticSprite();
 	void Set(const Texture *texture, float x = 0.f, float y = 0.f);
 	void Render();
 	void SetTransform(const Matrix &transform);
@@ -83,9 +84,11 @@ public:
 	int SpriteHeight();
 	hgeSprite * GetHGESprite();
 	inline float GetOriginWidth() {
+		assert(_origin != NULL);
 		return _originWidth;
 	}
 	inline float GetOriginHeight() {
+		assert(_origin != NULL);
 		return _originHeight;
 	}
 private:
