@@ -105,6 +105,7 @@ void Sprite::Render() {
 	m.Mul(_width, _height, _lastRender.v[2].x, _lastRender.v[2].y);
 	m.Mul(   0.f, _height, _lastRender.v[3].x, _lastRender.v[3].y);
 	
+	assert(_lastRender.blend >= 0 && _lastRender.blend < 8);
 	Render::GetDC()->Gfx_RenderQuad(&_lastRender);
 }
 
@@ -123,6 +124,7 @@ void Sprite::Render(float x, float y) {
 	m.Mul(x + _width, y + _height, _lastRender.v[2].x, _lastRender.v[2].y);
 	m.Mul(         x, y + _height, _lastRender.v[3].x, _lastRender.v[3].y);
 	
+	assert(_lastRender.blend >= 0 && _lastRender.blend < 8);
 	Render::GetDC()->Gfx_RenderQuad(&_lastRender);
 }
 
@@ -245,6 +247,7 @@ void Texture::Render(float x, float y) {
 	m.Mul(_screenVertex[2].x, _screenVertex[2].y, _originQuad.v[2].x, _originQuad.v[2].y);
 	m.Mul(_screenVertex[3].x, _screenVertex[3].y, _originQuad.v[3].x, _originQuad.v[3].y);
 	
+	assert(_originQuad.blend >= 0 && _originQuad.blend < 8);
 	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
 }
 
@@ -269,6 +272,7 @@ void Texture::Render(const Matrix &transform) {
 	m.Mul(_screenVertex[2].x, _screenVertex[2].y, _originQuad.v[2].x, _originQuad.v[2].y);
 	m.Mul(_screenVertex[3].x, _screenVertex[3].y, _originQuad.v[3].x, _originQuad.v[3].y);
 	
+	assert(_originQuad.blend >= 0 && _originQuad.blend < 8);
 	Render::GetDC()->Gfx_RenderQuad(&_originQuad);
 
 }
@@ -284,6 +288,11 @@ void Texture::SetColor(DWORD color) {
 	_originQuad.v[3].col = color;
 }
 
+StaticSprite::StaticSprite() 
+: _origin(NULL)
+{
+}
+
 void StaticSprite::Set(const Texture *texture, float x, float y) {
 	_origin = texture;
 	if (_origin == NULL) {
@@ -296,6 +305,7 @@ void StaticSprite::Set(const Texture *texture, float x, float y) {
 }
 
 void StaticSprite::Render() {
+	assert(_origin != NULL);
 	_quad = _origin->_forCopyQuad;
 
 	_quad.v[0].col = Render::_currentColor;
@@ -312,20 +322,25 @@ void StaticSprite::Render() {
 	m.Mul(_quad.v[2].x, _quad.v[2].y);
 	m.Mul(_quad.v[3].x, _quad.v[3].y);
 
+	assert(_quad.blend >= 0 && _quad.blend < 8);
 	Render::GetDC()->Gfx_RenderQuad(&_quad);
 }
 
 void StaticSprite::SetTransform(const Matrix &transform) {
+	assert(_origin != NULL);
 	_matrix = transform;
 }
 
 void StaticSprite::PushTransform(const Matrix &transform) {
+	assert(_origin != NULL);
 	Matrix m(transform);
 	m.Mul(_matrix);
 	_matrix = m;
 }
 
 bool StaticSprite::PixelCheck(const FPoint2D &pos) {
+	assert(_origin != NULL);
+
 	FPoint2D m(pos.x - _quad.v[0].x, pos.y - _quad.v[0].y);
 	FPoint2D a(_quad.v[1].x - _quad.v[0].x, _quad.v[1].y - _quad.v[0].y);
 	FPoint2D b(_quad.v[3].x - _quad.v[0].x, _quad.v[3].y - _quad.v[0].y);
@@ -342,14 +357,17 @@ bool StaticSprite::PixelCheck(const FPoint2D &pos) {
 }
 
 int StaticSprite::SpriteWidth() {
+	assert(_origin != NULL);
 	return _origin->Width();
 }
 
 int StaticSprite::SpriteHeight() {
+	assert(_origin != NULL);
 	return _origin->Height();
 }
 
 hgeSprite * StaticSprite::GetHGESprite() {
+	assert(_origin != NULL);
 	return new hgeSprite(_origin->GetTexture(), _origin->_left, _origin->_top, _origin->_width, _origin->_height);
 }
 
@@ -477,6 +495,7 @@ void Render::DrawBar(float x, float y, float width, float height, DWORD color) {
 		quad.v[i].ty = 0;
 		quad.v[i].z = 0;
 	}
+	assert(quad.blend >= 0 && quad.blend < 8);
 	GetDC()->Gfx_RenderQuad(&quad);
 }
 
