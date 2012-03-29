@@ -90,6 +90,7 @@ public:
 	Matrix matrix;
 	int order;
 	void CollectFileNames(NameList &list);
+	MovingPart *parentMovingPart;
 #endif
 
 protected:
@@ -117,6 +118,7 @@ public:
 	virtual void Set(const MovingPartInfo &info);
 	virtual void CalcGradient();
 	virtual hgeSprite * GetSprite();
+	FPoint2D GetHotSpot();
 
 	// for editor
 	MovingPart(const std::string &boneName);
