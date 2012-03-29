@@ -255,6 +255,7 @@ MovingPart::MovingPart(TiXmlElement *xe)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back( new MovingPart(element) );
+			_bones.back()->parentMovingPart = this;
 		}
 		element = element->NextSiblingElement();
 	}
@@ -268,6 +269,7 @@ MovingPart * MovingPart::addBone(const char *boneName, MovingPart *newChildBone,
 	} else {
 		strcpy_s(newChildBone->boneName, boneName);
 	}
+	newChildBone->parentMovingPart = this;
 	BoneList::iterator i = _bones.begin();
 
 	if (afterBone) {
@@ -329,6 +331,7 @@ MovingPart::MovingPart(MovingPart &movinPart)
 		MovingPart *b;
 		if ((*i)->boneType == BT_MovingPart) {
 			b = new MovingPart(*static_cast<MovingPart *>(*i));
+			b->parentMovingPart = this;
 		} else {
 			assert(false);
 		}
@@ -348,12 +351,12 @@ void MovingPart::Draw(float p) {
 		assert(0.f <= dp && dp < 1);
 	}
 	Render::MatrixMove(_x.Value(dp), _y.Value(dp));
+	Render::MatrixRotate(_angle.Value(dp));
+	Render::MatrixScale(_scaleX.Value(dp), _scaleY.Value(dp));
 #ifdef ANIMATION_EDITOR
 	matrix = Render::GetCurrentMatrix();
 #endif
 
-	Render::MatrixRotate(_angle.Value(dp));
-	Render::MatrixScale(_scaleX.Value(dp), _scaleY.Value(dp));
 
 	Render::MatrixMove(-_center.x, -_center.y);
 
@@ -411,6 +414,10 @@ bool MovingPart::ReplaceTexture(const std::string &boneName, const char *texture
 	return success;
 }
 
+FPoint2D MovingPart::GetHotSpot() {
+	return _center;
+}
+
 
 Animation::~Animation() {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
@@ -462,6 +469,7 @@ Animation::Animation(TiXmlElement *xe)
 		std::string name = element->Value();
 		if (name == "movingPart") {
 			_bones.push_back(new MovingPart(element));
+			_bones.back()->parentMovingPart = NULL;
 		}
 		element = element->NextSiblingElement();
 	}
