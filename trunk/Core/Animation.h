@@ -17,12 +17,6 @@ enum OffParentOrder {
 	OffParentOrder_bottom
 };
 
-enum MovingType {
-	MovingType_line,
-	MovingType_spline,
-	MovingType_discontinuous
-};
-
 struct MovingPartkey {
 	float time;
 	float x;
@@ -52,7 +46,7 @@ struct MovingPartInfo {
 	MotionValues scaleY;
 	FPoint2D center;
 	std::vector<std::string> partsNames;
-	MovingType movingType;
+	MotionValues::Motion movingType;
 	OffParentOrder offparent;
 };
 
@@ -136,7 +130,7 @@ private:
 	MotionValues _scaleX;
 	MotionValues _scaleY;
 	StaticSprite *_last;
-	MovingType _movingType;
+	MotionValues::Motion _movingType;
 };
 
 class Animation
