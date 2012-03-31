@@ -119,11 +119,11 @@ void MovingPart::SetKey(int index, const MovingPartkey &key) {
 	_scaleX.keys[index].value = key.sx;
 	_scaleY.keys[index].value = key.sy;
 
-	_x.CalculateGradient();
-	_y.CalculateGradient();
-	_angle.CalculateGradient();
-	_scaleX.CalculateGradient();
-	_scaleY.CalculateGradient();
+	_x.SetType(_movingType);
+	_y.SetType(_movingType);
+	_angle.SetType(_movingType);
+	_scaleX.SetType(_movingType);
+	_scaleY.SetType(_movingType);
 }
 
 MovingPart::~MovingPart() {
@@ -136,11 +136,11 @@ MovingPart::~MovingPart() {
 }
 
 void MovingPart::CalcGradient() {
-	_x.CalculateGradient();
-	_y.CalculateGradient();
-	_angle.CalculateGradient();
-	_scaleX.CalculateGradient();
-	_scaleY.CalculateGradient();
+	_x.SetType(_movingType);
+	_y.SetType(_movingType);
+	_angle.SetType(_movingType);
+	_scaleX.SetType(_movingType);
+	_scaleY.SetType(_movingType);
 	Bone::CalcGradient();
 }
 
@@ -154,9 +154,9 @@ hgeSprite * MovingPart::GetSprite() {
 void MovingPart::SaveToXml(TiXmlElement *xe) {
 	xe->SetValue("movingPart");
 	xe->SetAttribute("name", boneName);
-	if (_movingType == MovingType_spline) {
+	if (_movingType == MotionValues::m_spline) {
 //		xe->SetAttribute("moving_type", "spline");
-	} else if (_movingType == MovingType_line) {
+	} else if (_movingType == MotionValues::m_line) {
 		xe->SetAttribute("moving_type", "line");
 	} else {
 		xe->SetAttribute("moving_type", "discontinuous");
@@ -211,11 +211,11 @@ MovingPart::MovingPart(TiXmlElement *xe)
 {
 	const char *tmp = xe->Attribute("moving_type");
 	if (tmp == NULL || strcmp(tmp, "spline") == 0) {
-		_movingType = MovingType_spline;
+		_movingType = MotionValues::m_spline;
 	} else if (strcmp(tmp, "line") == 0) {
-		_movingType = MovingType_line;
+		_movingType = MotionValues::m_line;
 	} else {
-		_movingType = MovingType_discontinuous;
+		_movingType = MotionValues::m_discontinuous;
 	}
 	_offparent = ((xe->Attribute("offparent") && std::string(xe->Attribute("offparent")) == "bottom") ? OffParentOrder_bottom : OffParentOrder_top);
 	_center.x = Math::Read(xe, "centerX", 0.f);
@@ -299,13 +299,18 @@ bool MovingPart::removeBone(Bone *bone) {
 
 MovingPart::MovingPart(const std::string &boneName)
 : Bone(boneName.c_str(), BT_MovingPart){
-	_movingType = MovingType_line;
+	_movingType = MotionValues::m_line;
 	_x.AddKey(0.f, 0.f);
+	_x.AddKey(1.f, 0.f);
 	_y.AddKey(0.f, 0.f);
+	_y.AddKey(1.f, 0.f);
 	_angle.AddKey(0.f, 0.f);
+	_angle.AddKey(1.f, 0.f);
 	_center = FPoint2D(0.f, 0.f);
 	_scaleX.AddKey(0.f, 1.f);
+	_scaleX.AddKey(1.f, 1.f);
 	_scaleY.AddKey(0.f, 1.f);
+	_scaleY.AddKey(1.f, 1.f);
 	_last = NULL;
 	_offparent = OffParentOrder_top;
 }
@@ -344,36 +349,40 @@ MovingPart::MovingPart(MovingPart &movinPart)
 
 void MovingPart::Draw(float p) {
 	assert(0.f <= p && p < 1);
-	Render::PushMatrix();
 	float dp = p;
-	if (_movingType == MovingType_discontinuous) {
+	if (_movingType == MotionValues::m_discontinuous) {
 		dp = static_cast<int>(p * _x.keys.size()) / static_cast<float>(_x.keys.size());
 		assert(0.f <= dp && dp < 1);
 	}
-	Render::MatrixMove(_x.Value(dp), _y.Value(dp));
-	Render::MatrixRotate(_angle.Value(dp));
-	Render::MatrixScale(_scaleX.Value(dp), _scaleY.Value(dp));
-#ifdef ANIMATION_EDITOR
-	matrix = Render::GetCurrentMatrix();
-#endif
+	float localT;
+	int index = _x.Value(dp, localT);
+	if (index >= 0) {
+		Render::PushMatrix();
+		Render::MatrixMove(_x.GetFrame(index, localT), _y.GetFrame(index, localT));
+		Render::MatrixRotate(_angle.GetFrame(index, localT));
+		Render::MatrixScale(_scaleX.GetFrame(index, localT), _scaleY.GetFrame(index, localT));
+	#ifdef ANIMATION_EDITOR
+		matrix = Render::GetCurrentMatrix();
+	#endif
 
 
-	Render::MatrixMove(-_center.x, -_center.y);
+		Render::MatrixMove(-_center.x, -_center.y);
 
-	for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
-		_bottomBone[i]->Draw(p);
+		for (unsigned int i = 0; i < _bottomBone.size(); ++i) {
+			_bottomBone[i]->Draw(p);
+		}
+		if (_parts.size()) {
+			int i = static_cast<int>(p * _parts.size());
+			assert(0 <= i && i < static_cast<int>(_parts.size()));
+			_last = _parts[i];
+			_last->Render();
+		}
+		for (unsigned int i = 0; i < _topBone.size(); ++i) {
+			_topBone[i]->Draw(p);
+		}
+
+		Render::PopMatrix();
 	}
-	if (_parts.size()) {
-		int i = static_cast<int>(p * _parts.size());
-		assert(0 <= i && i < static_cast<int>(_parts.size()));
-		_last = _parts[i];
-		_last->Render();
-	}
-	for (unsigned int i = 0; i < _topBone.size(); ++i) {
-		_topBone[i]->Draw(p);
-	}
-
-	Render::PopMatrix();
 
 }
 
@@ -497,6 +506,7 @@ MovingPart * Animation::addBone(const char *boneName, MovingPart *newChildBone, 
 	} else {
 		strcpy_s(newChildBone->boneName, boneName);
 	}
+	newChildBone->parentMovingPart = NULL;
 	BoneList::iterator i = _bones.begin();
 
 	if (afterBone) {

@@ -18,32 +18,41 @@ inline float SplineMotion(float x1, float x2, float r1, float r2, float t)
 
 class MotionValues
 {
+
 public:
 
-	bool line;
+	enum Motion {
+		m_line,
+		m_spline,
+		m_discontinuous
+	};
+
+private:
+
+	Motion _type;
+
+public:
 
 	struct TimedKey {
 		float time;
 		float value;
 		float gradient;
 	};
+
 	typedef std::vector<TimedKey> Keys;
 	Keys keys;
 	
 	MotionValues()
-		: line(false)
 	{
 	}
 
 	void Clear()
 	{
 		keys.clear();
-		line = false;
 	}
 
 	float AddKey(float time, float value)
 	{
-		assert(keys.size() || time == 0.f);
 		assert(keys.size() == 0 || time > (keys.back().time + 1e-5));
 		TimedKey key;
 		key.time = time;
@@ -52,11 +61,10 @@ public:
 		return time;
 	}
 
-	float Value(float t)
+	int Value(float t, float &localT)
 	{
-		assert(keys.size());
-		if (keys.size() == 1 || t > keys.back().time) {
-			return keys.back().value;
+		if (keys.front().time > t || t > keys.back().time) {
+			return -1;
 		}
 		size_t start = 0;
 		size_t end = keys.size() - 2;
@@ -70,46 +78,40 @@ public:
 			middle = (start + end) / 2;
 		}
 
-		if (middle >= getSectors()) {
-			return keys.back().value;
-		}
-		float localT = (t - keys[middle].time) / (keys[middle + 1].time - keys[middle].time);
-		return getFrame(middle, localT);
+		localT = (t - keys[middle].time) / (keys[middle + 1].time - keys[middle].time);
+		return middle;
 	}
 
-	void CalculateGradient()
+	void SetType(Motion type)
 	{		
-		assert(keys.size());
-		float g1, g2, g3;
+		assert(keys.size() >= 2);
+		_type = type;
+		if (_type == m_spline) {
+			float g1, g2, g3;
 
-		if (keys.size() > 1)
-		{
-			keys[0].gradient = keys[1].value - keys[0].value;
-			keys[keys.size() - 1].gradient = keys[keys.size() - 1].value - keys[keys.size() - 2].value;
-		}
+			if (keys.size() > 1) {
+				keys[0].gradient = keys[1].value - keys[0].value;
+				keys[keys.size() - 1].gradient = keys[keys.size() - 1].value - keys[keys.size() - 2].value;
+			}
 
-		for (size_t i = 1; i < (keys.size()-1); i++)
-		{
-			g1 = keys[i].value - keys[i - 1].value;
-			g2 = keys[i + 1].value - keys[i].value;
-			g3 = g2 - g1;
-			keys[i].gradient = g1 + 0.5f * g3;
+			for (size_t i = 1; i < (keys.size()-1); i++) {
+				g1 = keys[i].value - keys[i - 1].value;
+				g2 = keys[i + 1].value - keys[i].value;
+				g3 = g2 - g1;
+				keys[i].gradient = g1 + 0.5f * g3;
+			}
 		}
 	}
 
-private:
-
-	size_t getSectors()
+	float GetFrame(size_t i, float t)
 	{
-		return keys.size() - 1;
-	}
-
-	float getFrame(size_t i, float t)
-	{
-		if (line) {
+		if (_type == m_line) {
 			return LineMotion(keys[i].value, keys[i+1].value, t);
+		} else if (_type == m_discontinuous) {
+			return keys[i].value;
+		} else {
+			return SplineMotion(keys[i].value, keys[i+1].value, keys[i].gradient, keys[i+1].gradient, t);
 		}
-		return SplineMotion(keys[i].value, keys[i+1].value, keys[i].gradient, keys[i+1].gradient, t);
 	}
 
 };
