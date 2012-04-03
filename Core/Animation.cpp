@@ -348,14 +348,8 @@ MovingPart::MovingPart(MovingPart &movinPart)
 
 
 void MovingPart::Draw(float p) {
-	assert(0.f <= p && p < 1);
-	float dp = p;
-	if (_movingType == MotionValues::m_discontinuous) {
-		dp = static_cast<int>(p * _x.keys.size()) / static_cast<float>(_x.keys.size());
-		assert(0.f <= dp && dp < 1);
-	}
 	float localT;
-	int index = _x.Value(dp, localT);
+	int index = _x.Value(p, localT);
 	if (index >= 0) {
 		Render::PushMatrix();
 		Render::MatrixMove(_x.GetFrame(index, localT), _y.GetFrame(index, localT));
