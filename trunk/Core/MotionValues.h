@@ -1,3 +1,12 @@
+/*
+** 2D Game Animation HGE api 
+** by Pakholkov Leonid am98pln@gmail.com
+** Класс функции от времени
+** позволяет задать список значений, которые должна принимать функция
+** промежуточные значения будут расчитаны, либо линейно, либо сглаженно
+**
+*/
+
 #ifndef MOTIONVALUES_H
 #define MOTIONVALUES_H
 
@@ -84,7 +93,11 @@ public:
 
 	void SetType(Motion type)
 	{		
-		assert(keys.size() >= 2);
+		if (keys.size() == 1) {
+			// для совместимости со старым форматом, 
+			// который допускал наличие одного ключа
+			AddKey(1.f, keys[0].value);
+		};
 		_type = type;
 		if (_type == m_spline) {
 			float g1, g2, g3;
