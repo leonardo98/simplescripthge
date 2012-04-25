@@ -436,39 +436,7 @@
 				Name="Game"
 				>
 				<File
-					RelativePath=".\Gamee\Action.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Animal.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\AnimalsManager.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\AnimationViewer.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\AnnaPers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Archaeopteryx.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\BaseField.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\BirdsManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\BobPers.cpp"
 					>
 				</File>
 				<File
@@ -484,64 +452,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Gamee\CircleProgress.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Client.cpp"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							BasicRuntimeChecks="2"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Editor Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							BasicRuntimeChecks="2"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\Gamee\ClientManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\CloverField.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\DropEffect.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\EnvWell.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Foodpan.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\GameField.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\GrainField.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\GrandpaPers.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\Inventory.cpp"
 					>
 				</File>
@@ -554,35 +464,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Gamee\Moneypod.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\MultiTexture.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Gamee\ObjectFactory.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\PersPaths.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\PlantPlace.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\PopupMenu.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\ProductManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\ProductPlace.cpp"
 					>
 				</File>
 				<File
@@ -598,10 +484,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Gamee\SwampPlace.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\TextBox.cpp"
 					>
 				</File>
@@ -610,19 +492,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Gamee\TreePlace.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\VideoFrame.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\VipClient.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Waterpan.cpp"
 					>
 				</File>
 			</Filter>
@@ -739,43 +609,7 @@
 				Name="Game"
 				>
 				<File
-					RelativePath=".\Gamee\Action.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Animal.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\AnimalsManager.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\AnimationViewer.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\AnnaPers.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Archaeopteryx.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\BaseElement.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\BaseField.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\BirdsManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\BobPers.h"
 					>
 				</File>
 				<File
@@ -788,46 +622,6 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\ButtonList.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\CircleProgress.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Client.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\ClientManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\CloverField.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\DropEffect.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\EnvWell.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Foodpan.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\GameField.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\GrainField.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\GrandpaPers.h"
 					>
 				</File>
 				<File
@@ -851,43 +645,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Gamee\Moneypod.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\MultiTexture.h"
 					>
 				</File>
 				<File
 					RelativePath=".\Gamee\ObjectFactory.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Pers.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\PersPaths.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\PlantPlace.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\PopupMenu.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\ProductManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\ProductPlace.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\ServingElement.h"
 					>
 				</File>
 				<File
@@ -903,10 +665,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Gamee\SwampPlace.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\TextBox.h"
 					>
 				</File>
@@ -915,19 +673,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Gamee\TreePlace.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Gamee\VideoFrame.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\VipClient.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\Waterpan.h"
 					>
 				</File>
 			</Filter>

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <fileroot>
 	<script name="onLoad">
+    UnloadGroup("firstscreen");
+    LoadGroup("room");
     Level1Switch();
   </script>
 	<StaticTexture x="0" y="0" texture="fon_room"/>

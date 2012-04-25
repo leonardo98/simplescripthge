@@ -76,7 +76,6 @@ public:
 	void ResortBones();
 
 	// for editor
-#ifdef ANIMATION_EDITOR
 	virtual hgeSprite * GetSprite() { return NULL; }
 	bool hasBone(const std::string &boneName); 
 	void Rename(const char *newName);
@@ -85,7 +84,6 @@ public:
 	int order;
 	void CollectFileNames(NameList &list);
 	MovingPart *parentMovingPart;
-#endif
 
 protected:
 	BoneList _topBone;// links

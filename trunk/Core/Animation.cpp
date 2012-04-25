@@ -18,8 +18,6 @@ Bone::Bone(const char *name, const BoneType bt)
 }
 
 // for editor
-#ifdef ANIMATION_EDITOR
-
 void ReOrder(BoneList::iterator start, BoneList::iterator end) {
 	int order = 1; 
 	while (start != end) { 
@@ -40,7 +38,6 @@ bool Bone::hasBone(const std::string &boneName) {
 	}
 	return false;
 }
-#endif
 
 Bone::Bone(Bone &bone) 
 : boneType(bone.boneType)
@@ -73,8 +70,6 @@ void Bone::CalcGradient() {
 	}
 }
 
-#ifdef ANIMATION_EDITOR
-
 void Bone::CollectFileNames(NameList &list) {
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
 		list[_parts[i]->fileName] = 1;
@@ -92,7 +87,6 @@ void * MovingPart::EditorCall(CallBones myCall, void *parent) {
 	}
 	return item;
 }
-#endif
 
 void MovingPart::LoadTextures() {
 	for (unsigned int i = 0; i < _parts.size(); ++i) {
@@ -355,10 +349,7 @@ void MovingPart::Draw(float p) {
 		Render::MatrixMove(_x.GetFrame(index, localT), _y.GetFrame(index, localT));
 		Render::MatrixRotate(_angle.GetFrame(index, localT));
 		Render::MatrixScale(_scaleX.GetFrame(index, localT), _scaleY.GetFrame(index, localT));
-	#ifdef ANIMATION_EDITOR
 		matrix = Render::GetCurrentMatrix();
-	#endif
-
 
 		Render::MatrixMove(-_center.x, -_center.y);
 
@@ -428,7 +419,6 @@ Animation::~Animation() {
 	}
 }
 
-#ifdef ANIMATION_EDITOR
 void * Animation::EditorCall(CallBones myCall, void *parent) {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		_bones[i]->EditorCall(myCall, parent);
@@ -444,7 +434,6 @@ bool Animation::hasBone(const std::string &boneName) {
 	}
 	return false;
 }
-#endif
 
 void Animation::SaveToXml(TiXmlElement *xe) {
 
@@ -538,6 +527,7 @@ Animation::Animation(Animation &animation) {
 		MovingPart *b;
 		if ((*i)->boneType == BT_MovingPart) {
 			b = new MovingPart(*static_cast<MovingPart *>(*i));
+			b->parentMovingPart = NULL;
 		} else {
 			assert(false);
 		}

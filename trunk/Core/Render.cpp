@@ -224,6 +224,9 @@ Texture::~Texture() {
 }
 
 bool Texture::IsNotTransparent(int x, int y) const {
+	if (x < 0 || y < 0 || x >= Width() || y >= Height()) {
+		return false;
+	}
 	DWORD *dw;
 	dw = Render::GetDC()->Texture_Lock(_hTexture, true, x, y, 1, 1);
 	bool result = ((*dw) >> 24) > 0x7F;

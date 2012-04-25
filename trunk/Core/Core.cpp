@@ -4,9 +4,9 @@
 #include "Core.h"
 #include "InputSystem.h"
 #include "Render.h"
-#include "../Gamee/ObjectFactory.h"
 #include "Variables.h"
 #include "Messager.h"
+#include "CoreFactory.h"
 
 	
 static int LuaSendMessage(lua_State *L) {
@@ -232,9 +232,6 @@ void Core::addAnimation(const std::string &id, Animation *animation) {
 	_animations[id] = animation;
 }
 
-
-#ifndef ENGINE_AS_LIBRARY
-
 void Core::Load(const char *fileName)
 {
 	TiXmlDocument doc;
@@ -261,7 +258,7 @@ void Core::Load(const char *fileName)
 			} else if (name == "Animations") {
 				LoadAnimations(element->Attribute("fileName"));
 			} else {
-				_objects.push_back(ObjectFactory::Create(element));
+				_objects.push_back(CoreFactory::Create(element));
 			}
 			element = element->NextSiblingElement();
 		}
@@ -272,8 +269,6 @@ void Core::Load(const char *fileName)
 		_scripts["onLoad"]->Execute();
 	}
 }
-
-#endif//ENGINE_AS_LIBRARY
 
 void Core::OnMessage(const std::string &message)
 {
@@ -300,40 +295,13 @@ void Core::Update(float deltaTime)
 			LoadGroup(message);
 		} else if (Messager::CanCut(message, "UnloadGroup ", message)) {
 			UnloadGroup(message);
-#ifndef ENGINE_AS_LIBRARY
 		} else if (Messager::CanCut(message, "load xml ", message)) {
 			InputSystem::Reset();
 			Unload();
 			Load(message.c_str());
-#endif//ENGINE_AS_LIBRARY
 		} else {
 			assert(false);
 		}
-	}
-}
-
-void Core::Unload() {
-	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
-		delete (*i);
-		(*i) = NULL;
-	}
-	for (ScriptMap::iterator i = _scripts.begin(), e = _scripts.end(); i != e; i++) {
-		delete _scripts.begin()->second;
-		_scripts.begin()->second = NULL;
-	}
-	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; i++) {
-		delete _animations.begin()->second;
-		_animations.begin()->second = NULL;
-	}
-	_objects.clear();
-	_animations.clear();
-	_scripts.clear();
-}
-
-void Core::GetAnimationsList(std::vector<std::string> &names) {
-	names.clear();
-	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; i++) {
-		names.push_back(i->first);
 	}
 }
 
@@ -356,6 +324,32 @@ bool Core::DoScript(const std::string &name) {
 		return true;
 	}
 	return false;
+}
+
+void Core::Unload() {
+	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
+		delete (*i);
+		(*i) = NULL;
+	}
+	for (ScriptMap::iterator i = _scripts.begin(), e = _scripts.end(); i != e; i++) {
+		delete _scripts.begin()->second;
+		_scripts.begin()->second = NULL;
+	}
+	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; i++) {
+		delete _animations.begin()->second;
+		_animations.begin()->second = NULL;
+	}
+
+	_objects.clear();
+	_animations.clear();
+	_scripts.clear();
+}
+
+void Core::GetAnimationsList(std::vector<std::string> &names) {
+	names.clear();
+	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; i++) {
+		names.push_back(i->first);
+	}
 }
 
 void Core::RenameAnimation(const std::string &oldName, const std::string &newName) {
