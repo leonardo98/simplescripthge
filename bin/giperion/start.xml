@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <fileroot>
-  <Resources fileName="atlases_test.xml"/>
+  <!--Resources fileName="atlases_test.xml"/-->
   <Resources fileName="GUI_textures.xml"/>
 	<script name="onLoad">
     SendMessage("Core", "load xml start2.xml");

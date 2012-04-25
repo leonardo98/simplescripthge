@@ -280,6 +280,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Core\CoreFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Core\FPoint2D.cpp"
 				>
 			</File>
@@ -351,6 +355,10 @@
 			</File>
 			<File
 				RelativePath="..\Core\Core.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Core\CoreFactory.h"
 				>
 			</File>
 			<File

@@ -3,7 +3,7 @@
 
 #include "../Core/Object.h"
 #include "../Core/Render.h"
-#include "../Core/Animation.h"
+//#include "../Core/Animation.h"
 
 class AnimationViewer : public Object  
 {
@@ -16,7 +16,7 @@ private:
 	void Reload();
 	FPoint2D _pos;
 	bool _mirror;
-	Animation *_animation;
+	//Animation *_animation;
 };
 
 #endif//MYENGINE_ANIMATION_VIEWER

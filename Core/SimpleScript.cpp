@@ -50,7 +50,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR argv, int argc)
 	if(Render::InitApplication(FrameFunc, RenderFunc)) {
 		LOG(argv);
 		Interface::Init();
-		BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);
+		//BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);
 		// запускаем ядро
 		Core::Init();
 		Core::Load("start.xml");
