@@ -80,7 +80,8 @@ public:
 	bool hasBone(const std::string &boneName); 
 	void Rename(const char *newName);
 	void *parent;
-	Matrix matrix;
+	Matrix globalMatrix;
+	Matrix localMatrix;
 	int order;
 	void CollectFileNames(NameList &list);
 	MovingPart *parentMovingPart;
