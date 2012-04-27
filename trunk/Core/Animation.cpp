@@ -347,9 +347,10 @@ void MovingPart::Draw(float p) {
 	if (index >= 0) {
 		Render::PushMatrix();
 		Render::MatrixMove(_x.GetFrame(index, localT), _y.GetFrame(index, localT));
+		globalMatrix = Render::GetCurrentMatrix();
 		Render::MatrixRotate(_angle.GetFrame(index, localT));
 		Render::MatrixScale(_scaleX.GetFrame(index, localT), _scaleY.GetFrame(index, localT));
-		matrix = Render::GetCurrentMatrix();
+		localMatrix = Render::GetCurrentMatrix();
 
 		Render::MatrixMove(-_center.x, -_center.y);
 
