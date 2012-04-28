@@ -129,32 +129,32 @@
   $friends = $cassie->cf('Standard1')->key('user1')->supercolumn('friends')->column($from_name,$to_name)->slice($limit,$reversed);
 
   //сброс суперстолбца для дальнейшего использования 
-  // НЕ используется!!! с SimpleCassie 0.7.1.3 - этот процесс автоматизирован
+  //НЕ используется!!! с SimpleCassie 0.7.1.3 - этот процесс автоматизирован
   $cassie->key('user1')->supercolumn(null);
 
   /*
-  * getting slice of columns from multiple rows/keys
-  * @return - array of objects on succes,  null on failure
+  * получение среза значений из нескольких столбцов и рядов
+  * возвращает массив объектов или "null" при неудаче
   */
   $limit = 10;
   $reversed = true;
   $friends = $cassie->cf('Standard1')->key('user1friends','user2friends')->column($from_name,$to_name)->slice($limit,$reversed);
 
   /*
-  * increment column value
-  * @return - (int) new value on succes, false on failure
+  * увеличение столбца значения на 1
+  * возвращает новое значение или "false" при неудаче
   */
   $new_value = $cassie->cf('Standard1')->key('user1')->column('friends')->increment();
 
   /*
-  * decrement column value
-  * @return - (int) new value on succes, false on failure
+  * уменьшает столбца значения на 1
+  * возвращает новое значение или "false" при неудаче
   */
   $new_value = $cassie->cf('Standard1')->key('user1')->column('friends')->decrement();
 
 
   /*
-  * Getting active keyspace
+  * вывод активного рабочего простраства
   */
   echo $cassie->keyspace();
 
