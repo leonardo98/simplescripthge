@@ -105,7 +105,7 @@ void InputSystem::RemoveFromList(InputSystem *listener) {
 	Listeners::iterator i;
 	for (i = _listeners.begin(); i != _listeners.end() && *i != listener; i++);
 	if (i == _listeners.end()) {// нет в списке (уже удален)
-		LOG("удален уже Listener");
+		LOG("удален уже Listener или удаляемый не унаследован от InputSystem");
 		exit(-4);
 	}
 	_listeners.erase(i);

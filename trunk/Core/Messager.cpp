@@ -37,32 +37,45 @@ Messager::~Messager()
 	_receiver.erase(i);
 }
 
+Messager::AllMessages Messager::_incoming;
 Messager::AllMessages Messager::_messages;
 
-void Messager::SendMessage(const std::string &receiverName, const std::string &message)
+void Messager::SendMessage(const std::string &receiverName, const std::string &message, float delay)
 {
-	_messages.push_back(std::make_pair<std::string, std::string>(receiverName, message));
+	Letter *l = new Letter();
+	l->receiver = receiverName;
+	l->message = message;
+	l->timer = delay;
+	_incoming.push_back(l);
 }
 
-void Messager::CoreSendMessages() 
+void Messager::CoreSendMessages(float dt) 
 {
-	AllMessages tmp = _messages;
-	_messages.clear();
-	for (AllMessages::iterator q = tmp.begin(), w = tmp.end(); q != w; q++) {
-		List::iterator i, e;
-		if (q->first.substr(0, 4) == "lua:") {
-			Core::DoLua((q->first.substr(4) + "(" + q->second + ");").c_str());
-			continue;
-		} else if (q->first == "Core") {
-			Core::OnMessage(q->second);
-			continue;
-		}
-		for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != q->first; i++);
-		if (i != e) {
-			(*i)->OnMessage(q->second);
+	for (AllMessages::iterator i = _incoming.begin(), e = _incoming.end(); i != e; ++i) {
+		_messages.push_back(*i);
+	}
+	_incoming.clear();
+	for (AllMessages::iterator q = _messages.begin(), w = _messages.end(); q != w;) {
+		(*q)->timer -= dt;
+		if ((*q)->timer < 0.f) {
+			if ((*q)->receiver.substr(0, 4) == "lua:") {
+				Core::DoLua(((*q)->receiver.substr(4) + "(" + (*q)->message + ");").c_str());
+			} else if ((*q)->receiver == "Core") {
+				Core::OnMessage((*q)->message);
+			} else {
+				List::iterator i, e;
+				for (i = _receiver.begin(), e = _receiver.end(); i != e && (*i)->_name != (*q)->receiver; i++);
+				if (i != e) {
+					(*i)->OnMessage((*q)->message);
+				} else {
+					LOG("Receiver - not found: " + (*q)->receiver);
+				}		
+			}
+			delete (*q);
+			q = _messages.erase(q);
 		} else {
-			LOG("Receiver - file not found: " + q->first);
-		}		
+			++q;
+		}
 	}
 }
 

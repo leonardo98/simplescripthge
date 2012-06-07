@@ -2,7 +2,9 @@
 <fileroot>
   <!--Resources fileName="atlases_test.xml"/-->
   <Resources fileName="GUI_textures.xml"/>
-	<script name="onLoad">
+  <MyAnimations fileName="level1_anim.xml"/>
+  <MyAnimations fileName="level1_anim2.xml"/>
+  <script name="onLoad">
     SendMessage("Core", "load xml start2.xml");
   </script>
 </fileroot>

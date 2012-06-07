@@ -7,13 +7,14 @@
 #include "Variables.h"
 #include "Messager.h"
 #include "CoreFactory.h"
-
+#include "../Gamee/ObjectFactory.h"
 	
 static int LuaSendMessage(lua_State *L) {
 	int err = lua_gettop(L);
 	const char *name = lua_tostring(L, 1);
 	const char *message = lua_tostring(L, 2);
-	Messager::SendMessage(name, message);
+	const float delay = lua_tonumber(L, 3);
+	Messager::SendMessage(name, message, delay);
 	assert(err == lua_gettop(L));
 	return 0;
 }
@@ -133,7 +134,11 @@ static int LuaDoFile(lua_State *L) {
 	assert(err == 1);
 	const char *name = lua_tostring(L, 1);
 	err = luaL_dofile(L, Render::GetDC()->Resource_MakePath((Render::GetDataDir() + name).c_str()));
-    assert(err == 0);
+	if (err != 0) {
+		const char *code = lua_tostring(L, -1);
+		LOG("lua_dofile error : " + code);
+		assert(false);
+	}
 	return 0;
 }
 
@@ -227,6 +232,10 @@ Animation *Core::getAnimation(const std::string &animationId, bool uploadTexture
 	return NULL;
 }
 
+My::Animation *Core::getMyAnimation(const std::string &animationId) {
+	return My::AnimationManager::getAnimation(animationId);
+}
+
 void Core::addAnimation(const std::string &id, Animation *animation) {
 	assert(_animations.find(id) == _animations.end());
 	_animations[id] = animation;
@@ -257,8 +266,10 @@ void Core::Load(const char *fileName)
 				ReadDescriptions(element->Attribute("fileName"));
 			} else if (name == "Animations") {
 				LoadAnimations(element->Attribute("fileName"));
+			} else if (name == "MyAnimations") {
+				My::AnimationManager::Load(Render::GetDataDir() + element->Attribute("fileName"));
 			} else {
-				_objects.push_back(CoreFactory::Create(element));
+				_objects.push_back(ObjectFactory::Create(element));
 			}
 			element = element->NextSiblingElement();
 		}
@@ -284,7 +295,7 @@ void Core::Draw()
 
 void Core::Update(float deltaTime)
 {
-	Messager::CoreSendMessages();
+	Messager::CoreSendMessages(deltaTime);
 	for (Objects::iterator i = _objects.begin(), e = _objects.end(); i != e; i++) {
 		(*i)->Update(deltaTime);
 	}

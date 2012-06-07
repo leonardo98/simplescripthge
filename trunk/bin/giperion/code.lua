@@ -4,7 +4,7 @@
 function Level1Init()
 	-- level1stage = 0
 
-	cactus = "on"
+	cactus = "off"
 	clock = "one"
 	shtora1 = "one"
 	shtora2 = "one"
@@ -30,7 +30,7 @@ function Level1Cactus()
 	end
 end
 
-function Level1Switch()
+function Level1Switch(forvard)
 	if (level1stage == 0) then
 		SendMessage("messageWindow" , "Рысенок проснулся рано утром и посмотрел в окно.\nЗа окном кружились снежинки, кругом лежал снег...\n - Вот и пришла зима - подумал Рысенок." )
 		l1_bullfinch = ""
@@ -38,6 +38,7 @@ function Level1Switch()
 		l1_bobcat = "one"
 		door = "one"
 		babl = ""
+		SendMessage("nooknook", "hide")
 	elseif (level1stage == 1) then
 		SendMessage("messageWindow" , "Вдруг кто-то постучал в дверь.\nИнтересно, кто это пришел в гости к Рысенку с утра по раньше." )
 		l1_bullfinch = ""
@@ -45,6 +46,9 @@ function Level1Switch()
 		babl = ""
 		tuk = "one"
 		l1_bobcat = "two"
+		SendMessage("nooknook", "play_in_loop")
+		SendMessage("bullfinch", "hide");
+		SendMessage("bullfinch_enter", "hide");
 	elseif (level1stage == 2) then
 		SendMessage("messageWindow" , "Да это же его лучший друг Снегирь.\nРысенок очень обрадовался его приходу." )
 		babl = ""
@@ -52,7 +56,18 @@ function Level1Switch()
 		door = "two"
 		l1_bullfinch = "one"
 		l1_bobcat = "three"
+		if (forvard) then
+			SendMessage("door_open", "play");
+			SendMessage("nooknook", "hide");
+			SendMessage("bullfinch_enter", "play");
+			SendMessage("bullfinch_enter", "hide", 1.0);
+			SendMessage("bullfinch", "animation bullfinch_enter_full");
+			SendMessage("bullfinch", "play:1.0", 1.0);
+			SendMessage("bullfinch", "push bullfinch", 1.1);
+		end
 	elseif (level1stage == 3) then
+		SendMessage("bullfinch", "animation bullfinch");
+		SendMessage("bullfinch", "play_in_loop");
 		SendMessage("messageWindow" , "- Чем бы нам сегодня заняться? - спросил Рысенок у Снегиря.\n - А давай слепим снеговика - предложил Снегирь." )
 		tuk = ""
 		babl = ""
@@ -66,6 +81,7 @@ function Level1Switch()
 		babl = ""
 		l1_bullfinch = "three"
 		l1_bobcat = "five"
+		SendMessage("big_bubble_panel", "hide")
 	elseif (level1stage == 5) then
 		SendMessage("messageWindow" , "Друзья подумали и решили найти дома:\nодну морковку, шарф, ведро, метлу и 2 пуговицы." )
 		l1_bullfinch = "three"
@@ -73,13 +89,19 @@ function Level1Switch()
 		l1_bobcat = "five"
 		door = "one"
 		babl = "one"
+		SendMessage("bucket", "idle")
+		SendMessage("buttons", "idle")
+		SendMessage("carrot", "idle")
+		SendMessage("metla", "idle")
+		SendMessage("sharf", "idle")
+		SendMessage("big_bubble_panel", "show")
 	end
 end
 
 function Level1Next()
 	if (level1stage < 5) then
 		level1stage = level1stage + 1
-		Level1Switch()
+		Level1Switch(true)
 	else
 		level2stage = 0
 		SendMessage("Core", "load xml Level2.xml")
@@ -90,7 +112,7 @@ end
 function Level1Prev()
 	if (level1stage > 0) then
 		level1stage = level1stage - 1
-		Level1Switch()
+		Level1Switch(false)
 	else
 		SendMessage("Core", "load xml start2.xml")
 	end

@@ -10,12 +10,15 @@ Global
 		Debug|Win32 = Debug|Win32
 		Editor Debug|Win32 = Editor Debug|Win32
 		Editor Release|Win32 = Editor Release|Win32
+		MyEngine Debug|Win32 = MyEngine Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}.Editor Debug|Win32.ActiveCfg = Editor Debug|Win32
 		{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}.Editor Release|Win32.ActiveCfg = Editor Release|Win32
+		{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}.MyEngine Debug|Win32.ActiveCfg = MyEngine Debug|Win32
+		{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}.MyEngine Debug|Win32.Build.0 = MyEngine Debug|Win32
 		{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}.Release|Win32.ActiveCfg = Release|Win32
 		{D7BD3530-D3C0-41DC-96B8-B9AE7C04F795}.Release|Win32.Build.0 = Release|Win32
 		{95EE669A-92A5-46BE-B9A1-69094B445448}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -24,6 +27,7 @@ Global
 		{95EE669A-92A5-46BE-B9A1-69094B445448}.Editor Debug|Win32.Build.0 = Editor Debug|Win32
 		{95EE669A-92A5-46BE-B9A1-69094B445448}.Editor Release|Win32.ActiveCfg = Editor Release|Win32
 		{95EE669A-92A5-46BE-B9A1-69094B445448}.Editor Release|Win32.Build.0 = Editor Release|Win32
+		{95EE669A-92A5-46BE-B9A1-69094B445448}.MyEngine Debug|Win32.ActiveCfg = MyEngine Debug|Win32
 		{95EE669A-92A5-46BE-B9A1-69094B445448}.Release|Win32.ActiveCfg = Release|Win32
 		{95EE669A-92A5-46BE-B9A1-69094B445448}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
