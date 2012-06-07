@@ -1,0 +1,537 @@
+<?xml version="3.0" encoding="utf-8" standalone="no" ?>
+<root>
+    <Animation id="bucket" time="1" pivotX="0" pivotY="0">
+        <movingPart name="bucket" centerX="53.5966" centerY="111.016" texture="0:844:125:173:0:0">
+            <pos x="562" y="202" />
+            <pos time="0.221053" x="562" y="202" angle="-0.187209" />
+            <pos time="0.494737" x="562" y="202" angle="0.215899" />
+            <pos time="0.715789" x="562" y="202" angle="-0.242213" />
+            <pos time="1" x="562" y="202" />
+        </movingPart>
+        <movingPart name="new_bone_1" moving_type="line" centerX="38.9105" centerY="7.95658" texture="537:922:77:21:0:0">
+            <pos x="567" y="59" />
+            <pos time="0.105263" x="567" y="59" scaleX="1.14966" scaleY="1.09091" />
+            <pos time="1" x="567" y="59" />
+        </movingPart>
+    </Animation>
+    <Animation id="bullfinch" time="3" pivotX="0" pivotY="0">
+        <movingPart name="shadow" moving_type="line" texture="779:286:215:53:1:224">
+            <pos x="279" y="412" />
+            <pos time="1" x="279" y="412" />
+            <movingPart name="nogi" moving_type="line" texture="537:793:83:47:129:230">
+                <pos />
+                <pos time="1" />
+            </movingPart>
+            <movingPart name="body" centerX="151.814" centerY="239.07" texture="342:357:194:236:72:13">
+                <pos x="146" y="235" />
+                <pos time="0.552632" x="146" y="235" angle="-0.0390999" />
+                <pos time="1" x="146" y="235" />
+                <movingPart name="hvost" offparent="bottom" centerX="109" centerY="172" texture="342:967:106:49:4:138">
+                    <pos x="97" y="174" />
+                    <pos time="0.468421" x="99" y="174" angle="0.238452" />
+                    <pos time="1" x="97" y="174" />
+                </movingPart>
+                <movingPart name="brov_r" moving_type="line" texture="995:313:23:17:221:40">
+                    <pos />
+                    <pos time="0.477193" x="0.0754547" y="-1.99858" />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="brov_l" moving_type="line" texture="995:286:28:26:169:44">
+                    <pos />
+                    <pos time="0.701754" x="0.159271" y="-4.99747" />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="eyes" moving_type="line" texture="260:960:53:15:194:70">
+                    <pos />
+                    <pos time="0.807018" x="-1.89439" y="-3.02372" />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="krilo" centerX="161" centerY="117" texture="342:897:84:69:79:115">
+                    <pos x="162" y="113" />
+                    <pos time="0.659649" x="162" y="113" angle="0.217961" />
+                    <pos time="1" x="162" y="113" />
+                </movingPart>
+                <movingPart name="kluv_down" moving_type="line" centerX="210" centerY="93" texture="422:850:29:22:208:90">
+                    <pos x="210" y="95.75" angle="-0.342126" />
+                    <pos time="0.491228" x="210" y="95.75" angle="-0.111297" />
+                    <pos time="1" x="210" y="95.75" angle="-0.342126" />
+                </movingPart>
+                <movingPart name="kluv_up" moving_type="line" texture="422:823:38:26:208:77">
+                    <pos />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="hoholok" offparent="bottom" centerX="157" centerY="38" texture="260:844:48:46:120:0">
+                    <pos x="155" y="37" />
+                    <pos time="0.382456" x="155" y="37" angle="0.337381" />
+                    <pos time="0.698246" x="155" y="37" angle="-0.192" />
+                    <pos time="1" x="155" y="37" />
+                </movingPart>
+            </movingPart>
+        </movingPart>
+    </Animation>
+    <Animation id="bullfinch_enter_full" time="3" pivotX="0" pivotY="0">
+        <movingPart name="snegir_faze1" moving_type="line">
+            <pos x="290" y="317" />
+            <pos time="0.0403509" x="290" y="317" />
+            <pos time="0.310526" x="441" y="417" />
+            <pos time="0.326316" x="441" y="417" scaleX="0.781826" />
+            <movingPart name="shadow" moving_type="line" texture="779:286:215:53:1:224">
+                <pos x="-129" y="-68" />
+                <pos time="1" x="-129" y="-68" />
+            </movingPart>
+            <movingPart name="nogi" moving_type="line" centerX="165" centerY="238" texture="537:793:83:47:129:230">
+                <pos x="31" y="168" />
+                <pos time="0.0491228" x="28" y="167" />
+                <pos time="0.119298" x="31" y="139" angle="0.0816453" />
+                <pos time="0.180702" x="34" y="166" />
+                <pos time="0.249122" x="29" y="120" angle="0.0472177" />
+                <pos time="0.326316" x="46.068" y="167" />
+            </movingPart>
+            <movingPart name="body" centerX="151.814" centerY="239" texture="342:357:194:236:72:13">
+                <pos x="10" y="165" />
+                <pos time="0.0526316" x="11" y="164" />
+                <pos time="0.119298" x="9" y="144" />
+                <pos time="0.184211" x="10" y="164" />
+                <pos time="0.250877" x="9" y="126" />
+                <pos time="0.329825" x="11" y="166" />
+                <movingPart name="hvost" offparent="bottom" centerX="109" centerY="172" texture="342:967:106:49:4:138">
+                    <pos x="97" y="174" />
+                    <pos time="0.0526316" x="97" y="174" />
+                    <pos time="0.15614" x="97" y="174" angle="0.22128" />
+                    <pos time="0.292982" x="97" y="174" />
+                    <pos time="0.542105" x="99" y="174" angle="0.238452" />
+                    <pos time="1" x="97" y="174" />
+                </movingPart>
+                <movingPart name="brov_r" moving_type="line" texture="995:313:23:17:221:40">
+                    <pos />
+                    <pos time="0.477193" x="0.0754547" y="-1.99858" />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="brov_l" moving_type="line" texture="995:286:28:26:169:44">
+                    <pos />
+                    <pos time="0.701754" x="0.159271" y="-4.99747" />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="eyes" moving_type="line" texture="260:960:53:15:194:70">
+                    <pos />
+                    <pos time="0.807018" x="-1.89439" y="-3.02372" />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="krilo" centerX="161" centerY="117" texture="342:897:84:69:79:115">
+                    <pos x="162" y="113" />
+                    <pos time="0.17193" x="162" y="113" angle="0.236017" />
+                    <pos time="0.315789" x="162" y="113" angle="0.137707" />
+                    <pos time="0.526316" x="162" y="113" angle="0.217961" />
+                    <pos time="1" x="162" y="113" />
+                </movingPart>
+                <movingPart name="kluv_down" moving_type="line" centerX="210" centerY="93" texture="422:850:29:22:208:90">
+                    <pos x="210" y="95.75" angle="-0.342126" />
+                    <pos time="0.491228" x="210" y="95.75" angle="-0.111297" />
+                    <pos time="1" x="210" y="95.75" angle="-0.342126" />
+                </movingPart>
+                <movingPart name="kluv_up" moving_type="line" texture="422:823:38:26:208:77">
+                    <pos />
+                    <pos time="1" />
+                </movingPart>
+                <movingPart name="hoholok" offparent="bottom" centerX="157" centerY="38" texture="260:844:48:46:120:0">
+                    <pos x="155" y="37" />
+                    <pos time="0.382456" x="155" y="37" angle="0.337381" />
+                    <pos time="0.698246" x="155" y="37" angle="-0.192" />
+                    <pos time="1" x="155" y="37" />
+                </movingPart>
+            </movingPart>
+        </movingPart>
+        <movingPart name="snegir_faze2" moving_type="line">
+            <pos time="0.326316" x="500" y="418" scaleX="-0.781826" />
+            <pos time="0.34386" x="500" y="418" scaleX="-1" />
+            <pos time="0.545614" x="386" y="481" scaleX="-1" />
+            <pos time="0.570175" x="386" y="481" scaleX="-0.781826" />
+            <movingPart name="shadow" moving_type="line" texture="779:286:215:53:1:224">
+                <pos x="-129" y="-68" />
+                <pos time="1" x="-129" y="-68" />
+            </movingPart>
+            <movingPart name="nogi" moving_type="line" texture="537:793:83:47:129:230">
+                <pos time="0.326316" x="-133" y="-71" />
+                <pos time="0.385964" x="-134" y="-103" />
+                <pos time="0.440351" x="-133" y="-71" />
+                <pos time="0.503508" x="-134" y="-98" />
+                <pos time="0.563158" x="-133" y="-71" />
+                <pos time="1" x="-133" y="-71" />
+                <movingPart name="body" centerX="151.814" centerY="239.07" texture="342:357:194:236:72:13">
+                    <pos time="0.321053" x="146" y="235" />
+                    <pos time="0.382456" x="147" y="244" />
+                    <pos time="0.436842" x="146" y="235" />
+                    <pos time="0.505263" x="146" y="241" />
+                    <pos time="0.568421" x="146" y="237" />
+                    <pos time="1" x="146" y="235" />
+                    <movingPart name="hvost" offparent="bottom" centerX="109" centerY="172" texture="342:967:106:49:4:138">
+                        <pos time="0.32807" x="97" y="174" />
+                        <pos time="0.387719" x="97" y="174" angle="0.104528" />
+                        <pos time="0.442105" x="97" y="174" />
+                        <pos time="0.505263" x="97" y="174" angle="0.232847" />
+                        <pos time="0.568421" x="97" y="174" />
+                        <pos time="1" x="97" y="174" />
+                    </movingPart>
+                    <movingPart name="brov_r" moving_type="line" texture="995:313:23:17:221:40">
+                        <pos />
+                        <pos time="0.477193" x="0.0754547" y="-1.99858" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="brov_l" moving_type="line" texture="995:286:28:26:169:44">
+                        <pos />
+                        <pos time="0.701754" x="0.159271" y="-4.99747" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="eyes" moving_type="line" texture="260:960:53:15:194:70">
+                        <pos />
+                        <pos time="0.807018" x="-1.89439" y="-3.02372" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="krilo" centerX="161" centerY="117" texture="342:897:84:69:79:115">
+                        <pos x="162" y="113" />
+                        <pos time="0.17193" x="162" y="113" angle="0.236017" />
+                        <pos time="0.315789" x="162" y="113" angle="0.137707" />
+                        <pos time="0.526316" x="162" y="113" angle="0.217961" />
+                        <pos time="1" x="162" y="113" />
+                    </movingPart>
+                    <movingPart name="kluv_down" moving_type="line" centerX="210" centerY="93" texture="422:850:29:22:208:90">
+                        <pos x="210" y="95.75" angle="-0.342126" />
+                        <pos time="0.491228" x="210" y="95.75" angle="-0.111297" />
+                        <pos time="1" x="210" y="95.75" angle="-0.342126" />
+                    </movingPart>
+                    <movingPart name="kluv_up" moving_type="line" texture="422:823:38:26:208:77">
+                        <pos />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="hoholok" offparent="bottom" centerX="157" centerY="38" texture="260:844:48:46:120:0">
+                        <pos x="155" y="37" />
+                        <pos time="0.382456" x="155" y="37" angle="0.337381" />
+                        <pos time="0.698246" x="155" y="37" angle="-0.192" />
+                        <pos time="1" x="155" y="37" />
+                    </movingPart>
+                </movingPart>
+            </movingPart>
+        </movingPart>
+        <movingPart name="snegir_faze3" moving_type="line">
+            <pos time="0.570176" x="335" y="481" scaleX="0.781826" />
+            <pos time="0.596491" x="348" y="480" />
+            <pos time="0.680702" x="412" y="483" />
+            <pos time="1" x="412" y="483" />
+            <movingPart name="shadow" moving_type="line" texture="779:286:215:53:1:224">
+                <pos x="-129" y="-68" />
+                <pos time="1" x="-129" y="-68" />
+            </movingPart>
+            <movingPart name="nogi" moving_type="line" texture="537:793:83:47:129:230">
+                <pos time="0.563158" x="-133" y="-71" />
+                <pos time="0.621052" x="-134" y="-100" />
+                <pos time="0.682456" x="-133" y="-71" />
+                <pos time="1" x="-133" y="-71" />
+                <movingPart name="body" centerX="151.814" centerY="239.07" texture="342:357:194:236:72:13">
+                    <pos time="0.570175" x="146" y="235" />
+                    <pos time="0.622807" x="145" y="244" />
+                    <pos time="0.682456" x="146" y="235" />
+                    <pos time="1" x="146" y="235" />
+                    <movingPart name="hvost" offparent="bottom" centerX="109" centerY="172" texture="342:967:106:49:4:138">
+                        <pos time="0.570175" x="99" y="174" angle="0.10934" />
+                        <pos time="0.640351" x="99" y="174" angle="0.17794" />
+                        <pos time="0.805263" x="99" y="174" angle="0.10934" />
+                        <pos time="1" x="97" y="174" />
+                    </movingPart>
+                    <movingPart name="brov_r" moving_type="line" texture="995:313:23:17:221:40">
+                        <pos />
+                        <pos time="0.477193" x="0.0754547" y="-1.99858" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="brov_l" moving_type="line" texture="995:286:28:26:169:44">
+                        <pos />
+                        <pos time="0.701754" x="0.159271" y="-4.99747" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="eyes" moving_type="line" texture="260:960:53:15:194:70">
+                        <pos />
+                        <pos time="0.807018" x="-1.89439" y="-3.02372" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="krilo" centerX="161" centerY="117" texture="342:897:84:69:79:115">
+                        <pos x="162" y="113" />
+                        <pos time="0.17193" x="162" y="113" angle="0.236017" />
+                        <pos time="0.315789" x="162" y="113" angle="0.137707" />
+                        <pos time="0.526316" x="162" y="113" angle="0.217961" />
+                        <pos time="1" x="162" y="113" />
+                    </movingPart>
+                    <movingPart name="kluv_down" moving_type="line" centerX="210" centerY="93" texture="422:850:29:22:208:90">
+                        <pos x="210" y="95.75" angle="-0.342126" />
+                        <pos time="0.491228" x="210" y="95.75" angle="-0.111297" />
+                        <pos time="1" x="210" y="95.75" angle="-0.342126" />
+                    </movingPart>
+                    <movingPart name="kluv_up" moving_type="line" texture="422:823:38:26:208:77">
+                        <pos />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="hoholok" offparent="bottom" centerX="157" centerY="38" texture="260:844:48:46:120:0">
+                        <pos x="155" y="37" />
+                        <pos time="0.382456" x="155" y="37" angle="0.337381" />
+                        <pos time="0.698246" x="155" y="37" angle="-0.192" />
+                        <pos time="1" x="155" y="37" />
+                    </movingPart>
+                </movingPart>
+            </movingPart>
+        </movingPart>
+    </Animation>
+    <Animation id="bullfinch_jump" time="3" pivotX="0" pivotY="0">
+        <movingPart name="new_bone_1" moving_type="line">
+            <pos x="279" y="412" />
+            <pos time="1" x="279" y="412" />
+            <movingPart name="shadow" moving_type="line" texture="779:286:215:53:1:224">
+                <pos />
+                <pos time="0.045614" />
+                <pos time="0.178947" x="-24" y="-1" />
+                <pos time="0.307018" />
+                <pos time="1" />
+            </movingPart>
+            <movingPart name="nogi" moving_type="line" texture="537:793:83:47:129:230">
+                <pos />
+                <pos time="0.0491228" />
+                <pos time="0.115789" x="-8" y="-22" />
+                <pos time="0.173684" x="-23" />
+                <pos time="0.245614" x="-8" y="-23" />
+                <pos time="0.303509" />
+                <pos time="1" />
+                <movingPart name="body" centerX="151.814" centerY="239.07" texture="342:357:194:236:72:13">
+                    <pos x="146" y="237" />
+                    <pos time="0.0526316" x="146" y="235" angle="0.0819072" />
+                    <pos time="0.112281" x="144" y="242" angle="0.0819072" />
+                    <pos time="0.17193" x="148" y="239" />
+                    <pos time="0.242105" x="144" y="242" angle="0.0819072" />
+                    <pos time="0.317544" x="145.2" y="238.2" angle="-0.0390999" />
+                    <pos time="0.552632" x="146" y="237.4" angle="-0.0390999" />
+                    <pos time="1" x="145.111" y="234.733" />
+                    <movingPart name="hvost" offparent="bottom" centerX="109" centerY="172" texture="342:967:106:49:4:138">
+                        <pos x="97" y="174" />
+                        <pos time="0.0526316" x="97" y="174" />
+                        <pos time="0.15614" x="97" y="174" angle="0.22128" />
+                        <pos time="0.292982" x="97" y="174" />
+                        <pos time="0.542105" x="99" y="174" angle="0.238452" />
+                        <pos time="1" x="97" y="174" />
+                    </movingPart>
+                    <movingPart name="brov_r" moving_type="line" texture="995:313:23:17:221:40">
+                        <pos />
+                        <pos time="0.477193" x="0.0754547" y="-1.99858" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="brov_l" moving_type="line" texture="995:286:28:26:169:44">
+                        <pos />
+                        <pos time="0.701754" x="0.159271" y="-4.99747" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="eyes" moving_type="line" texture="260:960:53:15:194:70">
+                        <pos />
+                        <pos time="0.807018" x="-1.89439" y="-3.02372" />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="krilo" centerX="161" centerY="117" texture="342:897:84:69:79:115">
+                        <pos x="162" y="113" />
+                        <pos time="0.17193" x="162" y="113" angle="0.236017" />
+                        <pos time="0.315789" x="162" y="113" angle="0.137707" />
+                        <pos time="0.526316" x="162" y="113" angle="0.217961" />
+                        <pos time="1" x="162" y="113" />
+                    </movingPart>
+                    <movingPart name="kluv_down" moving_type="line" centerX="210" centerY="93" texture="422:850:29:22:208:90">
+                        <pos x="210" y="95.75" angle="-0.342126" />
+                        <pos time="0.491228" x="210" y="95.75" angle="-0.111297" />
+                        <pos time="1" x="210" y="95.75" angle="-0.342126" />
+                    </movingPart>
+                    <movingPart name="kluv_up" moving_type="line" texture="422:823:38:26:208:77">
+                        <pos />
+                        <pos time="1" />
+                    </movingPart>
+                    <movingPart name="hoholok" offparent="bottom" centerX="157" centerY="38" texture="260:844:48:46:120:0">
+                        <pos x="155" y="37" />
+                        <pos time="0.382456" x="155" y="37" angle="0.337381" />
+                        <pos time="0.698246" x="155" y="37" angle="-0.192" />
+                        <pos time="1" x="155" y="37" />
+                    </movingPart>
+                </movingPart>
+            </movingPart>
+        </movingPart>
+    </Animation>
+    <Animation id="buttons" time="1" pivotX="0" pivotY="0">
+        <movingPart name="button1" centerX="38.4924" centerY="35.1326" texture="342:823:79:73:0:0">
+            <pos x="813" y="266" />
+            <pos time="0.221053" x="813" y="266" angle="-0.0608877" />
+            <pos time="0.494737" x="811" y="236" angle="0.110671" />
+            <pos time="1" x="813" y="266" />
+        </movingPart>
+        <movingPart name="button1_copy1" centerX="39.597" centerY="36.016" texture="342:823:79:73:0:0">
+            <pos x="896" y="231" />
+            <pos time="0.226316" x="896" y="215" />
+            <pos time="1" x="896" y="231" />
+        </movingPart>
+        <movingPart name="new_bone_1" moving_type="line" centerX="63.9105" centerY="7.95658" texture="126:1001:133:21:0:0">
+            <pos x="852" y="162" />
+            <pos time="0.105263" x="852" y="162" scaleX="1.14966" scaleY="1.09091" />
+            <pos time="1" x="852" y="162" />
+        </movingPart>
+    </Animation>
+    <Animation id="carrot" time="1" pivotX="0" pivotY="0">
+        <movingPart name="carrot" centerX="68" centerY="78" texture="126:844:133:156:0:0">
+            <pos x="166" y="226" />
+            <pos time="0.221053" x="166" y="226" angle="-0.187209" />
+            <pos time="0.494737" x="166" y="226" angle="0.215899" />
+            <pos time="0.715789" x="166" y="226" angle="-0.242213" />
+            <pos time="1" x="166" y="226" />
+        </movingPart>
+        <movingPart name="new_bone_1" moving_type="line" centerX="60" centerY="6" texture="750:793:134:18:0:0">
+            <pos x="150" y="114" />
+            <pos time="0.105263" x="150" y="114" scaleX="1.14966" scaleY="1.09091" />
+            <pos time="1" x="150" y="114" />
+        </movingPart>
+    </Animation>
+    <Animation id="clock_bird" time="1.3" pivotX="0" pivotY="0">
+        <movingPart name="clock_room" moving_type="line" texture="342:594:122:228:0:0">
+            <pos x="485" y="81" />
+            <pos time="1" x="485" y="81" />
+            <movingPart name="mayatnik" offparent="bottom" centerX="13.1429" centerY="-0.76195" texture="427:897:26:55:1:0">
+                <pos x="60.5238" y="124.571" angle="0.208656" />
+                <pos time="0.5" x="60.5238" y="124.571" angle="-0.197475" />
+                <pos time="1" x="60.5238" y="124.571" angle="0.208656" />
+            </movingPart>
+        </movingPart>
+        <movingPart name="clock_doors copy" moving_type="line" texture="537:841:82:46:0:0">
+            <pos x="492.889" y="103.444" />
+            <pos time="1" x="492.889" y="103.444" />
+        </movingPart>
+        <movingPart name="prugina" moving_type="line" centerX="46.6665" centerY="3.55524" texture="260:928:47:31:0:0">
+            <pos x="553.778" y="121.333" scaleX="0.212343" scaleY="0.615622" />
+            <pos time="0.149798" x="553.778" y="121.333" />
+            <pos time="0.323887" x="553.778" y="121.333" scaleX="0.219447" scaleY="0.672994" />
+            <pos time="0.48583" x="553.778" y="121.333" />
+            <pos time="0.672065" x="553.778" y="121.333" scaleX="0.241472" scaleY="0.69226" />
+            <pos time="0.834008" x="553.778" y="121.333" />
+            <pos time="0.995952" x="553.778" y="121.333" scaleX="0.233655" scaleY="0.573964" />
+        </movingPart>
+        <movingPart name="birds" moving_type="line" texture="260:891:49:36:0:0">
+            <pos x="508.445" y="102.667" />
+            <pos time="0.157895" x="479.111" y="116.444" />
+            <pos time="0.331984" x="508.445" y="102.667" />
+            <pos time="0.497976" x="479.111" y="116.444" />
+            <pos time="0.659919" x="508.445" y="102.667" />
+            <pos time="0.842105" x="479.111" y="116.444" />
+            <pos time="1" x="508.445" y="102.667" />
+        </movingPart>
+    </Animation>
+    <Animation id="clock_mayatnik" time="1.3" pivotX="0" pivotY="0">
+        <movingPart name="clock_room" moving_type="line" texture="342:594:122:228:0:0">
+            <pos x="485" y="81" />
+            <pos time="1" x="485" y="81" />
+            <movingPart name="mayatnik" offparent="bottom" centerX="13.1429" centerY="-0.76195" texture="427:897:26:55:1:0">
+                <pos x="60.5238" y="124.571" angle="0.208656" />
+                <pos time="0.5" x="60.5238" y="124.571" angle="-0.197475" />
+                <pos time="1" x="60.5238" y="124.571" angle="0.208656" />
+            </movingPart>
+        </movingPart>
+    </Animation>
+    <Animation id="door_open" time="1.5" pivotX="0" pivotY="0">
+        <movingPart name="new_bone_3" moving_type="line">
+            <pos x="91" y="106" />
+            <pos time="0.210175" x="91" y="106" scaleX="0.85" scaleY="1.025" angle="-0.236633" />
+            <pos time="0.333333" x="91" y="106" scaleX="0.702001" scaleY="1.05462" angle="-0.363815" />
+            <pos time="0.666667" x="91" y="106" scaleX="0.702001" scaleY="1.05462" angle="-0.363815" />
+            <pos time="0.799649" x="91" y="106" scaleX="0.85" scaleY="1.025" angle="-0.236633" />
+            <pos time="1" x="91" y="106" />
+            <movingPart name="new_bone_2" moving_type="line" texture="0:0:341:428:0:0">
+                <pos />
+                <pos time="0.336842" angle="0.518715" />
+                <pos time="0.666667" angle="0.518715" />
+                <pos time="1" />
+            </movingPart>
+        </movingPart>
+    </Animation>
+    <Animation id="level1back_lite" time="30" pivotX="0" pivotY="0">
+        <movingPart name="backlevel" moving_type="line" texture="342:0:306:356:0:0">
+            <pos x="659" y="72" />
+            <pos time="1" x="659" y="72" />
+            <movingPart name="oblako" moving_type="line" texture="621:793:128:42:0:0">
+                <pos x="-133" y="43" />
+                <pos time="1" x="308" y="36" />
+            </movingPart>
+            <movingPart name="oblako2" moving_type="line" texture="537:888:77:33:0:0">
+                <pos x="113.8" y="62.8" />
+                <pos time="1" x="313" y="49" />
+            </movingPart>
+            <movingPart name="oblako2_copy1" moving_type="line" texture="537:888:77:33:0:0">
+                <pos x="-87" y="70" />
+                <pos time="1" x="113.8" y="62.8" />
+            </movingPart>
+            <movingPart name="elka2" moving_type="line" texture="537:357:135:220:0:0">
+                <pos x="171" y="40.8" />
+                <pos time="1" x="171" y="40.8" />
+            </movingPart>
+            <movingPart name="elka1" moving_type="line" texture="856:578:149:211:0:0">
+                <pos x="11" y="75.7999" />
+                <pos time="1" x="11" y="75.7999" />
+            </movingPart>
+        </movingPart>
+        <movingPart name="backlevel_copy1" moving_type="line" texture="0:429:323:414:0:0">
+            <pos x="111" y="119" />
+            <pos time="1" x="111" y="119" />
+            <movingPart name="oblako" moving_type="line" centerX="119" centerY="-1" texture="621:793:128:42:0:0">
+                <pos x="-133" y="43" scaleX="-1" />
+                <pos time="1" x="308" y="36" scaleX="-1" />
+            </movingPart>
+            <movingPart name="oblako2" moving_type="line" texture="537:888:77:33:0:0">
+                <pos x="113.8" y="62.8" />
+                <pos time="1" x="313" y="49" />
+            </movingPart>
+            <movingPart name="oblako2_copy1" moving_type="line" texture="537:888:77:33:0:0">
+                <pos x="-87" y="70" />
+                <pos time="1" x="113.8" y="62.8" />
+            </movingPart>
+            <movingPart name="elka1" moving_type="line" texture="537:578:318:214:0:0">
+                <pos x="2" y="74.7999" />
+                <pos time="1" x="2" y="74.7999" />
+            </movingPart>
+        </movingPart>
+    </Animation>
+    <Animation id="metla" time="1" pivotX="0" pivotY="0">
+        <movingPart name="metla" centerX="186.597" centerY="136.016" texture="649:0:355:285:0:0">
+            <pos x="647" y="260" />
+            <pos time="0.221053" x="647" y="260" angle="-0.0608877" />
+            <pos time="0.494737" x="647" y="260" angle="0.110671" />
+            <pos time="0.715789" x="647" y="260" angle="-0.111112" />
+            <pos time="1" x="647" y="260" />
+        </movingPart>
+        <movingPart name="new_bone_1" moving_type="line" centerX="38.9105" centerY="7.95658" texture="537:944:78:18:0:0">
+            <pos x="692" y="299" />
+            <pos time="0.105263" x="692" y="299" scaleX="1.14966" scaleY="1.09091" />
+            <pos time="1" x="692" y="299" />
+        </movingPart>
+    </Animation>
+    <Animation id="nooknook" time="4" pivotX="0" pivotY="0">
+        <movingPart name="nook" moving_type="discontinuous" centerX="63" centerY="23" texture="649:286:129:55:0:0">
+            <pos x="259" y="134" angle="-0.476956" />
+            <pos time="0.139035" x="251" y="125" angle="-0.460443" />
+            <pos time="1" x="259" y="134" angle="-0.476956" />
+        </movingPart>
+        <movingPart name="nook_copy1" moving_type="discontinuous" centerX="63" centerY="23" texture="649:286:129:55:0:0">
+            <pos x="358.333" y="196.667" angle="0.448636" />
+            <pos time="0.0925439" x="361.333" y="189.667" angle="0.448636" />
+            <pos time="0.766667" x="358.333" y="196.667" angle="0.448636" />
+            <pos time="1" x="358.333" y="196.667" angle="0.448636" />
+        </movingPart>
+    </Animation>
+    <Animation id="sharf" time="1" pivotX="0" pivotY="0">
+        <movingPart name="sharf" centerX="130.247" centerY="96.6626" texture="673:357:281:214:0:0">
+            <pos x="366" y="193" />
+            <pos time="0.221053" x="366" y="193" angle="-0.187209" />
+            <pos time="0.494737" x="366" y="193" angle="0.215899" />
+            <pos time="0.715789" x="366" y="193" angle="-0.242213" />
+            <pos time="1" x="366" y="193" />
+        </movingPart>
+        <movingPart name="new_bone_1" moving_type="line" centerX="38.9105" centerY="7.95658" texture="537:963:74:18:0:0">
+            <pos x="377" y="341" />
+            <pos time="0.105263" x="377" y="341" scaleX="1.14966" scaleY="1.09091" />
+            <pos time="1" x="377" y="341" />
+        </movingPart>
+    </Animation>
+</root>
