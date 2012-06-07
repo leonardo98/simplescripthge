@@ -8,6 +8,7 @@
 #include "LuaScript.h"
 #include "Object.h"
 #include "Animation.h"
+#include "../2dga_api/Animation.h"
 
 
 class Core
@@ -23,6 +24,7 @@ public:
 	static bool DoLua(const char *code);
 	static bool DoScript(const std::string &name);
 	static Animation *getAnimation(const std::string &animationId, bool uploadTextures = true);
+	static My::Animation *getMyAnimation(const std::string &animationId);
 	static void addAnimation(const std::string &id, Animation *animation);
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	static void OnMessage(const std::string &message);

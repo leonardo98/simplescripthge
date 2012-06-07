@@ -5,117 +5,182 @@
     LoadGroup("room");
     Level1Switch();
   </script>
-	<StaticTexture x="0" y="0" texture="fon_room"/>
-	<Mask x="834" y="282" width="104" height="196"> <!-- тап на кактус, может стоит поправить маску-->
-		<script>Level1Cactus()</script>
-    </Mask>
-    <MultiTexture variableName="cactus">
+
+  <!-- 
+  анимации экспортируем так - все кроме занавесок и заднего фона в один файл, 
+  занавески в другой(там еще есть свободное место)
+  задний фон порезан на два куска(экономия 1Мб) и рисуется отдельно как две текстуры
+  
+  предложение по анимайции 
+  - двигать по тапу коврик у двери - туда-сюда
+  - кактус сделать анимацией и упаковать к шторам
+  - анимировать рысенка и упаковать к шторам
+  -->
+  <!-- ОБЛАКА -->
+  <AnimationPlayer name="level1back_lite" animation="level1back_lite" state="loop" y="-3"/>
+  <StaticTexture x="0" y="512" texture="fon_room"/>
+  <StaticTexture x="0" y="0" texture="fon_room_up"/>
+
+  <StaticTexture x="834" y="292" texture="cactus_room"/>
+  <Mask x="834" y="282" width="104" height="196">
+    <!-- тап на кактус, может стоит поправить маску-->
+    <script>Level1Cactus()</script>
+  </Mask>
+  <MultiTexture variableName="cactus">
 		<states>
-			<if value="off" x="0" y="0" texture="cactus_flower_room"/>
+			<if value="on" x="823" y="279" texture="cactus_flower_room"/>
 		</states>
 	</MultiTexture>
-    <MultiTexture variableName="shtora1">
-		<states>
-            <if value="one" x="590" y="16" texture="shtora_open1_room"/>
-            <if value="two" x="591" y="13" texture="shtora_close1_room"/>
-		</states>
-		<script>
-            if (shtora1 == "one") then
-            shtora1 = "two"
-            elseif (shtora1 == "two") then
-            shtora1 = "one"
-            end
-		</script>
-    </MultiTexture>
-    <MultiTexture variableName="shtora2">
-		<states>
-            <if value="one" x="916" y="10" texture="shtora_open2_room"/>
-            <if value="two" x="847" y="10" texture="shtora_close2_room"/>
-		</states>
-		<script>
-            if (shtora2 == "one") then
-            shtora2 = "two"
-            elseif (shtora2 == "two") then
-            shtora2 = "one"
-            end
-		</script>
-    </MultiTexture>
-    <MultiTexture variableName="clock">
-		<states>
-            <if value="one" x="448" y="28" texture="clock_room"/>
-            <if value="two" x="440" y="28" texture="clock_birds_room"/>
-		</states>
-		<script>
-            if (clock == "one") then
-            clock = "two"
-            elseif (clock == "two") then
-            clock = "one"
-            end
-		</script>
-    </MultiTexture>
- <MultiTexture variableName="l1_bullfinch"> <!-- снегирь -->
-		<states>
-			<if value="one" x="0" y="0" texture="bullfinch1_room"/>
-		</states>
-     	<script>
-        if (level1stage == 2) then
-         Level1Next();
-         end;
-      </script>
-   </MultiTexture>
-   <MultiTexture variableName="l1_bobcat">  <!-- рысенок -->
-		<states>
-			<if value="one" x="0" y="0" texture="bobcat1_room"/>
-			<if value="two" x="0" y="0" texture="bobcat2_room"/>
-			<if value="three" x="0" y="0" texture="bobcat3_room"/>
-			<if value="four" x="0" y="0" texture="bobcat4_room"/>
-			<if value="five" x="0" y="0" texture="bobcat5_room"/>
-		</states>
-		<script>
+
+  <!-- ШТОРЫ -->
+  <AnimationPlayer x="0" name="stora_left_open" animation="stora_left_open" state="idle" time="1.f"/>
+  <AnimationPlayer x="0" name="stora_left_close" animation="stora_left_close" state="invisible"/>
+  <Mask x="588" y="72" width="224" height="216">
+    <script>
+      if (shtora1 == "one") then
+      SendMessage("stora_left_open", "hide")
+      SendMessage("stora_left_close", "play_and_last")
+      shtora1 = "two"
+      elseif (shtora1 == "two") then
+      SendMessage("stora_left_close", "hide")
+      SendMessage("stora_left_open", "play_and_last")
+      shtora1 = "one"
+      end
+    </script>
+  </Mask>
+  <AnimationPlayer x="0" name="stora_right_open" animation="stora_right_open" state="idle" time="1.f"/>
+  <AnimationPlayer x="0" name="stora_right_close" animation="stora_right_close" state="invisible"/>
+  <Mask x="824" y="76" width="203" height="241">
+    <script>
+      if (shtora2 == "one") then
+      SendMessage("stora_right_open", "hide")
+      SendMessage("stora_right_close", "play_and_last")
+      shtora2 = "two"
+      elseif (shtora2 == "two") then
+      SendMessage("stora_right_close", "hide")
+      SendMessage("stora_right_open", "play_and_last")
+      shtora2 = "one"
+      end
+    </script>
+  </Mask>
+
+  <!-- часы с кукушкой -->
+  <AnimationPlayer x="-20" name="clock_mayatnik" animation="clock_mayatnik" state="loop"/>
+  <AnimationPlayer x="-20" name="clock_bird" animation="clock_bird" state="invisible"/>
+  <Mask x="502" y="110" width="82" height="104">
+    <script>
+      SendMessage("clock_bird", "play_and_hide");
+    </script>
+  </Mask>
+  
+  <!-- снегирь за дверью -->
+  <AnimationPlayer name="bullfinch_enter" animation="bullfinch_enter_full" state="invisible"/>
+  <!-- дверь -->
+  <AnimationPlayer name="door_open" animation="door_open" state="idle"/>
+  <Mask x="128" y="144" width="292" height="366">
+    <script>
+      SendMessage("door_open", "play");
+      if (level1stage == 1) then
+      Level1Next();
+      end;
+    </script>
+  </Mask>
+  <!-- тук-тук -->
+  <AnimationPlayer name="nooknook" animation="nooknook" state="invisible"/>
+
+  <!-- бабл -->
+  <IPanel name="big_bubble_panel" visible="0" needDraw="0" x="16" y="10" width="995" height="418">
+    <gui>
+      <MultiTexture variableName="babl">
+        <states>
+          <if value="one" x="16" y="10" texture="big_bubble"/>
+        </states>
+        <script>
+          if (level1stage == 6) then
+          Level1Next();
+          end;
+        </script>
+      </MultiTexture>
+      <AnimationPlayer name="bucket" animation="bucket" state="invisible"/>
+      <Mask x="512" y="96" width="106" height="152">
+        <script>
+          if (level1stage >= 4) then
+          SendMessage("bucket", "play");
+          end;
+        </script>
+      </Mask>
+      <AnimationPlayer name="carrot" animation="carrot" state="invisible"/>
+      <Mask x="110" y="158" width="106" height="122">
+        <script>
+          if (level1stage >= 4) then
+          SendMessage("carrot", "play");
+          end;
+        </script>
+      </Mask>
+      <AnimationPlayer name="buttons" animation="buttons" state="invisible"/>
+      <Mask x="784" y="196" width="142" height="103">
+        <script>
+          if (level1stage >= 4) then
+          SendMessage("buttons", "play");
+          end;
+        </script>
+      </Mask>
+      <AnimationPlayer name="metla" animation="metla" state="invisible"/>
+      <Mask x="484" y="284" width="115" height="111">
+        <script>
+          if (level1stage >= 4) then
+          SendMessage("metla", "play");
+          end;
+        </script>
+      </Mask>
+      <Mask x="616" y="175" width="128" height="133">
+        <script>
+          if (level1stage >= 4) then
+          SendMessage("metla", "play");
+          end;
+        </script>
+      </Mask>
+      <AnimationPlayer name="sharf" animation="sharf" state="invisible"/>
+      <Mask x="269" y="108" width="183" height="158">
+        <script>
+          if (level1stage >= 4) then
+          SendMessage("sharf", "play");
+          end;
+        </script>
+      </Mask>
+    </gui>
+  </IPanel>
+
+  <!-- снегирь -->
+  <AnimationPlayer name="bullfinch" animation="bullfinch_enter_full" state="invisible"/>
+  <Mask x="366" y="459" width="166" height="199">
+    <script>
+      if (level1stage >= 2) then
+      SendMessage("bullfinch", "animation bullfinch_jump");
+      SendMessage("bullfinch", "play:0.0");
+      SendMessage("bullfinch", "push bullfinch");
+      end;
+    </script>
+  </Mask>
+
+  <!-- рысенок -->
+  <MultiTexture variableName="l1_bobcat">
+    <states>
+      <if value="one" x="0" y="0" texture="bobcat1_room"/>
+      <if value="two" x="0" y="0" texture="bobcat2_room"/>
+      <if value="three" x="0" y="0" texture="bobcat2_room"/>
+      <if value="four" x="0" y="0" texture="bobcat2_room"/>
+      <if value="five" x="0" y="0" texture="bobcat2_room"/>
+    </states>
+    <script>
       Level1Next();
     </script>
-   </MultiTexture>
-   <MultiTexture variableName="door">  <!-- дверь -->
-		<states>
-			<if value="one" x="0" y="0" texture="door_room"/>
-			<if value="two" x="0" y="0" texture="door_open_room"/>
-		</states>
-		<script>
-      if (level1stage == 1 or level1stage == 2) then
-        Level1Next();
-      end;
-    </script>
-   </MultiTexture>
-   <MultiTexture variableName="l1_bullfinch">  <!-- снегирь2 -->
-		<states>
-  	        <if value="two" x="0" y="0" texture="bullfinch2_room"/>
-			<if value="three" x="0" y="0" texture="bullfinch3_room"/>
-		</states>
-		<script>
-      if (level1stage == 3 or level1stage == 4 or level1stage == 5 or level1stage == 6) then
-        Level1Next();
-      end;
-    </script>
-	</MultiTexture>
-	<TextBox name="messageWindow" x="520" y="670" width="800" height="100" font="data\a_futuraRound_24.fnt" hideTime="500">
+  </MultiTexture>
+
+  <!-- Interface -->
+  <TextBox name="messageWindow" x="520" y="670" width="800" height="100" font="data\a_futuraRound_24.fnt" hideTime="500">
     <background texture="textback1" x="0" y="0"/>
-	</TextBox>
-	  <MultiTexture variableName="tuk"> <!-- тук-тук -->
-		<states>
-			<if value="one" x="0" y="0" texture="tuk_tyk_room"/>
-		</states>
-		<script>Level1TukTuk()</script>
-      </MultiTexture>
-      <MultiTexture variableName="babl"> <!-- бабл -->
-		<states>
-			<if value="one" x="0" y="0" texture="babl_room"/>
-		</states>
-		<script>
-      if (level1stage == 6) then
-        Level1Next();
-      end;
-    </script>
-      </MultiTexture>
+  </TextBox>
   <Button x="920" y="675" normal="arrow" pressed="arrow_pressed">
     Level1Next();
   </Button>

@@ -3,6 +3,7 @@
 #include "Render.h"
 #include "Variables.h"
 #include "CoreFactory.h"
+#include "../Gamee/ObjectFactory.h"
 
 IPanel::IPanel(TiXmlElement *xe)
 	: Messager(xe)
@@ -16,7 +17,7 @@ IPanel::IPanel(TiXmlElement *xe)
 	_needDraw = xe->Attribute("needDraw") == NULL?true:atoi(xe->Attribute("needDraw"))!=0;
 	TiXmlElement *element = xe->FirstChildElement("gui")->FirstChildElement();
 	while (element != NULL) {
-		_objects.push_back((InputSystem *)CoreFactory::Create(element));
+		_objects.push_back((InputSystem *)ObjectFactory::Create(element));
 		RemoveFromList(_objects.back());
 		element = element->NextSiblingElement();
 	}

@@ -31,8 +31,7 @@ public:
 	Messager(TiXmlElement *xe);
 
 	~Messager();
-	static void SendMessage(const std::string &receiverName, const std::string &message);
-	static void CoreSendMessages(); // только для вызова из ядра
+	static void SendMessage(const std::string &receiverName, const std::string &message, float delay = 0.f);
 
 	static int SetValueF(const std::string &receiverName, const std::string &variableName, const float &value);
 	static int SetValueB(const std::string &receiverName, const std::string &variableName, const bool &value);
@@ -48,8 +47,16 @@ private:
 	typedef std::list<Messager *> List;
 	static List _receiver;
 	std::string _name;
-	typedef std::list<std::pair<std::string, std::string> > AllMessages;
+	struct Letter{
+		std::string receiver;
+		std::string message;
+		float timer;
+	};
+	typedef std::list<Letter *> AllMessages;
+	static AllMessages _incoming;
 	static AllMessages _messages;
+	static void CoreSendMessages(float dt); // только для вызова из ядра
+	friend class Core;
 };
 
 #endif//MYENGINE_MESSAGER_H

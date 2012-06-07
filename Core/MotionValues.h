@@ -10,6 +10,8 @@
 #ifndef MOTIONVALUES_H
 #define MOTIONVALUES_H
 
+#include <vector>
+
 inline float LineMotion(float x1, float x2, float t)
 {
 	return x1 + (x2 - x1) * t;

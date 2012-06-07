@@ -8,6 +8,7 @@
 #include "ISlider.h"
 #include "IRadioBtns.h"
 #include "ILabel.h"
+#include "AnimationPlayer.h"
 
 #define REG_TYPE(a, b) if (name == a) return new b(xe)
 
@@ -19,7 +20,8 @@ Object * CoreFactory::Create(TiXmlElement *xe)
 	REG_TYPE("IPanel", IPanel);
 	REG_TYPE("ISlider", ISlider);
 	REG_TYPE("IRadioBtns", IRadioBtns);
-	LOG("Неизвестный тип данных в XML файле");
+	REG_TYPE("AnimationPlayer", AnimationPlayer);
+	LOG("Неизвестный тип данных в XML файле " + name);
 	exit(-5);
 	return NULL;
 }
