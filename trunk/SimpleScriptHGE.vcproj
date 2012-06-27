@@ -553,6 +553,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\CommonBox2DTypes.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\Inventory.cpp"
 					>
 				</File>
@@ -590,6 +594,14 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\TextureCut.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\TileEditor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\TileEditor.h"
 					>
 				</File>
 				<File

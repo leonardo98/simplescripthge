@@ -1,4 +1,4 @@
-#include "Simulator.h"
+#include "TileEditor.h"
 #include "../Helpers/MyMessageBox.h"
 #include "../Core/Core.h"
 #include "../Core/Render.h"
@@ -8,12 +8,12 @@
 #define HALFBORDER 0.0025f
 
 
-int Simulator::round(float a) {
+int TileEditor::round(float a) {
 	int b = static_cast<int>(a);
 	return (a - b) >= 0.5f ? b + 1 : b;
 } 
 
-void DestructionListener::SayGoodbye(b2Joint* joint)
+void TileEditorDestructionListener::SayGoodbye(b2Joint* joint)
 {
 	if (test->m_mouseJoint == joint) {
 		test->m_mouseJoint = NULL;
@@ -22,7 +22,7 @@ void DestructionListener::SayGoodbye(b2Joint* joint)
 	}
 }
 
-void Simulator::LoadTemplates(const std::string &filename) {
+void TileEditor::LoadTemplates(const std::string &filename) {
 	TiXmlDocument doc(Render::GetDC()->Resource_MakePath(filename.c_str()));
 	if (!doc.LoadFile()) {
 		LOG("File not found : " + Render::GetDC()->Resource_MakePath(filename.c_str()));
@@ -37,8 +37,8 @@ void Simulator::LoadTemplates(const std::string &filename) {
 	_collection.push_back(_cat = new BodyTemplate(doc.RootElement()->FirstChildElement("cat")));
 }
 
-Simulator::Simulator(TiXmlElement *xe)
-	: _viewScale(100.f)
+TileEditor::TileEditor(TiXmlElement *xe)
+	: _viewScale(1.f)
 	, _worldCenter((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
 	, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2)
 //	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
@@ -86,7 +86,7 @@ Simulator::Simulator(TiXmlElement *xe)
 	m_stepCount = 0;
 }
 
-Simulator::~Simulator()
+TileEditor::~TileEditor()
 {
 	EraseAllBodyes();
 	// By deleting the world, we delete the bomb, mouse joint, etc.
@@ -97,7 +97,7 @@ Simulator::~Simulator()
 	}
 }
 
-void Simulator::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+void TileEditor::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 {
 	const b2Manifold* manifold = contact->GetManifold();
 
@@ -126,7 +126,7 @@ void Simulator::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 	}
 }
 
-void Simulator::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+void TileEditor::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
 	if (_startLevel.Action()) {
 		return;
@@ -190,7 +190,7 @@ public:
 	b2Fixture* m_fixture;
 };
 
-void Simulator::EraseBody(b2Body *body) {
+void TileEditor::EraseBody(b2Body *body) {
 	if (body->GetUserData() != NULL) {
 		MyBody *t = static_cast<MyBody *>(body->GetUserData());
 		delete t;
@@ -199,7 +199,7 @@ void Simulator::EraseBody(b2Body *body) {
 	}
 }
 
-void Simulator::EraseAllBodyes() {
+void TileEditor::EraseAllBodyes() {
 	for (b2Body *body = m_world->GetBodyList(); body; ) {
 		b2Body *remove = body;
 		body = body->GetNext();
@@ -210,7 +210,7 @@ void Simulator::EraseAllBodyes() {
 }
 
 // добавл€ем новый элемент в "случайное" место на экране
-b2Body * Simulator::AddElement(const std::string &typeId) {
+b2Body * TileEditor::AddElement(const std::string &typeId) {
 	Collection::iterator index = _collection.begin();
 	while (index != _collection.end() && (*index)->_id != typeId ) {index++;}
 	assert(index != _collection.end() && (*index)->_id == typeId );
@@ -231,7 +231,7 @@ b2Body * Simulator::AddElement(const std::string &typeId) {
 
 // ƒЋя »√–џ тут можно соптимизировать - все элементы "земли" вынести в одно body
 // создаем физическое тело по описанию
-b2Body * Simulator::AddElement(const BodyState &bodyState){ 
+b2Body * TileEditor::AddElement(const BodyState &bodyState){ 
 
 	b2BodyDef bd;
 	bd.type = b2_dynamicBody;  
@@ -285,7 +285,7 @@ b2Body * Simulator::AddElement(const BodyState &bodyState){
 	return body;
 }
 
-void Simulator::OnMouseDown(const FPoint2D &mousePos)
+void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 {	_mouseDown = true;
 	_lastMousePos = mousePos;
 	InitParams(NULL);
@@ -319,7 +319,7 @@ void Simulator::OnMouseDown(const FPoint2D &mousePos)
 	}
 }
 
-void Simulator::OnMouseUp()
+void TileEditor::OnMouseUp()
 {
 	_mouseDown = false;
 	if (m_mouseJoint) {
@@ -357,7 +357,7 @@ void Simulator::OnMouseUp()
 	}
 }
 
-void Simulator::InitParams(b2Body *body) 
+void TileEditor::InitParams(b2Body *body) 
 {
 	if (body == NULL) {
 		_selectedBody = NULL;
@@ -411,7 +411,7 @@ void Simulator::InitParams(b2Body *body)
 	}
 }
 
-bool Simulator::CanLevelStart() {
+bool TileEditor::CanLevelStart() {
 	return true;
 	/* // если в уровне есть "динамит" и синие коробки - в него можно играть
 	bool tnt = false;
@@ -429,12 +429,12 @@ bool Simulator::CanLevelStart() {
 	*/
 }
 
-bool Simulator::IsLevelFinish() {
+bool TileEditor::IsLevelFinish() {
 	return _userLevelWin;//_finish != 0x3;
 }
 
 
-void Simulator::OnMouseMove(const FPoint2D &mousePos)
+void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 {
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(fp.x, - fp.y);// нужен дл€ выбора объекта по которому кликнули
@@ -457,19 +457,20 @@ void Simulator::OnMouseMove(const FPoint2D &mousePos)
 	m_mouseWorld = p;
 }
 
-bool Simulator::OnMouseWheel(int direction) {
+bool TileEditor::OnMouseWheel(int direction) {
 	float old = _viewScale;
 	FPoint2D fp = 1.f / _viewScale * (_lastMousePos - _worldCenter);
-	if (direction > 0) {
+	if (direction > 0 && _viewScale < 4.f) {
 		_viewScale *= 1.09f * direction;
-	} else if (direction < 0) {
+	} else if (direction < 0 && _viewScale > 1.f / 8.f) {
 		_viewScale *= 0.9f * abs(direction);
 	}
+	_viewScale = min(4.f, max(1.f / 8.f, _viewScale));
 	_worldCenter = - (_viewScale / old * (_lastMousePos - _worldCenter) - _lastMousePos);
 	return true;
 } 
 
-void Simulator::Step(Settings* settings)
+void TileEditor::Step(Settings* settings)
 {
 	float32 timeStep = settings->hz > 0.0f ? 1.0f / settings->hz : float32(0.0f);
 
@@ -505,11 +506,11 @@ void Simulator::Step(Settings* settings)
 	}
 }
 
-bool Simulator::IsMouseOver(const FPoint2D &mousePos) {
+bool TileEditor::IsMouseOver(const FPoint2D &mousePos) {
 	return true;
 }
 
-inline void Simulator::DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
+inline void TileEditor::DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
 	float x =   _viewScale * pos.x + _worldCenter.x;
 	float y = - _viewScale * pos.y + _worldCenter.y;
 	buf[0].x = x + _viewScale * angles[0].x; buf[0].y = y + _viewScale * angles[0].y; 
@@ -525,12 +526,12 @@ inline void Simulator::DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos
 }
 
 /// DrawLine
-inline void Simulator::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
+inline void TileEditor::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
 {
 	Render::Line(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
 }
 
-void Simulator::Draw() {
+void TileEditor::Draw() {
 	bool oldTnt = (_finish & 0x1) != 0;
 	bool oldBlue = (_finish & 0x2) != 0;
 	bool tnt = false;
@@ -539,18 +540,19 @@ void Simulator::Draw() {
 	int max = 1;
 	Vertex *buffer;
 	if (_netVisible) {
-		int n = SCREEN_WIDTH * 10 / _viewScale;
-		float t = _worldCenter.x / (0.1f * _viewScale);
-		t = (t - static_cast<int>(t)) * (0.1f * _viewScale);
+		float STEP = 64.f;
+		int n = SCREEN_WIDTH / (_viewScale * STEP);
+		float t = _worldCenter.x / (STEP * _viewScale);
+		t = (t - static_cast<int>(t)) * (STEP * _viewScale);
 		for (int i = 0; i <= n; i++) {
-			float x = i * 0.1f * _viewScale + t;
+			float x = i * STEP * _viewScale + t;
 			Render::GetDC()->Gfx_RenderLine(x, 0, x, SCREEN_HEIGHT, 0x4FFFFFFF);
 		}
-		n = SCREEN_HEIGHT * 10 / _viewScale;
-		t = _worldCenter.y / (0.1f * _viewScale);
-		t = (t - static_cast<int>(t)) * (0.1f * _viewScale);
+		n = SCREEN_HEIGHT / (_viewScale * STEP) + 1;
+		t = _worldCenter.y / (STEP * _viewScale);
+		t = (t - static_cast<int>(t)) * (STEP * _viewScale);
 		for (int i = 0; i <= n; i++) {
-			float y = i * 0.1f * _viewScale + t;
+			float y = i * STEP * _viewScale + t;
 			Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
 		}
 	}
@@ -608,7 +610,7 @@ void Simulator::Draw() {
 	}
 }
 
-void Simulator::Update(float deltaTime) {	
+void TileEditor::Update(float deltaTime) {	
 	if (_editor) {
 		_signal += 2 * deltaTime;
 		while (_signal > 1.f) {
@@ -691,7 +693,7 @@ void Simulator::Update(float deltaTime) {
 	}
 }
 
-void Simulator::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
+void TileEditor::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 {
 	b2Vec2 b2TouchPosition = b2Vec2(pos.x, pos.y);
 	b2Vec2 b2BodyPosition;
@@ -712,7 +714,7 @@ void Simulator::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 	}
 }
 
-void Simulator::SaveState() {
+void TileEditor::SaveState() {
 	_state.clear();
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
 		const b2Transform & xf = body->GetTransform();
@@ -732,7 +734,7 @@ void Simulator::SaveState() {
 	}
 }
 
-void Simulator::ResetState() {
+void TileEditor::ResetState() {
 	InitParams(NULL);
 	_editor = true;
 	EraseAllBodyes();
@@ -743,7 +745,7 @@ void Simulator::ResetState() {
 	}
 }
 
-void Simulator::OnMessage(const std::string &message) {
+void TileEditor::OnMessage(const std::string &message) {
 	if (_waitYesNoNewLevel) {
 		if (message == "yes") {
 			InitParams(NULL);
@@ -751,7 +753,7 @@ void Simulator::OnMessage(const std::string &message) {
 			_state.clear();
 			EraseAllBodyes();
 			_worldCenter = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-			_viewScale = 100.f;
+			_viewScale = 1.f;
 		}
 		_waitYesNoNewLevel = false;
 	} else if (_waitYesNoDelSelected) {
@@ -858,7 +860,7 @@ void Simulator::OnMessage(const std::string &message) {
 			_state.clear();
 			TiXmlElement *elem = xe->FirstChildElement("element");
 			while (elem != NULL) {
-				Simulator::BodyState s;
+				TileEditor::BodyState s;
 				std::string typeId = elem->Attribute("type");
 
 				Collection::iterator index = _collection.begin();
@@ -921,7 +923,7 @@ void Simulator::OnMessage(const std::string &message) {
 	}
 }
 
-void Simulator::SaveLevel(const std::string &levelName) {
+void TileEditor::SaveLevel(const std::string &levelName) {
 	// level saving
 	SaveState();
 	TiXmlElement *elem = _saveLevelXml->FirstChildElement();

@@ -7,7 +7,7 @@
 
 float TimeMul = 1.f;
 
-DWORD BACKGROUND_FILL = 0xFFFFFFFF;
+DWORD BACKGROUND_FILL = 0xFF7F7F7F;
 
 bool RenderFunc()
 {

@@ -15,6 +15,7 @@
 #include "StarsRect.h"
 #include "Button.h"
 #include "Simulator.h"
+#include "TileEditor.h"
 #include "ButtonList.h"
 #include "AnimationViewer.h"
 
@@ -24,6 +25,7 @@ Object * ObjectFactory::Create(TiXmlElement *xe)
 {
 	std::string name = xe->Value();
 	REG_TYPE("Simulator", Simulator);
+	REG_TYPE("TileEditor", TileEditor);
 	REG_TYPE("StaticTexture", StaticTexture);
 	REG_TYPE("AnimationViewer", AnimationViewer);
 	REG_TYPE("Mask", Mask);

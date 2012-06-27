@@ -29,9 +29,7 @@ InputSystem::~InputSystem()
 {
 	Listeners::iterator i;
 	for (i = _listeners.begin(); i != _listeners.end() && *i != this; i++);
-	if (i == _listeners.end()) {// нет в списке (уже удален)
-		LOG("удален уже Listener - деструктор вызван второй раз???");
-	} else {
+	if (i != _listeners.end()) {// нет в списке (уже удален)
 		_listeners.erase(i);
 	}
 }
