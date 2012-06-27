@@ -1,5 +1,5 @@
-#ifndef MYENGINE_SIMULATOR_H
-#define MYENGINE_SIMULATOR_H
+#ifndef MYENGINE_TILEEDITOR_H
+#define MYENGINE_TILEEDITOR_H
 
 #include "../Core/InputSystem.h"
 #include "../Core/Messager.h"
@@ -10,31 +10,32 @@
 #include "../Helpers/Counter.h"
 #include "CommonBox2DTypes.h"
 
-class Simulator;
+class TileEditor;
 struct Settings;
+
 
 // This is called when a joint in the world is implicitly destroyed
 // because an attached body is destroyed. This gives us a chance to
 // nullify the mouse joint.
-class DestructionListener : public b2DestructionListener
+class TileEditorDestructionListener : public b2DestructionListener
 {
 public:
 	void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
 	void SayGoodbye(b2Joint* joint);
 
-	Simulator* test;
+	TileEditor* test;
 };
 
 // класс описывающий физическую сцену и ее отображение
-class Simulator 
+class TileEditor 
 	: public b2ContactListener
 	, public InputSystem
 	, public Messager
 {
 public:
 	
-	Simulator(TiXmlElement *xe);
-	virtual ~Simulator();
+	TileEditor(TiXmlElement *xe);
+	virtual ~TileEditor();
 
 	virtual void Step(Settings* settings);
 
@@ -83,7 +84,7 @@ protected:
 	/*typedef std::list<b2Body *> Bodyes;
 	Bodyes _bodyes;*/
 
-	friend class DestructionListener;
+	friend class TileEditorDestructionListener;
 	friend class BoundaryListener;
 	friend class ContactListener;
 
@@ -91,7 +92,7 @@ protected:
 	b2AABB m_worldAABB;
 	ContactPoint m_points[k_maxContactPoints];
 	int32 m_pointCount;
-	DestructionListener m_destructionListener;
+	TileEditorDestructionListener m_destructionListener;
 	int32 m_textLine;
 	b2World* m_world;
 	b2Body* m_bomb;
@@ -162,4 +163,4 @@ protected:
 	inline void DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 };
 
-#endif//MYENGINE_SIMULATOR_H
+#endif//MYENGINE_TILEEDITOR_H
