@@ -40,6 +40,7 @@ void TileEditor::LoadTemplates(const std::string &filename) {
 
 TileEditor::TileEditor(TiXmlElement *xe)
 	: _viewScale(1.f)
+	, _userLevelWin(false)
 	, _worldCenter((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
 	, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2)
 //	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
@@ -310,6 +311,15 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 		bool found = false;
 		for (unsigned int i = 0; i < _level.background.size() && !found; ++i) {
 			found = _level.background[i]->CreateDot(fp.x, fp.y);
+		}
+	} else if (Render::GetDC()->Input_GetKeyState(HGEK_D)) {
+		bool found = false;
+		for (unsigned int i = 0; i < _level.background.size() && !found; ++i) {
+			int index = _level.background[i]->SearchNearest(fp.x, fp.y);
+			if (index >= 0) {
+				found = true;
+				_level.background[i]->RemoveDot(index);
+			}
 		}
 	}
 
@@ -1017,8 +1027,9 @@ void LevelBlock::DrawLines(const FPoint2D &worldPos, float scale) {
 	float x1 = xPoses.getGlobalFrame(0.f) * scale + worldPos.x;
 	float y1 = yPoses.getGlobalFrame(0.f) * scale + worldPos.y;
 	float x2, y2;
-	while (t + 1.f / 50 < 1.f) {
-		t += 1.f / 50;//количество прямых кусочков из которых рисуется кривая сплайна
+	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
+	while (t + 1.f / subLine < 1.f) {
+		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
 		x2 = xPoses.getGlobalFrame(t) * scale + worldPos.x;
 		y2 = yPoses.getGlobalFrame(t) * scale + worldPos.y;
 		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);
@@ -1079,8 +1090,9 @@ bool LevelBlock::CreateDot(float x, float y) {
 	float t = 0.f;
 	FPoint2D one(xPoses.getGlobalFrame(0.f), yPoses.getGlobalFrame(0.f));
 	FPoint2D two;
-	while (t + 1.f / 50 < 1.f && !result) {
-		t += 1.f / 50;//количество прямых кусочков из которых рисуется кривая сплайна
+	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
+	while (t + 1.f / subLine < 1.f && !result) {
+		t += 1.f / subLine;
 		two.x = xPoses.getGlobalFrame(t);
 		two.y = yPoses.getGlobalFrame(t);
 		if (result = DotNearLine(one, two, p)) {
@@ -1137,5 +1149,25 @@ bool LevelBlock::CreateDot(float x, float y) {
 	}
 
 	return result;
+}
+
+void LevelBlock::RemoveDot(int index) {
+	if (xPoses.keys.size() <= 4) {
+		return;
+	}
+	SplinePath splineX = xPoses;
+	SplinePath splineY = yPoses;
+	xPoses.Clear();
+	yPoses.Clear();
+	for (int i = 0; i < index; ++i) {
+		xPoses.addKey(splineX.getFrame(i, 0.f));
+		yPoses.addKey(splineY.getFrame(i, 0.f));
+	}
+	for (int i = index + 1; i < splineX.keys.size() - 1; ++i) {
+		xPoses.addKey(splineX.getFrame(i, 0.f));
+		yPoses.addKey(splineY.getFrame(i, 0.f));
+	}
+	xPoses.CalculateGradient(true);
+	yPoses.CalculateGradient(true);
 }
 
