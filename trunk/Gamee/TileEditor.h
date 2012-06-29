@@ -20,6 +20,7 @@ struct LevelBlock {
 	void DrawLines(const FPoint2D &worldPos, float scale);
 	void AddPoint(float x, float y);
 	int SearchNearest(float x, float y);
+	bool CreateDot(float x, float y);
 };
 
 struct CurrentBlock {

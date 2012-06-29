@@ -2,6 +2,7 @@
 #include "../Helpers/MyMessageBox.h"
 #include "../Core/Core.h"
 #include "../Core/Render.h"
+#include "../Core/Math.h"
 #include <cstdio>
 #define LEVELS_FILE "levels.xml"
 #define DEC 0.01f
@@ -303,7 +304,12 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 			_currents.splineY = _level.background[i]->yPoses;
 			_currents.downX = fp.x;
 			_currents.downY = fp.y;
-			found = i >= 0;
+			found = _currents.dotIndex >= 0;
+		}
+	} else if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
+		bool found = false;
+		for (unsigned int i = 0; i < _level.background.size() && !found; ++i) {
+			found = _level.background[i]->CreateDot(fp.x, fp.y);
 		}
 	}
 
@@ -457,7 +463,6 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 {
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
-
 
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
 		SplinePath tmpx, tmpy;
@@ -1053,3 +1058,84 @@ int LevelBlock::SearchNearest(float x, float y) {
 	}
 	return result;
 }
+
+bool DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPoint2D &p) {
+	float a = (one - p).Length();
+	float b = (p - two).Length();
+	float c = (one - two).Length();
+	if (c > a && c > b) {
+		float s;
+		Math::STrinagle(a, b, c, s);
+		return (s / c < 4);
+	}
+	return false;
+}
+
+bool LevelBlock::CreateDot(float x, float y) {
+	bool result = false;
+	static const float SIZEX = 6;
+	FPoint2D p(x, y);
+
+	float t = 0.f;
+	FPoint2D one(xPoses.getGlobalFrame(0.f), yPoses.getGlobalFrame(0.f));
+	FPoint2D two;
+	while (t + 1.f / 50 < 1.f && !result) {
+		t += 1.f / 50;//количество прямых кусочков из которых рисуется кривая сплайна
+		two.x = xPoses.getGlobalFrame(t);
+		two.y = yPoses.getGlobalFrame(t);
+		if (result = DotNearLine(one, two, p)) {
+			int index = t * (xPoses.keys.size() - 1) + 1;
+
+			if (index < xPoses.keys.size() - 1) {
+				SplinePath splineX = xPoses;
+				SplinePath splineY = yPoses;
+				xPoses.Clear();
+				yPoses.Clear();
+				for (int i = 0; i < index; ++i) {
+					xPoses.addKey(splineX.getFrame(i, 0.f));
+					yPoses.addKey(splineY.getFrame(i, 0.f));
+				}
+				xPoses.addKey(x);
+				yPoses.addKey(y);
+				for (int i = index; i < splineX.keys.size() - 1; ++i) {
+					xPoses.addKey(splineX.getFrame(i, 0.f));
+					yPoses.addKey(splineY.getFrame(i, 0.f));
+				}
+				xPoses.CalculateGradient(true);
+				yPoses.CalculateGradient(true);
+			} else {
+				xPoses.addKey(x);
+				yPoses.addKey(y);
+				xPoses.CalculateGradient(true);
+				yPoses.CalculateGradient(true);
+			}
+		}
+		one = two;
+	}
+	if (!result) {
+		two.x = xPoses.getGlobalFrame(1.f);
+		two.y = yPoses.getGlobalFrame(1.f);
+		if (result = DotNearLine(one, two, p)) {
+			int index = xPoses.keys.size() - 1;
+			SplinePath splineX = xPoses;
+			SplinePath splineY = yPoses;
+			xPoses.Clear();
+			yPoses.Clear();
+			for (int i = 0; i < index; ++i) {
+				xPoses.addKey(splineX.getFrame(i, 0.f));
+				yPoses.addKey(splineY.getFrame(i, 0.f));
+			}
+			xPoses.addKey(x);
+			yPoses.addKey(y);
+			for (int i = index; i < splineX.keys.size() - 1; ++i) {
+				xPoses.addKey(splineX.getFrame(i, 0.f));
+				yPoses.addKey(splineY.getFrame(i, 0.f));
+			}
+			xPoses.CalculateGradient(true);
+			yPoses.CalculateGradient(true);
+		}
+	}
+
+	return result;
+}
+
