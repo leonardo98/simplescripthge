@@ -9,10 +9,37 @@
 #include "BodyTemplate.h"
 #include "../Helpers/Counter.h"
 #include "CommonBox2DTypes.h"
+#include "../Core/SplinePath.h"
 
 class TileEditor;
 struct Settings;
 
+struct LevelBlock {
+	SplinePath xPoses;
+	SplinePath yPoses;
+	void DrawLines(const FPoint2D &worldPos, float scale);
+	void AddPoint(float x, float y);
+	int SearchNearest(float x, float y);
+};
+
+struct CurrentBlock {
+	LevelBlock *block;
+	int dotIndex;
+	float downX;
+	float downY;
+	SplinePath splineX;
+	SplinePath splineY;
+	bool moveAllDots;
+};
+
+typedef std::vector<LevelBlock *> LevelBlocks;
+
+struct LevelSet {
+	LevelBlocks ground;
+	LevelBlocks background;
+	LevelBlocks surpris;
+	LevelBlocks movable;
+};
 
 // This is called when a joint in the world is implicitly destroyed
 // because an attached body is destroyed. This gives us a chance to
@@ -110,6 +137,11 @@ protected:
 	int SCREEN_HEIGHT;
 	const float SLIDER_SCALE;
 	const float SLIDER_MIN;
+
+
+	LevelSet _level;
+	CurrentBlock _currents;
+
 
 	std::string _saveLevelName;
 	TiXmlElement *_saveLevelXml;

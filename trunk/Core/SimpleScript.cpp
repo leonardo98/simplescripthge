@@ -16,9 +16,9 @@ bool RenderFunc()
 	if (Render::GetDC()) {
 		Core::Draw();
 	}
-	char buff[20];
-	sprintf(buff, "%f", TimeMul);
-	Render::PrintString(100, 10, "", buff);
+	//char buff[20];
+	//sprintf(buff, "%f", TimeMul);
+	//Render::PrintString(100, 10, "", buff);
 	Render::GetDC()->Gfx_EndScene();
 	return false;
 }

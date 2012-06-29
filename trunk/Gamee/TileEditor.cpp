@@ -42,7 +42,7 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, _worldCenter((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
 	, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2)
 //	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
-	, Messager("simulator")
+	, Messager("tile_editor")
 	, _editor(false)
 	, _selectedBody(NULL)
 	, _signal(0.f)
@@ -57,6 +57,8 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, SLIDER_MIN(0.2f)
 	, _netVisible(true)
 {
+	_currents.dotIndex = -1;
+	_currents.moveAllDots = false;
 	if (!_doc.LoadFile(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + LEVELS_FILE).c_str()))) {
 		//OkMessageShow();
 		LOG("Error! Levels file not found! " + Render::GetDC()->Resource_MakePath((Render::GetDataDir() + LEVELS_FILE).c_str()));
@@ -290,38 +292,55 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	_lastMousePos = mousePos;
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
-	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
 	
-	if (m_mouseJoint != NULL)
-	{
-		return;
-	}
-
-	// Make a small box.
-	b2AABB aabb;
-	b2Vec2 d;
-	d.Set(0.001f, 0.001f);
-	aabb.lowerBound = p - d;
-	aabb.upperBound = p + d;
-
-	// Query the world for overlapping shapes.
-	QueryCallback callback(p);
-	m_world->QueryAABB(&callback, aabb);
-
-	if (callback.m_fixture)
-	{
-		b2Body* body = callback.m_fixture->GetBody();
-		//BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
-		if (_editor) {
-			InitParams(body);
-			return;
+	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+		bool found = false;
+		for (unsigned int i = 0; i < _level.background.size() && !found; ++i) {
+			_currents.dotIndex = _level.background[i]->SearchNearest(fp.x, fp.y);
+			_currents.moveAllDots = Render::GetDC()->Input_GetKeyState(HGEK_ALT);
+			_currents.block = _level.background[i];
+			_currents.splineX = _level.background[i]->xPoses;
+			_currents.splineY = _level.background[i]->yPoses;
+			_currents.downX = fp.x;
+			_currents.downY = fp.y;
+			found = i >= 0;
 		}
 	}
+
+	//b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
+	//
+	//if (m_mouseJoint != NULL)
+	//{
+	//	return;
+	//}
+
+	//// Make a small box.
+	//b2AABB aabb;
+	//b2Vec2 d;
+	//d.Set(0.001f, 0.001f);
+	//aabb.lowerBound = p - d;
+	//aabb.upperBound = p + d;
+
+	//// Query the world for overlapping shapes.
+	//QueryCallback callback(p);
+	//m_world->QueryAABB(&callback, aabb);
+
+	//if (callback.m_fixture)
+	//{
+	//	b2Body* body = callback.m_fixture->GetBody();
+	//	//BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
+	//	if (_editor) {
+	//		InitParams(body);
+	//		return;
+	//	}
+	//}
 }
 
 void TileEditor::OnMouseUp()
 {
 	_mouseDown = false;
+	_currents.dotIndex = -1;
+	_currents.moveAllDots = false;
 	if (m_mouseJoint) {
 		m_mouseJoint->GetBodyB()->ResetMassData();
 		m_world->DestroyJoint(m_mouseJoint);
@@ -439,19 +458,39 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
 
-	if (m_mouseJoint) {
-		m_mouseJoint->SetTarget(p);
-	} else if (_editor && _mouseDown && _selectedBody) {
-		b2Vec2 pos = _selectedBody->GetPosition();
-		pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
-		if (_netVisible) {
-			pos = p;
-			pos.x = round(pos.x / 0.1f) * 0.1f;
-			pos.y = round(pos.y / 0.1f) * 0.1f;
+
+	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
+		SplinePath tmpx, tmpy;
+		float dx = p.x - _currents.downX;
+		float dy = - (p.y + _currents.downY);
+		for (unsigned int i = 0; i < _currents.block->xPoses.keys.size() - 1; ++i) {
+			if (i == _currents.dotIndex || _currents.moveAllDots) {
+				tmpx.addKey(_currents.splineX.getFrame(i, 0.f) + dx);
+				tmpy.addKey(_currents.splineY.getFrame(i, 0.f) + dy);
+			} else {
+				tmpx.addKey(_currents.splineX.getFrame(i, 0.f));
+				tmpy.addKey(_currents.splineY.getFrame(i, 0.f));
+			}
 		}
-		_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
-	} else if (_mouseDown) {
-		_worldCenter += (mousePos - _lastMousePos);
+		tmpx.CalculateGradient(true);
+		tmpy.CalculateGradient(true);
+		_currents.block->xPoses = tmpx;
+		_currents.block->yPoses = tmpy;
+	} else {
+		if (m_mouseJoint) {
+			m_mouseJoint->SetTarget(p);
+		} else if (_editor && _mouseDown && _selectedBody) {
+			b2Vec2 pos = _selectedBody->GetPosition();
+			pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
+			if (_netVisible) {
+				pos = p;
+				pos.x = round(pos.x / 0.1f) * 0.1f;
+				pos.y = round(pos.y / 0.1f) * 0.1f;
+			}
+			_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
+		} else if (_mouseDown) {
+			_worldCenter += (mousePos - _lastMousePos);
+		}
 	}
 	_lastMousePos = mousePos;
 	m_mouseWorld = p;
@@ -556,6 +595,11 @@ void TileEditor::Draw() {
 			Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
 		}
 	}
+
+	for (unsigned int i = 0; i < _level.background.size(); ++i) {
+		_level.background[i]->DrawLines(_worldCenter, _viewScale);
+	}
+
 	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
 	bool exception = false;
@@ -603,7 +647,6 @@ void TileEditor::Draw() {
 		const b2Transform & xf = _selectedBody->GetTransform();
 
 		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
-
 
 		DrawElement(buffer, bt->_uv, xf.position, pselect);
 		Render::GetDC()->Gfx_FinishBatch(1);
@@ -789,11 +832,18 @@ void TileEditor::OnMessage(const std::string &message) {
 			ResetState();
 		}
 	} else if (message == "add new elem") {
-		for (Collection::iterator i = _collection.begin(); i != _collection.end(); i++) {
-			Messager::SendMessage("SmallList", "add " + (*i)->_id);
+		LevelBlock *b = new LevelBlock();
+		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
+		for (int i = 0; i < 4; ++i) {
+			b->AddPoint(cx + 32.f * sin(M_PI / 2 * i), cy + 32.f * cos(M_PI / 2 * i));
 		}
-		Messager::SendMessage("SmallList", "special add cancel");
-		_waitAddNewElem = true;
+		_level.background.push_back(b);
+		//for (Collection::iterator i = _collection.begin(); i != _collection.end(); i++) {
+		//	Messager::SendMessage("SmallList", "add " + (*i)->_id);
+		//}
+		//Messager::SendMessage("SmallList", "special add cancel");
+		//_waitAddNewElem = true;
 	} else if (message == "left") {
 	} else if (message == "right") {
 	} else if (message == "up") {
@@ -954,4 +1004,52 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 
 	_doc.SaveFile();
 	_currentLevel = levelName;
+}
+
+
+void LevelBlock::DrawLines(const FPoint2D &worldPos, float scale) {
+	float t = 0.f;
+	float x1 = xPoses.getGlobalFrame(0.f) * scale + worldPos.x;
+	float y1 = yPoses.getGlobalFrame(0.f) * scale + worldPos.y;
+	float x2, y2;
+	while (t + 1.f / 50 < 1.f) {
+		t += 1.f / 50;//количество прямых кусочков из которых рисуется кривая сплайна
+		x2 = xPoses.getGlobalFrame(t) * scale + worldPos.x;
+		y2 = yPoses.getGlobalFrame(t) * scale + worldPos.y;
+		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);
+		x1 = x2;
+		y1 = y2;
+	}
+	x2 = xPoses.getGlobalFrame(1.f) * scale + worldPos.x;
+	y2 = yPoses.getGlobalFrame(1.f) * scale + worldPos.y;
+	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);			
+
+	static const float SIZEX = 3;
+	for (unsigned int i = 0; i < xPoses.keys.size() - 1; ++i) {
+		float x = xPoses.getFrame(i, 0.f) * scale + worldPos.x;
+		float y = yPoses.getFrame(i, 0.f) * scale + worldPos.y;
+		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFFFFFF);
+		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFFFFFF);
+	}
+}
+
+void LevelBlock::AddPoint(float x, float y) {
+	xPoses.addKey(x);
+	xPoses.CalculateGradient(true);
+	yPoses.addKey(y);
+	yPoses.CalculateGradient(true);
+}
+
+
+int LevelBlock::SearchNearest(float x, float y) {
+	int result = -1;
+	static const float SIZEX = 6;
+	for (unsigned int i = 0; i < xPoses.keys.size() - 1 && result < 0; ++i) {
+		float px = xPoses.getFrame(i, 0.f);
+		float py = yPoses.getFrame(i, 0.f);
+		if ((FPoint2D(x, y) - FPoint2D(px, py)).Length() < SIZEX) {
+			result = i;
+		}
+	}
+	return result;
 }
