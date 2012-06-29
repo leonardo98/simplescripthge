@@ -21,6 +21,7 @@ struct LevelBlock {
 	void AddPoint(float x, float y);
 	int SearchNearest(float x, float y);
 	bool CreateDot(float x, float y);
+	void RemoveDot(int index);
 };
 
 struct CurrentBlock {
