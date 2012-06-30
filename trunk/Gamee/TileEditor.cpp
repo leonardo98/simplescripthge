@@ -24,18 +24,18 @@ void TileEditorDestructionListener::SayGoodbye(b2Joint* joint)
 }
 
 void TileEditor::LoadTemplates(const std::string &filename) {
-	TiXmlDocument doc(Render::GetDC()->Resource_MakePath(filename.c_str()));
-	if (!doc.LoadFile()) {
-		LOG("File not found : " + Render::GetDC()->Resource_MakePath(filename.c_str()));
-		return;
-	}
-	TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement("b2object");
-	while (bodyDef) {
-		_collection.push_back(new BodyTemplate(bodyDef));
-		bodyDef = bodyDef->NextSiblingElement("b2object");
-	}
-	_collection.push_back(_fish = new BodyTemplate(doc.RootElement()->FirstChildElement("fish")));
-	_collection.push_back(_cat = new BodyTemplate(doc.RootElement()->FirstChildElement("cat")));
+	//TiXmlDocument doc(Render::GetDC()->Resource_MakePath(filename.c_str()));
+	//if (!doc.LoadFile()) {
+	//	LOG("File not found : " + Render::GetDC()->Resource_MakePath(filename.c_str()));
+	//	return;
+	//}
+	//TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement("b2object");
+	//while (bodyDef) {
+	//	_collection.push_back(new BodyTemplate(bodyDef));
+	//	bodyDef = bodyDef->NextSiblingElement("b2object");
+	//}
+	//_collection.push_back(_fish = new BodyTemplate(doc.RootElement()->FirstChildElement("fish")));
+	//_collection.push_back(_cat = new BodyTemplate(doc.RootElement()->FirstChildElement("cat")));
 }
 
 TileEditor::TileEditor(TiXmlElement *xe)
@@ -92,6 +92,7 @@ TileEditor::TileEditor(TiXmlElement *xe)
 
 TileEditor::~TileEditor()
 {
+	ClearLevel();
 	EraseAllBodyes();
 	// By deleting the world, we delete the bomb, mouse joint, etc.
 	delete m_world;
@@ -297,28 +298,28 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
 		bool found = false;
-		for (unsigned int i = 0; i < _level.background.size() && !found; ++i) {
-			_currents.dotIndex = _level.background[i]->SearchNearest(fp.x, fp.y);
+		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
+			_currents.dotIndex = _level.ground[i]->SearchNearest(fp.x, fp.y);
 			_currents.moveAllDots = Render::GetDC()->Input_GetKeyState(HGEK_ALT);
-			_currents.block = _level.background[i];
-			_currents.splineX = _level.background[i]->xPoses;
-			_currents.splineY = _level.background[i]->yPoses;
+			_currents.block = _level.ground[i];
+			_currents.splineX = _level.ground[i]->xPoses;
+			_currents.splineY = _level.ground[i]->yPoses;
 			_currents.downX = fp.x;
 			_currents.downY = fp.y;
 			found = _currents.dotIndex >= 0;
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
 		bool found = false;
-		for (unsigned int i = 0; i < _level.background.size() && !found; ++i) {
-			found = _level.background[i]->CreateDot(fp.x, fp.y);
+		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
+			found = _level.ground[i]->CreateDot(fp.x, fp.y);
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_D)) {
 		bool found = false;
-		for (unsigned int i = 0; i < _level.background.size() && !found; ++i) {
-			int index = _level.background[i]->SearchNearest(fp.x, fp.y);
+		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
+			int index = _level.ground[i]->SearchNearest(fp.x, fp.y);
 			if (index >= 0) {
 				found = true;
-				_level.background[i]->RemoveDot(index);
+				_level.ground[i]->RemoveDot(index);
 			}
 		}
 	}
@@ -611,8 +612,8 @@ void TileEditor::Draw() {
 		}
 	}
 
-	for (unsigned int i = 0; i < _level.background.size(); ++i) {
-		_level.background[i]->DrawLines(_worldCenter, _viewScale);
+	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+		_level.ground[i]->DrawLines(_worldCenter, _viewScale);
 	}
 
 	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
@@ -773,23 +774,23 @@ void TileEditor::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 }
 
 void TileEditor::SaveState() {
-	_state.clear();
-	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		const b2Transform & xf = body->GetTransform();
-		MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
-		if (myBody->base->_fixed) {
-			body->SetType(b2_staticBody);// ХАК - QueryAABB не работает со статичными объктами, 
-										 // т.е. иначе их нельзя будет двигать в редакторе
-		}
-		BodyState s;
-		s.base = myBody->base;
-		s.angle = xf.GetAngle();
-		s.pos = xf.position;
-		s.width = myBody->width;
-		s.height = myBody->height;
-		s.radius = myBody->radius;
-		_state.push_back(s);
-	}
+	//_state.clear();
+	//for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+	//	const b2Transform & xf = body->GetTransform();
+	//	MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
+	//	if (myBody->base->_fixed) {
+	//		body->SetType(b2_staticBody);// ХАК - QueryAABB не работает со статичными объктами, 
+	//									 // т.е. иначе их нельзя будет двигать в редакторе
+	//	}
+	//	BodyState s;
+	//	s.base = myBody->base;
+	//	s.angle = xf.GetAngle();
+	//	s.pos = xf.position;
+	//	s.width = myBody->width;
+	//	s.height = myBody->height;
+	//	s.radius = myBody->radius;
+	//	_state.push_back(s);
+	//}
 }
 
 void TileEditor::ResetState() {
@@ -853,7 +854,7 @@ void TileEditor::OnMessage(const std::string &message) {
 		for (int i = 0; i < 4; ++i) {
 			b->AddPoint(cx + 32.f * sin(M_PI / 2 * i), cy + 32.f * cos(M_PI / 2 * i));
 		}
-		_level.background.push_back(b);
+		_level.ground.push_back(b);
 		//for (Collection::iterator i = _collection.begin(); i != _collection.end(); i++) {
 		//	Messager::SendMessage("SmallList", "add " + (*i)->_id);
 		//}
@@ -916,41 +917,7 @@ void TileEditor::OnMessage(const std::string &message) {
 			if (msg == "cancel") {
 				return;
 			}
-			TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
-			while (xe != NULL && xe->Attribute("id") != msg) {			
-				xe = xe->NextSiblingElement();
-			}
-			assert(xe != NULL);
-			// level loading
-			_state.clear();
-			TiXmlElement *elem = xe->FirstChildElement("element");
-			while (elem != NULL) {
-				TileEditor::BodyState s;
-				std::string typeId = elem->Attribute("type");
-
-				Collection::iterator index = _collection.begin();
-				while ((*index)->_id != typeId && index != _collection.end()) {index++;}
-				assert(index != _collection.end());
-				
-				s.base = (*index);
-				s.pos.x = static_cast<float>(atof(elem->Attribute("x")));
-				s.pos.y = static_cast<float>(atof(elem->Attribute("y")));
-				s.angle = static_cast<float>(atof(elem->Attribute("angle")));
-				s.width = static_cast<float>(atof(elem->Attribute("width")));
-				s.height = static_cast<float>(atof(elem->Attribute("height")));
-				if (s.base->_shape == "circle") {
-					s.radius = static_cast<float>(atof(elem->Attribute("radius")));
-				}
-				_state.push_back(s);
-				elem = elem->NextSiblingElement("element");
-			}
-			TiXmlElement *word = xe->FirstChildElement("word");
-			_worldCenter.x = atof(word->Attribute("x"));
-			_worldCenter.y = atof(word->Attribute("y"));
-			_viewScale = atof(word->Attribute("scale"));
-			SetValueS("play", "", ">>");
-			ResetState();
-			_currentLevel = msg;
+			LoadLevel(msg);
 		} else if (_waitState == WaitForLevelSave) {
 			_waitState = WaitNone;
 			Messager::SendMessage("BigList", "clear");
@@ -997,24 +964,25 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 		elem = elem->NextSiblingElement();
 		_saveLevelXml->RemoveChild(remove);
 	}
-	for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
-		TiXmlElement *elem = new TiXmlElement("element");
-		elem->SetAttribute("type", i->base->_id.c_str());
-		char s[16];
-		sprintf(s, "%f", i->pos.x); elem->SetAttribute("x", s);
-		sprintf(s, "%f", i->pos.y); elem->SetAttribute("y", s);
-		sprintf(s, "%f", i->angle); elem->SetAttribute("angle", s);
-		sprintf(s, "%f", i->width); elem->SetAttribute("width", s);
-		sprintf(s, "%f", i->height); elem->SetAttribute("height", s);
-		if (i->base->_shape == "circle") {
-			sprintf(s, "%f", i->radius); elem->SetAttribute("radius", s);
+	TiXmlElement *elemGround = new TiXmlElement("Ground");
+	_saveLevelXml->LinkEndChild(elemGround);
+	for (LevelBlocks::iterator i = _level.ground.begin(), e = _level.ground.end(); i != e; i++) {
+		TiXmlElement *elem = new TiXmlElement("elem");
+		for (int j = 0; j < (*i)->xPoses.keys.size() - 1; ++j) {
+			TiXmlElement *dot = new TiXmlElement("dot");
+			char s[16];
+			sprintf(s, "%f", (*i)->xPoses.getFrame(j, 0.f)); dot->SetAttribute("x", s);
+			sprintf(s, "%f", (*i)->yPoses.getFrame(j, 0.f)); dot->SetAttribute("y", s);
+			elem->LinkEndChild(dot);
 		}
-		_saveLevelXml->LinkEndChild(elem);
+		elemGround->LinkEndChild(elem);
 	}
 	TiXmlElement *word = new TiXmlElement("word");
 	word->SetAttribute("x", _worldCenter.x);
 	word->SetAttribute("y", _worldCenter.y);
-	word->SetAttribute("scale", _viewScale);
+	char s[16];
+	sprintf(s, "%f", _viewScale);
+	word->SetAttribute("scale", s);
 	_saveLevelXml->LinkEndChild(word);
 
 	_doc.SaveFile();
@@ -1171,3 +1139,58 @@ void LevelBlock::RemoveDot(int index) {
 	yPoses.CalculateGradient(true);
 }
 
+void TileEditor::ClearLevel() {
+	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+		delete _level.ground[i];
+	}
+	_level.ground.clear();
+	for (unsigned int i = 0; i < _level.surpris.size(); ++i) {
+		delete _level.surpris[i];
+	}
+	_level.surpris.clear();
+	for (unsigned int i = 0; i < _level.movable.size(); ++i) {
+		delete _level.movable[i];
+	}
+	_level.movable.clear();
+}
+
+void TileEditor::LoadLevel(std::string &msg) {
+	ClearLevel();
+	TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
+	while (xe != NULL && xe->Attribute("id") != msg) {			
+		xe = xe->NextSiblingElement();
+	}
+	assert(xe != NULL);
+	// level loading
+	_state.clear();
+	TiXmlElement *ground = xe->FirstChildElement("Ground");
+	if (ground) {
+		TiXmlElement *elem = ground->FirstChildElement("elem");
+		while (elem != NULL) {
+			LevelBlock *l = new LevelBlock();
+			_level.ground.push_back(l);
+		
+			SplinePath x;
+			SplinePath y;
+			TiXmlElement *dot = elem->FirstChildElement("dot");
+			while (dot != NULL) {
+				x.addKey(atof(dot->Attribute("x")));
+				y.addKey(atof(dot->Attribute("y")));
+				dot = dot->NextSiblingElement();
+			}
+			x.CalculateGradient(true);
+			y.CalculateGradient(true);
+			l->xPoses = x;
+			l->yPoses = y;
+
+			elem = elem->NextSiblingElement("elem");
+		}
+	}
+	TiXmlElement *word = xe->FirstChildElement("word");
+	_worldCenter.x = atof(word->Attribute("x"));
+	_worldCenter.y = atof(word->Attribute("y"));
+	_viewScale = atof(word->Attribute("scale"));
+	SetValueS("play", "", ">>");
+	//ResetState();
+	_currentLevel = msg;
+}

@@ -38,7 +38,6 @@ typedef std::vector<LevelBlock *> LevelBlocks;
 
 struct LevelSet {
 	LevelBlocks ground;
-	LevelBlocks background;
 	LevelBlocks surpris;
 	LevelBlocks movable;
 };
@@ -141,9 +140,6 @@ protected:
 	const float SLIDER_MIN;
 
 
-	LevelSet _level;
-	CurrentBlock _currents;
-
 
 	std::string _saveLevelName;
 	TiXmlElement *_saveLevelXml;
@@ -195,6 +191,13 @@ protected:
 	void InitParams(b2Body *body);
 	UV _selectedUV[4];
 	inline void DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
+
+
+	LevelSet _level;
+	CurrentBlock _currents;
+	void ClearLevel();
+	void LoadLevel(std::string &msg);
+
 };
 
 #endif//MYENGINE_TILEEDITOR_H
