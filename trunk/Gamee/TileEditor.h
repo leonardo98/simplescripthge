@@ -25,7 +25,6 @@ struct LevelBlock {
 	void DrawLines(const FPoint2D &worldPos, float scale);
 	void DrawTriangles(const FPoint2D &worldPos, float scale);
 	void AddPoint(float x, float y);
-	void SubGenerate();
 	int SearchNearest(float x, float y);
 	bool CreateDot(float x, float y);
 	void RemoveDot(int index);
@@ -155,8 +154,6 @@ protected:
 	FPoint2D _lastMousePos;
 	Settings settings;
 
-
-	Texture *_allElements;
 
 	float _viewScale; // масштаб всей —цены
 	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране

@@ -8,6 +8,8 @@
 #define DEC 0.01f
 #define HALFBORDER 0.0025f
 
+Texture *_allElements;
+
 
 int TileEditor::round(float a) {
 	int b = static_cast<int>(a);
@@ -296,11 +298,6 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	
-	if (!_netVisible && Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
-		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-			_level.ground[i]->SubGenerate();
-		}
-	} else
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
 		bool found = false;
 		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
@@ -1210,6 +1207,11 @@ void TileEditor::LoadLevel(std::string &msg) {
 	SetValueS("play", "", ">>");
 	//ResetState();
 	_currentLevel = msg;
+	if (!_netVisible) {
+		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+			_level.ground[i]->GenerateTriangles();
+		}
+	}
 }
 
 void LevelBlock::ExportToLines(std::vector<FPoint2D> &lineDots) {
@@ -1225,6 +1227,7 @@ void LevelBlock::ExportToLines(std::vector<FPoint2D> &lineDots) {
 }
 
 float sign;
+float minAngle;
 
 void LevelBlock::GenerateTriangles() {
 	triangles.clear();
@@ -1239,7 +1242,8 @@ void LevelBlock::GenerateTriangles() {
 		FPoint2D *b;
 		FPoint2D *c;
 		int index = 0;
-		float minAngle = 180.f;
+		//float minAngle = 180.f;
+		minAngle = 180.f;
 		for (int i = 0; i < dots.size(); ++i) {
 			a = &dots[i];
 			if (i < dots.size() - 1) {
@@ -1253,7 +1257,9 @@ void LevelBlock::GenerateTriangles() {
 				c = &dots[i + 2 - dots.size()];
 			}
 			float angle = (*a - *b).Angle(&(*c - *b));
-			assert(angle > 0.f);
+			if (angle <= 0.f) {
+				assert(false);
+			}
 			if (angle < minAngle) {
 				minAngle = angle;
 				index = i;
@@ -1271,32 +1277,32 @@ void LevelBlock::GenerateTriangles() {
 			c = &dots[index + 2 - dots.size()];
 		}
 
-		// посчитаем центр треугольника
-		FPoint2D m = FPoint2D((a->x + b->x + c->x) / 3.f, (a->y + b->y + c->y) / 3.f);
-		
-		// проверим находиться ли центр треугольника внтури области
-		int counter = 0;
-		for (int j = 0; j < dots.size(); ++j) {
-			FPoint2D *a2 = &dots[j];
-			FPoint2D *b2;
-			if (j < dots.size() - 1) {
-				b2 = &dots[j + 1];
-			} else {
-				b2 = &dots[j + 1 - dots.size()];
-			} 
-			if (a2->x < m.x && m.x <= b2->x) {// найти точку пересечения луча из М и отрезка a2b2
-				float k = (a2->y - b2->y) / (a2->x - b2->x);
-				float b = a2->y - a2->x * k;
-				float y = k * m.x + b;
-				if (y > m.y) {
-					++counter;
-				}
-			}
-		}
+		//// посчитаем центр треугольника
+		//FPoint2D m = FPoint2D((a->x + b->x + c->x) / 3.f, (a->y + b->y + c->y) / 3.f);
+		//
+		//// проверим находиться ли центр треугольника внтури области
+		//int counter = 0;
+		//for (int j = 0; j < dots.size(); ++j) {
+		//	FPoint2D *a2 = &dots[j];
+		//	FPoint2D *b2;
+		//	if (j < dots.size() - 1) {
+		//		b2 = &dots[j + 1];
+		//	} else {
+		//		b2 = &dots[j + 1 - dots.size()];
+		//	} 
+		//	if (a2->x < m.x && m.x <= b2->x) {// найти точку пересечения луча из М и отрезка a2b2
+		//		float k = (a2->y - b2->y) / (a2->x - b2->x);
+		//		float b = a2->y - a2->x * k;
+		//		float y = k * m.x + b;
+		//		if (y > m.y) {
+		//			++counter;
+		//		}
+		//	}
+		//}
 		sign = Math::VMul(*b - *a, *c - *b);
-		if (counter % 2 != 1) {
-			sign *= -1; // если точка m снаружи - меняем знак
-		}
+		//if (counter % 2 != 1) {
+		//	sign *= -1; // если точка m снаружи - меняем знак
+		//}
 	}
 //	return;
 //	int oldSize = dots.size() + 1;
@@ -1328,15 +1334,15 @@ void LevelBlock::GenerateTriangles() {
 				} else {
 					c = &dots[i + 2 - dots.size()];
 				}
-				// выкидываем точки находящиеся на одной линии
-				if (fabs((*a - *c).Length() - (*a - *b).Length() - (*b - *c).Length()) < 1e-3) {
-					if (i < dots.size() - 1) {
-						dots.erase(dots.begin() + i + 1);
-					} else {
-						dots.erase(dots.begin());
-					}
-					break;				
-				}
+				//// выкидываем точки находящиеся на одной линии
+				//if (fabs((*a - *c).Length() - (*a - *b).Length() - (*b - *c).Length()) < 1e-3) {
+				//	if (i < dots.size() - 1) {
+				//		dots.erase(dots.begin() + i + 1);
+				//	} else {
+				//		dots.erase(dots.begin());
+				//	}
+				//	break;				
+				//}
 				
 				bool intersection = false;
 				for (int j = 0; j < dots.size() && !intersection; ++j) {
@@ -1365,14 +1371,6 @@ void LevelBlock::GenerateTriangles() {
 	}
 }
 
-void LevelBlock::SubGenerate() {
-	if (lineDots.size() == 0) {
-		return;
-	}
-	std::vector<FPoint2D> &dots = lineDots;
-}
-
-
 void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri) {
 	tri.v[0].x = a.x;
 	tri.v[0].y = a.y;
@@ -1381,12 +1379,12 @@ void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint
 	tri.v[2].x = c.x;
 	tri.v[2].y = c.y;
 
-	tri.blend = 0;
+	tri.blend = BLEND_ALPHABLEND | BLEND_COLORMUL;
 	// надо добавить в движке HGE режим без блендинга - можно только в игре,
 	// в редакторе не обязательно
-	tri.tex = 0;
+	tri.tex = _allElements->GetTexture();
 	for (unsigned int i = 0; i < 3; ++i) {
-		tri.v[i].col = 0x1F40FF04;
+		tri.v[i].col = 0xFFFFFFFF;
 		tri.v[i].z = 0.f;
 		tri.v[i].tx = tri.v[i].x / 512.f;
 		tri.v[i].ty = tri.v[i].y / 512.f;
