@@ -21,6 +21,8 @@ public:
 	static float lerp(float one, float two, float p);
 	static bool STrinagle(float a, float b, float c, float &s);
 	static std::string IntToStr(int i);
+	static bool Intersection(const FPoint2D &line1Start, const FPoint2D &line1End, 
+								const FPoint2D &line2Start, const FPoint2D &line2End, FPoint2D *result);
 };
 
 #endif//MYENGINE_MATH_H

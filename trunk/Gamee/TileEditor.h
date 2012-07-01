@@ -17,8 +17,15 @@ struct Settings;
 struct LevelBlock {
 	SplinePath xPoses;
 	SplinePath yPoses;
+	std::vector<FPoint2D> lineDots;
+	std::vector<hgeTriple> triangles;
+	void ExportToLines(std::vector<FPoint2D> &lineDots);
+	static void FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri);
+	void GenerateTriangles();
 	void DrawLines(const FPoint2D &worldPos, float scale);
+	void DrawTriangles(const FPoint2D &worldPos, float scale);
 	void AddPoint(float x, float y);
+	void SubGenerate();
 	int SearchNearest(float x, float y);
 	bool CreateDot(float x, float y);
 	void RemoveDot(int index);

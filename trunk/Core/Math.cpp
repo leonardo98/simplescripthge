@@ -182,3 +182,35 @@ void Math::FloatToChar(float f, char *s) {
 		s[i] = 0;
 	}
 }
+
+bool Math::Intersection(const FPoint2D &line1Start, const FPoint2D &line1End, 
+							const FPoint2D &line2Start, const FPoint2D &line2End, FPoint2D *result)
+{
+	float a1 = (line1Start.y - line1End.y);//x coeff
+	float b1 = -(line1Start.x - line1End.x);//y coeff
+	float c1 = - (a1 * line1Start.x + b1 * line1Start.y);
+
+	float a2 = (line2Start.y - line2End.y);//x coeff
+	float b2 = -(line2Start.x - line2End.x);//y coeff
+	float c2 = - (a2 * line2Start.x + b2 * line2Start.y);
+
+	// решаем систему 
+	// a1 * x + b1 * y + c1 = 0
+	// a2 * x + b2 * y + c2 = 0
+
+	float underline = a2 * b1 - a1 * b2;
+	if (fabs(underline) < 1e-3) {
+		return false;
+	}
+	FPoint2D r((b2 * c1 - b1 * c2) / underline, (a1 * c2 - a2 * c1) / underline);
+	if (result) {
+		*result = r;
+	}
+	float l1 = (line1Start - line1End).Length();
+	float l2 = (line2Start - line2End).Length();
+	if ((line1Start - r).Length() < l1 && (line1End - r).Length() < l1
+		&& (line2Start - r).Length() < l2 && (line2End - r).Length() < l2) {
+		return true;
+	}
+	return false;
+}
