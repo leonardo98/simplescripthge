@@ -296,6 +296,11 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	
+	if (!_netVisible && Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+			_level.ground[i]->SubGenerate();
+		}
+	} else
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
 		bool found = false;
 		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
@@ -610,11 +615,15 @@ void TileEditor::Draw() {
 			float y = i * STEP * _viewScale + t;
 			Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
 		}
+		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+			_level.ground[i]->DrawLines(_worldCenter, _viewScale);
+		}
+	} else {
+		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+			_level.ground[i]->DrawTriangles(_worldCenter, _viewScale);
+		}
 	}
 
-	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		_level.ground[i]->DrawLines(_worldCenter, _viewScale);
-	}
 
 	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	unsigned int counter = 0;
@@ -828,6 +837,11 @@ void TileEditor::OnMessage(const std::string &message) {
 		InitParams(_selectedBody);
 	} else if (message == "net") {
 		_netVisible = !_netVisible;
+		if (!_netVisible) {
+			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+				_level.ground[i]->GenerateTriangles();
+			}
+		}
 	} else if (message == "play") {
 		if (_editor) { // переходим в режим игры
 			if (CanLevelStart()) {
@@ -1051,6 +1065,9 @@ bool DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPoint2D &p) {
 }
 
 bool LevelBlock::CreateDot(float x, float y) {
+	if (xPoses.keys.size() >= 50) {
+		return false;
+	}
 	bool result = false;
 	static const float SIZEX = 6;
 	FPoint2D p(x, y);
@@ -1193,4 +1210,213 @@ void TileEditor::LoadLevel(std::string &msg) {
 	SetValueS("play", "", ">>");
 	//ResetState();
 	_currentLevel = msg;
+}
+
+void LevelBlock::ExportToLines(std::vector<FPoint2D> &lineDots) {
+	lineDots.clear();
+	float t = 0.f;
+	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
+	while (t < 1.f) {
+		float x = xPoses.getGlobalFrame(t);
+		float y = yPoses.getGlobalFrame(t);
+		lineDots.push_back(FPoint2D(x, y));
+		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
+	}
+}
+
+float sign;
+
+void LevelBlock::GenerateTriangles() {
+	triangles.clear();
+	std::vector<FPoint2D> &dots = lineDots;
+	ExportToLines(dots);
+
+	//float sign = 0.f;
+	sign = 0.f;
+	{
+		// ищем самый острый угол или наименее тупой
+		FPoint2D *a;
+		FPoint2D *b;
+		FPoint2D *c;
+		int index = 0;
+		float minAngle = 180.f;
+		for (int i = 0; i < dots.size(); ++i) {
+			a = &dots[i];
+			if (i < dots.size() - 1) {
+				b = &dots[i + 1];
+			} else {
+				b = &dots[i + 1 - dots.size()];
+			}
+			if (i < dots.size() - 2) {
+				c = &dots[i + 2];
+			} else {
+				c = &dots[i + 2 - dots.size()];
+			}
+			float angle = (*a - *b).Angle(&(*c - *b));
+			assert(angle > 0.f);
+			if (angle < minAngle) {
+				minAngle = angle;
+				index = i;
+			}
+		}
+		a = &dots[index];
+		if (index < dots.size() - 1) {
+			b = &dots[index + 1];
+		} else {
+			b = &dots[index + 1 - dots.size()];
+		}
+		if (index < dots.size() - 2) {
+			c = &dots[index + 2];
+		} else {
+			c = &dots[index + 2 - dots.size()];
+		}
+
+		// посчитаем центр треугольника
+		FPoint2D m = FPoint2D((a->x + b->x + c->x) / 3.f, (a->y + b->y + c->y) / 3.f);
+		
+		// проверим находиться ли центр треугольника внтури области
+		int counter = 0;
+		for (int j = 0; j < dots.size(); ++j) {
+			FPoint2D *a2 = &dots[j];
+			FPoint2D *b2;
+			if (j < dots.size() - 1) {
+				b2 = &dots[j + 1];
+			} else {
+				b2 = &dots[j + 1 - dots.size()];
+			} 
+			if (a2->x < m.x && m.x <= b2->x) {// найти точку пересечения луча из М и отрезка a2b2
+				float k = (a2->y - b2->y) / (a2->x - b2->x);
+				float b = a2->y - a2->x * k;
+				float y = k * m.x + b;
+				if (y > m.y) {
+					++counter;
+				}
+			}
+		}
+		sign = Math::VMul(*b - *a, *c - *b);
+		if (counter % 2 != 1) {
+			sign *= -1; // если точка m снаружи - меняем знак
+		}
+	}
+//	return;
+//	int oldSize = dots.size() + 1;
+	while (dots.size() > 0) {
+		//if (oldSize == dots.size()) {
+		//	dots.clear();
+		//	break;
+		//}
+		//oldSize = dots.size();
+		assert(dots.size() > 2);
+		if (dots.size() == 3) {
+			hgeTriple tri;
+			FillTriangle(dots[0], dots[1], dots[2], tri);
+			triangles.push_back(tri);
+			dots.clear();
+		} else {
+			FPoint2D *a;
+			FPoint2D *b;
+			FPoint2D *c;
+			for (int i = 0; i < dots.size(); ++i) {
+				a = &dots[i];
+				if (i < dots.size() - 1) {
+					b = &dots[i + 1];
+				} else {
+					b = &dots[i + 1 - dots.size()];
+				}
+				if (i < dots.size() - 2) {
+					c = &dots[i + 2];
+				} else {
+					c = &dots[i + 2 - dots.size()];
+				}
+				// выкидываем точки находящиеся на одной линии
+				if (fabs((*a - *c).Length() - (*a - *b).Length() - (*b - *c).Length()) < 1e-3) {
+					if (i < dots.size() - 1) {
+						dots.erase(dots.begin() + i + 1);
+					} else {
+						dots.erase(dots.begin());
+					}
+					break;				
+				}
+				
+				bool intersection = false;
+				for (int j = 0; j < dots.size() && !intersection; ++j) {
+					FPoint2D *a2 = &dots[j];
+					FPoint2D *b2;
+					if (j < dots.size() - 1) {
+						b2 = &dots[j + 1];
+					} else {
+						b2 = &dots[j + 1 - dots.size()];
+					}
+					intersection = (a != a2 && a != b2 && b != a2 && b != b2 && Math::Intersection(*a, *c, *a2, *b2, NULL));
+				}
+				if (!intersection && Math::VMul(*b - *a, *c - *b) * sign > 0.f) {// выбираем только те что с нашим знаком
+					hgeTriple tri;
+					FillTriangle(*a, *b, *c, tri);
+					triangles.push_back(tri);
+					if (i < dots.size() - 1) {
+						dots.erase(dots.begin() + i + 1);
+					} else {
+						dots.erase(dots.begin());
+					}
+					break;
+				}
+			}
+		}		
+	}
+}
+
+void LevelBlock::SubGenerate() {
+	if (lineDots.size() == 0) {
+		return;
+	}
+	std::vector<FPoint2D> &dots = lineDots;
+}
+
+
+void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri) {
+	tri.v[0].x = a.x;
+	tri.v[0].y = a.y;
+	tri.v[1].x = b.x;
+	tri.v[1].y = b.y;
+	tri.v[2].x = c.x;
+	tri.v[2].y = c.y;
+
+	tri.blend = 0;
+	// надо добавить в движке HGE режим без блендинга - можно только в игре,
+	// в редакторе не обязательно
+	tri.tex = 0;
+	for (unsigned int i = 0; i < 3; ++i) {
+		tri.v[i].col = 0x1F40FF04;
+		tri.v[i].z = 0.f;
+		tri.v[i].tx = tri.v[i].x / 512.f;
+		tri.v[i].ty = tri.v[i].y / 512.f;
+	}
+}
+
+void LevelBlock::DrawTriangles(const FPoint2D &worldPos, float scale) {
+	for (unsigned int i = 0; i < triangles.size(); ++i) {
+		hgeTriple tri = triangles[i];
+		for (unsigned int i = 0; i < 3; ++i) {
+			tri.v[i].x = tri.v[i].x * scale + worldPos.x;
+			tri.v[i].y = tri.v[i].y * scale + worldPos.y;
+		}
+		Render::GetDC()->Gfx_RenderTriple(&tri);
+	}
+
+	if (lineDots.size() >= 2) {
+		// test debug
+		float x1 = lineDots[0].x * scale + worldPos.x;
+		float y1 = lineDots[0].y * scale + worldPos.y;
+		float x2, y2;
+		for (unsigned int i = 0; i < lineDots.size(); ++i) {
+			x2 = lineDots[i].x * scale + worldPos.x;
+			y2 = lineDots[i].y * scale + worldPos.y;
+			Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);
+			x1 = x2;
+			y1 = y2;
+		}
+		x2 = lineDots[0].x * scale + worldPos.x;
+		y2 = lineDots[0].y * scale + worldPos.y;
+		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);			
+	}
 }
