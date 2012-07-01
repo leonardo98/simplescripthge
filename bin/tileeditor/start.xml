@@ -72,4 +72,5 @@
       </IButton>
     </gui>
   </IPanel-->
+  <FpsCounter/>
 </fileroot>

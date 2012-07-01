@@ -206,8 +206,8 @@ bool Math::Intersection(const FPoint2D &line1Start, const FPoint2D &line1End,
 	if (result) {
 		*result = r;
 	}
-	float l1 = (line1Start - line1End).Length();
-	float l2 = (line2Start - line2End).Length();
+	float l1 = (line1Start - line1End).Length() - 1e-3;
+	float l2 = (line2Start - line2End).Length() - 1e-3;
 	if ((line1Start - r).Length() < l1 && (line1End - r).Length() < l1
 		&& (line2Start - r).Length() < l2 && (line2End - r).Length() < l2) {
 		return true;
