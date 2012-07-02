@@ -1305,7 +1305,7 @@ void LevelBlock::GenerateTriangles() {
 		//}
 	}
 //	return;
-//	int oldSize = dots.size() + 1;
+	//int oldSize = dots.size() + 1;
 	while (dots.size() > 0) {
 		//if (oldSize == dots.size()) {
 		//	dots.clear();
@@ -1355,6 +1355,14 @@ void LevelBlock::GenerateTriangles() {
 					}
 					intersection = (a != a2 && a != b2 && b != a2 && b != b2 && Math::Intersection(*a, *c, *a2, *b2, NULL));
 				}
+				std::vector<FPoint2D> triangle(3);
+				triangle[0] = *a;
+				triangle[1] = *b;
+				triangle[2] = *c;
+				for (int j = 0; j < dots.size() && !intersection; ++j) {
+					FPoint2D *a2 = &dots[j];
+					intersection = (a2 != a && a2 != b && a2 != c && Math::Inside(*a2, triangle));
+				}
 				if (!intersection && Math::VMul(*b - *a, *c - *b) * sign > 0.f) {// выбираем только те что с нашим знаком
 					hgeTriple tri;
 					FillTriangle(*a, *b, *c, tri);
@@ -1392,7 +1400,11 @@ void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint
 }
 
 void LevelBlock::DrawTriangles(const FPoint2D &worldPos, float scale) {
-	for (unsigned int i = 0; i < triangles.size(); ++i) {
+	//float x, y;
+	//Render::GetDC()->Input_GetMousePos(&x, &y);
+	//float f = min(1.f, max(0.f, x / 800));
+	int n = triangles.size();// * f;
+	for (unsigned int i = 0; i < n; ++i) {
 		hgeTriple tri = triangles[i];
 		for (unsigned int i = 0; i < 3; ++i) {
 			tri.v[i].x = tri.v[i].x * scale + worldPos.x;
