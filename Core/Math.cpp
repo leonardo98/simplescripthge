@@ -214,3 +214,27 @@ bool Math::Intersection(const FPoint2D &line1Start, const FPoint2D &line1End,
 	}
 	return false;
 }
+
+bool Math::Inside(const FPoint2D m, const std::vector<FPoint2D> &dots) {
+	// проверим находиться ли центр треугольника внтури области
+	int counter = 0;
+	int n = dots.size();
+	for (int j = 0; j < n; ++j) {
+		const FPoint2D *a2 = &dots[j];
+		const FPoint2D *b2;
+		if (j < dots.size() - 1) {
+			b2 = &dots[j + 1];
+		} else {
+			b2 = &dots[j + 1 - dots.size()];
+		} 
+		if (a2->x < m.x && m.x <= b2->x) {// найти точку пересечения луча из М и отрезка a2b2
+			float k = (a2->y - b2->y) / (a2->x - b2->x);
+			float b = a2->y - a2->x * k;
+			float y = k * m.x + b;
+			if (y > m.y) {
+				++counter;
+			}
+		}
+	}
+	return (counter % 2 == 1);
+}

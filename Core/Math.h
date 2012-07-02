@@ -21,8 +21,11 @@ public:
 	static float lerp(float one, float two, float p);
 	static bool STrinagle(float a, float b, float c, float &s);
 	static std::string IntToStr(int i);
+	
+	// поиск пересечения двух отрезков
 	static bool Intersection(const FPoint2D &line1Start, const FPoint2D &line1End, 
 								const FPoint2D &line2Start, const FPoint2D &line2End, FPoint2D *result);
+	static bool Inside(const FPoint2D m, const std::vector<FPoint2D> &dots);
 };
 
 #endif//MYENGINE_MATH_H
