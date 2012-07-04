@@ -47,7 +47,7 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2)
 //	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
 	, Messager("tile_editor")
-	, _editor(false)
+	, _editor(true)
 	, _selectedBody(NULL)
 	, _signal(0.f)
 	, _currentLevel("")
@@ -673,10 +673,16 @@ void TileEditor::Draw() {
 		DrawElement(buffer, bt->_uv, xf.position, pselect);
 		Render::GetDC()->Gfx_FinishBatch(1);
 	}
+	char buff[10];
+	Math::FloatToChar(_viewScale, buff);
+	Render::PrintString(940, 0, "", buff);
 }
 
 void TileEditor::Update(float deltaTime) {	
 	if (_editor) {
+		if (Render::GetDC()->Input_GetKeyState(HGEK_HOME)) {
+			_viewScale = 1.f;
+		}
 		_signal += 2 * deltaTime;
 		while (_signal > 1.f) {
 			_signal -= 1.f;
@@ -819,6 +825,7 @@ void TileEditor::OnMessage(const std::string &message) {
 			EraseAllBodyes();
 			_worldCenter = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 			_viewScale = 1.f;
+			ClearLevel();
 		}
 		_waitYesNoNewLevel = false;
 	} else if (_waitYesNoDelSelected) {
