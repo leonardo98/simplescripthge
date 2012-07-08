@@ -60,6 +60,7 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, SLIDER_SCALE(1.2f)
 	, SLIDER_MIN(0.2f)
 	, _netVisible(true)
+	, _waitForImage(false)
 {
 	_currents.dotIndex = -1;
 	_currents.moveAllDots = false;
@@ -597,6 +598,9 @@ void TileEditor::Draw() {
 	int max = 1;
 	Vertex *buffer;
 	if (_netVisible) {
+		for (unsigned int i = 0; i < _level.images.size(); ++i) {
+			_level.images[i].sprite->RenderEx(_level.images[i].pos.x + _worldCenter.x, _level.images[i].pos.y + _worldCenter.y, 0.f, _viewScale);// DrawLines(_worldCenter, _viewScale);
+		}
 		float STEP = 64.f;
 		int n = SCREEN_WIDTH / (_viewScale * STEP);
 		float t = _worldCenter.x / (STEP * _viewScale);
@@ -866,18 +870,13 @@ void TileEditor::OnMessage(const std::string &message) {
 			ResetState();
 		}
 	} else if (message == "add new elem") {
-		LevelBlock *b = new LevelBlock();
-		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
-		for (int i = 0; i < 4; ++i) {
-			b->AddPoint(cx + 32.f * sin(M_PI / 2 * i), cy + 32.f * cos(M_PI / 2 * i));
-		}
-		_level.ground.push_back(b);
 		//for (Collection::iterator i = _collection.begin(); i != _collection.end(); i++) {
 		//	Messager::SendMessage("SmallList", "add " + (*i)->_id);
 		//}
-		//Messager::SendMessage("SmallList", "special add cancel");
-		//_waitAddNewElem = true;
+		Messager::SendMessage("SmallList", "add curv");
+		Messager::SendMessage("SmallList", "add image");
+		Messager::SendMessage("SmallList", "special add cancel");
+		_waitAddNewElem = true;
 	} else if (message == "left") {
 	} else if (message == "right") {
 	} else if (message == "up") {
@@ -918,7 +917,19 @@ void TileEditor::OnMessage(const std::string &message) {
 		Messager::SendMessage("BigList", "special add as new");
 		_waitState = WaitForLevelSave;
 	} else if (CanCut(message, "button pressed ", msg)) {
-		if (_waitAddNewElem) {
+		if (_waitForImage) {
+			_waitForImage = false;
+			Messager::SendMessage("MiddleList", "clear");
+			if (msg == "cancel") {
+				return;
+			}
+			OneImage image;
+			image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
+			image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
+			image.pos = FPoint2D(0.f, 0.f);
+			image.filePath = msg;
+			_level.images.push_back(image);
+		} else if (_waitAddNewElem) {
 			_waitAddNewElem = false;
 			Messager::SendMessage("SmallList", "clear");
 			if (msg == "cancel") {
@@ -928,7 +939,49 @@ void TileEditor::OnMessage(const std::string &message) {
 				SetValueS("play", "", ">>");
 				ResetState();
 			}
-			InitParams(AddElement(msg));
+			//InitParams(AddElement(msg));
+			if (msg == "curv") {
+				LevelBlock *b = new LevelBlock();
+				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
+				for (int i = 0; i < 4; ++i) {
+					b->AddPoint(cx + 32.f * sin(M_PI / 2 * i), cy + 32.f * cos(M_PI / 2 * i));
+				}
+				_level.ground.push_back(b);
+			} else if (msg == "image") {
+				_waitForImage = true;
+				{
+					WIN32_FIND_DATA FindFileData;
+					HANDLE hf;
+					std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
+					s += "data\\images\\*.jpg";
+					hf = FindFirstFile(s.c_str(), &FindFileData);
+					if (hf != INVALID_HANDLE_VALUE){
+						do {
+							//std::cout << FindFileData.cFileName << "\n";
+							Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
+						}
+						while (FindNextFile(hf,&FindFileData) != 0);
+						FindClose(hf);
+					}
+				}
+				{
+					WIN32_FIND_DATA FindFileData;
+					HANDLE hf;
+					std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
+					s += "data\\images\\*.png";
+					hf = FindFirstFile(s.c_str(), &FindFileData);
+					if (hf != INVALID_HANDLE_VALUE){
+						do {
+							//std::cout << FindFileData.cFileName << "\n";
+							Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
+						}
+						while (FindNextFile(hf,&FindFileData) != 0);
+						FindClose(hf);
+					}
+				}
+				Messager::SendMessage("MiddleList", "special add cancel");
+			}
 		} else if (_waitState == WaitForLevelOpen) {
 			_waitState = WaitNone;
 			Messager::SendMessage("BigList", "clear");
@@ -995,6 +1048,15 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 		}
 		elemGround->LinkEndChild(elem);
 	}
+
+	TiXmlElement *imagesList = new TiXmlElement("Images");
+	for (int i = 0; i < _level.images.size(); i++) {
+		TiXmlElement *image = new TiXmlElement("image");
+		image->SetAttribute("filePath", _level.images[i].filePath.c_str());
+		imagesList->LinkEndChild(image);
+	}
+	_saveLevelXml->LinkEndChild(imagesList);
+
 	TiXmlElement *word = new TiXmlElement("word");
 	word->SetAttribute("x", _worldCenter.x);
 	word->SetAttribute("y", _worldCenter.y);
@@ -1018,20 +1080,20 @@ void LevelBlock::DrawLines(const FPoint2D &worldPos, float scale) {
 		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
 		x2 = xPoses.getGlobalFrame(t) * scale + worldPos.x;
 		y2 = yPoses.getGlobalFrame(t) * scale + worldPos.y;
-		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);
+		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);
 		x1 = x2;
 		y1 = y2;
 	}
 	x2 = xPoses.getGlobalFrame(1.f) * scale + worldPos.x;
 	y2 = yPoses.getGlobalFrame(1.f) * scale + worldPos.y;
-	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);			
+	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);			
 
 	static const float SIZEX = 3;
 	for (unsigned int i = 0; i < xPoses.keys.size() - 1; ++i) {
 		float x = xPoses.getFrame(i, 0.f) * scale + worldPos.x;
 		float y = yPoses.getFrame(i, 0.f) * scale + worldPos.y;
-		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFFFFFF);
-		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFFFFFF);
+		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFF0000);
+		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFF0000);
 	}
 }
 
@@ -1173,6 +1235,11 @@ void TileEditor::ClearLevel() {
 		delete _level.movable[i];
 	}
 	_level.movable.clear();
+	for (unsigned int i = 0; i < _level.images.size(); ++i) {
+		delete _level.images[i].sprite;
+		Render::GetDC()->Texture_Free(_level.images[i].texture);
+	}
+	_level.images.clear();
 }
 
 void TileEditor::LoadLevel(std::string &msg) {
@@ -1207,6 +1274,21 @@ void TileEditor::LoadLevel(std::string &msg) {
 			elem = elem->NextSiblingElement("elem");
 		}
 	}
+	TiXmlElement *imagesList = xe->FirstChildElement("Images");
+	if (imagesList) {
+		TiXmlElement *elem = imagesList->FirstChildElement("image");
+		while (elem != NULL) {
+			OneImage image;
+			std::string msg = elem->Attribute("filePath");
+			image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
+			image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
+			image.pos = FPoint2D(0.f, 0.f);
+			image.filePath = msg;
+			_level.images.push_back(image);
+			elem = elem->NextSiblingElement("image");
+		}
+	}
+
 	TiXmlElement *word = xe->FirstChildElement("word");
 	_worldCenter.x = atof(word->Attribute("x"));
 	_worldCenter.y = atof(word->Attribute("y"));
