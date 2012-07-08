@@ -36,6 +36,7 @@
         SetBoolValue("small", "visible", true);
       </IButton>
       <ButtonList name="SmallList" receiver="tile_editor" x="140" y="40" width="40" height="40" stepDown="43" stepRight="43" itemsInRow="3"/>
+      <ButtonList name="MiddleList" receiver="tile_editor" x="140" y="40" width="200" height="40" stepDown="43" stepRight="43" itemsInRow="1"/>
     </gui>
   </IPanel>
   <IRadioBtns name="radio" receiver="tile_editor" x="20" y="170" width="30" height="30" stepDown="33" itemsInRow="1"/>
