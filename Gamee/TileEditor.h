@@ -30,6 +30,13 @@ struct LevelBlock {
 	void RemoveDot(int index);
 };
 
+struct OneImage {
+	HTEXTURE texture;
+	hgeSprite *sprite;
+	FPoint2D pos;
+	std::string filePath;
+};
+
 struct CurrentBlock {
 	LevelBlock *block;
 	int dotIndex;
@@ -46,6 +53,7 @@ struct LevelSet {
 	LevelBlocks ground;
 	LevelBlocks surpris;
 	LevelBlocks movable;
+	std::vector<OneImage> images;
 };
 
 // This is called when a joint in the world is implicitly destroyed
@@ -140,6 +148,7 @@ protected:
 	bool _waitYesNoDelSelected;
 	bool _waitYesNoOverwrite;
 	bool _waitAddNewElem;
+	bool _waitForImage;
 	int SCREEN_WIDTH;
 	int SCREEN_HEIGHT;
 	const float SLIDER_SCALE;
