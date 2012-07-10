@@ -62,6 +62,7 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, _netVisible(true)
 	, _waitForImage(false)
 {
+	_currentElement.selected = SelectedElement::none;
 	_currents.dotIndex = -1;
 	_currents.moveAllDots = false;
 	if (!_doc.LoadFile(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + LEVELS_FILE).c_str()))) {
@@ -325,6 +326,18 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 				_level.ground[i]->RemoveDot(index);
 			}
 		}
+	} else {
+		_currentElement.selected = SelectedElement::none;
+		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+			if (_level.beauties[i].sprite->HasPixel(mousePos.x, mousePos.y)) {
+				_currentElement.selected = SelectedElement::beauty_element;
+				_currentElement.index = i;
+				break;
+			}
+		}
+		if (_currentElement.selected == SelectedElement::none) {
+		} else if (_currentElement.selected = SelectedElement::beauty_element) {
+		}
 	}
 
 	//b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
@@ -478,7 +491,12 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
 	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
 
-	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
+	if (_currentElement.selected != SelectedElement::none && _mouseDown) {
+		if (_currentElement.selected == SelectedElement::beauty_element) {
+			_level.beauties[_currentElement.index].pos.x += (p.x - m_mouseWorld.x);
+			_level.beauties[_currentElement.index].pos.y -= (p.y - m_mouseWorld.y);
+		}
+	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
 		SplinePath tmpx, tmpy;
 		float dx = p.x - _currents.downX;
 		float dy = - (p.y + _currents.downY);
@@ -518,7 +536,11 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 bool TileEditor::OnMouseWheel(int direction) {
 	float old = _viewScale;
 	FPoint2D fp = 1.f / _viewScale * (_lastMousePos - _worldCenter);
-	if (direction > 0 && _viewScale < 4.f) {
+	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currentElement.selected != SelectedElement::none) {
+		if (_currentElement.selected == SelectedElement::beauty_element) {
+			_level.beauties[_currentElement.index].angle += direction * 3;
+		}
+	} else if (direction > 0 && _viewScale < 4.f) {
 		_viewScale *= 1.09f * direction;
 	} else if (direction < 0 && _viewScale > 1.f / 8.f) {
 		_viewScale *= 0.9f * abs(direction);
@@ -599,7 +621,7 @@ void TileEditor::Draw() {
 	Vertex *buffer;
 	if (_netVisible) {
 		for (unsigned int i = 0; i < _level.images.size(); ++i) {
-			_level.images[i].sprite->RenderEx(_level.images[i].pos.x + _worldCenter.x, _level.images[i].pos.y + _worldCenter.y, 0.f, _viewScale);// DrawLines(_worldCenter, _viewScale);
+			_level.images[i].sprite->RenderEx(_level.images[i].pos.x * _viewScale + _worldCenter.x, _level.images[i].pos.y * _viewScale + _worldCenter.y, 0.f, _viewScale);// DrawLines(_worldCenter, _viewScale);
 		}
 		float STEP = 64.f;
 		int n = SCREEN_WIDTH / (_viewScale * STEP);
@@ -624,6 +646,22 @@ void TileEditor::Draw() {
 			_level.ground[i]->DrawTriangles(_worldCenter, _viewScale);
 		}
 	}
+	Render::PushMatrix();
+	Render::MatrixMove(_worldCenter.x, _worldCenter.y);
+	Render::MatrixScale(_viewScale, _viewScale);
+	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+		bool changeColor = false;
+		if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
+			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
+			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
+			changeColor = true;
+		}
+		_level.beauties[i].Draw();
+		if (changeColor) {
+			Render::SetColor(0xFFFFFFFF);
+		}
+	}
+	Render::PopMatrix();
 
 
 	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
@@ -683,13 +721,13 @@ void TileEditor::Draw() {
 }
 
 void TileEditor::Update(float deltaTime) {	
+	_signal += 2 * deltaTime;
+	while (_signal > 1.f) {
+		_signal -= 1.f;
+	}
 	if (_editor) {
 		if (Render::GetDC()->Input_GetKeyState(HGEK_HOME)) {
 			_viewScale = 1.f;
-		}
-		_signal += 2 * deltaTime;
-		while (_signal > 1.f) {
-			_signal -= 1.f;
 		}
 		if (_selectedBody != NULL) {
 			MyBody *myBody = static_cast<MyBody *>(_selectedBody->GetUserData());
@@ -875,6 +913,12 @@ void TileEditor::OnMessage(const std::string &message) {
 		//}
 		Messager::SendMessage("SmallList", "add curv");
 		Messager::SendMessage("SmallList", "add image");
+		Messager::SendMessage("SmallList", "add beauty");
+		Messager::SendMessage("SmallList", "add bonus");
+		Messager::SendMessage("SmallList", "add transport");
+		Messager::SendMessage("SmallList", "add animal");
+		Messager::SendMessage("SmallList", "add start pos");
+		Messager::SendMessage("SmallList", "add end pos");
 		Messager::SendMessage("SmallList", "special add cancel");
 		_waitAddNewElem = true;
 	} else if (message == "left") {
@@ -928,6 +972,13 @@ void TileEditor::OnMessage(const std::string &message) {
 			image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
 			image.pos = FPoint2D(0.f, 0.f);
 			image.filePath = msg;
+			if (_level.images.size() > 0) {
+				for (unsigned int i = 0; i < _level.images.size(); ++i) {
+					delete _level.images[i].sprite;
+					Render::GetDC()->Texture_Free(_level.images[i].texture);
+				}
+				_level.images.clear();
+			}
 			_level.images.push_back(image);
 		} else if (_waitAddNewElem) {
 			_waitAddNewElem = false;
@@ -981,6 +1032,18 @@ void TileEditor::OnMessage(const std::string &message) {
 					}
 				}
 				Messager::SendMessage("MiddleList", "special add cancel");
+			} else if (msg == "beauty") {
+				Beauty b;
+				b.filePath = "data\\beauty\\bush.png";
+				b.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + b.filePath).c_str());
+				b.sprite = new Sprite(b.texture, 0, 0, Render::GetDC()->Texture_GetWidth(b.texture), Render::GetDC()->Texture_GetHeight(b.texture));
+				b.mirror = false;
+				b.scale = 1.f;
+				b.angle = 0.f;
+				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
+				b.pos = FPoint2D(cx, cy);
+				_level.beauties.push_back(b);
 			}
 		} else if (_waitState == WaitForLevelOpen) {
 			_waitState = WaitNone;
@@ -1057,6 +1120,14 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	}
 	_saveLevelXml->LinkEndChild(imagesList);
 
+	TiXmlElement *beautyList = new TiXmlElement("Beauties");
+	for (int i = 0; i < _level.beauties.size(); i++) {
+		TiXmlElement *beauty = new TiXmlElement("beauty");
+		_level.beauties[i].SaveToXml(beauty);
+		beautyList->LinkEndChild(beauty);
+	}
+	_saveLevelXml->LinkEndChild(beautyList);
+
 	TiXmlElement *word = new TiXmlElement("word");
 	word->SetAttribute("x", _worldCenter.x);
 	word->SetAttribute("y", _worldCenter.y);
@@ -1069,6 +1140,41 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	_currentLevel = levelName;
 }
 
+void Beauty::SaveToXml(TiXmlElement *xe) {
+	xe->SetAttribute("filePath", filePath.c_str());
+	xe->SetAttribute("mirror", mirror ? "1" : "0");
+	char s[16];
+	sprintf(s, "%f", scale);
+	xe->SetAttribute("scale", s);
+	sprintf(s, "%f", angle);
+	xe->SetAttribute("angle", s);
+	sprintf(s, "%f", pos.x);
+	xe->SetAttribute("x", s);
+	sprintf(s, "%f", pos.y);
+	xe->SetAttribute("y", s);
+}
+
+void Beauty::Draw() {
+	Render::PushMatrix();
+	Render::MatrixMove(pos.x, pos.y);
+	Render::MatrixRotate(angle / 180 * M_PI);
+	if (mirror) {
+		Render::MatrixScale(-1.f, 1.f);
+	}
+	sprite->Render(- sprite->Width() / 2, - sprite->Height());
+	Render::PopMatrix();
+}
+
+void Beauty::LoadFromXml(TiXmlElement *xe) {
+	filePath = xe->Attribute("filePath");
+	mirror = atoi(xe->Attribute("mirror")) != 0;
+	scale = atof(xe->Attribute("scale"));
+	angle = atof(xe->Attribute("angle"));
+	pos.x = atof(xe->Attribute("x"));
+	pos.y = atof(xe->Attribute("y"));
+	texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + filePath).c_str());
+	sprite = new Sprite(texture, 0, 0, Render::GetDC()->Texture_GetWidth(texture), Render::GetDC()->Texture_GetHeight(texture));
+}
 
 void LevelBlock::DrawLines(const FPoint2D &worldPos, float scale) {
 	float t = 0.f;
@@ -1240,6 +1346,11 @@ void TileEditor::ClearLevel() {
 		Render::GetDC()->Texture_Free(_level.images[i].texture);
 	}
 	_level.images.clear();
+	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+		delete _level.beauties[i].sprite;
+		Render::GetDC()->Texture_Free(_level.beauties[i].texture);
+	}
+	_level.beauties.clear();
 }
 
 void TileEditor::LoadLevel(std::string &msg) {
@@ -1274,18 +1385,32 @@ void TileEditor::LoadLevel(std::string &msg) {
 			elem = elem->NextSiblingElement("elem");
 		}
 	}
-	TiXmlElement *imagesList = xe->FirstChildElement("Images");
-	if (imagesList) {
-		TiXmlElement *elem = imagesList->FirstChildElement("image");
-		while (elem != NULL) {
-			OneImage image;
-			std::string msg = elem->Attribute("filePath");
-			image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
-			image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
-			image.pos = FPoint2D(0.f, 0.f);
-			image.filePath = msg;
-			_level.images.push_back(image);
-			elem = elem->NextSiblingElement("image");
+	{
+		TiXmlElement *imagesList = xe->FirstChildElement("Images");
+		if (imagesList) {
+			TiXmlElement *elem = imagesList->FirstChildElement("image");
+			while (elem != NULL) {
+				OneImage image;
+				std::string msg = elem->Attribute("filePath");
+				image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
+				image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
+				image.pos = FPoint2D(0.f, 0.f);
+				image.filePath = msg;
+				_level.images.push_back(image);
+				elem = elem->NextSiblingElement("image");
+			}
+		}
+	}
+	{
+		TiXmlElement *beautyList = xe->FirstChildElement("Beauties");
+		if (beautyList) {
+			TiXmlElement *elem = beautyList->FirstChildElement("beauty");
+			while (elem != NULL) {
+				Beauty beauty;
+				beauty.LoadFromXml(elem);
+				_level.beauties.push_back(beauty);
+				elem = elem->NextSiblingElement("beauty");
+			}
 		}
 	}
 
