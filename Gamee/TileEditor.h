@@ -63,7 +63,9 @@ struct CurrentBlock {
 struct SelectedElement {
 	enum {
 		none,
-		beauty_element
+		beauty_element,
+		start_flag,
+		end_flag
 	} selected;
 	int index;
 };
@@ -76,6 +78,8 @@ struct LevelSet {
 	LevelBlocks movable;
 	std::vector<Beauty> beauties;
 	std::vector<OneImage> images;
+	std::vector<FPoint2D> startpoint;
+	std::vector<FPoint2D> endpoint;
 };
 
 // This is called when a joint in the world is implicitly destroyed
@@ -233,7 +237,9 @@ protected:
 	SelectedElement _currentElement;
 	void ClearLevel();
 	void LoadLevel(std::string &msg);
-
+	HTEXTURE _flags;
+	Sprite *_startFlag;
+	Sprite *_endFlag;
 };
 
 #endif//MYENGINE_TILEEDITOR_H
