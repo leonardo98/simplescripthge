@@ -62,6 +62,10 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, _netVisible(true)
 	, _waitForImage(false)
 {
+	_flags = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "data\\flagspoint.png").c_str()));
+	_startFlag = new Sprite(_flags, 0, 0, 64, 64);
+	_endFlag = new Sprite(_flags, 63, 0, 64, 64);
+
 	_currentElement.selected = SelectedElement::none;
 	_currents.dotIndex = -1;
 	_currents.moveAllDots = false;
@@ -96,6 +100,9 @@ TileEditor::TileEditor(TiXmlElement *xe)
 
 TileEditor::~TileEditor()
 {
+	delete _startFlag;
+	delete _endFlag;
+	Render::GetDC()->Texture_Free(_flags);
 	ClearLevel();
 	EraseAllBodyes();
 	// By deleting the world, we delete the bomb, mouse joint, etc.
@@ -299,6 +306,7 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	_lastMousePos = mousePos;
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
+	_currentElement.selected = SelectedElement::none;
 	
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
 		bool found = false;
@@ -327,7 +335,6 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 			}
 		}
 	} else {
-		_currentElement.selected = SelectedElement::none;
 		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
 			if (_level.beauties[i].sprite->HasPixel(mousePos.x, mousePos.y)) {
 				_currentElement.selected = SelectedElement::beauty_element;
@@ -336,6 +343,11 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 			}
 		}
 		if (_currentElement.selected == SelectedElement::none) {
+			if (_level.startpoint.size() && _startFlag->HasPixel(mousePos.x, mousePos.y)) {
+				_currentElement.selected = SelectedElement::start_flag;
+			} else if (_level.endpoint.size() && _endFlag->HasPixel(mousePos.x, mousePos.y)) {
+				_currentElement.selected = SelectedElement::end_flag;
+			}
 		} else if (_currentElement.selected = SelectedElement::beauty_element) {
 		}
 	}
@@ -495,6 +507,12 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 		if (_currentElement.selected == SelectedElement::beauty_element) {
 			_level.beauties[_currentElement.index].pos.x += (p.x - m_mouseWorld.x);
 			_level.beauties[_currentElement.index].pos.y -= (p.y - m_mouseWorld.y);
+		} else if (_currentElement.selected == SelectedElement::start_flag) {
+			_level.startpoint[0].x += (p.x - m_mouseWorld.x);
+			_level.startpoint[0].y -= (p.y - m_mouseWorld.y);
+		} else if (_currentElement.selected == SelectedElement::end_flag) {
+			_level.endpoint[0].x += (p.x - m_mouseWorld.x);
+			_level.endpoint[0].y -= (p.y - m_mouseWorld.y);
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
 		SplinePath tmpx, tmpy;
@@ -657,6 +675,30 @@ void TileEditor::Draw() {
 			changeColor = true;
 		}
 		_level.beauties[i].Draw();
+		if (changeColor) {
+			Render::SetColor(0xFFFFFFFF);
+		}
+	}
+	if (_level.startpoint.size()) {
+		bool changeColor = false;
+		if (_currentElement.selected == SelectedElement::start_flag) {
+			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
+			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
+			changeColor = true;
+		}
+		_startFlag->Render(_level.startpoint[0].x, _level.startpoint[0].y - _startFlag->Height());
+		if (changeColor) {
+			Render::SetColor(0xFFFFFFFF);
+		}
+	}
+	if (_level.endpoint.size()) {
+		bool changeColor = false;
+		if (_currentElement.selected == SelectedElement::end_flag) {
+			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
+			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
+			changeColor = true;
+		}
+		_endFlag->Render(_level.endpoint[0].x, _level.endpoint[0].y - _endFlag->Height());
 		if (changeColor) {
 			Render::SetColor(0xFFFFFFFF);
 		}
@@ -917,8 +959,12 @@ void TileEditor::OnMessage(const std::string &message) {
 		Messager::SendMessage("SmallList", "add bonus");
 		Messager::SendMessage("SmallList", "add transport");
 		Messager::SendMessage("SmallList", "add animal");
-		Messager::SendMessage("SmallList", "add start pos");
-		Messager::SendMessage("SmallList", "add end pos");
+		if (_level.startpoint.size() == 0) {
+			Messager::SendMessage("SmallList", "add start pos");
+		}
+		if (_level.endpoint.size() == 0) {
+			Messager::SendMessage("SmallList", "add end pos");
+		}
 		Messager::SendMessage("SmallList", "special add cancel");
 		_waitAddNewElem = true;
 	} else if (message == "left") {
@@ -1044,6 +1090,14 @@ void TileEditor::OnMessage(const std::string &message) {
 				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
 				b.pos = FPoint2D(cx, cy);
 				_level.beauties.push_back(b);
+			} else if (msg == "start pos") {
+				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
+				_level.startpoint.push_back(FPoint2D(cx, cy));
+			} else if (msg == "end pos") {
+				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
+				_level.endpoint.push_back(FPoint2D(cx, cy));
 			}
 		} else if (_waitState == WaitForLevelOpen) {
 			_waitState = WaitNone;
@@ -1131,6 +1185,14 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	TiXmlElement *word = new TiXmlElement("word");
 	word->SetAttribute("x", _worldCenter.x);
 	word->SetAttribute("y", _worldCenter.y);
+	if (_level.startpoint.size()) {
+		word->SetAttribute("startX", _level.startpoint[0].x);
+		word->SetAttribute("startY", _level.startpoint[0].y);
+	}
+	if (_level.endpoint.size()) {
+		word->SetAttribute("endX", _level.endpoint[0].x);
+		word->SetAttribute("endY", _level.endpoint[0].y);
+	}
 	char s[16];
 	sprintf(s, "%f", _viewScale);
 	word->SetAttribute("scale", s);
@@ -1329,6 +1391,8 @@ void LevelBlock::RemoveDot(int index) {
 }
 
 void TileEditor::ClearLevel() {
+	_level.startpoint.clear();
+	_level.endpoint.clear();
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 		delete _level.ground[i];
 	}
@@ -1417,6 +1481,19 @@ void TileEditor::LoadLevel(std::string &msg) {
 	TiXmlElement *word = xe->FirstChildElement("word");
 	_worldCenter.x = atof(word->Attribute("x"));
 	_worldCenter.y = atof(word->Attribute("y"));
+
+	if (word->Attribute("startX")) {
+		_level.startpoint.push_back(
+			FPoint2D(atof(word->Attribute("startX")), 
+						atof(word->Attribute("startY"))));
+	}
+	if (word->Attribute("endX")) {
+		_level.endpoint.push_back(
+			FPoint2D(atof(word->Attribute("endX")), 
+						atof(word->Attribute("endY"))));
+	}
+
+
 	_viewScale = atof(word->Attribute("scale"));
 	SetValueS("play", "", ">>");
 	//ResetState();
