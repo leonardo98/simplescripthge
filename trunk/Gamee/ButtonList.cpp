@@ -3,7 +3,7 @@
 #include "../Core/Core.h"
 #include "../Core/Interface.h"
 
-#define OFFSET ((_items.size() / _itemsInRow > 3) ? 4.f * _stepDown - (_stepDown * (_items.size() / _itemsInRow) + _height) : 0.f)
+#define OFFSET ((_items.size() / _itemsInRow > 10) ? 11.f * _stepDown - (_stepDown * (_items.size() / _itemsInRow) + _height) : 0.f)
 
 ButtonList::ButtonList(TiXmlElement *xe)
 	: Messager(xe)

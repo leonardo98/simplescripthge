@@ -60,9 +60,9 @@
             </elem>
         </Ground>
         <Images>
-            <image filePath="1024x1024.jpg" />
+            <image filePath="2048x2048.jpg" />
         </Images>
-        <word x="208" y="89" scale="0.546875" />
+        <word x="-82" y="-166" scale="0.546875" />
     </level>
     <level id="3">
         <Ground>
@@ -115,6 +115,9 @@
         <Images>
             <image filePath="1024x1024.jpg" />
         </Images>
-        <word x="201" y="81" scale="1.000000" />
+        <Beauties>
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="36.000000" x="351.814362" y="322.886261" />
+        </Beauties>
+        <word x="-65" y="-144" scale="0.915071" />
     </level>
 </list>

@@ -37,6 +37,19 @@ struct OneImage {
 	std::string filePath;
 };
 
+struct Beauty {
+	HTEXTURE texture;
+	Sprite *sprite;
+	bool mirror;
+	FPoint2D pos;
+	float scale;
+	float angle;
+	std::string filePath;
+	void SaveToXml(TiXmlElement *xe);
+	void LoadFromXml(TiXmlElement *xe);
+	void Draw();
+};
+
 struct CurrentBlock {
 	LevelBlock *block;
 	int dotIndex;
@@ -47,12 +60,21 @@ struct CurrentBlock {
 	bool moveAllDots;
 };
 
+struct SelectedElement {
+	enum {
+		none,
+		beauty_element
+	} selected;
+	int index;
+};
+
 typedef std::vector<LevelBlock *> LevelBlocks;
 
 struct LevelSet {
 	LevelBlocks ground;
 	LevelBlocks surpris;
 	LevelBlocks movable;
+	std::vector<Beauty> beauties;
 	std::vector<OneImage> images;
 };
 
@@ -208,6 +230,7 @@ protected:
 
 	LevelSet _level;
 	CurrentBlock _currents;
+	SelectedElement _currentElement;
 	void ClearLevel();
 	void LoadLevel(std::string &msg);
 
