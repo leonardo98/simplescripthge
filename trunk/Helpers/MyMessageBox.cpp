@@ -45,7 +45,10 @@ bool MyMessageBox::IsMouseOver(const FPoint2D &mousePos) {
 
 void MyMessageBox::OnMouseDown(const FPoint2D &mousePos) {
 	for (unsigned int i = 0; i < _buttons.size(); i++) {
-		_buttons[i]->OnMouseDown(mousePos);
+		if (_buttons[i]->IsMouseOver(mousePos)) {
+			_buttons[i]->OnMouseDown(mousePos);
+			return;
+		}
 	}
 }
 

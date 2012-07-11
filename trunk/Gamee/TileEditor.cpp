@@ -917,7 +917,9 @@ void TileEditor::OnMessage(const std::string &message) {
 		InitParams(NULL);
 		_waitYesNoDelSelected = false;
 	} else if (_waitYesNoOverwrite) {
-		SaveLevel(_saveLevelName);
+		if (message == "yes") {
+			SaveLevel(_saveLevelName);
+		}
 		_waitYesNoOverwrite = false;
 	}
 	std::string msg;
