@@ -248,6 +248,7 @@ protected:
 	LandBodies _currentLandBody;
 	FPoint2D _oldShift;
 	FPoint2D _endPoint;
+	bool _needMoveToOrigin;
 	void CalcNextBykePos(float dt);
 	void SetupBox2D();
 };

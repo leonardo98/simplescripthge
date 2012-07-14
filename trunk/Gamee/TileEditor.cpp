@@ -790,7 +790,10 @@ void TileEditor::Draw() {
 		float x = _endPoint.x;
 		float y = _endPoint.y;
 		Render::GetCurrentMatrix().Mul(x, y);
-		if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
+		
+		//if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
+		if (abs(_byker->_attachedBody->GetTransform().position.x * SCALE_BOX2D - _endPoint.x) < 100) {
+			
 			for (unsigned int i = 0; i < _prevLandBody.size(); ++i) {
 				EraseBody(_prevLandBody[i]);
 			}
@@ -798,6 +801,16 @@ void TileEditor::Draw() {
 			_currentLandBody.clear();
 			
 			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]) + _oldShift;
+			if (_needMoveToOrigin) {
+				b2Vec2 b2shift;
+				b2shift.x = -shift.x / SCALE_BOX2D;
+				b2shift.y = -shift.y / SCALE_BOX2D;
+				for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+					b2Vec2 p = body->GetTransform().position;
+					body->SetTransform(p + b2shift, 0.f);
+				}
+				shift = FPoint2D(0.f, 0.f);
+			}
 
 			_endPoint = _level.endpoint[0] + shift;
 
@@ -813,6 +826,7 @@ void TileEditor::Draw() {
 			_currentLandBody.push_back(body);
 
 			_oldShift = shift;
+			_needMoveToOrigin = !_needMoveToOrigin;
 		}
 	}
 	Render::PopMatrix();
@@ -903,8 +917,10 @@ void TileEditor::Update(float deltaTime) {
 		Step(&settings);
 		{// двигаем камеру
 			const b2Transform &xf = _byker->_attachedBody->GetTransform();
-			_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
-			_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);			
+			_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2);
+			_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2);			
+			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
+			//_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);			
 		}
 		if (_startLevel.Action()) {
 			_startLevel.Update(deltaTime);
@@ -971,6 +987,11 @@ void TileEditor::SaveState() {
 void TileEditor::ResetState() {
 	InitParams(NULL);
 	_editor = true;
+	if (_level.startpoint.size()) {
+//		_worldCenter = _level.startpoint[0];
+		_worldCenter.x = (_level.startpoint[0].x * _viewScale + SCREEN_WIDTH / 2);
+		_worldCenter.y = (_level.startpoint[0].y * _viewScale + SCREEN_HEIGHT / 2);			
+	}
 	EraseAllBodyes();
 	for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
 
@@ -1881,6 +1902,7 @@ void TileEditor::SetupBox2D() {
 	}
 	body->ResetMassData();
 	_currentLandBody.push_back(body);
+	_needMoveToOrigin = false;
 
 	{
 		b2BodyDef bd;
