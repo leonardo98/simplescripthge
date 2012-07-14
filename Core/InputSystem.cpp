@@ -151,8 +151,8 @@ bool InputSystem::CheckForEvent(float dt) {
 			_longTap &= (_longTapPos - pos).Length() > LONG_TAP_EPS;
 		} else if (event.type == INPUT_MOUSEWHEEL) {
 			MouseWheel(event.wheel);
-		} else if (event.type == INPUT_KEYDOWN && event.key == HGEK_ESCAPE) {
-			return true;
+		//} else if (event.type == INPUT_KEYDOWN && event.key == HGEK_ESCAPE) {
+		//	return true;
 		}
 	}
 	if (_longTap) {

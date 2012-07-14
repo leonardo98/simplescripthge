@@ -24,7 +24,7 @@
             <image filePath="1024x1024.jpg" />
         </Images>
         <Beauties />
-        <word x="147" y="60" startX="375" startY="138" endX="913" endY="660" scale="1.000000" />
+        <word x="283" y="122" startX="282" startY="214" endX="913" endY="660" scale="0.185302" />
     </level>
     <level id="2">
         <Ground>
