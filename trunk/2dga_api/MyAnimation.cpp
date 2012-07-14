@@ -56,8 +56,9 @@ void Animation::SetPos(const hgeVector &pos, bool mirror) {
 //
 void Animation::Draw(float position) {
 	_matrixsStack.clear(); 
+	_matrixsStack.push_back(Render::GetCurrentMatrix());
 	// для задания положения все спрайтов использую свой внутренний "стек" матриц
-	_matrixsStack.push_back(_subPosition);
+	_matrixsStack.back().Mul(_subPosition);
 	for(int i = 0; i < (int)_bones.size();i++) {
 		_bones[i]->Draw(position, _matrixsStack);
 	}

@@ -8,6 +8,8 @@
 #define DEC 0.01f
 #define HALFBORDER 0.0025f
 
+#define SCALE_BOX2D 60
+
 Texture *_allElements;
 
 
@@ -26,18 +28,18 @@ void TileEditorDestructionListener::SayGoodbye(b2Joint* joint)
 }
 
 void TileEditor::LoadTemplates(const std::string &filename) {
-	//TiXmlDocument doc(Render::GetDC()->Resource_MakePath(filename.c_str()));
-	//if (!doc.LoadFile()) {
-	//	LOG("File not found : " + Render::GetDC()->Resource_MakePath(filename.c_str()));
-	//	return;
-	//}
-	//TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement("b2object");
-	//while (bodyDef) {
-	//	_collection.push_back(new BodyTemplate(bodyDef));
-	//	bodyDef = bodyDef->NextSiblingElement("b2object");
-	//}
-	//_collection.push_back(_fish = new BodyTemplate(doc.RootElement()->FirstChildElement("fish")));
-	//_collection.push_back(_cat = new BodyTemplate(doc.RootElement()->FirstChildElement("cat")));
+	TiXmlDocument doc(Render::GetDC()->Resource_MakePath(filename.c_str()));
+	if (!doc.LoadFile()) {
+		LOG("File not found : " + Render::GetDC()->Resource_MakePath(filename.c_str()));
+		return;
+	}
+	TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement("b2object");
+	while (bodyDef) {
+		_collection.push_back(new BodyTemplate(bodyDef));
+		bodyDef = bodyDef->NextSiblingElement("b2object");
+	}
+	_collection.push_back(_fish = new BodyTemplate(doc.RootElement()->FirstChildElement("fish")));
+	_collection.push_back(_cat = new BodyTemplate(doc.RootElement()->FirstChildElement("cat")));
 }
 
 TileEditor::TileEditor(TiXmlElement *xe)
@@ -62,6 +64,8 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, _netVisible(true)
 	, _waitForImage(false)
 {
+	My::AnimationManager::Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "data\\byker\\ride.xml").c_str()));
+	_byker = new Byker();
 	_flags = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "data\\flagspoint.png").c_str()));
 	_startFlag = new Sprite(_flags, 0, 0, 64, 64);
 	_endFlag = new Sprite(_flags, 63, 0, 64, 64);
@@ -82,8 +86,8 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	LoadTemplates(Render::GetDataDir() + "bodyes.xml");
 
 	b2Vec2 gravity;
-	gravity.Set(0.0f, -10.0f);
-	bool doSleep = false;
+	gravity.Set(0.0f, 10.0f);
+	bool doSleep = true;
 	m_world = new b2World(gravity, doSleep);
 	m_bomb = NULL;
 	m_textLine = 30;
@@ -100,6 +104,8 @@ TileEditor::TileEditor(TiXmlElement *xe)
 
 TileEditor::~TileEditor()
 {
+	delete _byker;
+	My::AnimationManager::UnloadAll();
 	delete _startFlag;
 	delete _endFlag;
 	Render::GetDC()->Texture_Free(_flags);
@@ -144,6 +150,8 @@ void TileEditor::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 
 void TileEditor::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
+	return;
+
 	if (_startLevel.Action()) {
 		return;
 	}
@@ -207,12 +215,12 @@ public:
 };
 
 void TileEditor::EraseBody(b2Body *body) {
-	if (body->GetUserData() != NULL) {
+	if (body->GetUserData() != NULL && body->GetUserData() != _byker) {
 		MyBody *t = static_cast<MyBody *>(body->GetUserData());
 		delete t;
 		body->SetUserData(NULL);
-		m_world->DestroyBody(body);
 	}
+	m_world->DestroyBody(body);
 }
 
 void TileEditor::EraseAllBodyes() {
@@ -238,6 +246,7 @@ b2Body * TileEditor::AddElement(const std::string &typeId) {
 
 	}
 	bs.pos = b2Vec2((SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale, (_worldCenter.y - SCREEN_HEIGHT / 2) / _viewScale);
+	bs.pos = b2Vec2(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
 	bs.width = bs.base->_width;
 	bs.height = bs.base->_height;
 	bs.radius = bs.base->_radius;
@@ -476,21 +485,7 @@ void TileEditor::InitParams(b2Body *body)
 }
 
 bool TileEditor::CanLevelStart() {
-	return true;
-	/* // если в уровне есть "динамит" и синие коробки - в него можно играть
-	bool tnt = false;
-	bool blue = false;
-	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		const BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;		
-		if (!tnt && bt->_type == BODY_TYPE_EXPLOSION) {
-			tnt = true;
-		}
-		if (!blue && bt->_type == BODY_TYPE_BLUE) {
-			blue = true;
-		}
-	}
-	return (tnt && blue);
-	*/
+	return _level.endpoint.size() > 0 && _level.startpoint.size() > 0;
 }
 
 bool TileEditor::IsLevelFinish() {
@@ -703,46 +698,93 @@ void TileEditor::Draw() {
 			Render::SetColor(0xFFFFFFFF);
 		}
 	}
-	Render::PopMatrix();
 
-
-	buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
-	unsigned int counter = 0;
-	bool exception = false;
 	FPoint2D pselect[4];
 	typedef std::list<b2Body *> Remove;
 	Remove remove;
+
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
-		if (myBody->broken) {
-			remove.push_back(body);
-		}
-		const BodyTemplate *bt = myBody->base;
-		const b2Transform & xf = body->GetTransform();
+		if (body->GetUserData() == _byker) {
+			if (!_editor) {
+				FPoint2D p;
+				const b2Transform & xf = body->GetTransform();
+				p.x = xf.position.x * SCALE_BOX2D;
+				p.y = xf.position.y * SCALE_BOX2D;
+				_byker->SetPos(p);
+				_byker->Draw();
+				if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
+					body->SetAngularVelocity(40);
+				} else {
+					body->SetAngularVelocity(10);
+				}
+				char buff[20];
+				sprintf(buff, "ANGLE %f, %i",  xf.GetAngle(), (body->IsFixedRotation() ? 1 : 0));
+				Render::PrintString(100, 50, "", buff);
+				b2Fixture *fixture = body->GetFixtureList();
+				while (fixture) {
+					b2Shape *shape = fixture->GetShape();
+					fixture = fixture->GetNext();
+				}
+			}
+		} else if (body->GetUserData() == NULL) {
+			assert(body->GetType() == b2_staticBody);
+			b2Fixture *fixture = body->GetFixtureList();
+			while (fixture) {
+				b2Shape *shape = fixture->GetShape();
+				assert(shape->GetType() == b2Shape::e_polygon);
+				b2PolygonShape *polygon = (b2PolygonShape *)shape;
 
-		FPoint2D p[4];
-		float width2 = myBody->width / 2;
-		float height2 = myBody->height / 2;
-		p[0].x = -width2; p[0].y =  height2;
-		p[1].x =  width2; p[1].y =  height2;
-		p[2].x =  width2; p[2].y = -height2;
-		p[3].x = -width2; p[3].y = -height2;
+				Render::Line(polygon->GetVertex(0).x * SCALE_BOX2D, polygon->GetVertex(0).y * SCALE_BOX2D, polygon->GetVertex(1).x * SCALE_BOX2D, polygon->GetVertex(1).y * SCALE_BOX2D, 0xFFFFFFFF);
+				Render::Line(polygon->GetVertex(2).x * SCALE_BOX2D, polygon->GetVertex(2).y * SCALE_BOX2D, polygon->GetVertex(1).x * SCALE_BOX2D, polygon->GetVertex(1).y * SCALE_BOX2D, 0xFFFFFFFF);
+				Render::Line(polygon->GetVertex(0).x * SCALE_BOX2D, polygon->GetVertex(0).y * SCALE_BOX2D, polygon->GetVertex(2).x * SCALE_BOX2D, polygon->GetVertex(2).y * SCALE_BOX2D, 0xFFFFFFFF);
 
-		float angle(-xf.GetAngle());
-		p[0] = *p[0].Rotate(angle);
-		p[1] = *p[1].Rotate(angle);
-		p[2] = *p[2].Rotate(angle);
-		p[3] = *p[3].Rotate(angle);
-		DrawElement(buffer, bt->_uv, xf.position, p);
-		if (_selectedBody == body) {
-			for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
-		}
-		++counter;
-		if (static_cast<int>(counter) > max) {
-			assert(false);
+				fixture = fixture->GetNext();
+			}
 		}
 	}
-	Render::GetDC()->Gfx_FinishBatch(counter);
+
+	//buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
+	unsigned int counter = 0;
+	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+		if (body->GetUserData() != NULL && body->GetUserData() != _byker) {
+			const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
+			if (myBody->broken) {
+				remove.push_back(body);
+			}
+			const BodyTemplate *bt = myBody->base;
+			const b2Transform & xf = body->GetTransform();
+
+			//FPoint2D p[4];
+			//float width2 = myBody->width / 2;
+			//float height2 = myBody->height / 2;
+			//p[0].x = -width2; p[0].y =  height2;
+			//p[1].x =  width2; p[1].y =  height2;
+			//p[2].x =  width2; p[2].y = -height2;
+			//p[3].x = -width2; p[3].y = -height2;
+
+			//float angle(-xf.GetAngle());
+			//p[0] = *p[0].Rotate(angle);
+			//p[1] = *p[1].Rotate(angle);
+			//p[2] = *p[2].Rotate(angle);
+			//p[3] = *p[3].Rotate(angle);
+
+			FPoint2D p;
+			p.x = xf.position.x * SCALE_BOX2D;
+			p.y = xf.position.y * SCALE_BOX2D;
+			_byker->SetPos(p);
+			_byker->Draw();
+			//DrawElement(buffer, bt->_uv, xf.position, p);
+			//if (_selectedBody == body) {
+			//	for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
+			//}
+			++counter;
+			if (static_cast<int>(counter) > max) {
+				assert(false);
+			}
+		}
+	}
+	//Render::GetDC()->Gfx_FinishBatch(counter);
+	Render::PopMatrix();
 	for (;remove.begin() != remove.end();) {
 		EraseBody(*remove.begin());
 		remove.erase(remove.begin());
@@ -826,7 +868,13 @@ void TileEditor::Update(float deltaTime) {
 		}
 		return;
 	} else {
+		_byker->Update(deltaTime);
 		Step(&settings);
+		{// двигаем камеру
+			const b2Transform &xf = _byker->_attachedBody->GetTransform();
+			_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
+			_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);			
+		}
 		if (_startLevel.Action()) {
 			_startLevel.Update(deltaTime);
 		}
@@ -935,20 +983,26 @@ void TileEditor::OnMessage(const std::string &message) {
 	} else if (message == "play") {
 		if (_editor) { // переходим в режим игры
 			if (CanLevelStart()) {
-				SetValueB("big", "visible", false);
-				SetValueB("small", "visible", true);
+				//SetValueB("big", "visible", false);
+				//SetValueB("small", "visible", true);
 				SetValueS("play", "", "stop");
 				_editor = false;
-				InitParams(NULL);
+				//InitParams(NULL);
 				SaveState();
-				_finish = 0x3;
-				_startLevel.Init(2.f);
-				_userLevelWin = false;
+				//_finish = 0x3;
+				//_startLevel.Init(2.f);
+				//_userLevelWin = false;
+				_netVisible = false;
+				for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+					_level.ground[i]->GenerateTriangles();
+				}
+				SetupBox2D();
 			} else {
-				OkMessageShow("Error!\nLevel must have TNT and BLUE boxes!");
+				OkMessageShow("Error!\nLevel must have START and END poses!");
 			}
 		} else { // в редактор
-			SetValueS("play", "", ">>");
+			SetValueS("play", "", "play");
+			_netVisible = true;
 			ResetState();
 		}
 	} else if (message == "add new elem") {
@@ -1034,10 +1088,10 @@ void TileEditor::OnMessage(const std::string &message) {
 			if (msg == "cancel") {
 				return;
 			}
-			if (!_editor) {
-				SetValueS("play", "", ">>");
-				ResetState();
-			}
+			//if (!_editor) {
+			//	SetValueS("play", "", "play");
+			//	ResetState();
+			//}
 			//InitParams(AddElement(msg));
 			if (msg == "curv") {
 				LevelBlock *b = new LevelBlock();
@@ -1100,6 +1154,8 @@ void TileEditor::OnMessage(const std::string &message) {
 				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
 				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
 				_level.endpoint.push_back(FPoint2D(cx, cy));
+			} else if (msg == "bonus") {
+				AddElement("rubber");
 			}
 		} else if (_waitState == WaitForLevelOpen) {
 			_waitState = WaitNone;
@@ -1497,7 +1553,7 @@ void TileEditor::LoadLevel(std::string &msg) {
 
 
 	_viewScale = atof(word->Attribute("scale"));
-	SetValueS("play", "", ">>");
+	SetValueS("play", "", "play");
 	//ResetState();
 	_currentLevel = msg;
 	if (!_netVisible) {
@@ -1693,12 +1749,9 @@ void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint
 }
 
 void LevelBlock::DrawTriangles(const FPoint2D &worldPos, float scale) {
-	//float x, y;
-	//Render::GetDC()->Input_GetMousePos(&x, &y);
-	//float f = min(1.f, max(0.f, x / 800));
 	int n = triangles.size();// * f;
-	for (unsigned int i = 0; i < n; ++i) {
-		hgeTriple tri = triangles[i];
+	for (unsigned int j = 0; j < n; ++j) {
+		hgeTriple tri = triangles[j];
 		for (unsigned int i = 0; i < 3; ++i) {
 			tri.v[i].x = tri.v[i].x * scale + worldPos.x;
 			tri.v[i].y = tri.v[i].y * scale + worldPos.y;
@@ -1721,5 +1774,102 @@ void LevelBlock::DrawTriangles(const FPoint2D &worldPos, float scale) {
 		x2 = lineDots[0].x * scale + worldPos.x;
 		y2 = lineDots[0].y * scale + worldPos.y;
 		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);			
+	}
+}
+
+bool LevelBlock::SearchProection(FPoint2D &pos) {
+	float t = 0.f;
+	float x1 = xPoses.getGlobalFrame(0.f);
+	float y1 = yPoses.getGlobalFrame(0.f);
+	float x2, y2;
+	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
+	FPoint2D gravity(0.f, 10.f);
+	float speed = 50.f;
+	//FPoint2D motor();
+	while (t + 1.f / subLine < 1.f) {
+		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
+		x2 = xPoses.getGlobalFrame(t);
+		y2 = yPoses.getGlobalFrame(t);
+		if (x1 <= pos.x && pos.x < x2) {
+			// calc pos
+		//Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);
+			return true;
+		}
+		x1 = x2;
+		y1 = y2;
+	}
+	x2 = xPoses.getGlobalFrame(1.f);
+	y2 = yPoses.getGlobalFrame(1.f);
+	if (x1 <= pos.x && pos.x < x2) {
+	//	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);			
+		return true;
+	}
+	return false;
+}
+
+void TileEditor::CalcNextBykePos(float dt) {
+	FPoint2D proection;
+	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+		if (_level.ground[i]->SearchProection(proection)) {
+		}
+	}
+}
+
+void LevelBlock::CreateBody(b2Body *body) {
+	int n = triangles.size();
+	for (unsigned int j = 0; j < n; ++j) {
+		b2FixtureDef fd;
+		fd.restitution = 0.f;
+		fd.friction = 0.8f;
+		fd.density = 1.0f;
+		b2PolygonShape shape;
+		b2Vec2 vec[3];
+		for (unsigned int i = 0; i < 3; ++i) {
+			vec[i].x = triangles[j].v[2 - i].x / SCALE_BOX2D;
+			vec[i].y = triangles[j].v[2 - i].y / SCALE_BOX2D;
+		}
+		shape.Set(vec, 3);
+		fd.shape = &shape;
+		body->CreateFixture(&fd);
+		body->ResetMassData();
+	}
+}
+
+void TileEditor::SetupBox2D() {
+	EraseAllBodyes();
+
+	b2BodyDef bd;
+	bd.type = b2_staticBody;  
+	bd.position.Set(0.f, 0.f);
+	bd.angle = 0.f;
+	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+		b2Body* body = m_world->CreateBody(&bd);		
+		_level.ground[i]->CreateBody(body);
+		body->ResetMassData();
+	}
+
+	{
+		b2BodyDef bd;
+		bd.type = b2_dynamicBody;  
+		bd.fixedRotation = false;
+
+		bd.position.Set(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
+		bd.angle = 0.f;
+		
+		b2Body* body = m_world->CreateBody(&bd);
+		
+		b2FixtureDef fd;
+		fd.restitution = 0.5f;
+		fd.friction = 0.8f;
+		fd.density = 1.f;
+
+		b2CircleShape shape;
+		shape.m_radius = 12.5f / SCALE_BOX2D;
+		fd.shape = &shape;
+		b2Fixture *fixt = body->CreateFixture(&fd);
+
+		body->SetUserData(_byker);
+		body->ResetMassData();
+		_byker->_attachedBody = body;
 	}
 }

@@ -3,9 +3,9 @@
   <Resources fileName="GUI_textures_test.xml"/>
   <!--StaticTexture x="0" y="0" texture="data/box2d/background0.png"/-->
   <TileEditor/>
-  <!--IButton name="play" x="440" y="0" width="40" height="40" caption=">">
+  <IButton name="play" x="920" y="0" width="40" height="40" caption="play">
     SendMessage("tile_editor", "play");
-  </IButton-->
+  </IButton>
   <IPanel name="small" x="0" y="0" width="20" height="40" visible="1" needDraw="0">
     <gui>
       <IButton name="show" x="0" y="0" width="20" height="40" caption=">>">
@@ -46,14 +46,14 @@
     </gui>
   </IPanel>  
   <ButtonList name="BigList" receiver="tile_editor" x="20" y="45" width="40" height="40" stepDown="50" stepRight="50" itemsInRow="8"/>
-  <MyMessageBox x="150" y="100" width="180" height="100" textY="10">
-    <Ok name="Ok" x="210" y="150" width="60" height="40" caption="ok">
+  <MyMessageBox x="360" y="100" width="240" height="100" textY="10">
+    <Ok name="Ok" x="450" y="150" width="60" height="40" caption="ok">
       SendMessage("MessageBox", "ok");
     </Ok>
-    <Yes name="Yes" x="160" y="150" width="60" height="40" caption="yes">
+    <Yes name="Yes" x="400" y="150" width="60" height="40" caption="yes">
       SendMessage("MessageBox", "yes");
     </Yes>
-    <No name="No" x="260" y="150" width="60" height="40" caption="no">
+    <No name="No" x="500" y="150" width="60" height="40" caption="no">
       SendMessage("MessageBox", "no");
     </No>
   </MyMessageBox>

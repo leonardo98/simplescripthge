@@ -56,14 +56,14 @@ public:
 	void Draw(float position);
 
 	//
-	// Время полного цикла анмиации 
+	// Время полного цикла анимации 
 	// эту функцию нужно использовать в Update для расчета 
 	// значения "position" метода Draw
 	// например, для зацикленой анимации можно считать так:
 	// progress += deltaTime / anim->Time();
 	// if(progress >= 1.f) progress = 0.f;
 	//
-	float Time()const;
+	float Time() const;
 
 private:
 	float _time;
