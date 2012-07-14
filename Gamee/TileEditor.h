@@ -31,7 +31,7 @@ struct LevelBlock {
 	bool CreateDot(float x, float y);
 	void RemoveDot(int index);
 	bool SearchProection(FPoint2D &pos);
-	void CreateBody(b2Body *body);
+	void CreateBody(b2Body *body, FPoint2D shift);
 };
 
 struct OneImage {
@@ -243,6 +243,11 @@ protected:
 	Sprite *_startFlag;
 	Sprite *_endFlag;
 	Byker *_byker;
+	typedef std::vector<b2Body *> LandBodies;
+	LandBodies _prevLandBody;
+	LandBodies _currentLandBody;
+	FPoint2D _oldShift;
+	FPoint2D _endPoint;
 	void CalcNextBykePos(float dt);
 	void SetupBox2D();
 };
