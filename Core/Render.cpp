@@ -503,6 +503,8 @@ void Render::DrawBar(float x, float y, float width, float height, DWORD color) {
 }
 
 void Render::Line(float x1, float y1, float x2, float y2, DWORD color) {
+	GetCurrentMatrix().Mul(x1, y1, x1, y1);
+	GetCurrentMatrix().Mul(x2, y2, x2, y2);
 	GetDC()->Gfx_RenderLine(x1, y1, x2, y2, color);
 }
 
@@ -540,6 +542,10 @@ void Render::MatrixRotate(float angle) {
 
 void Render::MatrixScale(float sx, float sy) {
 	_matrixStack[_currentMatrix].Scale(sx, sy);
+}
+
+void Render::MatrixMul(const Matrix &matrix) {
+	_matrixStack[_currentMatrix].Mul(matrix);
 }
 
 void Render::SetMatrixUnit() {

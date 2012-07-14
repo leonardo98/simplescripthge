@@ -1,0 +1,36 @@
+<?xml version="3.0" encoding="utf-8" standalone="no" ?>
+<root>
+    <Animation id="ride" time="1" pivotX="0" pivotY="0">
+        <movingPart name="new_bone_1" moving_type="line">
+            <pos x="-137" y="-113" />
+            <pos time="1" x="-137" y="-113" />
+            <movingPart name="biker_basis_dn" moving_type="line" texture="0:107:112:35:119:77">
+                <pos />
+                <pos time="1" />
+            </movingPart>
+            <movingPart name="bike_weel_in" moving_type="line" texture="113:36:36:35:195:77">
+                <pos x="-76.6667" y="1.33333" />
+                <pos time="0.505263" x="-76.6667" y="0.242423" />
+                <pos time="1" x="-76.6667" y="1.33333" />
+            </movingPart>
+            <movingPart name="bike_weel_in_copy1" moving_type="line" texture="113:36:36:35:195:77">
+                <pos x="0.727273" y="0.727281" />
+                <pos time="0.510526" x="0.727273" />
+                <pos time="1" x="1.09091" y="0.727273" />
+            </movingPart>
+            <movingPart name="wheel" moving_type="line" centerX="213" centerY="96" texture="113:0:36:35:195:79">
+                <pos x="136.485" y="97.3333" />
+                <pos time="1" x="136.485" y="97.3333" angle="6.28" />
+            </movingPart>
+            <movingPart name="wheel_copy1" moving_type="line" centerX="213" centerY="96" texture="113:0:36:35:195:79">
+                <pos x="214" y="97" />
+                <pos time="1" x="214" y="97" angle="6.28" />
+            </movingPart>
+            <movingPart name="biker_basis_up" moving_type="line" texture="0:0:112:106:119:6">
+                <pos />
+                <pos time="0.5" x="-8.72727" y="17.4545" angle="-0.097307" />
+                <pos time="1" />
+            </movingPart>
+        </movingPart>
+    </Animation>
+</root>

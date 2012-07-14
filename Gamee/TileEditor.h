@@ -10,6 +10,8 @@
 #include "../Helpers/Counter.h"
 #include "CommonBox2DTypes.h"
 #include "../Core/SplinePath.h"
+#include "../2dga_api/Animation.h"
+#include "Byker.h"
 
 class TileEditor;
 struct Settings;
@@ -28,6 +30,8 @@ struct LevelBlock {
 	int SearchNearest(float x, float y);
 	bool CreateDot(float x, float y);
 	void RemoveDot(int index);
+	bool SearchProection(FPoint2D &pos);
+	void CreateBody(b2Body *body);
 };
 
 struct OneImage {
@@ -180,8 +184,6 @@ protected:
 	const float SLIDER_SCALE;
 	const float SLIDER_MIN;
 
-
-
 	std::string _saveLevelName;
 	TiXmlElement *_saveLevelXml;
 	void SaveLevel(const std::string &levelName);
@@ -240,6 +242,9 @@ protected:
 	HTEXTURE _flags;
 	Sprite *_startFlag;
 	Sprite *_endFlag;
+	Byker *_byker;
+	void CalcNextBykePos(float dt);
+	void SetupBox2D();
 };
 
 #endif//MYENGINE_TILEEDITOR_H

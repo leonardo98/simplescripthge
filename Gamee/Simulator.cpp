@@ -608,7 +608,7 @@ void Simulator::Draw() {
 	}
 }
 
-void Simulator::Update(float deltaTime) {	
+void Simulator::Update(float deltaTime) {
 	if (_editor) {
 		_signal += 2 * deltaTime;
 		while (_signal > 1.f) {

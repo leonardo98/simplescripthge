@@ -489,7 +489,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="false"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib tinyxmld_STL.lib hgehelp.lib lua51d.lib libogg_staticd.lib libtheora_staticd.lib dbox2d.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib tinyxmld_STL.lib hgehelp.lib lua51d.lib libogg_staticd.lib libtheora_staticd.lib box2d.lib"
 				OutputFile=".\bin\SimpleScriptHGE_D.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -553,6 +553,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\Byker.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\CommonBox2DTypes.h"
 					>
 				</File>
@@ -598,10 +602,6 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\TileEditor.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\TileEditor.h"
 					>
 				</File>
 				<File
@@ -754,6 +754,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\Byker.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\IKeyboard.h"
 					>
 				</File>
@@ -799,6 +803,10 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\TextureCut.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\TileEditor.h"
 					>
 				</File>
 				<File
@@ -923,6 +931,294 @@
 				</File>
 				<File
 					RelativePath=".\2dga_api\MovingPart.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="box2d"
+				>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2BlockAllocator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2BlockAllocator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2Body.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2Body.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2BroadPhase.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2BroadPhase.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2CircleContact.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2CircleContact.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\Shapes\b2CircleShape.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\Shapes\b2CircleShape.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2CollideCircle.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2CollidePolygon.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2Collision.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2Collision.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2Contact.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2Contact.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2ContactManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2ContactManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2ContactSolver.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2ContactSolver.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2Distance.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2Distance.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2DistanceJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2DistanceJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2DynamicTree.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2DynamicTree.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2Fixture.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2Fixture.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2FrictionJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2FrictionJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2GearJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2GearJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2Island.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2Island.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2Joint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2Joint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2LineJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2LineJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2Math.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2Math.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2MouseJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2MouseJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2PolygonAndCircleContact.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2PolygonAndCircleContact.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2PolygonContact.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2PolygonContact.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\Shapes\b2PolygonShape.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\Shapes\b2PolygonShape.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2PrismaticJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2PrismaticJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2PulleyJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2PulleyJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2RevoluteJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2RevoluteJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2Settings.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2Settings.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\Shapes\b2Shape.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2StackAllocator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Common\b2StackAllocator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2TimeOfImpact.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Collision\b2TimeOfImpact.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2TimeStep.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2TOISolver.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Contacts\b2TOISolver.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2WeldJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\Joints\b2WeldJoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2World.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2World.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2WorldCallbacks.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\Dynamics\b2WorldCallbacks.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\CppLib\Box2D_v2.1.2\Box2D\Box2D\box2d.h"
 					>
 				</File>
 			</Filter>

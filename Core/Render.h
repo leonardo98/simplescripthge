@@ -124,6 +124,7 @@ public:
 	static void MatrixMove(float x, float y);
 	static void MatrixRotate(float angle);
 	static void MatrixScale(float sx, float sy);
+	static void MatrixMul(const Matrix &matrix);
 	static void SetMatrixUnit();
 	static void SetMatrix(const Matrix &matrix);
 	static const Matrix & GetCurrentMatrix();

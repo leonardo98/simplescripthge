@@ -24,7 +24,7 @@
             <image filePath="1024x1024.jpg" />
         </Images>
         <Beauties />
-        <word x="-24" y="-126" startX="182" startY="264" endX="913" endY="660" scale="1.000000" />
+        <word x="147" y="60" startX="375" startY="138" endX="913" endY="660" scale="1.000000" />
     </level>
     <level id="2">
         <Ground>
@@ -112,9 +112,16 @@
         <word x="304" y="264" startX="-325" startY="-119" endX="1906" endY="39" scale="1.000000" />
     </level>
     <level id="5">
-        <Ground />
+        <Ground>
+            <elem>
+                <dot x="-56.941895" y="305.262146" />
+                <dot x="305.369843" y="407.129486" />
+                <dot x="634.573975" y="298.294403" />
+                <dot x="-107.952637" y="170.287323" />
+            </elem>
+        </Ground>
         <Images />
         <Beauties />
-        <word x="480" y="320" scale="1.000000" />
+        <word x="298" y="-37" startX="63" startY="142" endX="630" endY="345" scale="1.262444" />
     </level>
 </list>
