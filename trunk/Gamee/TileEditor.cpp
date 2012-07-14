@@ -231,6 +231,8 @@ void TileEditor::EraseAllBodyes() {
 			EraseBody(remove);
 		}
 	}
+	_prevLandBody.clear();
+	_currentLandBody.clear();
 }
 
 // добавляем новый элемент в "случайное" место на экране
@@ -784,6 +786,35 @@ void TileEditor::Draw() {
 		}
 	}
 	//Render::GetDC()->Gfx_FinishBatch(counter);
+	if (!_editor) {// смотрим не пора ли подставить новый кусок
+		float x = _endPoint.x;
+		float y = _endPoint.y;
+		Render::GetCurrentMatrix().Mul(x, y);
+		if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
+			for (unsigned int i = 0; i < _prevLandBody.size(); ++i) {
+				EraseBody(_prevLandBody[i]);
+			}
+			_prevLandBody = _currentLandBody;
+			_currentLandBody.clear();
+			
+			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]) + _oldShift;
+
+			_endPoint = _level.endpoint[0] + shift;
+
+			b2BodyDef bd;
+			bd.type = b2_staticBody;  
+			bd.position.Set(0.f, 0.f);
+			bd.angle = 0.f;
+			b2Body* body = m_world->CreateBody(&bd);		
+			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+				_level.ground[i]->CreateBody(body, shift);
+			}
+			body->ResetMassData();
+			_currentLandBody.push_back(body);
+
+			_oldShift = shift;
+		}
+	}
 	Render::PopMatrix();
 	for (;remove.begin() != remove.end();) {
 		EraseBody(*remove.begin());
@@ -1815,7 +1846,7 @@ void TileEditor::CalcNextBykePos(float dt) {
 	}
 }
 
-void LevelBlock::CreateBody(b2Body *body) {
+void LevelBlock::CreateBody(b2Body *body, FPoint2D shift) {
 	int n = triangles.size();
 	for (unsigned int j = 0; j < n; ++j) {
 		b2FixtureDef fd;
@@ -1825,8 +1856,8 @@ void LevelBlock::CreateBody(b2Body *body) {
 		b2PolygonShape shape;
 		b2Vec2 vec[3];
 		for (unsigned int i = 0; i < 3; ++i) {
-			vec[i].x = triangles[j].v[2 - i].x / SCALE_BOX2D;
-			vec[i].y = triangles[j].v[2 - i].y / SCALE_BOX2D;
+			vec[i].x = (triangles[j].v[2 - i].x + shift.x) / SCALE_BOX2D;
+			vec[i].y = (triangles[j].v[2 - i].y + shift.y) / SCALE_BOX2D;
 		}
 		shape.Set(vec, 3);
 		fd.shape = &shape;
@@ -1841,12 +1872,15 @@ void TileEditor::SetupBox2D() {
 	b2BodyDef bd;
 	bd.type = b2_staticBody;  
 	bd.position.Set(0.f, 0.f);
+	_oldShift = FPoint2D(0.f, 0.f);
+	_endPoint = _level.endpoint[0];
 	bd.angle = 0.f;
+	b2Body* body = m_world->CreateBody(&bd);		
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		b2Body* body = m_world->CreateBody(&bd);		
-		_level.ground[i]->CreateBody(body);
-		body->ResetMassData();
+		_level.ground[i]->CreateBody(body, _oldShift);
 	}
+	body->ResetMassData();
+	_currentLandBody.push_back(body);
 
 	{
 		b2BodyDef bd;
