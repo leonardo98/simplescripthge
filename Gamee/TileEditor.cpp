@@ -312,7 +312,8 @@ b2Body * TileEditor::AddElement(const BodyState &bodyState){
 }
 
 void TileEditor::OnMouseDown(const FPoint2D &mousePos)
-{	_mouseDown = true;
+{	
+	_mouseDown = true;
 	_lastMousePos = mousePos;
 	InitParams(NULL);
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
@@ -681,28 +682,30 @@ void TileEditor::Draw() {
 			Render::SetColor(0xFFFFFFFF);
 		}
 	}
-	if (_level.startpoint.size()) {
-		bool changeColor = false;
-		if (_currentElement.selected == SelectedElement::start_flag) {
-			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-			changeColor = true;
+	if (_editor) {
+		if (_level.startpoint.size()) {
+			bool changeColor = false;
+			if (_currentElement.selected == SelectedElement::start_flag) {
+				DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
+				Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
+				changeColor = true;
+			}
+			_startFlag->Render(_level.startpoint[0].x, _level.startpoint[0].y - _startFlag->Height());
+			if (changeColor) {
+				Render::SetColor(0xFFFFFFFF);
+			}
 		}
-		_startFlag->Render(_level.startpoint[0].x, _level.startpoint[0].y - _startFlag->Height());
-		if (changeColor) {
-			Render::SetColor(0xFFFFFFFF);
-		}
-	}
-	if (_level.endpoint.size()) {
-		bool changeColor = false;
-		if (_currentElement.selected == SelectedElement::end_flag) {
-			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-			changeColor = true;
-		}
-		_endFlag->Render(_level.endpoint[0].x, _level.endpoint[0].y - _endFlag->Height());
-		if (changeColor) {
-			Render::SetColor(0xFFFFFFFF);
+		if (_level.endpoint.size()) {
+			bool changeColor = false;
+			if (_currentElement.selected == SelectedElement::end_flag) {
+				DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
+				Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
+				changeColor = true;
+			}
+			_endFlag->Render(_level.endpoint[0].x, _level.endpoint[0].y - _endFlag->Height());
+			if (changeColor) {
+				Render::SetColor(0xFFFFFFFF);
+			}
 		}
 	}
 
@@ -804,9 +807,9 @@ void TileEditor::Draw() {
 		Render::GetCurrentMatrix().Mul(x, y);
 		
 //		if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
-		if (abs(_byker->_attachedBody->GetTransform().position.x * SCALE_BOX2D - _endPoint.x) < 500) {
-
-			if (_landBodies.size() >= 2) {
+		float xByker = _byker->_attachedBody->GetTransform().position.x * SCALE_BOX2D;
+		if (_level.startpoint[0].x < xByker && xByker < _endPoint.x) {
+			if (_landBodies.size() >= 3) {
 				EraseBody(_landBodies.front());
 				_landBodies.pop_front();
 			}
@@ -820,6 +823,8 @@ void TileEditor::Draw() {
 				b2Vec2 p = body->GetTransform().position;
 				body->SetTransform(p + b2shift, 0.f);
 			}
+			//_worldCenter.x += shift.x;
+			_worldCenter.y += shift.y * _viewScale;
 
 			_endPoint = _level.endpoint[0];
 
@@ -926,7 +931,12 @@ void TileEditor::Update(float deltaTime) {
 			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2);
 			//_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2);			
 			_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
-			_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);			
+			float y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);
+			if (_worldCenter.y > y) {
+				_worldCenter.y = y;
+			} else if (_worldCenter.y < y - SCREEN_HEIGHT / 3) {
+				_worldCenter.y = y - SCREEN_HEIGHT / 3;
+			}
 		}
 		if (_startLevel.Action()) {
 			_startLevel.Update(deltaTime);
@@ -1507,6 +1517,7 @@ void LevelBlock::RemoveDot(int index) {
 }
 
 void TileEditor::ClearLevel() {
+	_currentElement.selected = SelectedElement::none;
 	_level.startpoint.clear();
 	_level.endpoint.clear();
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
