@@ -823,7 +823,6 @@ void TileEditor::Draw() {
 				b2Vec2 p = body->GetTransform().position;
 				body->SetTransform(p + b2shift, 0.f);
 			}
-			//_worldCenter.x += shift.x;
 			_worldCenter.y += shift.y * _viewScale;
 
 			_endPoint = _level.endpoint[0];
