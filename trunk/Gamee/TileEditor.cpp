@@ -231,8 +231,7 @@ void TileEditor::EraseAllBodyes() {
 			EraseBody(remove);
 		}
 	}
-	_prevLandBody.clear();
-	_currentLandBody.clear();
+	_landBodies.clear();
 }
 
 // добавляем новый элемент в "случайное" место на экране
@@ -634,31 +633,37 @@ void TileEditor::Draw() {
 	_finish = 0x0;
 	int max = 1;
 	Vertex *buffer;
-	if (_netVisible) {
-		for (unsigned int i = 0; i < _level.images.size(); ++i) {
-			_level.images[i].sprite->RenderEx(_level.images[i].pos.x * _viewScale + _worldCenter.x, _level.images[i].pos.y * _viewScale + _worldCenter.y, 0.f, _viewScale);// DrawLines(_worldCenter, _viewScale);
-		}
-		float STEP = 64.f;
-		int n = SCREEN_WIDTH / (_viewScale * STEP);
-		float t = _worldCenter.x / (STEP * _viewScale);
-		t = (t - static_cast<int>(t)) * (STEP * _viewScale);
-		for (int i = 0; i <= n; i++) {
-			float x = i * STEP * _viewScale + t;
-			Render::GetDC()->Gfx_RenderLine(x, 0, x, SCREEN_HEIGHT, 0x4FFFFFFF);
-		}
-		n = SCREEN_HEIGHT / (_viewScale * STEP) + 1;
-		t = _worldCenter.y / (STEP * _viewScale);
-		t = (t - static_cast<int>(t)) * (STEP * _viewScale);
-		for (int i = 0; i <= n; i++) {
-			float y = i * STEP * _viewScale + t;
-			Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
-		}
-		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-			_level.ground[i]->DrawLines(_worldCenter, _viewScale);
-		}
-	} else {
-		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-			_level.ground[i]->DrawTriangles(_worldCenter, _viewScale);
+	if (_editor) {
+		if (_netVisible) {
+			for (unsigned int i = 0; i < _level.images.size(); ++i) {
+				_level.images[i].sprite->RenderEx(_level.images[i].pos.x * _viewScale + _worldCenter.x, _level.images[i].pos.y * _viewScale + _worldCenter.y, 0.f, _viewScale);// DrawLines(_worldCenter, _viewScale);
+			}
+			float STEP = 64.f;
+			int n = SCREEN_WIDTH / (_viewScale * STEP);
+			float t = _worldCenter.x / (STEP * _viewScale);
+			t = (t - static_cast<int>(t)) * (STEP * _viewScale);
+			for (int i = 0; i <= n; i++) {
+				float x = i * STEP * _viewScale + t;
+				Render::GetDC()->Gfx_RenderLine(x, 0, x, SCREEN_HEIGHT, 0x4FFFFFFF);
+			}
+			n = SCREEN_HEIGHT / (_viewScale * STEP) + 1;
+			t = _worldCenter.y / (STEP * _viewScale);
+			t = (t - static_cast<int>(t)) * (STEP * _viewScale);
+			for (int i = 0; i <= n; i++) {
+				float y = i * STEP * _viewScale + t;
+				Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
+			}
+			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+				_level.ground[i]->DrawLines(_worldCenter, _viewScale);
+			}
+		} else {
+			Render::PushMatrix();
+			Render::MatrixMove(_worldCenter.x, _worldCenter.y);
+			Render::MatrixScale(_viewScale, _viewScale);
+			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+				_level.ground[i]->DrawTriangles();
+			}
+			Render::PopMatrix();
 		}
 	}
 	Render::PushMatrix();
@@ -730,6 +735,12 @@ void TileEditor::Draw() {
 			}
 		} else if (body->GetUserData() == NULL) {
 			assert(body->GetType() == b2_staticBody);
+			Render::PushMatrix();
+			const b2Transform & xf = body->GetTransform();
+			Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
+			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+				_level.ground[i]->DrawTriangles();
+			}
 			b2Fixture *fixture = body->GetFixtureList();
 			while (fixture) {
 				b2Shape *shape = fixture->GetShape();
@@ -742,6 +753,7 @@ void TileEditor::Draw() {
 
 				fixture = fixture->GetNext();
 			}
+			Render::PopMatrix();
 		}
 	}
 
@@ -791,28 +803,25 @@ void TileEditor::Draw() {
 		float y = _endPoint.y;
 		Render::GetCurrentMatrix().Mul(x, y);
 		
-		//if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
-		if (abs(_byker->_attachedBody->GetTransform().position.x * SCALE_BOX2D - _endPoint.x) < 100) {
-			
-			for (unsigned int i = 0; i < _prevLandBody.size(); ++i) {
-				EraseBody(_prevLandBody[i]);
+//		if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
+		if (abs(_byker->_attachedBody->GetTransform().position.x * SCALE_BOX2D - _endPoint.x) < 500) {
+
+			if (_landBodies.size() >= 2) {
+				EraseBody(_landBodies.front());
+				_landBodies.pop_front();
 			}
-			_prevLandBody = _currentLandBody;
-			_currentLandBody.clear();
 			
-			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]) + _oldShift;
-			if (_needMoveToOrigin) {
-				b2Vec2 b2shift;
-				b2shift.x = -shift.x / SCALE_BOX2D;
-				b2shift.y = -shift.y / SCALE_BOX2D;
-				for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-					b2Vec2 p = body->GetTransform().position;
-					body->SetTransform(p + b2shift, 0.f);
-				}
-				shift = FPoint2D(0.f, 0.f);
+			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]);
+
+			b2Vec2 b2shift;
+			b2shift.x = -shift.x / SCALE_BOX2D;
+			b2shift.y = -shift.y / SCALE_BOX2D;
+			for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+				b2Vec2 p = body->GetTransform().position;
+				body->SetTransform(p + b2shift, 0.f);
 			}
 
-			_endPoint = _level.endpoint[0] + shift;
+			_endPoint = _level.endpoint[0];
 
 			b2BodyDef bd;
 			bd.type = b2_staticBody;  
@@ -820,13 +829,10 @@ void TileEditor::Draw() {
 			bd.angle = 0.f;
 			b2Body* body = m_world->CreateBody(&bd);		
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->CreateBody(body, shift);
+				_level.ground[i]->CreateBody(body);
 			}
 			body->ResetMassData();
-			_currentLandBody.push_back(body);
-
-			_oldShift = shift;
-			_needMoveToOrigin = !_needMoveToOrigin;
+			_landBodies.push_back(body);
 		}
 	}
 	Render::PopMatrix();
@@ -917,10 +923,10 @@ void TileEditor::Update(float deltaTime) {
 		Step(&settings);
 		{// двигаем камеру
 			const b2Transform &xf = _byker->_attachedBody->GetTransform();
-			_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2);
-			_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2);			
-			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
-			//_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);			
+			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2);
+			//_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2);			
+			_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
+			_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);			
 		}
 		if (_startLevel.Action()) {
 			_startLevel.Update(deltaTime);
@@ -1800,32 +1806,32 @@ void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint
 	}
 }
 
-void LevelBlock::DrawTriangles(const FPoint2D &worldPos, float scale) {
+void LevelBlock::DrawTriangles() {
 	int n = triangles.size();// * f;
+	const Matrix &m = Render::GetCurrentMatrix();
 	for (unsigned int j = 0; j < n; ++j) {
 		hgeTriple tri = triangles[j];
 		for (unsigned int i = 0; i < 3; ++i) {
-			tri.v[i].x = tri.v[i].x * scale + worldPos.x;
-			tri.v[i].y = tri.v[i].y * scale + worldPos.y;
+			m.Mul(tri.v[i].x, tri.v[i].y);
 		}
 		Render::GetDC()->Gfx_RenderTriple(&tri);
 	}
 
 	if (lineDots.size() >= 2) {
 		// test debug
-		float x1 = lineDots[0].x * scale + worldPos.x;
-		float y1 = lineDots[0].y * scale + worldPos.y;
+		float x1 = lineDots[0].x;
+		float y1 = lineDots[0].y;
 		float x2, y2;
 		for (unsigned int i = 0; i < lineDots.size(); ++i) {
-			x2 = lineDots[i].x * scale + worldPos.x;
-			y2 = lineDots[i].y * scale + worldPos.y;
-			Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);
+			x2 = lineDots[i].x;
+			y2 = lineDots[i].y;
+			Render::Line(x1, y1, x2, y2, 0x4FFFFFFF);
 			x1 = x2;
 			y1 = y2;
 		}
-		x2 = lineDots[0].x * scale + worldPos.x;
-		y2 = lineDots[0].y * scale + worldPos.y;
-		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0x4FFFFFFF);			
+		x2 = lineDots[0].x;
+		y2 = lineDots[0].y;
+		Render::Line(x1, y1, x2, y2, 0x4FFFFFFF);			
 	}
 }
 
@@ -1867,7 +1873,7 @@ void TileEditor::CalcNextBykePos(float dt) {
 	}
 }
 
-void LevelBlock::CreateBody(b2Body *body, FPoint2D shift) {
+void LevelBlock::CreateBody(b2Body *body) {
 	int n = triangles.size();
 	for (unsigned int j = 0; j < n; ++j) {
 		b2FixtureDef fd;
@@ -1877,8 +1883,8 @@ void LevelBlock::CreateBody(b2Body *body, FPoint2D shift) {
 		b2PolygonShape shape;
 		b2Vec2 vec[3];
 		for (unsigned int i = 0; i < 3; ++i) {
-			vec[i].x = (triangles[j].v[2 - i].x + shift.x) / SCALE_BOX2D;
-			vec[i].y = (triangles[j].v[2 - i].y + shift.y) / SCALE_BOX2D;
+			vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
+			vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
 		}
 		shape.Set(vec, 3);
 		fd.shape = &shape;
@@ -1893,16 +1899,14 @@ void TileEditor::SetupBox2D() {
 	b2BodyDef bd;
 	bd.type = b2_staticBody;  
 	bd.position.Set(0.f, 0.f);
-	_oldShift = FPoint2D(0.f, 0.f);
 	_endPoint = _level.endpoint[0];
 	bd.angle = 0.f;
 	b2Body* body = m_world->CreateBody(&bd);		
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		_level.ground[i]->CreateBody(body, _oldShift);
+		_level.ground[i]->CreateBody(body);
 	}
 	body->ResetMassData();
-	_currentLandBody.push_back(body);
-	_needMoveToOrigin = false;
+	_landBodies.push_back(body);
 
 	{
 		b2BodyDef bd;
