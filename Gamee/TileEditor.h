@@ -25,13 +25,13 @@ struct LevelBlock {
 	static void FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri);
 	void GenerateTriangles();
 	void DrawLines(const FPoint2D &worldPos, float scale);
-	void DrawTriangles(const FPoint2D &worldPos, float scale);
+	void DrawTriangles();
 	void AddPoint(float x, float y);
 	int SearchNearest(float x, float y);
 	bool CreateDot(float x, float y);
 	void RemoveDot(int index);
 	bool SearchProection(FPoint2D &pos);
-	void CreateBody(b2Body *body, FPoint2D shift);
+	void CreateBody(b2Body *body);
 };
 
 struct OneImage {
@@ -243,12 +243,9 @@ protected:
 	Sprite *_startFlag;
 	Sprite *_endFlag;
 	Byker *_byker;
-	typedef std::vector<b2Body *> LandBodies;
-	LandBodies _prevLandBody;
-	LandBodies _currentLandBody;
-	FPoint2D _oldShift;
+	typedef std::list<b2Body *> LandBodies;
+	LandBodies _landBodies;
 	FPoint2D _endPoint;
-	bool _needMoveToOrigin;
 	void CalcNextBykePos(float dt);
 	void SetupBox2D();
 };
