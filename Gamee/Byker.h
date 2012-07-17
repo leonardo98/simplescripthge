@@ -13,6 +13,7 @@ public:
 	void Update(float dt);
 	void SetPos(FPoint2D pos);
 	b2Body *_attachedBody;
+	b2Body *_attachedBody2;
 private:
 	FPoint2D _pos;
 	My::Animation *_ride;

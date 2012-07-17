@@ -717,11 +717,21 @@ void TileEditor::Draw() {
 		if (body->GetUserData() == _byker) {
 			if (!_editor) {
 				FPoint2D p;
-				const b2Transform & xf = body->GetTransform();
+				const b2Transform &xf = _byker->_attachedBody->GetTransform();
 				p.x = xf.position.x * SCALE_BOX2D;
 				p.y = xf.position.y * SCALE_BOX2D;
-				_byker->SetPos(p);
+
+				FPoint2D p2;
+				const b2Transform &xf2 = _byker->_attachedBody2->GetTransform();
+				p2.x = xf2.position.x * SCALE_BOX2D;
+				p2.y = xf2.position.y * SCALE_BOX2D;
+
+				Render::PushMatrix();
+				Render::MatrixMove(p.x, p.y);
+				Render::MatrixRotate(atan2(p2.y - p.y, p2.x - p.x));
+				_byker->SetPos(FPoint2D(0, 0));
 				_byker->Draw();
+				Render::PopMatrix();
 				if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
 					body->SetAngularVelocity(40);
 				} else {
@@ -1919,6 +1929,7 @@ void TileEditor::SetupBox2D() {
 	_landBodies.push_back(body);
 
 	{
+		// first wheel
 		b2BodyDef bd;
 		bd.type = b2_dynamicBody;  
 		bd.fixedRotation = false;
@@ -1929,17 +1940,48 @@ void TileEditor::SetupBox2D() {
 		b2Body* body = m_world->CreateBody(&bd);
 		
 		b2FixtureDef fd;
-		fd.restitution = 0.5f;
-		fd.friction = 0.8f;
+		fd.restitution = 0.2f;
+		fd.friction = 1.f;
 		fd.density = 1.f;
 
-		b2CircleShape shape;
-		shape.m_radius = 12.5f / SCALE_BOX2D;
+		b2CircleShape shape;//34px - 0.7cm
+		shape.m_radius = 17.f / SCALE_BOX2D;
 		fd.shape = &shape;
-		b2Fixture *fixt = body->CreateFixture(&fd);
+		body->CreateFixture(&fd);
 
 		body->SetUserData(_byker);
 		body->ResetMassData();
 		_byker->_attachedBody = body;
+
+		// second wheel
+		bd.position.Set((_level.startpoint[0].x + 74.f)/ SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
+		bd.angle = 0.f;
+		
+		body = m_world->CreateBody(&bd);
+		
+		fd.restitution = 0.2f;
+		fd.friction = 1.f;
+		fd.density = 1.f;
+
+		shape.m_radius = 17.f / SCALE_BOX2D;
+		fd.shape = &shape;
+		body->CreateFixture(&fd);
+
+		body->SetUserData(_byker);
+		body->ResetMassData();
+		_byker->_attachedBody2 = body;
+
+		//
+
+		b2DistanceJointDef jointDef;
+		jointDef.Initialize(_byker->_attachedBody, _byker->_attachedBody2, _byker->_attachedBody->GetPosition(), _byker->_attachedBody2->GetPosition());
+		jointDef.collideConnected = true;
+
+		//b2JointDef jointDef;
+		//jointDef.bodyA = _byker->_attachedBody;
+		//jointDef.bodyB = _byker->_attachedBody2;
+		//jointDef.type = e_distanceJoint;
+		//jointDef.anchorPoint = _byker->_attachedBody->GetCenterPosition();
+		b2Joint* joint = m_world->CreateJoint(&jointDef);
 	}
 }
