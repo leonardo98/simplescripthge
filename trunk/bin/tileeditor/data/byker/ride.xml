@@ -2,8 +2,8 @@
 <root>
     <Animation id="ride" time="1" pivotX="0" pivotY="0">
         <movingPart name="new_bone_1" moving_type="line">
-            <pos x="-137" y="-113" />
-            <pos time="1" x="-137" y="-113" />
+            <pos x="-136.714" y="-97.5714" />
+            <pos time="1" x="-136.714" y="-97.5714" />
             <movingPart name="biker_basis_dn" moving_type="line" texture="0:107:112:35:119:77">
                 <pos />
                 <pos time="1" />
