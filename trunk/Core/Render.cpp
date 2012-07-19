@@ -567,3 +567,18 @@ void Render::Draw(hgeTriple &triple) {
 	m.Mul(triple.v[2].x, triple.v[2].y);
 	Render::GetDC()->Gfx_RenderTriple(&triple);
 }
+
+void Render::Circle(float x, float y, float r, DWORD color) {
+	Render::Line(x, y, x + r, y, color);
+	float angle = 0.f;
+	float xs = sin(angle) * r;
+	float ys = cos(angle) * r;
+	while (angle < M_PI * 2) {
+		angle += M_PI / 10.f;
+		float xe = sin(angle) * r;
+		float ye = cos(angle) * r;
+		Render::Line(x + xs, y + ys, x + xe, y + ye, color);
+		xs = xe;
+		ys = ye;
+	}
+}

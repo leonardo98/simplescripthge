@@ -163,6 +163,7 @@ public:
 	static void DrawBar(float x, float y, float width, float height, DWORD color);
 	static void Draw(hgeTriple &triple);
 	static void Line(float x1, float y1, float x2, float y2, DWORD color);
+	static void Circle(float x, float y, float r, DWORD color);
 };
 
 

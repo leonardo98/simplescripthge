@@ -25,7 +25,7 @@ inline float32 RandomFloat(float32 lo, float32 hi)
 struct Settings
 {
 	Settings() :
-		hz(30.0f),
+		hz(60.0f),
 		velocityIterations(8),
 		positionIterations(3),
 		drawStats(0),
