@@ -626,6 +626,46 @@ inline void TileEditor::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
 	Render::Line(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
 }
 
+void DrawJoint(b2Joint* joint)
+{
+	b2Body* bodyA = joint->GetBodyA();
+	b2Body* bodyB = joint->GetBodyB();
+	const b2Transform& xf1 = bodyA->GetTransform();
+	const b2Transform& xf2 = bodyB->GetTransform();
+	b2Vec2 x1 = xf1.position;
+	b2Vec2 x2 = xf2.position;
+	b2Vec2 p1 = joint->GetAnchorA();
+	b2Vec2 p2 = joint->GetAnchorB();
+
+	switch (joint->GetType())
+	{
+	case e_distanceJoint:
+		Render::Line(p1.x * SCALE_BOX2D, p1.y * SCALE_BOX2D, p2.x * SCALE_BOX2D, p2.y * SCALE_BOX2D, 0xFFFFFFFF);
+		break;
+
+	case e_pulleyJoint:
+		{
+			b2PulleyJoint* pulley = (b2PulleyJoint*)joint;
+			b2Vec2 s1 = pulley->GetGroundAnchorA();
+			b2Vec2 s2 = pulley->GetGroundAnchorB();
+			Render::Line(s1.x * SCALE_BOX2D, s1.y * SCALE_BOX2D, p1.x * SCALE_BOX2D, p1.y * SCALE_BOX2D, 0xFFFFFFFF);
+			Render::Line(s2.x * SCALE_BOX2D, s2.y * SCALE_BOX2D, p2.x * SCALE_BOX2D, p2.y * SCALE_BOX2D, 0xFFFFFFFF);
+			Render::Line(s1.x * SCALE_BOX2D, s1.y * SCALE_BOX2D, s2.x * SCALE_BOX2D, s2.y * SCALE_BOX2D, 0xFFFFFFFF);
+		}
+		break;
+
+	case e_mouseJoint:
+		// don't draw this
+		break;
+
+	default:
+		Render::Line(x1.x * SCALE_BOX2D, x1.y * SCALE_BOX2D, p1.x * SCALE_BOX2D, p1.y * SCALE_BOX2D, 0xFFFFFFFF);
+		Render::Line(p1.x * SCALE_BOX2D, p1.y * SCALE_BOX2D, p2.x * SCALE_BOX2D, p2.y * SCALE_BOX2D, 0xFFFFFFFF);
+		Render::Line(x2.x * SCALE_BOX2D, x2.y * SCALE_BOX2D, p2.x * SCALE_BOX2D, p2.y * SCALE_BOX2D, 0xFFFFFFFF);
+	}
+}
+
+
 void TileEditor::Draw() {
 	bool oldTnt = (_finish & 0x1) != 0;
 	bool oldBlue = (_finish & 0x2) != 0;
@@ -713,100 +753,71 @@ void TileEditor::Draw() {
 	typedef std::list<b2Body *> Remove;
 	Remove remove;
 
+
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		if (body->GetUserData() == _byker) {
-			if (!_editor) {
-				FPoint2D p;
-				const b2Transform &xf = _byker->_attachedBody->GetTransform();
-				p.x = xf.position.x * SCALE_BOX2D;
-				p.y = xf.position.y * SCALE_BOX2D;
-
-				FPoint2D p2;
-				const b2Transform &xf2 = _byker->_attachedBody2->GetTransform();
-				p2.x = xf2.position.x * SCALE_BOX2D;
-				p2.y = xf2.position.y * SCALE_BOX2D;
-
-				Render::PushMatrix();
-				Render::MatrixMove(p.x, p.y);
-				Render::MatrixRotate(atan2(p2.y - p.y, p2.x - p.x));
-				_byker->SetPos(FPoint2D(0, 0));
-				_byker->Draw();
-				Render::PopMatrix();
-				if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
-					body->SetAngularVelocity(40);
-				} else {
-					body->SetAngularVelocity(10);
-				}
-				char buff[20];
-				sprintf(buff, "ANGLE %f, %i",  xf.GetAngle(), (body->IsFixedRotation() ? 1 : 0));
-				Render::PrintString(100, 50, "", buff);
-				b2Fixture *fixture = body->GetFixtureList();
-				while (fixture) {
-					b2Shape *shape = fixture->GetShape();
-					fixture = fixture->GetNext();
-				}
-			}
-		} else if (body->GetUserData() == NULL) {
-			assert(body->GetType() == b2_staticBody);
+		if (body->GetUserData() == NULL && body->GetType() == b2_staticBody) {
 			Render::PushMatrix();
 			const b2Transform & xf = body->GetTransform();
 			Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 				_level.ground[i]->DrawTriangles();
 			}
-			b2Fixture *fixture = body->GetFixtureList();
-			while (fixture) {
-				b2Shape *shape = fixture->GetShape();
-				assert(shape->GetType() == b2Shape::e_polygon);
-				b2PolygonShape *polygon = (b2PolygonShape *)shape;
-
-				Render::Line(polygon->GetVertex(0).x * SCALE_BOX2D, polygon->GetVertex(0).y * SCALE_BOX2D, polygon->GetVertex(1).x * SCALE_BOX2D, polygon->GetVertex(1).y * SCALE_BOX2D, 0xFFFFFFFF);
-				Render::Line(polygon->GetVertex(2).x * SCALE_BOX2D, polygon->GetVertex(2).y * SCALE_BOX2D, polygon->GetVertex(1).x * SCALE_BOX2D, polygon->GetVertex(1).y * SCALE_BOX2D, 0xFFFFFFFF);
-				Render::Line(polygon->GetVertex(0).x * SCALE_BOX2D, polygon->GetVertex(0).y * SCALE_BOX2D, polygon->GetVertex(2).x * SCALE_BOX2D, polygon->GetVertex(2).y * SCALE_BOX2D, 0xFFFFFFFF);
-
-				fixture = fixture->GetNext();
-			}
 			Render::PopMatrix();
+		}
+	}
+	if (!_editor) {
+		FPoint2D p;
+		const b2Transform &xf = _byker->_attachedBody->GetTransform();
+		p.x = xf.position.x * SCALE_BOX2D;
+		p.y = xf.position.y * SCALE_BOX2D;
+
+		FPoint2D p2;
+		const b2Transform &xf2 = _byker->_attachedBody2->GetTransform();
+		p2.x = xf2.position.x * SCALE_BOX2D;
+		p2.y = xf2.position.y * SCALE_BOX2D;
+
+		Render::PushMatrix();
+		Render::MatrixMove(p.x, p.y);
+		Render::MatrixRotate(atan2(p2.y - p.y, p2.x - p.x));
+		_byker->SetPos(FPoint2D(0, 0));
+		_byker->Draw();
+		Render::PopMatrix();
+		if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
+			_byker->_attachedBody->SetAngularVelocity(40);
+			_byker->_attachedBody2->SetAngularVelocity(40);
+		} else {
+			_byker->_attachedBody->SetAngularVelocity(10);
+			_byker->_attachedBody2->SetAngularVelocity(10);
 		}
 	}
 
 	//buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
-	unsigned int counter = 0;
 	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		if (body->GetUserData() != NULL && body->GetUserData() != _byker) {
-			const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
-			if (myBody->broken) {
-				remove.push_back(body);
-			}
-			const BodyTemplate *bt = myBody->base;
-			const b2Transform & xf = body->GetTransform();
-
-			//FPoint2D p[4];
-			//float width2 = myBody->width / 2;
-			//float height2 = myBody->height / 2;
-			//p[0].x = -width2; p[0].y =  height2;
-			//p[1].x =  width2; p[1].y =  height2;
-			//p[2].x =  width2; p[2].y = -height2;
-			//p[3].x = -width2; p[3].y = -height2;
-
-			//float angle(-xf.GetAngle());
-			//p[0] = *p[0].Rotate(angle);
-			//p[1] = *p[1].Rotate(angle);
-			//p[2] = *p[2].Rotate(angle);
-			//p[3] = *p[3].Rotate(angle);
-
-			FPoint2D p;
-			p.x = xf.position.x * SCALE_BOX2D;
-			p.y = xf.position.y * SCALE_BOX2D;
-			_byker->SetPos(p);
-			_byker->Draw();
-			//DrawElement(buffer, bt->_uv, xf.position, p);
-			//if (_selectedBody == body) {
-			//	for (unsigned int i = 0; i < 4; i++) { pselect[i] = p[i]; }
-			//}
-			++counter;
-			if (static_cast<int>(counter) > max) {
-				assert(false);
+		Render::PushMatrix();
+		const b2Transform & xf = body->GetTransform();
+		Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
+		Render::MatrixRotate(xf.GetAngle());
+		for (b2Fixture *fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+			b2Shape *shape = fixture->GetShape();
+			if (shape->GetType() == b2Shape::e_polygon) {
+				b2PolygonShape *polygon = (b2PolygonShape *)shape;				
+				for (unsigned int i = 0; i < polygon->GetVertexCount(); ++i) {
+					const b2Vec2 &start = polygon->GetVertex(i);
+					const b2Vec2 &end = polygon->GetVertex((i + 1) % polygon->GetVertexCount());
+					Render::Line(start.x * SCALE_BOX2D, start.y * SCALE_BOX2D
+						, end.x * SCALE_BOX2D, end.y * SCALE_BOX2D, 0xFFFFFFFF);
+				}
+			} else if (shape->GetType() == b2Shape::e_circle) {
+				b2CircleShape *circle = (b2CircleShape *)shape;
+				Render::Circle(circle->m_p.y, circle->m_p.y, circle->m_radius * SCALE_BOX2D, 0xFFFFFFFF);
+			}			
+		}
+		Render::PopMatrix();
+	}
+	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+		if (body->GetJointList()) {
+			for (b2Joint *joint = body->GetJointList()->joint; joint; joint = joint->GetNext()) {
+				DrawJoint(joint);
 			}
 		}
 	}
@@ -1898,7 +1909,7 @@ void LevelBlock::CreateBody(b2Body *body) {
 	for (unsigned int j = 0; j < n; ++j) {
 		b2FixtureDef fd;
 		fd.restitution = 0.f;
-		fd.friction = 0.8f;
+		fd.friction = 1.0f;
 		fd.density = 1.0f;
 		b2PolygonShape shape;
 		b2Vec2 vec[3];
@@ -1967,21 +1978,64 @@ void TileEditor::SetupBox2D() {
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
 
-		body->SetUserData(_byker);
 		body->ResetMassData();
 		_byker->_attachedBody2 = body;
 
-		//
+		//b2DistanceJointDef jointDef;
+		//jointDef.Initialize(_byker->_attachedBody, _byker->_attachedBody2, _byker->_attachedBody->GetPosition(), _byker->_attachedBody2->GetPosition());
+		//jointDef.collideConnected = true;
 
-		b2DistanceJointDef jointDef;
-		jointDef.Initialize(_byker->_attachedBody, _byker->_attachedBody2, _byker->_attachedBody->GetPosition(), _byker->_attachedBody2->GetPosition());
-		jointDef.collideConnected = true;
+		//m_world->CreateJoint(&jointDef);
 
-		//b2JointDef jointDef;
-		//jointDef.bodyA = _byker->_attachedBody;
-		//jointDef.bodyB = _byker->_attachedBody2;
-		//jointDef.type = e_distanceJoint;
-		//jointDef.anchorPoint = _byker->_attachedBody->GetCenterPosition();
-		b2Joint* joint = m_world->CreateJoint(&jointDef);
+		// hidden part - byke
+		bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y - 12) / SCALE_BOX2D);
+		bd.angle = 0.f;
+		bd.fixedRotation = false;
+		
+		body = m_world->CreateBody(&bd);
+		
+		fd.restitution = 0.2f;
+		fd.friction = 0.f;
+		fd.density = 1.f;
+
+		b2PolygonShape box;
+		box.SetAsBox(40.f / SCALE_BOX2D, 8.f / SCALE_BOX2D);
+		//shape.m_radius = 36.f / SCALE_BOX2D;
+		fd.shape = &box;
+		body->CreateFixture(&fd);
+		body->ResetMassData();
+
+		b2RevoluteJointDef jointDef;
+		jointDef.collideConnected = false;
+
+		jointDef.Initialize(body, _byker->_attachedBody, _byker->_attachedBody->GetPosition());
+		m_world->CreateJoint(&jointDef);
+
+		jointDef.Initialize(body, _byker->_attachedBody2, _byker->_attachedBody2->GetPosition());
+		m_world->CreateJoint(&jointDef);
+
+
+		// hidden second part head
+		bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y - 63) / SCALE_BOX2D);
+		bd.angle = 0.f;
+		bd.fixedRotation = true;
+		
+		b2Body *head = m_world->CreateBody(&bd);
+		
+		fd.restitution = 0.2f;
+		fd.friction = 0.f;
+		fd.density = 1.f;
+
+		shape.m_radius = 14.f / SCALE_BOX2D;
+		fd.shape = &shape;
+		head->CreateFixture(&fd);
+		head->ResetMassData();
+
+		jointDef.Initialize(body, head, body->GetPosition());
+		jointDef.enableLimit = true;
+		jointDef.lowerAngle = - M_PI_4 / 2 * 3;
+		jointDef.upperAngle = M_PI_4 / 2 * 3;
+		m_world->CreateJoint(&jointDef);
+
 	}
 }
