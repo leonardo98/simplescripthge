@@ -78,6 +78,8 @@ void MyMessageBox::SetValue(const std::string &variableName, const std::string &
 			_buttons.clear();
 			_buttons.push_back(&_ok);
 		}
+	} else if (variableName == "prefix") {
+		_prefix = value;
 	} else {
 		assert(false);
 	}
@@ -85,14 +87,15 @@ void MyMessageBox::SetValue(const std::string &variableName, const std::string &
 
 void MyMessageBox::OnMessage(const std::string &message) {
 	_buttons.clear();
-	SendMessage(_answerReceiver, message);
+	SendMessage(_answerReceiver, _prefix + message);
 }
 
 MyMessageBox *MyMessageBox::_myMessageBox = NULL;
 
-void MyMessageBox::Show(const std::string &text, const std::string &buttons, const std::string &receiver) {
+void MyMessageBox::Show(const std::string &text, const std::string &buttons, const std::string &receiver, const std::string &prefix) {
 	//assert(_myMessageBox != NULL);
 	Messager::SetValueS("MessageBox", "question", text);
 	Messager::SetValueS("MessageBox", "answer", receiver);
 	Messager::SetValueS("MessageBox", "buttons", buttons);
+	Messager::SetValueS("MessageBox", "prefix", prefix);
 }

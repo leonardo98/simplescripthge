@@ -174,11 +174,6 @@ protected:
 	b2Vec2 m_mouseWorld;
 	int32 m_stepCount;
 	bool _mouseDown;
-	bool _waitYesNoNewLevel;
-	bool _waitYesNoDelSelected;
-	bool _waitYesNoOverwrite;
-	bool _waitAddNewElem;
-	bool _waitForImage;
 	int SCREEN_WIDTH;
 	int SCREEN_HEIGHT;
 	const float SLIDER_SCALE;
@@ -212,12 +207,6 @@ protected:
 	std::string _currentLevel;
 	void EraseBody(b2Body *body);
 	void EraseAllBodyes();
-	enum {
-		WaitNone,
-		WaitForLevelOpen,
-		WaitForLevelSave,
-	} _waitState;
-
 	void SaveState();
 	void ResetState();
 
@@ -238,7 +227,7 @@ protected:
 	CurrentBlock _currents;
 	SelectedElement _currentElement;
 	void ClearLevel();
-	void LoadLevel(std::string &msg);
+	void LoadLevel(const std::string &msg);
 	HTEXTURE _flags;
 	Sprite *_startFlag;
 	Sprite *_endFlag;
@@ -248,6 +237,12 @@ protected:
 	FPoint2D _endPoint;
 	void CalcNextBykePos(float dt);
 	void SetupBox2D();
+	void NewLevelYesNo(const std::string &message);
+	void DeleteSelectedYesNo(const std::string &message);
+	void OverwriteYesNo(const std::string &message);
+	void AddNewElement(const std::string &msg);
+	void AddBackImage(const std::string &msg);
+	void PreSaveLevel(const std::string &msg);
 };
 
 #endif//MYENGINE_TILEEDITOR_H
