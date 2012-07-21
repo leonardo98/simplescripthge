@@ -11,6 +11,7 @@ ButtonList::ButtonList(TiXmlElement *xe)
 	, _moving(false)
 	, _slideDown(0.f)
 	, _timer(0.f)
+	, _prefix("button pressed ")
 {
 	_receiver = xe->Attribute("receiver");
 	_pos.x = static_cast<float>(atoi(xe->Attribute("x")));
@@ -50,10 +51,13 @@ void ButtonList::OnMessage(const std::string &message) {
 	std::string msg;
 	if (message == "clear") {
 		_items.clear();
+		_prefix = "button pressed ";
 	} else if (CanCut(message, "add ", msg)) {
 		_items.push_back(std::make_pair(msg, false));
 	} else if (CanCut(message, "special add ", msg)) {
 		_items.push_back(std::make_pair(msg, true));
+	} else if (CanCut(message, "prefix ", msg)) {
+		_prefix = msg;
 	}
 }
 
@@ -90,7 +94,8 @@ void ButtonList::OnMouseUp() {
 			pos.y += _stepDown * (counter / _itemsInRow) + _slideDown;
 			if (_oldMousePos.x >= pos.x && _oldMousePos.x <= (pos.x + _width) && 
 				_oldMousePos.y >= pos.y && _oldMousePos.y <= (pos.y + _height)) {
-				SendMessage(_receiver, "button pressed " + i->first);
+				SendMessage(_receiver, _prefix + i->first);
+				//SendMessage(_receiver, "button pressed " + i->first);
 				return;
 			}
 			++counter;

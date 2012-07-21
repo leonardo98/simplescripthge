@@ -35,6 +35,7 @@ private:
 	std::string _receiver;
 	Counter _counter;
 	float _timer;
+	std::string _prefix;
 	float MOVE_ACTION_TIME;
 };
 

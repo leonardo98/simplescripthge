@@ -37,13 +37,15 @@ private:
 	std::vector<IButton *> _buttons;
 	std::string _answerReceiver;
 	FPoint2D _pos;
+	std::string _prefix;
 	unsigned int _textY;
 	static MyMessageBox *_myMessageBox;
 public:
-	static void Show(const std::string &text, const std::string &buttons, const std::string &receiver);
+	static void Show(const std::string &text, const std::string &buttons, const std::string &receiver, const std::string &prefix = "");
 };
 
 #define OkMessageShow(text) MyMessageBox::Show(text, "ok", GetMyName())
 #define AskMessageShow(text) MyMessageBox::Show(text, "yesno", GetMyName())
+#define PrefixedAskMessageShow(text, function) MyMessageBox::Show(text, "yesno", GetMyName(), function)
 
 #endif//MYENGINE_MyMessageBox_H

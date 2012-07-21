@@ -53,16 +53,10 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, _selectedBody(NULL)
 	, _signal(0.f)
 	, _currentLevel("")
-	, _waitState(WaitNone)
 	, _mouseDown(false)
-	, _waitYesNoNewLevel(false)
-	, _waitYesNoDelSelected(false)
-	, _waitYesNoOverwrite(false)
-	, _waitAddNewElem(false)
 	, SLIDER_SCALE(1.2f)
 	, SLIDER_MIN(0.2f)
 	, _netVisible(true)
-	, _waitForImage(false)
 {
 	My::AnimationManager::Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "data\\byker\\ride.xml").c_str()));
 	_byker = new Byker();
@@ -464,8 +458,7 @@ void TileEditor::InitParams(b2Body *body)
 		const MyBody *myBody = static_cast<MyBody *>(body->GetUserData());
 		int radio = static_cast<int>(GetNumberValue("radio", ""));
 		if (radio == 0) {
-			AskMessageShow("Are you sure?\nDelete selected object?");
-			_waitYesNoDelSelected = true;
+			PrefixedAskMessageShow("Are you sure?\nDelete selected object?", "DeleteSelectedYesNo");
 		} else if (radio == 1) {
 			// set up angle to normal
 			float angle = body->GetAngle();
@@ -567,6 +560,7 @@ bool TileEditor::OnMouseWheel(int direction) {
 
 void TileEditor::Step(Settings* settings)
 {
+	settings->hz = Render::GetDC()->Timer_GetFPS();
 	float32 timeStep = settings->hz > 0.0f ? 1.0f / settings->hz : float32(0.0f);
 
 	if (settings->pause) {
@@ -783,41 +777,41 @@ void TileEditor::Draw() {
 		_byker->Draw();
 		Render::PopMatrix();
 		if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
-			_byker->_attachedBody->SetAngularVelocity(40);
-			_byker->_attachedBody2->SetAngularVelocity(40);
+			_byker->_attachedBody->SetAngularVelocity(40.f);
+			_byker->_attachedBody2->SetAngularVelocity(40.f);
 		} else {
-			_byker->_attachedBody->SetAngularVelocity(10);
-			_byker->_attachedBody2->SetAngularVelocity(10);
+			_byker->_attachedBody->SetAngularVelocity(20.f);
+			_byker->_attachedBody2->SetAngularVelocity(20.f);
 		}
 	}
 
 	//buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
-	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		Render::PushMatrix();
-		const b2Transform & xf = body->GetTransform();
-		Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
-		Render::MatrixRotate(xf.GetAngle());
-		for (b2Fixture *fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
-			b2Shape *shape = fixture->GetShape();
-			if (shape->GetType() == b2Shape::e_polygon) {
-				b2PolygonShape *polygon = (b2PolygonShape *)shape;				
-				for (unsigned int i = 0; i < polygon->GetVertexCount(); ++i) {
-					const b2Vec2 &start = polygon->GetVertex(i);
-					const b2Vec2 &end = polygon->GetVertex((i + 1) % polygon->GetVertexCount());
-					Render::Line(start.x * SCALE_BOX2D, start.y * SCALE_BOX2D
-						, end.x * SCALE_BOX2D, end.y * SCALE_BOX2D, 0xFFFFFFFF);
+	if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
+		for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+			Render::PushMatrix();
+			const b2Transform & xf = body->GetTransform();
+			Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
+			Render::MatrixRotate(xf.GetAngle());
+			for (b2Fixture *fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+				b2Shape *shape = fixture->GetShape();
+				if (shape->GetType() == b2Shape::e_polygon) {
+					b2PolygonShape *polygon = (b2PolygonShape *)shape;				
+					for (unsigned int i = 0; i < polygon->GetVertexCount(); ++i) {
+						const b2Vec2 &start = polygon->GetVertex(i);
+						const b2Vec2 &end = polygon->GetVertex((i + 1) % polygon->GetVertexCount());
+						Render::Line(start.x * SCALE_BOX2D, start.y * SCALE_BOX2D
+							, end.x * SCALE_BOX2D, end.y * SCALE_BOX2D, 0xFFFFFFFF);
+					}
+				} else if (shape->GetType() == b2Shape::e_circle) {
+					b2CircleShape *circle = (b2CircleShape *)shape;
+					Render::Circle(circle->m_p.y, circle->m_p.y, circle->m_radius * SCALE_BOX2D, 0xFFFFFFFF);
+				}			
+			}
+			Render::PopMatrix();
+			if (body->GetJointList()) {
+				for (b2Joint *joint = body->GetJointList()->joint; joint; joint = joint->GetNext()) {
+					DrawJoint(joint);
 				}
-			} else if (shape->GetType() == b2Shape::e_circle) {
-				b2CircleShape *circle = (b2CircleShape *)shape;
-				Render::Circle(circle->m_p.y, circle->m_p.y, circle->m_radius * SCALE_BOX2D, 0xFFFFFFFF);
-			}			
-		}
-		Render::PopMatrix();
-	}
-	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		if (body->GetJointList()) {
-			for (b2Joint *joint = body->GetJointList()->joint; joint; joint = joint->GetNext()) {
-				DrawJoint(joint);
 			}
 		}
 	}
@@ -1036,29 +1030,192 @@ void TileEditor::ResetState() {
 	}
 }
 
-void TileEditor::OnMessage(const std::string &message) {
-	if (_waitYesNoNewLevel) {
-		if (message == "yes") {
-			InitParams(NULL);
-			_currentLevel = "";
-			_state.clear();
-			EraseAllBodyes();
-			_worldCenter = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-			_viewScale = 1.f;
-			ClearLevel();
-		}
-		_waitYesNoNewLevel = false;
-	} else if (_waitYesNoDelSelected) {
-		EraseBody(_selectedBody);
+void TileEditor::NewLevelYesNo(const std::string &message) {
+	if (message == "yes") {
 		InitParams(NULL);
-		_waitYesNoDelSelected = false;
-	} else if (_waitYesNoOverwrite) {
-		if (message == "yes") {
-			SaveLevel(_saveLevelName);
-		}
-		_waitYesNoOverwrite = false;
+		_currentLevel = "";
+		_state.clear();
+		EraseAllBodyes();
+		_worldCenter = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+		_viewScale = 1.f;
+		ClearLevel();
 	}
+}
+
+void TileEditor::DeleteSelectedYesNo(const std::string &message) {
+	EraseBody(_selectedBody);
+	InitParams(NULL);
+}
+
+void TileEditor::OverwriteYesNo(const std::string &message) {
+	if (message == "yes") {
+		SaveLevel(_saveLevelName);
+	}
+}
+
+void TileEditor::AddNewElement(const std::string &msg) {
+	Messager::SendMessage("SmallList", "clear");
+	if (msg == "cancel") {
+		return;
+	}
+	//if (!_editor) {
+	//	SetValueS("play", "", "play");
+	//	ResetState();
+	//}
+	//InitParams(AddElement(msg));
+	if (msg == "curv") {
+		LevelBlock *b = new LevelBlock();
+		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
+		for (int i = 0; i < 4; ++i) {
+			b->AddPoint(cx + 32.f * sin(M_PI / 2 * i), cy + 32.f * cos(M_PI / 2 * i));
+		}
+		_level.ground.push_back(b);
+	} else if (msg == "image") {
+		Messager::SendMessage("MiddleList", "prefix AddBackImage");
+		{
+			WIN32_FIND_DATA FindFileData;
+			HANDLE hf;
+			std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
+			s += "data\\images\\*.jpg";
+			hf = FindFirstFile(s.c_str(), &FindFileData);
+			if (hf != INVALID_HANDLE_VALUE){
+				do {
+					//std::cout << FindFileData.cFileName << "\n";
+					Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
+				}
+				while (FindNextFile(hf,&FindFileData) != 0);
+				FindClose(hf);
+			}
+		}
+		{
+			WIN32_FIND_DATA FindFileData;
+			HANDLE hf;
+			std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
+			s += "data\\images\\*.png";
+			hf = FindFirstFile(s.c_str(), &FindFileData);
+			if (hf != INVALID_HANDLE_VALUE){
+				do {
+					//std::cout << FindFileData.cFileName << "\n";
+					Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
+				}
+				while (FindNextFile(hf,&FindFileData) != 0);
+				FindClose(hf);
+			}
+		}
+		Messager::SendMessage("MiddleList", "special add cancel");
+	} else if (msg == "beauty") {
+		Beauty b;
+		b.filePath = "data\\beauty\\bush.png";
+		b.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + b.filePath).c_str());
+		b.sprite = new Sprite(b.texture, 0, 0, Render::GetDC()->Texture_GetWidth(b.texture), Render::GetDC()->Texture_GetHeight(b.texture));
+		b.mirror = false;
+		b.scale = 1.f;
+		b.angle = 0.f;
+		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
+		b.pos = FPoint2D(cx, cy);
+		_level.beauties.push_back(b);
+	} else if (msg == "box") {
+		Messager::SendMessage("SmallList", "add curv");
+		Messager::SendMessage("SmallList", "add image");
+		Messager::SendMessage("SmallList", "add beauty");
+		Messager::SendMessage("SmallList", "special add cancel");
+	} else if (msg == "start pos") {
+		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
+		_level.startpoint.push_back(FPoint2D(cx, cy));
+	} else if (msg == "end pos") {
+		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
+		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
+		_level.endpoint.push_back(FPoint2D(cx, cy));
+	} else if (msg == "bonus") {
+		AddElement("rubber");
+	}
+}
+
+void TileEditor::AddBackImage(const std::string &msg) {
+	Messager::SendMessage("MiddleList", "clear");
+	if (msg == "cancel") {
+		return;
+	}
+	OneImage image;
+	image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
+	image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
+	image.pos = FPoint2D(0.f, 0.f);
+	image.filePath = msg;
+	if (_level.images.size() > 0) {
+		for (unsigned int i = 0; i < _level.images.size(); ++i) {
+			delete _level.images[i].sprite;
+			Render::GetDC()->Texture_Free(_level.images[i].texture);
+		}
+		_level.images.clear();
+	}
+	_level.images.push_back(image);
+}
+
+void TileEditor::PreSaveLevel(const std::string &msg) {
+	Messager::SendMessage("BigList", "clear");
+	if (msg == "cancel") {
+		return;
+	}
+	TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
+	std::string s;
+	while (xe != NULL && xe->Attribute("id") != msg) {			
+		s = xe->Attribute("id");
+		xe = xe->NextSiblingElement();
+	}
+	_saveLevelXml = xe;
+	if (xe == NULL) {
+		int save_as_new = atoi(s.c_str()) + 1;
+		char buff[10];
+		sprintf(buff, "%i", save_as_new);
+		TiXmlElement *level = new TiXmlElement("level");
+		level->SetAttribute("id", buff);
+		_doc.RootElement()->LinkEndChild(level);
+		xe = level; 
+		_saveLevelXml = xe;
+		SaveLevel(buff);
+		return;
+	} else if (_currentLevel != msg) {
+		PrefixedAskMessageShow("Are you sure?\nDo you want overwrite " + msg + "?", "OverwriteYesNo");
+		_saveLevelName = msg;
+		_saveLevelXml = xe;
+		return;
+	}
+	SaveLevel(msg);
+}
+
+void TileEditor::OnMessage(const std::string &message) {
 	std::string msg;
+	if (CanCut(message, "NewLevelYesNo", msg)) {
+		NewLevelYesNo(msg);
+		return;
+	}
+	if (CanCut(message, "DeleteSelectedYesNo", msg)) {
+		DeleteSelectedYesNo(msg);
+		return;
+	}
+	if (CanCut(message, "OverwriteYesNo", msg)) {
+		OverwriteYesNo(msg);
+		return;
+	}
+	if (CanCut(message, "AddNewElement", msg)) {
+		AddNewElement(msg);
+		return;
+	}
+	if (CanCut(message, "AddBackImage", msg)) {
+		AddBackImage(msg);
+		return;
+	}
+	if (CanCut(message, "LoadLevel", msg)) {
+		LoadLevel(msg);
+		return;
+	}
+	if (CanCut(message, "PreSaveLevel", msg)) {
+		PreSaveLevel(msg);
+		return;
+	}
 	if (message == "changes") {
 		InitParams(_selectedBody);
 	} else if (message == "net") {
@@ -1097,10 +1254,12 @@ void TileEditor::OnMessage(const std::string &message) {
 		//for (Collection::iterator i = _collection.begin(); i != _collection.end(); i++) {
 		//	Messager::SendMessage("SmallList", "add " + (*i)->_id);
 		//}
+		Messager::SendMessage("SmallList", "prefix AddNewElement");
 		Messager::SendMessage("SmallList", "add curv");
 		Messager::SendMessage("SmallList", "add image");
 		Messager::SendMessage("SmallList", "add beauty");
 		Messager::SendMessage("SmallList", "add bonus");
+		Messager::SendMessage("SmallList", "add box");
 		Messager::SendMessage("SmallList", "add transport");
 		Messager::SendMessage("SmallList", "add animal");
 		if (_level.startpoint.size() == 0) {
@@ -1110,15 +1269,14 @@ void TileEditor::OnMessage(const std::string &message) {
 			Messager::SendMessage("SmallList", "add end pos");
 		}
 		Messager::SendMessage("SmallList", "special add cancel");
-		_waitAddNewElem = true;
 	} else if (message == "left") {
 	} else if (message == "right") {
 	} else if (message == "up") {
 	} else if (message == "down") {
 	} else if (message == "new") {
-		AskMessageShow("Are you sure?\nDelete all objects?");
-		_waitYesNoNewLevel = true;
+		PrefixedAskMessageShow("Are you sure?\nDelete all objects?", "NewLevelYesNo");
 	} else if (message == "open") {
+		Messager::SendMessage("BigList", "prefix LoadLevel");
 		TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
 		std::string s;
 		while (xe) {			
@@ -1131,8 +1289,8 @@ void TileEditor::OnMessage(const std::string &message) {
 			xe = xe->NextSiblingElement();
 		}
 		Messager::SendMessage("BigList", "special add cancel");
-		_waitState = WaitForLevelOpen;
 	} else if (message == "save") {
+		Messager::SendMessage("BigList", "prefix PreSaveLevel");
 		if (!_editor) {
 			OnMessage("play");
 		}
@@ -1149,143 +1307,8 @@ void TileEditor::OnMessage(const std::string &message) {
 		}
 		Messager::SendMessage("BigList", "special add cancel");
 		Messager::SendMessage("BigList", "special add as new");
-		_waitState = WaitForLevelSave;
-	} else if (CanCut(message, "button pressed ", msg)) {
-		if (_waitForImage) {
-			_waitForImage = false;
-			Messager::SendMessage("MiddleList", "clear");
-			if (msg == "cancel") {
-				return;
-			}
-			OneImage image;
-			image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
-			image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
-			image.pos = FPoint2D(0.f, 0.f);
-			image.filePath = msg;
-			if (_level.images.size() > 0) {
-				for (unsigned int i = 0; i < _level.images.size(); ++i) {
-					delete _level.images[i].sprite;
-					Render::GetDC()->Texture_Free(_level.images[i].texture);
-				}
-				_level.images.clear();
-			}
-			_level.images.push_back(image);
-		} else if (_waitAddNewElem) {
-			_waitAddNewElem = false;
-			Messager::SendMessage("SmallList", "clear");
-			if (msg == "cancel") {
-				return;
-			}
-			//if (!_editor) {
-			//	SetValueS("play", "", "play");
-			//	ResetState();
-			//}
-			//InitParams(AddElement(msg));
-			if (msg == "curv") {
-				LevelBlock *b = new LevelBlock();
-				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
-				for (int i = 0; i < 4; ++i) {
-					b->AddPoint(cx + 32.f * sin(M_PI / 2 * i), cy + 32.f * cos(M_PI / 2 * i));
-				}
-				_level.ground.push_back(b);
-			} else if (msg == "image") {
-				_waitForImage = true;
-				{
-					WIN32_FIND_DATA FindFileData;
-					HANDLE hf;
-					std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
-					s += "data\\images\\*.jpg";
-					hf = FindFirstFile(s.c_str(), &FindFileData);
-					if (hf != INVALID_HANDLE_VALUE){
-						do {
-							//std::cout << FindFileData.cFileName << "\n";
-							Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
-						}
-						while (FindNextFile(hf,&FindFileData) != 0);
-						FindClose(hf);
-					}
-				}
-				{
-					WIN32_FIND_DATA FindFileData;
-					HANDLE hf;
-					std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
-					s += "data\\images\\*.png";
-					hf = FindFirstFile(s.c_str(), &FindFileData);
-					if (hf != INVALID_HANDLE_VALUE){
-						do {
-							//std::cout << FindFileData.cFileName << "\n";
-							Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
-						}
-						while (FindNextFile(hf,&FindFileData) != 0);
-						FindClose(hf);
-					}
-				}
-				Messager::SendMessage("MiddleList", "special add cancel");
-			} else if (msg == "beauty") {
-				Beauty b;
-				b.filePath = "data\\beauty\\bush.png";
-				b.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + b.filePath).c_str());
-				b.sprite = new Sprite(b.texture, 0, 0, Render::GetDC()->Texture_GetWidth(b.texture), Render::GetDC()->Texture_GetHeight(b.texture));
-				b.mirror = false;
-				b.scale = 1.f;
-				b.angle = 0.f;
-				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
-				b.pos = FPoint2D(cx, cy);
-				_level.beauties.push_back(b);
-			} else if (msg == "start pos") {
-				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
-				_level.startpoint.push_back(FPoint2D(cx, cy));
-			} else if (msg == "end pos") {
-				float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-				float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
-				_level.endpoint.push_back(FPoint2D(cx, cy));
-			} else if (msg == "bonus") {
-				AddElement("rubber");
-			}
-		} else if (_waitState == WaitForLevelOpen) {
-			_waitState = WaitNone;
-			Messager::SendMessage("BigList", "clear");
-			if (msg == "cancel") {
-				return;
-			}
-			LoadLevel(msg);
-		} else if (_waitState == WaitForLevelSave) {
-			_waitState = WaitNone;
-			Messager::SendMessage("BigList", "clear");
-			if (msg == "cancel") {
-				return;
-			}
-			TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
-			std::string s;
-			while (xe != NULL && xe->Attribute("id") != msg) {			
-				s = xe->Attribute("id");
-				xe = xe->NextSiblingElement();
-			}
-			_saveLevelXml = xe;
-			if (xe == NULL) {
-				int save_as_new = atoi(s.c_str()) + 1;
-				char buff[10];
-				sprintf(buff, "%i", save_as_new);
-				TiXmlElement *level = new TiXmlElement("level");
-				level->SetAttribute("id", buff);
-				_doc.RootElement()->LinkEndChild(level);
-				xe = level; 
-				_saveLevelXml = xe;
-				msg = buff;
-			} else if (_currentLevel != msg) {
-				AskMessageShow("Are you sure?\nDo you want overwrite " + msg + "?");
-				_waitYesNoOverwrite = true;
-				_saveLevelName = msg;
-				_saveLevelXml = xe;
-				return;
-			}
-			SaveLevel(msg);
-		} else {
-			assert(false);
-		}
+	} else {
+		assert(false);
 	}
 }
 
@@ -1564,7 +1587,11 @@ void TileEditor::ClearLevel() {
 	_level.beauties.clear();
 }
 
-void TileEditor::LoadLevel(std::string &msg) {
+void TileEditor::LoadLevel(const std::string &msg) {
+	Messager::SendMessage("BigList", "clear");
+	if (msg == "cancel") {
+		return;
+	}
 	ClearLevel();
 	TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
 	while (xe != NULL && xe->Attribute("id") != msg) {			
@@ -1965,7 +1992,7 @@ void TileEditor::SetupBox2D() {
 		_byker->_attachedBody = body;
 
 		// second wheel
-		bd.position.Set((_level.startpoint[0].x + 74.f)/ SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
+		bd.position.Set((_level.startpoint[0].x + 78.f)/ SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
 		bd.angle = 0.f;
 		
 		body = m_world->CreateBody(&bd);
@@ -1988,7 +2015,7 @@ void TileEditor::SetupBox2D() {
 		//m_world->CreateJoint(&jointDef);
 
 		// hidden part - byke
-		bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y - 12) / SCALE_BOX2D);
+		bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y) / SCALE_BOX2D);
 		bd.angle = 0.f;
 		bd.fixedRotation = false;
 		
@@ -1999,7 +2026,7 @@ void TileEditor::SetupBox2D() {
 		fd.density = 1.f;
 
 		b2PolygonShape box;
-		box.SetAsBox(40.f / SCALE_BOX2D, 8.f / SCALE_BOX2D);
+		box.SetAsBox(40.f / SCALE_BOX2D, 4.f / SCALE_BOX2D);
 		//shape.m_radius = 36.f / SCALE_BOX2D;
 		fd.shape = &box;
 		body->CreateFixture(&fd);
