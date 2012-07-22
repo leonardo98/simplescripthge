@@ -765,14 +765,9 @@ void TileEditor::Draw() {
 		p.x = xf.position.x * SCALE_BOX2D;
 		p.y = xf.position.y * SCALE_BOX2D;
 
-		FPoint2D p2;
-		const b2Transform &xf2 = _byker->_attachedBody2->GetTransform();
-		p2.x = xf2.position.x * SCALE_BOX2D;
-		p2.y = xf2.position.y * SCALE_BOX2D;
-
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
-		Render::MatrixRotate(atan2(p2.y - p.y, p2.x - p.x));
+		Render::MatrixRotate(_byker->_rama->GetAngle());
 		_byker->SetPos(FPoint2D(0, 0));
 		_byker->Draw();
 		Render::PopMatrix();
@@ -835,8 +830,9 @@ void TileEditor::Draw() {
 			b2shift.x = -shift.x / SCALE_BOX2D;
 			b2shift.y = -shift.y / SCALE_BOX2D;
 			for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-				b2Vec2 p = body->GetTransform().position;
-				body->SetTransform(p + b2shift, 0.f);
+				const b2Transform &xf = body->GetTransform();
+				b2Vec2 p = xf.position;
+				body->SetTransform(p + b2shift, xf.GetAngle());
 			}
 			_worldCenter.y += shift.y * _viewScale;
 
@@ -2020,6 +2016,7 @@ void TileEditor::SetupBox2D() {
 		bd.fixedRotation = false;
 		
 		body = m_world->CreateBody(&bd);
+		_byker->_rama = body;
 		
 		fd.restitution = 0.2f;
 		fd.friction = 0.f;
