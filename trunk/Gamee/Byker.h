@@ -14,6 +14,7 @@ public:
 	void SetPos(FPoint2D pos);
 	b2Body *_attachedBody;
 	b2Body *_attachedBody2;
+	b2Body *_rama;
 private:
 	FPoint2D _pos;
 	My::Animation *_ride;
