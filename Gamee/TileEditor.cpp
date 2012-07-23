@@ -307,6 +307,9 @@ b2Body * TileEditor::AddElement(const BodyState &bodyState){
 
 void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 {	
+	if (!_editor) {
+		_byker->_rama->ApplyLinearImpulse(b2Vec2(0.f, -4.5f), _byker->_rama->GetPosition() + b2Vec2(8.f / SCALE_BOX2D, 0));
+	}
 	_mouseDown = true;
 	_lastMousePos = mousePos;
 	InitParams(NULL);
@@ -560,7 +563,7 @@ bool TileEditor::OnMouseWheel(int direction) {
 
 void TileEditor::Step(Settings* settings)
 {
-	settings->hz = Render::GetDC()->Timer_GetFPS();
+	//settings->hz = Render::GetDC()->Timer_GetFPS();
 	float32 timeStep = settings->hz > 0.0f ? 1.0f / settings->hz : float32(0.0f);
 
 	if (settings->pause) {
@@ -661,8 +664,22 @@ void DrawJoint(b2Joint* joint)
 
 
 void TileEditor::Draw() {
-	bool oldTnt = (_finish & 0x1) != 0;
-	bool oldBlue = (_finish & 0x2) != 0;
+	Render::PushMatrix();
+	Render::MatrixMove(_worldCenter.x, _worldCenter.y);
+	Render::MatrixScale(_viewScale, _viewScale);
+	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+		bool changeColor = false;
+		if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
+			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
+			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
+			changeColor = true;
+		}
+		_level.beauties[i].Draw();
+		if (changeColor) {
+			Render::SetColor(0xFFFFFFFF);
+		}
+	}
+	Render::PopMatrix();
 	bool tnt = false;
 	bool blue = false;
 	_finish = 0x0;
@@ -704,18 +721,6 @@ void TileEditor::Draw() {
 	Render::PushMatrix();
 	Render::MatrixMove(_worldCenter.x, _worldCenter.y);
 	Render::MatrixScale(_viewScale, _viewScale);
-	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-		bool changeColor = false;
-		if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
-			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-			changeColor = true;
-		}
-		_level.beauties[i].Draw();
-		if (changeColor) {
-			Render::SetColor(0xFFFFFFFF);
-		}
-	}
 	if (_editor) {
 		if (_level.startpoint.size()) {
 			bool changeColor = false;
@@ -771,13 +776,8 @@ void TileEditor::Draw() {
 		_byker->SetPos(FPoint2D(0, 0));
 		_byker->Draw();
 		Render::PopMatrix();
-		if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
-			_byker->_attachedBody->SetAngularVelocity(40.f);
-			_byker->_attachedBody2->SetAngularVelocity(40.f);
-		} else {
-			_byker->_attachedBody->SetAngularVelocity(20.f);
-			_byker->_attachedBody2->SetAngularVelocity(20.f);
-		}
+		_byker->_attachedBody->SetAngularVelocity(30.f);
+		_byker->_attachedBody2->SetAngularVelocity(30.f);
 	}
 
 	//buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
@@ -935,6 +935,9 @@ void TileEditor::Update(float deltaTime) {
 		return;
 	} else {
 		_byker->Update(deltaTime);
+		if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
+			//_byker->_rama->ApplyLinearImpulse(b2Vec2(0.f, -2.f), _byker->_rama->GetPosition());
+		}
 		Step(&settings);
 		{// двигаем камеру
 			const b2Transform &xf = _byker->_attachedBody->GetTransform();
@@ -1304,7 +1307,7 @@ void TileEditor::OnMessage(const std::string &message) {
 		Messager::SendMessage("BigList", "special add cancel");
 		Messager::SendMessage("BigList", "special add as new");
 	} else {
-		assert(false);
+		assert(message == "ok");
 	}
 }
 
@@ -1687,24 +1690,19 @@ void LevelBlock::ExportToLines(std::vector<FPoint2D> &lineDots) {
 	}
 }
 
-float sign;
-float minAngle;
-
 void LevelBlock::GenerateTriangles() {
 	triangles.clear();
 	std::vector<FPoint2D> &dots = lineDots;
 	ExportToLines(dots);
 
-	//float sign = 0.f;
-	sign = 0.f;
+	float sign = 0.f;
 	{
 		// ищем самый острый угол или наименее тупой
 		FPoint2D *a;
 		FPoint2D *b;
 		FPoint2D *c;
 		int index = 0;
-		//float minAngle = 180.f;
-		minAngle = 180.f;
+		float minAngle = 180.f;
 		for (int i = 0; i < dots.size(); ++i) {
 			a = &dots[i];
 			if (i < dots.size() - 1) {
@@ -1737,42 +1735,9 @@ void LevelBlock::GenerateTriangles() {
 		} else {
 			c = &dots[index + 2 - dots.size()];
 		}
-
-		//// посчитаем центр треугольника
-		//FPoint2D m = FPoint2D((a->x + b->x + c->x) / 3.f, (a->y + b->y + c->y) / 3.f);
-		//
-		//// проверим находиться ли центр треугольника внтури области
-		//int counter = 0;
-		//for (int j = 0; j < dots.size(); ++j) {
-		//	FPoint2D *a2 = &dots[j];
-		//	FPoint2D *b2;
-		//	if (j < dots.size() - 1) {
-		//		b2 = &dots[j + 1];
-		//	} else {
-		//		b2 = &dots[j + 1 - dots.size()];
-		//	} 
-		//	if (a2->x < m.x && m.x <= b2->x) {// найти точку пересечения луча из М и отрезка a2b2
-		//		float k = (a2->y - b2->y) / (a2->x - b2->x);
-		//		float b = a2->y - a2->x * k;
-		//		float y = k * m.x + b;
-		//		if (y > m.y) {
-		//			++counter;
-		//		}
-		//	}
-		//}
 		sign = Math::VMul(*b - *a, *c - *b);
-		//if (counter % 2 != 1) {
-		//	sign *= -1; // если точка m снаружи - меняем знак
-		//}
 	}
-//	return;
-	//int oldSize = dots.size() + 1;
 	while (dots.size() > 0) {
-		//if (oldSize == dots.size()) {
-		//	dots.clear();
-		//	break;
-		//}
-		//oldSize = dots.size();
 		assert(dots.size() > 2);
 		if (dots.size() == 3) {
 			hgeTriple tri;
@@ -1795,15 +1760,6 @@ void LevelBlock::GenerateTriangles() {
 				} else {
 					c = &dots[i + 2 - dots.size()];
 				}
-				//// выкидываем точки находящиеся на одной линии
-				//if (fabs((*a - *c).Length() - (*a - *b).Length() - (*b - *c).Length()) < 1e-3) {
-				//	if (i < dots.size() - 1) {
-				//		dots.erase(dots.begin() + i + 1);
-				//	} else {
-				//		dots.erase(dots.begin());
-				//	}
-				//	break;				
-				//}
 				
 				bool intersection = false;
 				for (int j = 0; j < dots.size() && !intersection; ++j) {
@@ -1851,9 +1807,9 @@ void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint
 	tri.blend = BLEND_ALPHABLEND | BLEND_COLORMUL;
 	// надо добавить в движке HGE режим без блендинга - можно только в игре,
 	// в редакторе не обязательно
-	tri.tex = _allElements->GetTexture();
+	tri.tex = 0;//_allElements->GetTexture();
 	for (unsigned int i = 0; i < 3; ++i) {
-		tri.v[i].col = 0xFFFFFFFF;
+		tri.v[i].col = 0xFF4c812d;
 		tri.v[i].z = 0.f;
 		tri.v[i].tx = tri.v[i].x / 512.f;
 		tri.v[i].ty = tri.v[i].y / 512.f;
@@ -1974,11 +1930,11 @@ void TileEditor::SetupBox2D() {
 		b2Body* body = m_world->CreateBody(&bd);
 		
 		b2FixtureDef fd;
-		fd.restitution = 0.2f;
+		fd.restitution = 0.0f;
 		fd.friction = 1.f;
 		fd.density = 1.f;
 
-		b2CircleShape shape;//34px - 0.7cm
+		b2CircleShape shape;//34px - 0.7m
 		shape.m_radius = 17.f / SCALE_BOX2D;
 		fd.shape = &shape;
 		body->CreateFixture(&fd);
@@ -1993,7 +1949,7 @@ void TileEditor::SetupBox2D() {
 		
 		body = m_world->CreateBody(&bd);
 		
-		fd.restitution = 0.2f;
+		fd.restitution = 0.0f;
 		fd.friction = 1.f;
 		fd.density = 1.f;
 
@@ -2011,19 +1967,19 @@ void TileEditor::SetupBox2D() {
 		//m_world->CreateJoint(&jointDef);
 
 		// hidden part - byke
-		bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y) / SCALE_BOX2D);
+		bd.position.Set((_level.startpoint[0].x + 30.f)/ SCALE_BOX2D, (_level.startpoint[0].y) / SCALE_BOX2D);
 		bd.angle = 0.f;
 		bd.fixedRotation = false;
 		
 		body = m_world->CreateBody(&bd);
 		_byker->_rama = body;
 		
-		fd.restitution = 0.2f;
+		fd.restitution = 0.0f;
 		fd.friction = 0.f;
 		fd.density = 1.f;
 
 		b2PolygonShape box;
-		box.SetAsBox(40.f / SCALE_BOX2D, 4.f / SCALE_BOX2D);
+		box.SetAsBox(20.f / SCALE_BOX2D, 4.f / SCALE_BOX2D);
 		//shape.m_radius = 36.f / SCALE_BOX2D;
 		fd.shape = &box;
 		body->CreateFixture(&fd);
@@ -2046,19 +2002,20 @@ void TileEditor::SetupBox2D() {
 		
 		b2Body *head = m_world->CreateBody(&bd);
 		
-		fd.restitution = 0.2f;
+		fd.restitution = 0.0f;
 		fd.friction = 0.f;
 		fd.density = 1.f;
 
-		shape.m_radius = 14.f / SCALE_BOX2D;
+		shape.m_radius = 10.f / SCALE_BOX2D;
 		fd.shape = &shape;
 		head->CreateFixture(&fd);
 		head->ResetMassData();
+		_byker->_head = head;
 
 		jointDef.Initialize(body, head, body->GetPosition());
 		jointDef.enableLimit = true;
-		jointDef.lowerAngle = - M_PI_4 / 2 * 3;
-		jointDef.upperAngle = M_PI_4 / 2 * 3;
+		jointDef.lowerAngle = - M_PI_4 / 2;// * 3;
+		jointDef.upperAngle = M_PI_4 / 2;// * 3;
 		m_world->CreateJoint(&jointDef);
 
 	}
