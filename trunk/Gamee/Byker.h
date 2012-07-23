@@ -15,6 +15,7 @@ public:
 	b2Body *_attachedBody;
 	b2Body *_attachedBody2;
 	b2Body *_rama;
+	b2Body *_head;
 private:
 	FPoint2D _pos;
 	My::Animation *_ride;
