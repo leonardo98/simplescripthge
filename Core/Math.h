@@ -19,12 +19,15 @@ public:
 	static float SMul(const FPoint2D &one, const FPoint2D &two);
 	static FPoint2D lerp(const FPoint2D &one, const FPoint2D &two, float p);
 	static float lerp(float one, float two, float p);
+	// площадь треугольника
 	static bool STrinagle(float a, float b, float c, float &s);
 	static std::string IntToStr(int i);
 	
 	// поиск пересечения двух отрезков
 	static bool Intersection(const FPoint2D &line1Start, const FPoint2D &line1End, 
 								const FPoint2D &line2Start, const FPoint2D &line2End, FPoint2D *result);
+
+	// точка внтури многоугольника или нет
 	static bool Inside(const FPoint2D m, const std::vector<FPoint2D> &dots);
 };
 

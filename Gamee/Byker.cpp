@@ -1,6 +1,8 @@
 #include "Byker.h"
 
-Byker::Byker() {
+Byker::Byker() 
+: physic(0.f, 0.f, 0.6f)
+{
 	_ride = My::AnimationManager::getAnimation("ride");
 	_timer = 0.f;
 	_attachedBody = NULL;

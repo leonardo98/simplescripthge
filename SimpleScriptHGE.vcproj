@@ -610,7 +610,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Helper"
+				Name="Helpers"
 				>
 				<File
 					RelativePath=".\Helpers\Counter.cpp"
@@ -622,6 +622,10 @@
 				</File>
 				<File
 					RelativePath=".\Helpers\FpsCounter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Helpers\LittleHero.cpp"
 					>
 				</File>
 				<File
@@ -815,7 +819,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Helper"
+				Name="Helpers"
 				>
 				<File
 					RelativePath=".\Helpers\Counter.h"
@@ -827,6 +831,10 @@
 				</File>
 				<File
 					RelativePath=".\Helpers\FpsCounter.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Helpers\LittleHero.h"
 					>
 				</File>
 				<File

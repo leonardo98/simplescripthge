@@ -4,6 +4,7 @@
 #include "Box2D/Box2D.h"
 #include "../Core/types.h"
 #include "../2dga_api/Animation.h"
+#include "../Helpers/LittleHero.h"
 
 class Byker {
 public:
@@ -16,8 +17,9 @@ public:
 	b2Body *_attachedBody2;
 	b2Body *_rama;
 	b2Body *_head;
-private:
 	FPoint2D _pos;
+	LittleHero physic;
+private:
 	My::Animation *_ride;
 	float _timer;
 };

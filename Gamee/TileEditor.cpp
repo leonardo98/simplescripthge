@@ -18,15 +18,6 @@ int TileEditor::round(float a) {
 	return (a - b) >= 0.5f ? b + 1 : b;
 } 
 
-void TileEditorDestructionListener::SayGoodbye(b2Joint* joint)
-{
-	if (test->m_mouseJoint == joint) {
-		test->m_mouseJoint = NULL;
-	} else {
-		test->JointDestroyed(joint);
-	}
-}
-
 void TileEditor::LoadTemplates(const std::string &filename) {
 	TiXmlDocument doc(Render::GetDC()->Resource_MakePath(filename.c_str()));
 	if (!doc.LoadFile()) {
@@ -38,8 +29,6 @@ void TileEditor::LoadTemplates(const std::string &filename) {
 		_collection.push_back(new BodyTemplate(bodyDef));
 		bodyDef = bodyDef->NextSiblingElement("b2object");
 	}
-	_collection.push_back(_fish = new BodyTemplate(doc.RootElement()->FirstChildElement("fish")));
-	_collection.push_back(_cat = new BodyTemplate(doc.RootElement()->FirstChildElement("cat")));
 }
 
 TileEditor::TileEditor(TiXmlElement *xe)
@@ -79,236 +68,241 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	_allElements = Core::getTexture("allElements");
 	LoadTemplates(Render::GetDataDir() + "bodyes.xml");
 
-	b2Vec2 gravity;
-	gravity.Set(0.0f, 10.0f);
-	bool doSleep = true;
-	m_world = new b2World(gravity, doSleep);
-	m_bomb = NULL;
-	m_textLine = 30;
-	m_mouseJoint = NULL;
-	m_pointCount = 0;
+	//b2Vec2 gravity;
+	//gravity.Set(0.0f, 10.0f);
+	//bool doSleep = true;
+	//m_world = new b2World(gravity, doSleep);
+	_byker->physic.SetGravity(FPoint2D(0.f, 10.f));
 
-	m_destructionListener.test = this;
-	m_world->SetDestructionListener(&m_destructionListener);
-	m_world->SetContactListener(this);
+	//m_bomb = NULL;
+	//m_textLine = 30;
+	//m_mouseJoint = NULL;
+	//m_pointCount = 0;
+
+	//m_destructionListener.test = this;
+	//m_world->SetDestructionListener(&m_destructionListener);
+	//m_world->SetContactListener(this);
 	
-	m_bombSpawning = false;
-	m_stepCount = 0;
+	//m_bombSpawning = false;
+	//m_stepCount = 0;
 }
 
 TileEditor::~TileEditor()
 {
+	EraseAllBodyes();
 	delete _byker;
 	My::AnimationManager::UnloadAll();
 	delete _startFlag;
 	delete _endFlag;
 	Render::GetDC()->Texture_Free(_flags);
 	ClearLevel();
-	EraseAllBodyes();
 	// By deleting the world, we delete the bomb, mouse joint, etc.
-	delete m_world;
-	m_world = NULL;
+	//delete m_world;
+	//m_world = NULL;
 	for (Collection::iterator i = _collection.begin(), e = _collection.end(); i != e; i++) {
 		delete (*i);
 	}
 }
 
-void TileEditor::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
-{
-	const b2Manifold* manifold = contact->GetManifold();
+//void TileEditor::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+//{
+//	const b2Manifold* manifold = contact->GetManifold();
+//
+//	if (manifold->pointCount == 0) {
+//		return;
+//	}
+//
+//	b2Fixture* fixtureA = contact->GetFixtureA();
+//	b2Fixture* fixtureB = contact->GetFixtureB();
+//
+//	b2PointState state1[b2_maxManifoldPoints], state2[b2_maxManifoldPoints];
+//	b2GetPointStates(state1, state2, oldManifold, manifold);
+//
+//	b2WorldManifold worldManifold;
+//	contact->GetWorldManifold(&worldManifold);
+//
+//	for (int32 i = 0; i < manifold->pointCount && m_pointCount < k_maxContactPoints; ++i)
+//	{
+//		ContactPoint* cp = m_points + m_pointCount;
+//		cp->fixtureA = fixtureA;
+//		cp->fixtureB = fixtureB;
+//		cp->position = worldManifold.points[i];
+//		cp->normal = worldManifold.normal;
+//		cp->state = state2[i];
+//		++m_pointCount;
+//	}
+//}
+//
+//void TileEditor::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+//{
+//	return;
+//
+//	if (_startLevel.Action()) {
+//		return;
+//	}
+//	BodyTemplate *btA = static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->base;
+//	BodyTemplate *btB = static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->base;
+//	if (!(btA->_breakable) && !(btB->_breakable))
+//	{
+//		if ((btA->_hero && btB->_hero)) {
+//			_userLevelWin = true;
+//		}
+//		return;
+//	}
+//
+//	// Should the body break?
+//	int32 count = contact->GetManifold()->pointCount;
+//
+//	float32 maxImpulse = 0.0f;
+//	for (int32 i = 0; i < count; ++i)
+//	{
+//		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+//	}
+//
+//	if (maxImpulse > 0.1f) {
+//		// Flag the body for breaking.
+//		if (btA->_breakable) {
+//			static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->broken = true;
+//		}
+//		if (btB->_breakable) {
+//			static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->broken = true;
+//		}
+//	}
+//}
+//
+//class QueryCallback : public b2QueryCallback
+//{
+//public:
+//	QueryCallback(const b2Vec2& point)
+//	{
+//		m_point = point;
+//		m_fixture = NULL;
+//	}
+//
+//	bool ReportFixture(b2Fixture* fixture)
+//	{
+//		b2Body* body = fixture->GetBody();
+//		if (body->GetType() == b2_dynamicBody)
+//		{
+//			bool inside = fixture->TestPoint(m_point);
+//			if (inside) {
+//				m_fixture = fixture;
+//
+//				// We are done, terminate the query.
+//				return false;
+//			}
+//		}
+//		// Continue the query.
+//		return true;
+//	}
+//	b2Vec2 m_point;
+//	b2Fixture* m_fixture;
+//};
 
-	if (manifold->pointCount == 0) {
-		return;
-	}
-
-	b2Fixture* fixtureA = contact->GetFixtureA();
-	b2Fixture* fixtureB = contact->GetFixtureB();
-
-	b2PointState state1[b2_maxManifoldPoints], state2[b2_maxManifoldPoints];
-	b2GetPointStates(state1, state2, oldManifold, manifold);
-
-	b2WorldManifold worldManifold;
-	contact->GetWorldManifold(&worldManifold);
-
-	for (int32 i = 0; i < manifold->pointCount && m_pointCount < k_maxContactPoints; ++i)
-	{
-		ContactPoint* cp = m_points + m_pointCount;
-		cp->fixtureA = fixtureA;
-		cp->fixtureB = fixtureB;
-		cp->position = worldManifold.points[i];
-		cp->normal = worldManifold.normal;
-		cp->state = state2[i];
-		++m_pointCount;
-	}
-}
-
-void TileEditor::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
-{
-	return;
-
-	if (_startLevel.Action()) {
-		return;
-	}
-	BodyTemplate *btA = static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->base;
-	BodyTemplate *btB = static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->base;
-	if (!(btA->_breakable) && !(btB->_breakable))
-	{
-		if ((btA->_hero && btB->_hero)) {
-			_userLevelWin = true;
-		}
-		return;
-	}
-
-	// Should the body break?
-	int32 count = contact->GetManifold()->pointCount;
-
-	float32 maxImpulse = 0.0f;
-	for (int32 i = 0; i < count; ++i)
-	{
-		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-	}
-
-	if (maxImpulse > 0.1f) {
-		// Flag the body for breaking.
-		if (btA->_breakable) {
-			static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->broken = true;
-		}
-		if (btB->_breakable) {
-			static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->broken = true;
-		}
-	}
-}
-
-class QueryCallback : public b2QueryCallback
-{
-public:
-	QueryCallback(const b2Vec2& point)
-	{
-		m_point = point;
-		m_fixture = NULL;
-	}
-
-	bool ReportFixture(b2Fixture* fixture)
-	{
-		b2Body* body = fixture->GetBody();
-		if (body->GetType() == b2_dynamicBody)
-		{
-			bool inside = fixture->TestPoint(m_point);
-			if (inside) {
-				m_fixture = fixture;
-
-				// We are done, terminate the query.
-				return false;
-			}
-		}
-		// Continue the query.
-		return true;
-	}
-	b2Vec2 m_point;
-	b2Fixture* m_fixture;
-};
-
-void TileEditor::EraseBody(b2Body *body) {
-	if (body->GetUserData() != NULL && body->GetUserData() != _byker) {
-		MyBody *t = static_cast<MyBody *>(body->GetUserData());
-		delete t;
-		body->SetUserData(NULL);
-	}
-	m_world->DestroyBody(body);
+void TileEditor::EraseSelected() {
+	//if (body->GetUserData() != NULL && body->GetUserData() != _byker) {
+	//	MyBody *t = static_cast<MyBody *>(body->GetUserData());
+	//	delete t;
+	//	body->SetUserData(NULL);
+	//}
+	//m_world->DestroyBody(body);
 }
 
 void TileEditor::EraseAllBodyes() {
-	for (b2Body *body = m_world->GetBodyList(); body; ) {
-		b2Body *remove = body;
-		body = body->GetNext();
-		if (remove) {
-			EraseBody(remove);
-		}
+	while (_byker->physic.GetAllLines().size()) {
+		_byker->physic.RemoveLinesSet(NULL);
 	}
-	_landBodies.clear();
+	//for (b2Body *body = m_world->GetBodyList(); body; ) {
+	//	b2Body *remove = body;
+	//	body = body->GetNext();
+	//	if (remove) {
+	//		EraseBody(remove);
+	//	}
+	//}
+	//_landBodies.clear();
 }
 
 // добавляем новый элемент в "случайное" место на экране
-b2Body * TileEditor::AddElement(const std::string &typeId) {
-	Collection::iterator index = _collection.begin();
-	while (index != _collection.end() && (*index)->_id != typeId ) {index++;}
-	assert(index != _collection.end() && (*index)->_id == typeId );
+void TileEditor::AddElement(const std::string &typeId) {
+	//Collection::iterator index = _collection.begin();
+	//while (index != _collection.end() && (*index)->_id != typeId ) {index++;}
+	//assert(index != _collection.end() && (*index)->_id == typeId );
 
-	BodyState bs;
-	bs.base = (*index);	
-	bs.angle = 0;
-	{// найдём центр экрана 
+	//BodyState bs;
+	//bs.base = (*index);	
+	//bs.angle = 0;
+	//{// найдём центр экрана 
 
-	}
-	bs.pos = b2Vec2((SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale, (_worldCenter.y - SCREEN_HEIGHT / 2) / _viewScale);
-	bs.pos = b2Vec2(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
-	bs.width = bs.base->_width;
-	bs.height = bs.base->_height;
-	bs.radius = bs.base->_radius;
-	
-	return AddElement(bs);
+	//}
+	//bs.pos = b2Vec2((SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale, (_worldCenter.y - SCREEN_HEIGHT / 2) / _viewScale);
+	//bs.pos = b2Vec2(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
+	//bs.width = bs.base->_width;
+	//bs.height = bs.base->_height;
+	//bs.radius = bs.base->_radius;
+	//
+	//return AddElement(bs);
 }
-
-// ДЛЯ ИГРЫ тут можно соптимизировать - все элементы "земли" вынести в одно body
-// создаем физическое тело по описанию
-b2Body * TileEditor::AddElement(const BodyState &bodyState){ 
-
-	b2BodyDef bd;
-	bd.type = b2_dynamicBody;  
-	//if (bodyState.base->_fixed) {
-		//bd.type = b2_staticBody;);// ХАК - QueryAABB не работает со статичными объктами, 
-	//}								// т.е. иначе их нельзя будет двигать в редакторе
-									// поэтому в статик они переключаются только в режиме игры,
-									// а в редакторе псевдо-динамик
-	bd.position.Set(bodyState.pos.x, bodyState.pos.y);
-	bd.angle = bodyState.angle;
-	
-	b2Body* body = m_world->CreateBody(&bd);
-	
-	b2FixtureDef fd;
-	fd.restitution = bodyState.base->_restitution;
-	fd.friction = bodyState.base->_friction;
-	fd.density = 1.0f;
-
-	if (bodyState.base->_shape == "circle") {
-		b2CircleShape shape;
-		shape.m_radius = bodyState.radius + HALFBORDER;
-		fd.shape = &shape;
-		body->CreateFixture(&fd);
-	} else if (bodyState.base->_shape == "box") {
-		b2PolygonShape shape;
-		shape.SetAsBox(bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
-		fd.shape = &shape;
-		body->CreateFixture(&fd);
-	} else if (bodyState.base->_shape == "triangle") {
-		b2PolygonShape shape;
-		b2Vec2 vec[3];
-		vec[0] = b2Vec2( bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
-		vec[1] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
-		vec[2] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, -bodyState.height / 2.f + DEC - HALFBORDER);
-		shape.Set(vec, 3);
-		fd.shape = &shape;
-		body->CreateFixture(&fd);
-	} else {
-		EraseBody(body);
-		return NULL;
-	}
-	MyBody *myBody = new MyBody();
-	myBody->base = bodyState.base;
-	myBody->broken = false;
-
-	myBody->width = bodyState.width;		
-	myBody->height = bodyState.height;
-	myBody->radius = bodyState.radius;		
-
-	body->SetUserData(myBody);
-	return body;
-}
-
+//
+//// ДЛЯ ИГРЫ тут можно соптимизировать - все элементы "земли" вынести в одно body
+//// создаем физическое тело по описанию
+//b2Body * TileEditor::AddElement(const BodyState &bodyState){ 
+//
+//	b2BodyDef bd;
+//	bd.type = b2_dynamicBody;  
+//	//if (bodyState.base->_fixed) {
+//		//bd.type = b2_staticBody;);// ХАК - QueryAABB не работает со статичными объктами, 
+//	//}								// т.е. иначе их нельзя будет двигать в редакторе
+//									// поэтому в статик они переключаются только в режиме игры,
+//									// а в редакторе псевдо-динамик
+//	bd.position.Set(bodyState.pos.x, bodyState.pos.y);
+//	bd.angle = bodyState.angle;
+//	
+//	b2Body* body = m_world->CreateBody(&bd);
+//	
+//	b2FixtureDef fd;
+//	fd.restitution = bodyState.base->_restitution;
+//	fd.friction = bodyState.base->_friction;
+//	fd.density = 1.0f;
+//
+//	if (bodyState.base->_shape == "circle") {
+//		b2CircleShape shape;
+//		shape.m_radius = bodyState.radius + HALFBORDER;
+//		fd.shape = &shape;
+//		body->CreateFixture(&fd);
+//	} else if (bodyState.base->_shape == "box") {
+//		b2PolygonShape shape;
+//		shape.SetAsBox(bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
+//		fd.shape = &shape;
+//		body->CreateFixture(&fd);
+//	} else if (bodyState.base->_shape == "triangle") {
+//		b2PolygonShape shape;
+//		b2Vec2 vec[3];
+//		vec[0] = b2Vec2( bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
+//		vec[1] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
+//		vec[2] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, -bodyState.height / 2.f + DEC - HALFBORDER);
+//		shape.Set(vec, 3);
+//		fd.shape = &shape;
+//		body->CreateFixture(&fd);
+//	} else {
+//		EraseBody(body);
+//		return NULL;
+//	}
+//	MyBody *myBody = new MyBody();
+//	myBody->base = bodyState.base;
+//	myBody->broken = false;
+//
+//	myBody->width = bodyState.width;		
+//	myBody->height = bodyState.height;
+//	myBody->radius = bodyState.radius;		
+//
+//	body->SetUserData(myBody);
+//	return body;
+//}
+//
 void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 {	
 	if (!_editor) {
-		_byker->_rama->ApplyLinearImpulse(b2Vec2(0.f, -4.5f), _byker->_rama->GetPosition() + b2Vec2(8.f / SCALE_BOX2D, 0));
+		_byker->physic.SetImpulse(FPoint2D(0.f, -4.5f));
 	}
 	_mouseDown = true;
 	_lastMousePos = mousePos;
@@ -394,39 +388,6 @@ void TileEditor::OnMouseUp()
 	_mouseDown = false;
 	_currents.dotIndex = -1;
 	_currents.moveAllDots = false;
-	if (m_mouseJoint) {
-		m_mouseJoint->GetBodyB()->ResetMassData();
-		m_world->DestroyJoint(m_mouseJoint);
-		m_mouseJoint = NULL;
-	}
-	if (_editor){
-		return;
-	}
-	FPoint2D fp = 1.f / _viewScale * (_lastMousePos - _worldCenter);
-	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
-	
-	// Make a small box.
-	b2AABB aabb;
-	b2Vec2 d;
-	d.Set(0.001f, 0.001f);
-	aabb.lowerBound = p - d;
-	aabb.upperBound = p + d;
-
-	// Query the world for overlapping shapes.
-	QueryCallback callback(p);
-	m_world->QueryAABB(&callback, aabb);
-
-	if (callback.m_fixture)	{
-		b2Body* body = callback.m_fixture->GetBody();
-		BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
-		if (bt->_explosion) {
-			b2Vec2 pos = body->GetPosition();
-			EraseBody(body);
-			Explosion(pos, bt->_explosionRadius, bt->_maxForce);
-		} else if (bt->_destroyOnTap) {
-			static_cast<MyBody *>(body->GetUserData())->broken = true;
-		}
-	}
 }
 
 void TileEditor::InitParams(b2Body *body) 
@@ -494,18 +455,18 @@ bool TileEditor::IsLevelFinish() {
 void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 {
 	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
-	b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
+	FPoint2D p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
 
 	if (_currentElement.selected != SelectedElement::none && _mouseDown) {
 		if (_currentElement.selected == SelectedElement::beauty_element) {
-			_level.beauties[_currentElement.index].pos.x += (p.x - m_mouseWorld.x);
-			_level.beauties[_currentElement.index].pos.y -= (p.y - m_mouseWorld.y);
+			_level.beauties[_currentElement.index].pos.x += (p.x - _mouseWorld.x);
+			_level.beauties[_currentElement.index].pos.y -= (p.y - _mouseWorld.y);
 		} else if (_currentElement.selected == SelectedElement::start_flag) {
-			_level.startpoint[0].x += (p.x - m_mouseWorld.x);
-			_level.startpoint[0].y -= (p.y - m_mouseWorld.y);
+			_level.startpoint[0].x += (p.x - _mouseWorld.x);
+			_level.startpoint[0].y -= (p.y - _mouseWorld.y);
 		} else if (_currentElement.selected == SelectedElement::end_flag) {
-			_level.endpoint[0].x += (p.x - m_mouseWorld.x);
-			_level.endpoint[0].y -= (p.y - m_mouseWorld.y);
+			_level.endpoint[0].x += (p.x - _mouseWorld.x);
+			_level.endpoint[0].y -= (p.y - _mouseWorld.y);
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
 		SplinePath tmpx, tmpy;
@@ -525,23 +486,12 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 		_currents.block->xPoses = tmpx;
 		_currents.block->yPoses = tmpy;
 	} else {
-		if (m_mouseJoint) {
-			m_mouseJoint->SetTarget(p);
-		} else if (_editor && _mouseDown && _selectedBody) {
-			b2Vec2 pos = _selectedBody->GetPosition();
-			pos += 1.f / _viewScale * b2Vec2(mousePos.x - _lastMousePos.x, _lastMousePos.y - mousePos.y);
-			if (_netVisible) {
-				pos = p;
-				pos.x = round(pos.x / 0.1f) * 0.1f;
-				pos.y = round(pos.y / 0.1f) * 0.1f;
-			}
-			_selectedBody->SetTransform(pos, _selectedBody->GetAngle());
-		} else if (_mouseDown) {
+		if (_mouseDown) {
 			_worldCenter += (mousePos - _lastMousePos);
 		}
 	}
 	_lastMousePos = mousePos;
-	m_mouseWorld = p;
+	_mouseWorld = p;
 }
 
 bool TileEditor::OnMouseWheel(int direction) {
@@ -560,43 +510,6 @@ bool TileEditor::OnMouseWheel(int direction) {
 	_worldCenter = - (_viewScale / old * (_lastMousePos - _worldCenter) - _lastMousePos);
 	return true;
 } 
-
-void TileEditor::Step(Settings* settings)
-{
-	//settings->hz = Render::GetDC()->Timer_GetFPS();
-	float32 timeStep = settings->hz > 0.0f ? 1.0f / settings->hz : float32(0.0f);
-
-	if (settings->pause) {
-		if (settings->singleStep) {
-			settings->singleStep = 0;
-		} else {
-			timeStep = 0.0f;
-		}
-		m_textLine += 15;
-	}
-
-	uint32 flags = 0;
-	flags += settings->drawShapes			* b2DebugDraw::e_shapeBit;
-	flags += settings->drawJoints			* b2DebugDraw::e_jointBit;
-	flags += settings->drawAABBs			* b2DebugDraw::e_aabbBit;
-	flags += settings->drawPairs			* b2DebugDraw::e_pairBit;
-	flags += settings->drawCOMs				* b2DebugDraw::e_centerOfMassBit;
-	////m_debugDraw.SetFlags(flags);
-
-	m_world->SetWarmStarting(settings->enableWarmStarting > 0);
-	m_world->SetContinuousPhysics(settings->enableContinuous > 0);
-
-	m_pointCount = 0;
-
-	m_world->Step(timeStep, settings->velocityIterations, settings->positionIterations);
-
-	if (timeStep > 0.0f) {
-		++m_stepCount;
-	}
-
-	if (m_mouseJoint) {
-	}
-}
 
 bool TileEditor::IsMouseOver(const FPoint2D &mousePos) {
 	return true;
@@ -748,67 +661,60 @@ void TileEditor::Draw() {
 		}
 	}
 
-	FPoint2D pselect[4];
-	typedef std::list<b2Body *> Remove;
-	Remove remove;
-
-
-	for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		if (body->GetUserData() == NULL && body->GetType() == b2_staticBody) {
-			Render::PushMatrix();
-			const b2Transform & xf = body->GetTransform();
-			Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
-			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->DrawTriangles();
-			}
-			Render::PopMatrix();
+	for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
+										e = _byker->physic.GetAllLines().end(); i != e; ++i) {
+		Render::PushMatrix();
+		Render::MatrixMove((*i)->GetOffset().x * SCALE_BOX2D, (*i)->GetOffset().y * SCALE_BOX2D);
+		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+			_level.ground[i]->DrawTriangles();
 		}
+		Render::PopMatrix();
 	}
 	if (!_editor) {
-		FPoint2D p;
-		const b2Transform &xf = _byker->_attachedBody->GetTransform();
-		p.x = xf.position.x * SCALE_BOX2D;
-		p.y = xf.position.y * SCALE_BOX2D;
+		FPoint2D p(_byker->physic.GetPosition() * SCALE_BOX2D);
+		//const b2Transform &xf = _byker->_attachedBody->GetTransform();
+		//p.x = xf.position.x * SCALE_BOX2D;
+		//p.y = xf.position.y * SCALE_BOX2D;
 
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
-		Render::MatrixRotate(_byker->_rama->GetAngle());
+	//	Render::MatrixRotate(_byker->_rama->GetAngle());
 		_byker->SetPos(FPoint2D(0, 0));
 		_byker->Draw();
 		Render::PopMatrix();
-		_byker->_attachedBody->SetAngularVelocity(30.f);
-		_byker->_attachedBody2->SetAngularVelocity(30.f);
+		//_byker->_attachedBody->SetAngularVelocity(30.f);
+		//_byker->_attachedBody2->SetAngularVelocity(30.f);
 	}
 
 	//buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
-		for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-			Render::PushMatrix();
-			const b2Transform & xf = body->GetTransform();
-			Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
-			Render::MatrixRotate(xf.GetAngle());
-			for (b2Fixture *fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
-				b2Shape *shape = fixture->GetShape();
-				if (shape->GetType() == b2Shape::e_polygon) {
-					b2PolygonShape *polygon = (b2PolygonShape *)shape;				
-					for (unsigned int i = 0; i < polygon->GetVertexCount(); ++i) {
-						const b2Vec2 &start = polygon->GetVertex(i);
-						const b2Vec2 &end = polygon->GetVertex((i + 1) % polygon->GetVertexCount());
-						Render::Line(start.x * SCALE_BOX2D, start.y * SCALE_BOX2D
-							, end.x * SCALE_BOX2D, end.y * SCALE_BOX2D, 0xFFFFFFFF);
-					}
-				} else if (shape->GetType() == b2Shape::e_circle) {
-					b2CircleShape *circle = (b2CircleShape *)shape;
-					Render::Circle(circle->m_p.y, circle->m_p.y, circle->m_radius * SCALE_BOX2D, 0xFFFFFFFF);
-				}			
-			}
-			Render::PopMatrix();
-			if (body->GetJointList()) {
-				for (b2Joint *joint = body->GetJointList()->joint; joint; joint = joint->GetNext()) {
-					DrawJoint(joint);
-				}
-			}
-		}
+		//for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+		//	Render::PushMatrix();
+		//	const b2Transform & xf = body->GetTransform();
+		//	Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
+		//	Render::MatrixRotate(xf.GetAngle());
+		//	for (b2Fixture *fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+		//		b2Shape *shape = fixture->GetShape();
+		//		if (shape->GetType() == b2Shape::e_polygon) {
+		//			b2PolygonShape *polygon = (b2PolygonShape *)shape;				
+		//			for (unsigned int i = 0; i < polygon->GetVertexCount(); ++i) {
+		//				const b2Vec2 &start = polygon->GetVertex(i);
+		//				const b2Vec2 &end = polygon->GetVertex((i + 1) % polygon->GetVertexCount());
+		//				Render::Line(start.x * SCALE_BOX2D, start.y * SCALE_BOX2D
+		//					, end.x * SCALE_BOX2D, end.y * SCALE_BOX2D, 0xFFFFFFFF);
+		//			}
+		//		} else if (shape->GetType() == b2Shape::e_circle) {
+		//			b2CircleShape *circle = (b2CircleShape *)shape;
+		//			Render::Circle(circle->m_p.y, circle->m_p.y, circle->m_radius * SCALE_BOX2D, 0xFFFFFFFF);
+		//		}			
+		//	}
+		//	Render::PopMatrix();
+		//	if (body->GetJointList()) {
+		//		for (b2Joint *joint = body->GetJointList()->joint; joint; joint = joint->GetNext()) {
+		//			DrawJoint(joint);
+		//		}
+		//	}
+		//}
 	}
 	//Render::GetDC()->Gfx_FinishBatch(counter);
 	if (!_editor) {// смотрим не пора ли подставить новый кусок
@@ -817,54 +723,57 @@ void TileEditor::Draw() {
 		Render::GetCurrentMatrix().Mul(x, y);
 		
 //		if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
-		float xByker = _byker->_attachedBody->GetTransform().position.x * SCALE_BOX2D;
+		float xByker = _byker->physic.GetPosition().x * SCALE_BOX2D;
 		if (_level.startpoint[0].x < xByker && xByker < _endPoint.x) {
 			if (_landBodies.size() >= 3) {
-				EraseBody(_landBodies.front());
-				_landBodies.pop_front();
+				//EraseBody(_landBodies.front());
+				//_landBodies.pop_front();
+				_byker->physic.RemoveLinesSet(NULL);
 			}
 			
 			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]);
 
-			b2Vec2 b2shift;
+			FPoint2D b2shift;
 			b2shift.x = -shift.x / SCALE_BOX2D;
 			b2shift.y = -shift.y / SCALE_BOX2D;
-			for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-				const b2Transform &xf = body->GetTransform();
-				b2Vec2 p = xf.position;
-				body->SetTransform(p + b2shift, xf.GetAngle());
+			for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
+												e = _byker->physic.GetAllLines().end(); i != e; ++i) {
+				(*i)->Move(b2shift);
 			}
+			_byker->physic.SetPosition(_byker->physic.GetPosition() + b2shift);
+			//for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
+			//	const b2Transform &xf = body->GetTransform();
+			//	b2Vec2 p = xf.position;
+			//	body->SetTransform(p + b2shift, xf.GetAngle());
+			//}
 			_worldCenter.y += shift.y * _viewScale;
 
 			_endPoint = _level.endpoint[0];
 
-			b2BodyDef bd;
-			bd.type = b2_staticBody;  
-			bd.position.Set(0.f, 0.f);
-			bd.angle = 0.f;
-			b2Body* body = m_world->CreateBody(&bd);		
+			//b2BodyDef bd;
+			//bd.type = b2_staticBody;  
+			//bd.position.Set(0.f, 0.f);
+			//bd.angle = 0.f;
+			//b2Body* body = m_world->CreateBody(&bd);		
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->CreateBody(body);
+				_level.ground[i]->CreateBody(_byker);
 			}
-			body->ResetMassData();
-			_landBodies.push_back(body);
+			//body->ResetMassData();
+			//_landBodies.push_back(body);
+
 		}
 	}
 	Render::PopMatrix();
-	for (;remove.begin() != remove.end();) {
-		EraseBody(*remove.begin());
-		remove.erase(remove.begin());
-	}
-	if (_selectedBody && _signal > 0.5f) {
-		max = 1;
-		const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
-		const b2Transform & xf = _selectedBody->GetTransform();
+	//if (_selectedBody && _signal > 0.5f) {
+	//	max = 1;
+	//	const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
+	//	const b2Transform & xf = _selectedBody->GetTransform();
 
-		Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
+	//	Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
 
-		DrawElement(buffer, bt->_uv, xf.position, pselect);
-		Render::GetDC()->Gfx_FinishBatch(1);
-	}
+	//	DrawElement(buffer, bt->_uv, xf.position, pselect);
+	//	Render::GetDC()->Gfx_FinishBatch(1);
+	//}
 	char buff[10];
 	Math::FloatToChar(_viewScale, buff);
 	Render::PrintString(940, 0, "", buff);
@@ -938,13 +847,16 @@ void TileEditor::Update(float deltaTime) {
 		if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
 			//_byker->_rama->ApplyLinearImpulse(b2Vec2(0.f, -2.f), _byker->_rama->GetPosition());
 		}
-		Step(&settings);
+		//Step(&settings);
+		_byker->physic.Update(deltaTime);
 		{// двигаем камеру
-			const b2Transform &xf = _byker->_attachedBody->GetTransform();
+			//const b2Transform &xf = _byker->_attachedBody->GetTransform();
 			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2);
 			//_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2);			
-			_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
-			float y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);
+			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
+			_worldCenter.x = (-_byker->physic.GetPosition().x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
+//			float y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);
+			float y = (-_byker->physic.GetPosition().y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);
 			if (_worldCenter.y > y) {
 				_worldCenter.y = y;
 			} else if (_worldCenter.y < y - SCREEN_HEIGHT / 3) {
@@ -974,23 +886,23 @@ void TileEditor::Update(float deltaTime) {
 
 void TileEditor::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 {
-	b2Vec2 b2TouchPosition = b2Vec2(pos.x, pos.y);
-	b2Vec2 b2BodyPosition;
+	//b2Vec2 b2TouchPosition = b2Vec2(pos.x, pos.y);
+	//b2Vec2 b2BodyPosition;
 	float distance; 
 	float strength;
 	float force;
 	float angle;
-	for (b2Body* b = m_world->GetBodyList(); b; b = b->GetNext()) {
-		b2BodyPosition = b2Vec2(b->GetPosition().x, b->GetPosition().y);
-		distance = b2Distance(b2BodyPosition, b2TouchPosition);
-		if(distance < maxDistance - 0.01) {
-			strength = (maxDistance - distance) / maxDistance; 
-			force = sqrtf(strength) * maxForce;
-			angle = atan2f(b2BodyPosition.y - b2TouchPosition.y, b2BodyPosition.x - b2TouchPosition.x);
-			// Apply an impulse to the body, using the angle
-			b->ApplyLinearImpulse(b2Vec2(cosf(angle) * force, sinf(angle) * force), b->GetPosition());
-		}
-	}
+	//for (b2Body* b = m_world->GetBodyList(); b; b = b->GetNext()) {
+	//	b2BodyPosition = b2Vec2(b->GetPosition().x, b->GetPosition().y);
+	//	distance = b2Distance(b2BodyPosition, b2TouchPosition);
+	//	if(distance < maxDistance - 0.01) {
+	//		strength = (maxDistance - distance) / maxDistance; 
+	//		force = sqrtf(strength) * maxForce;
+	//		angle = atan2f(b2BodyPosition.y - b2TouchPosition.y, b2BodyPosition.x - b2TouchPosition.x);
+	//		// Apply an impulse to the body, using the angle
+	//		b->ApplyLinearImpulse(b2Vec2(cosf(angle) * force, sinf(angle) * force), b->GetPosition());
+	//	}
+	//}
 }
 
 void TileEditor::SaveState() {
@@ -1022,11 +934,11 @@ void TileEditor::ResetState() {
 		_worldCenter.y = (_level.startpoint[0].y * _viewScale + SCREEN_HEIGHT / 2);			
 	}
 	EraseAllBodyes();
-	for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
+	//for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
 
-		/*b2Body *b = */AddElement(*i);
-		//b->SetTransform(_state[i].pos, _state[i].angle);
-	}
+	//	/*b2Body *b = */AddElement(*i);
+	//	//b->SetTransform(_state[i].pos, _state[i].angle);
+	//}
 }
 
 void TileEditor::NewLevelYesNo(const std::string &message) {
@@ -1042,7 +954,7 @@ void TileEditor::NewLevelYesNo(const std::string &message) {
 }
 
 void TileEditor::DeleteSelectedYesNo(const std::string &message) {
-	EraseBody(_selectedBody);
+	EraseSelected(/*_selectedBody*/);
 	InitParams(NULL);
 }
 
@@ -1883,140 +1795,247 @@ void TileEditor::CalcNextBykePos(float dt) {
 	}
 }
 
-void LevelBlock::CreateBody(b2Body *body) {
-	int n = triangles.size();
-	for (unsigned int j = 0; j < n; ++j) {
-		b2FixtureDef fd;
-		fd.restitution = 0.f;
-		fd.friction = 1.0f;
-		fd.density = 1.0f;
-		b2PolygonShape shape;
-		b2Vec2 vec[3];
-		for (unsigned int i = 0; i < 3; ++i) {
-			vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
-			vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
+typedef std::vector<b2Vec2> Triangle;
+
+bool Convex(Triangle &m_vertices) {
+	int32 m_vertexCount = m_vertices.size();
+	for (int32 i = 0; i < m_vertexCount; ++i)
+	{
+		int32 i1 = i;
+		int32 i2 = i + 1 < m_vertexCount ? i + 1 : 0;
+		b2Vec2 edge = m_vertices[i2] - m_vertices[i1];
+
+		for (int32 j = 0; j < m_vertexCount; ++j)
+		{
+			// Don't check vertices on the current edge.
+			if (j == i1 || j == i2)
+			{
+				continue;
+			}
+			
+			b2Vec2 r = m_vertices[j] - m_vertices[i1];
+
+			// Your polygon is non-convex (it has an indentation) or
+			// has colinear edges.
+			float32 s = b2Cross(edge, r);
+			return false;
 		}
-		shape.Set(vec, 3);
-		fd.shape = &shape;
-		body->CreateFixture(&fd);
-		body->ResetMassData();
 	}
+	return true;
+}
+
+void LevelBlock::CreateBody(Byker *byker) {
+	DotsList dots;
+	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
+	dots.resize(subLine);
+	for (unsigned int i = 0; i < subLine; ++i) {
+		FPoint2D &a = dots[i];
+		float t = static_cast<float>(i) / subLine;
+		a.x = xPoses.getGlobalFrame(t) / SCALE_BOX2D;
+		a.y = yPoses.getGlobalFrame(t) / SCALE_BOX2D;
+	}
+	byker->physic.AddLinesSet(dots);
+	//// составление треугольников
+	//int n = triangles.size();
+	//std::vector<Triangle> massiv;
+	//for (unsigned int j = 0; j < n; ++j) {
+	//	Triangle vec(3);
+	//	for (unsigned int i = 0; i < 3; ++i) {
+	//		vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
+	//		vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
+	//	}
+	//	massiv.push_back(vec);
+	//}
+	//// оптимизация - объединение треугольников в выпуклые многоугольники
+	//for (unsigned int i = 0; i < massiv.size(); ) {
+	//	Triangle t;
+	//	for (unsigned int j = i + 1; j < (massiv.size() - 1) && t.size() == 0; ++j) {
+	//		for (unsigned int k = 0; k < massiv[i].size() && t.size() == 0; ++k) {
+	//			b2Vec2 a = massiv[i][k];
+	//			b2Vec2 b = massiv[i][(k + 1) % massiv[i].size()];
+	//			for (unsigned int l = 0; l < massiv[j].size() && t.size() == 0; ++l) {
+	//				b2Vec2 d = massiv[j][l];
+	//				b2Vec2 e = massiv[j][(l + 1) % massiv[j].size()];
+	//				if ((a - d).Length() < 1e-3 && (b - e).Length() < 1e-3) {
+	//					// нашли общую грань
+	//					for (unsigned int q = 0; q < massiv[i].size(); ++q)  {
+	//						t.push_back(massiv[i][(q + k + 1) % massiv[i].size()]);
+	//					}
+	//					for (unsigned int q = 0; q < massiv[j].size(); ++q)  {
+	//						unsigned int index = massiv[j].size() - 1 - q;
+	//						if (index != l && index != (l + 1)) {
+	//							t.push_back(massiv[j][index]);
+	//						}
+	//					}
+	//					if (!Convex(t)) {
+	//						t.clear();
+	//					}
+	//				} else if ((a - e).Length() < 1e-3 && (b - d).Length() < 1e-3) {
+	//					// нашли общую грань
+	//					for (unsigned int q = 0; q < massiv[i].size(); ++q)  {
+	//						t.push_back(massiv[i][(q + k + 1) % massiv[i].size()]);
+	//					}
+	//					for (unsigned int q = 0; q < massiv[j].size(); ++q)  {
+	//						unsigned int index = massiv[j].size() - 1 - q;
+	//						if (index != l && index != (l + 1)) {
+	//							t.push_back(massiv[j][index]);
+	//						}
+	//					}
+	//					if (!Convex(t)) {
+	//						t.clear();
+	//					}
+	//				}
+	//			}
+	//		}
+	//		if (t.size()) {
+	//			massiv.erase(massiv.begin() + j);
+	//		}
+	//	}
+	//	if (t.size()) {
+	//		massiv[i] = t;
+	//		t.clear();
+	//	} else {
+	//		++i;
+	//	}
+	//}
+	//for (unsigned int j = 0; j < massiv.size(); ++j) {
+	//	b2FixtureDef fd;
+	//	fd.restitution = 0.f;
+	//	fd.friction = 1.0f;
+	//	fd.density = 1.0f;
+	//	b2PolygonShape shape;
+	//	//b2Vec2 vec[3];
+	//	//for (unsigned int i = 0; i < 3; ++i) {
+	//	//	vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
+	//	//	vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
+	//	//}
+	//	shape.Set(&(*massiv[j].begin()), massiv[j].size());
+	//	fd.shape = &shape;
+	//	body->CreateFixture(&fd);
+	//	body->ResetMassData();
+	//}
 }
 
 void TileEditor::SetupBox2D() {
 	EraseAllBodyes();
 
-	b2BodyDef bd;
-	bd.type = b2_staticBody;  
-	bd.position.Set(0.f, 0.f);
-	_endPoint = _level.endpoint[0];
-	bd.angle = 0.f;
-	b2Body* body = m_world->CreateBody(&bd);		
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		_level.ground[i]->CreateBody(body);
+		_level.ground[i]->CreateBody(_byker);
 	}
-	body->ResetMassData();
-	_landBodies.push_back(body);
+	_byker->physic.SetPosition(FPoint2D(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D));
+	_byker->physic.SetMinSpeed(5.f);
+	_byker->physic.SetSpeedVector(FPoint2D(0.f, 0.f));
+	//b2BodyDef bd;
+	//bd.type = b2_staticBody;  
+	//bd.position.Set(0.f, 0.f);
+	//_endPoint = _level.endpoint[0];
+	//bd.angle = 0.f;
+	//b2Body* body = m_world->CreateBody(&bd);		
+	//for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+	//	_level.ground[i]->CreateBody(body);
+	//}
+	//body->ResetMassData();
+	//_landBodies.push_back(body);
 
-	{
-		// first wheel
-		b2BodyDef bd;
-		bd.type = b2_dynamicBody;  
-		bd.fixedRotation = false;
+	//{
+	//	// first wheel
+	//	b2BodyDef bd;
+	//	bd.type = b2_dynamicBody;  
+	//	bd.fixedRotation = false;
 
-		bd.position.Set(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
-		bd.angle = 0.f;
-		
-		b2Body* body = m_world->CreateBody(&bd);
-		
-		b2FixtureDef fd;
-		fd.restitution = 0.0f;
-		fd.friction = 1.f;
-		fd.density = 1.f;
+	//	bd.position.Set(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
+	//	bd.angle = 0.f;
+	//	
+	//	b2Body* body = m_world->CreateBody(&bd);
+	//	
+	//	b2FixtureDef fd;
+	//	fd.restitution = 0.0f;
+	//	fd.friction = 1.f;
+	//	fd.density = 1.f;
 
-		b2CircleShape shape;//34px - 0.7m
-		shape.m_radius = 17.f / SCALE_BOX2D;
-		fd.shape = &shape;
-		body->CreateFixture(&fd);
+	//	b2CircleShape shape;//34px - 0.7m
+	//	shape.m_radius = 17.f / SCALE_BOX2D;
+	//	fd.shape = &shape;
+	//	body->CreateFixture(&fd);
 
-		body->SetUserData(_byker);
-		body->ResetMassData();
-		_byker->_attachedBody = body;
+	//	body->SetUserData(_byker);
+	//	body->ResetMassData();
+	//	_byker->_attachedBody = body;
 
-		// second wheel
-		bd.position.Set((_level.startpoint[0].x + 78.f)/ SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
-		bd.angle = 0.f;
-		
-		body = m_world->CreateBody(&bd);
-		
-		fd.restitution = 0.0f;
-		fd.friction = 1.f;
-		fd.density = 1.f;
+	//	// second wheel
+	//	bd.position.Set((_level.startpoint[0].x + 78.f)/ SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
+	//	bd.angle = 0.f;
+	//	
+	//	body = m_world->CreateBody(&bd);
+	//	
+	//	fd.restitution = 0.0f;
+	//	fd.friction = 1.f;
+	//	fd.density = 1.f;
 
-		shape.m_radius = 17.f / SCALE_BOX2D;
-		fd.shape = &shape;
-		body->CreateFixture(&fd);
+	//	shape.m_radius = 17.f / SCALE_BOX2D;
+	//	fd.shape = &shape;
+	//	body->CreateFixture(&fd);
 
-		body->ResetMassData();
-		_byker->_attachedBody2 = body;
+	//	body->ResetMassData();
+	//	_byker->_attachedBody2 = body;
 
-		//b2DistanceJointDef jointDef;
-		//jointDef.Initialize(_byker->_attachedBody, _byker->_attachedBody2, _byker->_attachedBody->GetPosition(), _byker->_attachedBody2->GetPosition());
-		//jointDef.collideConnected = true;
+	//	//b2DistanceJointDef jointDef;
+	//	//jointDef.Initialize(_byker->_attachedBody, _byker->_attachedBody2, _byker->_attachedBody->GetPosition(), _byker->_attachedBody2->GetPosition());
+	//	//jointDef.collideConnected = true;
 
-		//m_world->CreateJoint(&jointDef);
+	//	//m_world->CreateJoint(&jointDef);
 
-		// hidden part - byke
-		bd.position.Set((_level.startpoint[0].x + 30.f)/ SCALE_BOX2D, (_level.startpoint[0].y) / SCALE_BOX2D);
-		bd.angle = 0.f;
-		bd.fixedRotation = false;
-		
-		body = m_world->CreateBody(&bd);
-		_byker->_rama = body;
-		
-		fd.restitution = 0.0f;
-		fd.friction = 0.f;
-		fd.density = 1.f;
+	//	// hidden part - byke
+	//	bd.position.Set((_level.startpoint[0].x + 30.f)/ SCALE_BOX2D, (_level.startpoint[0].y) / SCALE_BOX2D);
+	//	bd.angle = 0.f;
+	//	bd.fixedRotation = false;
+	//	
+	//	body = m_world->CreateBody(&bd);
+	//	_byker->_rama = body;
+	//	
+	//	fd.restitution = 0.0f;
+	//	fd.friction = 0.f;
+	//	fd.density = 1.f;
 
-		b2PolygonShape box;
-		box.SetAsBox(20.f / SCALE_BOX2D, 4.f / SCALE_BOX2D);
-		//shape.m_radius = 36.f / SCALE_BOX2D;
-		fd.shape = &box;
-		body->CreateFixture(&fd);
-		body->ResetMassData();
+	//	b2PolygonShape box;
+	//	box.SetAsBox(20.f / SCALE_BOX2D, 4.f / SCALE_BOX2D);
+	//	//shape.m_radius = 36.f / SCALE_BOX2D;
+	//	fd.shape = &box;
+	//	body->CreateFixture(&fd);
+	//	body->ResetMassData();
 
-		b2RevoluteJointDef jointDef;
-		jointDef.collideConnected = false;
+	//	b2RevoluteJointDef jointDef;
+	//	jointDef.collideConnected = false;
 
-		jointDef.Initialize(body, _byker->_attachedBody, _byker->_attachedBody->GetPosition());
-		m_world->CreateJoint(&jointDef);
+	//	jointDef.Initialize(body, _byker->_attachedBody, _byker->_attachedBody->GetPosition());
+	//	m_world->CreateJoint(&jointDef);
 
-		jointDef.Initialize(body, _byker->_attachedBody2, _byker->_attachedBody2->GetPosition());
-		m_world->CreateJoint(&jointDef);
+	//	jointDef.Initialize(body, _byker->_attachedBody2, _byker->_attachedBody2->GetPosition());
+	//	m_world->CreateJoint(&jointDef);
 
 
-		// hidden second part head
-		bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y - 63) / SCALE_BOX2D);
-		bd.angle = 0.f;
-		bd.fixedRotation = true;
-		
-		b2Body *head = m_world->CreateBody(&bd);
-		
-		fd.restitution = 0.0f;
-		fd.friction = 0.f;
-		fd.density = 1.f;
+	//	// hidden second part head
+	//	bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y - 63) / SCALE_BOX2D);
+	//	bd.angle = 0.f;
+	//	bd.fixedRotation = true;
+	//	
+	//	b2Body *head = m_world->CreateBody(&bd);
+	//	
+	//	fd.restitution = 0.0f;
+	//	fd.friction = 0.f;
+	//	fd.density = 1.f;
 
-		shape.m_radius = 10.f / SCALE_BOX2D;
-		fd.shape = &shape;
-		head->CreateFixture(&fd);
-		head->ResetMassData();
-		_byker->_head = head;
+	//	shape.m_radius = 10.f / SCALE_BOX2D;
+	//	fd.shape = &shape;
+	//	head->CreateFixture(&fd);
+	//	head->ResetMassData();
+	//	_byker->_head = head;
 
-		jointDef.Initialize(body, head, body->GetPosition());
-		jointDef.enableLimit = true;
-		jointDef.lowerAngle = - M_PI_4 / 2;// * 3;
-		jointDef.upperAngle = M_PI_4 / 2;// * 3;
-		m_world->CreateJoint(&jointDef);
+	//	jointDef.Initialize(body, head, body->GetPosition());
+	//	jointDef.enableLimit = true;
+	//	jointDef.lowerAngle = - M_PI_4 / 2;// * 3;
+	//	jointDef.upperAngle = M_PI_4 / 2;// * 3;
+	//	m_world->CreateJoint(&jointDef);
 
-	}
+	//}
 }
