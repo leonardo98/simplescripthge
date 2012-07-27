@@ -31,7 +31,7 @@ struct LevelBlock {
 	bool CreateDot(float x, float y);
 	void RemoveDot(int index);
 	bool SearchProection(FPoint2D &pos);
-	void CreateBody(b2Body *body);
+	void CreateBody(Byker *byker);
 };
 
 struct OneImage {
@@ -89,14 +89,14 @@ struct LevelSet {
 // This is called when a joint in the world is implicitly destroyed
 // because an attached body is destroyed. This gives us a chance to
 // nullify the mouse joint.
-class TileEditorDestructionListener : public b2DestructionListener
-{
-public:
-	void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
-	void SayGoodbye(b2Joint* joint);
-
-	TileEditor* test;
-};
+//class TileEditorDestructionListener : public b2DestructionListener
+//{
+//public:
+//	void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
+//	void SayGoodbye(b2Joint* joint);
+//
+//	TileEditor* test;
+//};
 
 // класс описывающий физическую сцену и ее отображение
 class TileEditor 
@@ -109,7 +109,7 @@ public:
 	TileEditor(TiXmlElement *xe);
 	virtual ~TileEditor();
 
-	virtual void Step(Settings* settings);
+	//virtual void Step(Settings* settings);
 
 	struct MyBody { // структура котора€ прикрепл€етс€ к b2Body в UserData дл€ идентификации 
 					// отдельно храню тут ширину и высоту
@@ -127,18 +127,18 @@ public:
 		b2Vec2 pos;
 		float angle;
 	};
-	virtual b2Body * AddElement(const std::string &typeId);
-	virtual b2Body * AddElement(const BodyState &bodyState);
+	void AddElement(const std::string &typeId);
+	//virtual b2Body * AddElement(const BodyState &bodyState);
 	virtual void OnMouseDown(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
 	void OnMouseMove(const FPoint2D &mousePos);
-	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
+	//virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
 
 	// Callbacks for derived classes.
-	virtual void BeginContact(b2Contact* contact) { B2_NOT_USED(contact); }
-	virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
-	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
-	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
+	//virtual void BeginContact(b2Contact* contact) { B2_NOT_USED(contact); }
+	//virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
+	//virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
+	//virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
 	virtual bool IsMouseOver(const FPoint2D &mousePos);
 	virtual bool OnMouseWheel(int direction);
 	virtual void Draw();
@@ -147,8 +147,8 @@ public:
 	void LoadTemplates(const std::string &filename);
 
 	typedef std::list<BodyTemplate *> Collection;
-	BodyTemplate *_fish;
-	BodyTemplate *_cat;
+	//BodyTemplate *_fish;
+	//BodyTemplate *_cat;
 	Collection _collection;
 
 protected:
@@ -156,23 +156,24 @@ protected:
 	/*typedef std::list<b2Body *> Bodyes;
 	Bodyes _bodyes;*/
 
-	friend class TileEditorDestructionListener;
-	friend class BoundaryListener;
-	friend class ContactListener;
+	//friend class TileEditorDestructionListener;
+	//friend class BoundaryListener;
+	//friend class ContactListener;
 
-	b2Body* m_groundBody;
-	b2AABB m_worldAABB;
-	ContactPoint m_points[k_maxContactPoints];
-	int32 m_pointCount;
-	TileEditorDestructionListener m_destructionListener;
-	int32 m_textLine;
-	b2World* m_world;
-	b2Body* m_bomb;
-	b2MouseJoint* m_mouseJoint;
-	b2Vec2 m_bombSpawnPoint;
-	bool m_bombSpawning;
-	b2Vec2 m_mouseWorld;
-	int32 m_stepCount;
+	//b2Body* m_groundBody;
+	//b2AABB m_worldAABB;
+	//ContactPoint m_points[k_maxContactPoints];
+	//int32 m_pointCount;
+	//TileEditorDestructionListener m_destructionListener;
+	//int32 m_textLine;
+	//b2World* m_world;
+	//b2Body* m_bomb;
+	//b2MouseJoint* m_mouseJoint;
+	//b2Vec2 m_bombSpawnPoint;
+	//bool m_bombSpawning;
+	//int32 m_stepCount;
+
+	FPoint2D _mouseWorld;
 	bool _mouseDown;
 	int SCREEN_WIDTH;
 	int SCREEN_HEIGHT;
@@ -205,7 +206,7 @@ protected:
 	BodyStates _state;
 	TiXmlDocument _doc;
 	std::string _currentLevel;
-	void EraseBody(b2Body *body);
+	void EraseSelected();
 	void EraseAllBodyes();
 	void SaveState();
 	void ResetState();
