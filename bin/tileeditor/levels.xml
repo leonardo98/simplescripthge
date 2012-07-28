@@ -110,7 +110,7 @@
             <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="0.000000" x="177.000000" y="-10.000000" />
             <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="30.000000" x="253.000000" y="11.000000" />
         </Beauties>
-        <word x="304" y="264" startX="-325" startY="-119" endX="1906" endY="39" scale="1.000000" />
+        <word x="445" y="381" startX="-317" startY="-190" endX="1906" endY="39" scale="1.000000" />
     </level>
     <level id="5">
         <Ground>
