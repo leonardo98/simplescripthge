@@ -1,7 +1,7 @@
 #include "Byker.h"
 
 Byker::Byker() 
-: physic(0.f, 0.f, 0.6f)
+: physic(0.f, 0.f, 0.8f)
 {
 	_ride = My::AnimationManager::getAnimation("ride");
 	_timer = 0.f;

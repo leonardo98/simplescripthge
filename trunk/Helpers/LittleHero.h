@@ -23,7 +23,7 @@ public:
 	//float GetDistance(const FPoint2D &dot) const;
 	//bool Intersection(const FPoint2D &start, const FPoint2D &end) const;
 	void Move(const FPoint2D &offset);
-	bool MoveMeIfContact(FPoint2D &pos, float radius);
+	bool MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius, FPoint2D &currentSpeed, bool &ground);
 	const FPoint2D &GetOffset() const;
 private:
 	DotsList _dots;
@@ -38,6 +38,7 @@ public:
 	bool IsGround();
 	void SetImpulse(const FPoint2D &impulse);
 	void SetSpeedVector(const FPoint2D &speed);
+	FPoint2D & GetSpeedVector();
 	void SetGravity(const FPoint2D &force);
 	void SetSpeed(float speed);
 	void Update(float dt);
@@ -56,8 +57,7 @@ private:
 	float _radius;
 	float _mass;
 	float _minSpeed;
-	bool _isContact;
-	bool _needRecalc;
+	bool _wasGround;
 };
 
 #endif//LINE_FUNCTIONS_H
