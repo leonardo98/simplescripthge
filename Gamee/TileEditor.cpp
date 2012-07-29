@@ -34,8 +34,9 @@ void TileEditor::LoadTemplates(const std::string &filename) {
 TileEditor::TileEditor(TiXmlElement *xe)
 	: _viewScale(1.f)
 	, _userLevelWin(false)
-	, _worldCenter((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
-	, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2)
+	, _screenOffset((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
+					, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2  )
+	, _worldOffset(0.f, 0.f)
 //	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
 	, Messager("tile_editor")
 	, _editor(true)
@@ -72,7 +73,7 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	//gravity.Set(0.0f, 10.0f);
 	//bool doSleep = true;
 	//m_world = new b2World(gravity, doSleep);
-	_byker->physic.SetGravity(FPoint2D(0.f, 10.f));
+	_byker->physic.SetGravity(FPoint2D(0.f, 9.f));
 
 	//m_bomb = NULL;
 	//m_textLine = 30;
@@ -303,11 +304,12 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 {	
 	if (!_editor) {
 		_byker->physic.SetImpulse(FPoint2D(0.f, -4.5f));
+		return;
 	}
 	_mouseDown = true;
 	_lastMousePos = mousePos;
 	InitParams(NULL);
-	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
+	FPoint2D fp = ScreenToWorld(mousePos);
 	_currentElement.selected = SelectedElement::none;
 	
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
@@ -454,24 +456,23 @@ bool TileEditor::IsLevelFinish() {
 
 void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 {
-	FPoint2D fp = 1.f / _viewScale * (mousePos - _worldCenter);
-	FPoint2D p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
+	FPoint2D newMmouseWorld = ScreenToWorld(mousePos);
 
 	if (_currentElement.selected != SelectedElement::none && _mouseDown) {
 		if (_currentElement.selected == SelectedElement::beauty_element) {
-			_level.beauties[_currentElement.index].pos.x += (p.x - _mouseWorld.x);
-			_level.beauties[_currentElement.index].pos.y -= (p.y - _mouseWorld.y);
+			_level.beauties[_currentElement.index].pos.x += (newMmouseWorld.x - _mouseWorld.x);
+			_level.beauties[_currentElement.index].pos.y += (newMmouseWorld.y - _mouseWorld.y);
 		} else if (_currentElement.selected == SelectedElement::start_flag) {
-			_level.startpoint[0].x += (p.x - _mouseWorld.x);
-			_level.startpoint[0].y -= (p.y - _mouseWorld.y);
+			_level.startpoint[0].x += (newMmouseWorld.x - _mouseWorld.x);
+			_level.startpoint[0].y += (newMmouseWorld.y - _mouseWorld.y);
 		} else if (_currentElement.selected == SelectedElement::end_flag) {
-			_level.endpoint[0].x += (p.x - _mouseWorld.x);
-			_level.endpoint[0].y -= (p.y - _mouseWorld.y);
+			_level.endpoint[0].x += (newMmouseWorld.x - _mouseWorld.x);
+			_level.endpoint[0].y += (newMmouseWorld.y - _mouseWorld.y);
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
 		SplinePath tmpx, tmpy;
-		float dx = p.x - _currents.downX;
-		float dy = - (p.y + _currents.downY);
+		float dx = newMmouseWorld.x - _currents.downX;
+		float dy = newMmouseWorld.y - _currents.downY;
 		for (unsigned int i = 0; i < _currents.block->xPoses.keys.size() - 1; ++i) {
 			if (i == _currents.dotIndex || _currents.moveAllDots) {
 				tmpx.addKey(_currents.splineX.getFrame(i, 0.f) + dx);
@@ -487,16 +488,21 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 		_currents.block->yPoses = tmpy;
 	} else {
 		if (_mouseDown) {
-			_worldCenter += (mousePos - _lastMousePos);
+			_worldOffset -= (mousePos - _lastMousePos) / _viewScale;
 		}
 	}
 	_lastMousePos = mousePos;
-	_mouseWorld = p;
+	_mouseWorld = newMmouseWorld;
 }
 
 bool TileEditor::OnMouseWheel(int direction) {
+	if (!_editor) {
+		return true;
+	}
 	float old = _viewScale;
-	FPoint2D fp = 1.f / _viewScale * (_lastMousePos - _worldCenter);
+	FPoint2D fp = ScreenToWorld(_lastMousePos);
+	_screenOffset = _lastMousePos;
+	_worldOffset = fp;
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currentElement.selected != SelectedElement::none) {
 		if (_currentElement.selected == SelectedElement::beauty_element) {
 			_level.beauties[_currentElement.index].angle += direction * 3;
@@ -507,33 +513,14 @@ bool TileEditor::OnMouseWheel(int direction) {
 		_viewScale *= 0.9f * abs(direction);
 	}
 	_viewScale = min(4.f, max(1.f / 8.f, _viewScale));
-	_worldCenter = - (_viewScale / old * (_lastMousePos - _worldCenter) - _lastMousePos);
+	_worldOffset = ScreenToWorld(FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
+	_screenOffset = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+	//_worldOffset += _viewScale / old * (fp - _worldOffset);
 	return true;
 } 
 
 bool TileEditor::IsMouseOver(const FPoint2D &mousePos) {
 	return true;
-}
-
-inline void TileEditor::DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles) {
-	float x =   _viewScale * pos.x + _worldCenter.x;
-	float y = - _viewScale * pos.y + _worldCenter.y;
-	buf[0].x = x + _viewScale * angles[0].x; buf[0].y = y + _viewScale * angles[0].y; 
-	buf[1].x = x + _viewScale * angles[1].x; buf[1].y = y + _viewScale * angles[1].y; 
-	buf[2].x = x + _viewScale * angles[2].x; buf[2].y = y + _viewScale * angles[2].y; 
-	buf[3].x = x + _viewScale * angles[3].x; buf[3].y = y + _viewScale * angles[3].y; 
-
-	buf[0].tx = uv[0].u; buf[0].ty = uv[0].v; buf[0].col = 0xFFFFFFFF;
-	buf[1].tx = uv[1].u; buf[1].ty = uv[1].v; buf[1].col = 0xFFFFFFFF;
-	buf[2].tx = uv[2].u; buf[2].ty = uv[2].v; buf[2].col = 0xFFFFFFFF;
-	buf[3].tx = uv[3].u; buf[3].ty = uv[3].v; buf[3].col = 0xFFFFFFFF;
-	buf += 4;
-}
-
-/// DrawLine
-inline void TileEditor::DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color)
-{
-	Render::Line(_viewScale * a.x + _worldCenter.x, - _viewScale * a.y + _worldCenter.y, _viewScale * b.x + _worldCenter.x, - _viewScale * b.y + _worldCenter.y, color);
 }
 
 void DrawJoint(b2Joint* joint)
@@ -578,8 +565,9 @@ void DrawJoint(b2Joint* joint)
 
 void TileEditor::Draw() {
 	Render::PushMatrix();
-	Render::MatrixMove(_worldCenter.x, _worldCenter.y);
+	Render::MatrixMove(_screenOffset.x, _screenOffset.y);
 	Render::MatrixScale(_viewScale, _viewScale);
+	Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
 	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
 		bool changeColor = false;
 		if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
@@ -600,31 +588,42 @@ void TileEditor::Draw() {
 	Vertex *buffer;
 	if (_editor) {
 		if (_netVisible) {
+			Render::PushMatrix();
+			Render::MatrixMove(_screenOffset.x, _screenOffset.y);
+			Render::MatrixScale(_viewScale, _viewScale);
+			Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
 			for (unsigned int i = 0; i < _level.images.size(); ++i) {
-				_level.images[i].sprite->RenderEx(_level.images[i].pos.x * _viewScale + _worldCenter.x, _level.images[i].pos.y * _viewScale + _worldCenter.y, 0.f, _viewScale);// DrawLines(_worldCenter, _viewScale);
+				_level.images[i].sprite->Render(_level.images[i].pos.x, _level.images[i].pos.y);
 			}
+			Render::PopMatrix();
 			float STEP = 64.f;
 			int n = SCREEN_WIDTH / (_viewScale * STEP);
-			float t = _worldCenter.x / (STEP * _viewScale);
+			float t = -_worldOffset.x / (STEP * _viewScale);
 			t = (t - static_cast<int>(t)) * (STEP * _viewScale);
 			for (int i = 0; i <= n; i++) {
 				float x = i * STEP * _viewScale + t;
 				Render::GetDC()->Gfx_RenderLine(x, 0, x, SCREEN_HEIGHT, 0x4FFFFFFF);
 			}
 			n = SCREEN_HEIGHT / (_viewScale * STEP) + 1;
-			t = _worldCenter.y / (STEP * _viewScale);
+			t = -_worldOffset.y / (STEP * _viewScale);
 			t = (t - static_cast<int>(t)) * (STEP * _viewScale);
 			for (int i = 0; i <= n; i++) {
 				float y = i * STEP * _viewScale + t;
 				Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
 			}
+			Render::PushMatrix();
+			Render::MatrixMove(_screenOffset.x, _screenOffset.y);
+			Render::MatrixScale(_viewScale, _viewScale);
+			Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->DrawLines(_worldCenter, _viewScale);
+				_level.ground[i]->DrawLines();
 			}
+			Render::PopMatrix();
 		} else {
 			Render::PushMatrix();
-			Render::MatrixMove(_worldCenter.x, _worldCenter.y);
+			Render::MatrixMove(_screenOffset.x, _screenOffset.y);
 			Render::MatrixScale(_viewScale, _viewScale);
+			Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 				_level.ground[i]->DrawTriangles();
 			}
@@ -632,8 +631,9 @@ void TileEditor::Draw() {
 		}
 	}
 	Render::PushMatrix();
-	Render::MatrixMove(_worldCenter.x, _worldCenter.y);
+	Render::MatrixMove(_screenOffset.x, _screenOffset.y);
 	Render::MatrixScale(_viewScale, _viewScale);
+	Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
 	if (_editor) {
 		if (_level.startpoint.size()) {
 			bool changeColor = false;
@@ -680,6 +680,7 @@ void TileEditor::Draw() {
 		Render::MatrixMove(p.x, p.y);
 	//	Render::MatrixRotate(_byker->_rama->GetAngle());
 		_byker->SetPos(FPoint2D(0, 0));
+		Render::Line(0, 0, _byker->physic.GetSpeedVector().x * SCALE_BOX2D, _byker->physic.GetSpeedVector().y * SCALE_BOX2D, 0xFFFFFFFF);
 		_byker->Draw();
 		Render::PopMatrix();
 		//_byker->_attachedBody->SetAngularVelocity(30.f);
@@ -746,7 +747,7 @@ void TileEditor::Draw() {
 			//	b2Vec2 p = xf.position;
 			//	body->SetTransform(p + b2shift, xf.GetAngle());
 			//}
-			_worldCenter.y += shift.y * _viewScale;
+			_worldOffset.y += shift.y;
 
 			_endPoint = _level.endpoint[0];
 
@@ -764,19 +765,17 @@ void TileEditor::Draw() {
 		}
 	}
 	Render::PopMatrix();
-	//if (_selectedBody && _signal > 0.5f) {
-	//	max = 1;
-	//	const BodyTemplate *bt = static_cast<MyBody *>(_selectedBody->GetUserData())->base;
-	//	const b2Transform & xf = _selectedBody->GetTransform();
-
-	//	Vertex *buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_ALPHAADD | BLEND_COLORADD, &max);
-
-	//	DrawElement(buffer, bt->_uv, xf.position, pselect);
-	//	Render::GetDC()->Gfx_FinishBatch(1);
-	//}
 	char buff[10];
 	Math::FloatToChar(_viewScale, buff);
 	Render::PrintString(940, 0, "", buff);
+}
+
+FPoint2D TileEditor::ScreenToWorld(const FPoint2D &screenPos) {
+	return (screenPos - _screenOffset) / _viewScale + _worldOffset;
+}
+
+FPoint2D TileEditor::WorldToScreen(const FPoint2D &worldPos) {
+	return (worldPos - _worldOffset) * _viewScale + _screenOffset;
 }
 
 void TileEditor::Update(float deltaTime) {	
@@ -854,14 +853,32 @@ void TileEditor::Update(float deltaTime) {
 			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2);
 			//_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2);			
 			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
-			_worldCenter.x = (-_byker->physic.GetPosition().x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
-//			float y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);
-			float y = (-_byker->physic.GetPosition().y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 6);
-			if (_worldCenter.y > y) {
-				_worldCenter.y = y;
-			} else if (_worldCenter.y < y - SCREEN_HEIGHT / 3) {
-				_worldCenter.y = y - SCREEN_HEIGHT / 3;
+			FPoint2D bykerScreenPos = WorldToScreen(_byker->physic.GetPosition() * SCALE_BOX2D);
+			FPoint2D speedVScreenPos = WorldToScreen((_byker->physic.GetPosition() + _byker->physic.GetSpeedVector()) * SCALE_BOX2D);
+
+			_worldOffset = _byker->physic.GetPosition() * SCALE_BOX2D;
+
+			_screenOffset.x = SCREEN_WIDTH / 6;
+			float newScreenOffsetY = _screenOffset.y;// = SCREEN_HEIGHT / 2;
+			//float kAngle = _byker->physic.GetSpeedVector().y / fabs(_byker->physic.GetSpeedVector().x);
+			//if (kAngle > 0.1f) {
+			//	newScreenOffsetY = SCREEN_HEIGHT / 3;
+			//} else if (kAngle < -0.1f) {
+			//	newScreenOffsetY = SCREEN_HEIGHT / 3 * 2;
+			//}
+			if (fabs(_byker->physic.GetSpeedVector().y * SCALE_BOX2D) > 10) {
+				float delta = -(_byker->physic.GetSpeedVector().y) / fabs(_byker->physic.GetSpeedVector().y);
+				_screenOffset.y = min(SCREEN_HEIGHT / 3 * 2, max(SCREEN_HEIGHT / 3, _screenOffset.y + delta * 100.f * deltaTime));
 			}
+			float newViewScale = min(1.f, 350.f / (_byker->physic.GetSpeedVector().Length() * SCALE_BOX2D));
+			if (_viewScale > newViewScale) {
+				_viewScale = newViewScale;
+			} else {
+				_viewScale = min(newViewScale, _viewScale + 0.1f * deltaTime);
+			}
+//			if (speed.Length() / 350 > SCREEN_HEIGHT / 3) {
+////				fabs(speed.y) * _viewScale > SCREEN_HEIGHT / 3
+//			}
 		}
 		if (_startLevel.Action()) {
 			_startLevel.Update(deltaTime);
@@ -929,9 +946,8 @@ void TileEditor::ResetState() {
 	InitParams(NULL);
 	_editor = true;
 	if (_level.startpoint.size()) {
-//		_worldCenter = _level.startpoint[0];
-		_worldCenter.x = (_level.startpoint[0].x * _viewScale + SCREEN_WIDTH / 2);
-		_worldCenter.y = (_level.startpoint[0].y * _viewScale + SCREEN_HEIGHT / 2);			
+		_screenOffset = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+		_worldOffset = _level.startpoint[0];
 	}
 	EraseAllBodyes();
 	//for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
@@ -947,7 +963,8 @@ void TileEditor::NewLevelYesNo(const std::string &message) {
 		_currentLevel = "";
 		_state.clear();
 		EraseAllBodyes();
-		_worldCenter = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+		_screenOffset = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+		_worldOffset = FPoint2D(0.f, 0.f);
 		_viewScale = 1.f;
 		ClearLevel();
 	}
@@ -976,10 +993,8 @@ void TileEditor::AddNewElement(const std::string &msg) {
 	//InitParams(AddElement(msg));
 	if (msg == "curv") {
 		LevelBlock *b = new LevelBlock();
-		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
 		for (int i = 0; i < 4; ++i) {
-			b->AddPoint(cx + 32.f * sin(M_PI / 2 * i), cy + 32.f * cos(M_PI / 2 * i));
+			b->AddPoint(_worldOffset.x + 32.f * sin(M_PI / 2 * i), _worldOffset.y + 32.f * cos(M_PI / 2 * i));
 		}
 		_level.ground.push_back(b);
 	} else if (msg == "image") {
@@ -1023,9 +1038,7 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		b.mirror = false;
 		b.scale = 1.f;
 		b.angle = 0.f;
-		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;
-		b.pos = FPoint2D(cx, cy);
+		b.pos = _worldOffset;
 		_level.beauties.push_back(b);
 	} else if (msg == "box") {
 		Messager::SendMessage("SmallList", "add curv");
@@ -1033,13 +1046,9 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		Messager::SendMessage("SmallList", "add beauty");
 		Messager::SendMessage("SmallList", "special add cancel");
 	} else if (msg == "start pos") {
-		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
-		_level.startpoint.push_back(FPoint2D(cx, cy));
+		_level.startpoint.push_back(_worldOffset);
 	} else if (msg == "end pos") {
-		float cx = (SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale;
-		float cy = (SCREEN_HEIGHT / 2 - _worldCenter.y) / _viewScale;				
-		_level.endpoint.push_back(FPoint2D(cx, cy));
+		_level.endpoint.push_back(_worldOffset);
 	} else if (msg == "bonus") {
 		AddElement("rubber");
 	}
@@ -1052,7 +1061,7 @@ void TileEditor::AddBackImage(const std::string &msg) {
 	}
 	OneImage image;
 	image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
-	image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
+	image.sprite = new Sprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
 	image.pos = FPoint2D(0.f, 0.f);
 	image.filePath = msg;
 	if (_level.images.size() > 0) {
@@ -1263,8 +1272,8 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	_saveLevelXml->LinkEndChild(beautyList);
 
 	TiXmlElement *word = new TiXmlElement("word");
-	word->SetAttribute("x", _worldCenter.x);
-	word->SetAttribute("y", _worldCenter.y);
+	word->SetAttribute("x", _worldOffset.x);
+	word->SetAttribute("y", _worldOffset.y);
 	if (_level.startpoint.size()) {
 		word->SetAttribute("startX", _level.startpoint[0].x);
 		word->SetAttribute("startY", _level.startpoint[0].y);
@@ -1318,30 +1327,30 @@ void Beauty::LoadFromXml(TiXmlElement *xe) {
 	sprite = new Sprite(texture, 0, 0, Render::GetDC()->Texture_GetWidth(texture), Render::GetDC()->Texture_GetHeight(texture));
 }
 
-void LevelBlock::DrawLines(const FPoint2D &worldPos, float scale) {
+void LevelBlock::DrawLines() {
 	float t = 0.f;
-	float x1 = xPoses.getGlobalFrame(0.f) * scale + worldPos.x;
-	float y1 = yPoses.getGlobalFrame(0.f) * scale + worldPos.y;
+	float x1 = xPoses.getGlobalFrame(0.f);
+	float y1 = yPoses.getGlobalFrame(0.f);
 	float x2, y2;
 	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
 	while (t + 1.f / subLine < 1.f) {
 		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
-		x2 = xPoses.getGlobalFrame(t) * scale + worldPos.x;
-		y2 = yPoses.getGlobalFrame(t) * scale + worldPos.y;
-		Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);
+		x2 = xPoses.getGlobalFrame(t);
+		y2 = yPoses.getGlobalFrame(t);
+		Render::Line(x1, y1, x2, y2, 0xFFFF0000);
 		x1 = x2;
 		y1 = y2;
 	}
-	x2 = xPoses.getGlobalFrame(1.f) * scale + worldPos.x;
-	y2 = yPoses.getGlobalFrame(1.f) * scale + worldPos.y;
-	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);			
+	x2 = xPoses.getGlobalFrame(1.f);
+	y2 = yPoses.getGlobalFrame(1.f);
+	Render::Line(x1, y1, x2, y2, 0xFFFF0000);			
 
 	static const float SIZEX = 3;
 	for (unsigned int i = 0; i < xPoses.keys.size() - 1; ++i) {
-		float x = xPoses.getFrame(i, 0.f) * scale + worldPos.x;
-		float y = yPoses.getFrame(i, 0.f) * scale + worldPos.y;
-		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFF0000);
-		Render::GetDC()->Gfx_RenderLine(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFF0000);
+		float x = xPoses.getFrame(i, 0.f);
+		float y = yPoses.getFrame(i, 0.f);
+		Render::Line(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFF0000);
+		Render::Line(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFF0000);
 	}
 }
 
@@ -1542,7 +1551,7 @@ void TileEditor::LoadLevel(const std::string &msg) {
 				OneImage image;
 				std::string msg = elem->Attribute("filePath");
 				image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
-				image.sprite = new hgeSprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
+				image.sprite = new Sprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
 				image.pos = FPoint2D(0.f, 0.f);
 				image.filePath = msg;
 				_level.images.push_back(image);
@@ -1564,8 +1573,8 @@ void TileEditor::LoadLevel(const std::string &msg) {
 	}
 
 	TiXmlElement *word = xe->FirstChildElement("word");
-	_worldCenter.x = atof(word->Attribute("x"));
-	_worldCenter.y = atof(word->Attribute("y"));
+	_worldOffset.x = atof(word->Attribute("x"));
+	_worldOffset.y = atof(word->Attribute("y"));
 
 	if (word->Attribute("startX")) {
 		_level.startpoint.push_back(
@@ -1923,7 +1932,7 @@ void TileEditor::SetupBox2D() {
 		_level.ground[i]->CreateBody(_byker);
 	}
 	_byker->physic.SetPosition(FPoint2D(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D));
-	_byker->physic.SetMinSpeed(5.f);
+	_byker->physic.SetMinSpeed(7.f);
 	_byker->physic.SetSpeedVector(FPoint2D(0.f, 0.f));
 	//b2BodyDef bd;
 	//bd.type = b2_staticBody;  

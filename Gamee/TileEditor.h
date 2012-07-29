@@ -24,7 +24,7 @@ struct LevelBlock {
 	void ExportToLines(std::vector<FPoint2D> &lineDots);
 	static void FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri);
 	void GenerateTriangles();
-	void DrawLines(const FPoint2D &worldPos, float scale);
+	void DrawLines();
 	void DrawTriangles();
 	void AddPoint(float x, float y);
 	int SearchNearest(float x, float y);
@@ -36,7 +36,7 @@ struct LevelBlock {
 
 struct OneImage {
 	HTEXTURE texture;
-	hgeSprite *sprite;
+	Sprite *sprite;
 	FPoint2D pos;
 	std::string filePath;
 };
@@ -187,9 +187,14 @@ protected:
 	FPoint2D _lastMousePos;
 	Settings settings;
 
-
 	float _viewScale; // масштаб всей —цены
-	FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
+	
+	//FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
+
+	// эти две точки должны заменить точку _worldCenter - т.к. ее использование не совсем корректно
+	FPoint2D _worldOffset; // смещение всех точек мира дл€ отображени€ их на экране
+	FPoint2D _screenOffset; // точка на экране в которую проецируетс€ точка (0, 0) мира(в режиме редактировани€ она фактически равна центру экрана)
+
 	bool _netVisible;
 
 	float _angleMultiplier;
@@ -199,7 +204,6 @@ protected:
 	bool CanLevelStart();
 	bool IsLevelFinish();
 	void Explosion(b2Vec2 pos, float radius, float maxForce);
-	inline void DrawLine(const b2Vec2 &a, const b2Vec2 &b, DWORD color = 0xFFFFF0F0);
 	virtual void OnMessage(const std::string &message);
 
 	typedef std::list<BodyState> BodyStates;
@@ -221,7 +225,6 @@ protected:
 	b2Body *_selectedBody;
 	void InitParams(b2Body *body);
 	UV _selectedUV[4];
-	inline void DrawElement(Vertex *&buf, const UV *uv, const b2Vec2 &pos, const FPoint2D *angles);
 
 
 	LevelSet _level;
@@ -244,6 +247,8 @@ protected:
 	void AddNewElement(const std::string &msg);
 	void AddBackImage(const std::string &msg);
 	void PreSaveLevel(const std::string &msg);
+	FPoint2D ScreenToWorld(const FPoint2D &screenPos);
+	FPoint2D WorldToScreen(const FPoint2D &worldPos);
 };
 
 #endif//MYENGINE_TILEEDITOR_H
