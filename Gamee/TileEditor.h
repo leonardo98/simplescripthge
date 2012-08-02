@@ -31,7 +31,7 @@ struct LevelBlock {
 	bool CreateDot(float x, float y);
 	void RemoveDot(int index);
 	bool SearchProection(FPoint2D &pos);
-	void CreateBody(Byker *byker);
+	void CreateBody(Byker *byker, int splineIndex);
 };
 
 struct OneImage {
@@ -189,9 +189,6 @@ protected:
 
 	float _viewScale; // масштаб всей —цены
 	
-	//FPoint2D _worldCenter; // координаты центра —цены(0,0) на экране
-
-	// эти две точки должны заменить точку _worldCenter - т.к. ее использование не совсем корректно
 	FPoint2D _worldOffset; // смещение всех точек мира дл€ отображени€ их на экране
 	FPoint2D _screenOffset; // точка на экране в которую проецируетс€ точка (0, 0) мира(в режиме редактировани€ она фактически равна центру экрана)
 
@@ -249,6 +246,7 @@ protected:
 	void PreSaveLevel(const std::string &msg);
 	FPoint2D ScreenToWorld(const FPoint2D &screenPos);
 	FPoint2D WorldToScreen(const FPoint2D &worldPos);
+	float _scipScaleChanging;
 };
 
 #endif//MYENGINE_TILEEDITOR_H
