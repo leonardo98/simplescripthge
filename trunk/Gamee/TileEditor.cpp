@@ -568,38 +568,36 @@ void DrawJoint(b2Joint* joint)
 
 
 void TileEditor::Draw() {
-	Render::PushMatrix();
-	Render::MatrixMove(_screenOffset.x, _screenOffset.y);
-	Render::MatrixScale(_viewScale, _viewScale);
-	Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
-	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-		bool changeColor = false;
-		if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
-			DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-			Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-			changeColor = true;
-		}
-		_level.beauties[i].Draw();
-		if (changeColor) {
-			Render::SetColor(0xFFFFFFFF);
-		}
-	}
-	Render::PopMatrix();
 	bool tnt = false;
 	bool blue = false;
 	_finish = 0x0;
 	int max = 1;
 	Vertex *buffer;
-	if (_editor) {
-		if (_netVisible) {
-			Render::PushMatrix();
-			Render::MatrixMove(_screenOffset.x, _screenOffset.y);
-			Render::MatrixScale(_viewScale, _viewScale);
-			Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
+	if (_editor) { // режим редактора
+		Render::PushMatrix();
+		Render::MatrixMove(_screenOffset.x, _screenOffset.y);
+		Render::MatrixScale(_viewScale, _viewScale);
+		Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
+		if (_netVisible) {// текстуры подложка
 			for (unsigned int i = 0; i < _level.images.size(); ++i) {
 				_level.images[i].sprite->Render(_level.images[i].pos.x, _level.images[i].pos.y);
 			}
-			Render::PopMatrix();
+		}
+		// кусты
+		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+			bool changeColor = false;
+			if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
+				DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
+				Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
+				changeColor = true;
+			}
+			_level.beauties[i].Draw();
+			if (changeColor) {
+				Render::SetColor(0xFFFFFFFF);
+			}
+		}
+		Render::PopMatrix();
+		if (_netVisible) {// сетка
 			float STEP = 64.f;
 			int n = SCREEN_WIDTH / (_viewScale * STEP);
 			float t = -_worldOffset.x / (STEP * _viewScale);
@@ -623,7 +621,7 @@ void TileEditor::Draw() {
 				_level.ground[i]->DrawLines();
 			}
 			Render::PopMatrix();
-		} else {
+		} else {// залитая одним цветом земля
 			Render::PushMatrix();
 			Render::MatrixMove(_screenOffset.x, _screenOffset.y);
 			Render::MatrixScale(_viewScale, _viewScale);
@@ -633,12 +631,7 @@ void TileEditor::Draw() {
 			}
 			Render::PopMatrix();
 		}
-	}
-	Render::PushMatrix();
-	Render::MatrixMove(_screenOffset.x, _screenOffset.y);
-	Render::MatrixScale(_viewScale, _viewScale);
-	Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
-	if (_editor) {
+		// флажек старта
 		if (_level.startpoint.size()) {
 			bool changeColor = false;
 			if (_currentElement.selected == SelectedElement::start_flag) {
@@ -651,6 +644,7 @@ void TileEditor::Draw() {
 				Render::SetColor(0xFFFFFFFF);
 			}
 		}
+		// флажек финиша
 		if (_level.endpoint.size()) {
 			bool changeColor = false;
 			if (_currentElement.selected == SelectedElement::end_flag) {
@@ -663,22 +657,29 @@ void TileEditor::Draw() {
 				Render::SetColor(0xFFFFFFFF);
 			}
 		}
-	}
-
-	for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
-										e = _byker->physic.GetAllLines().end(); i != e; ++i) {
+	} else { // режим игры
+		// земля
 		Render::PushMatrix();
-		Render::MatrixMove((*i)->GetOffset().x * SCALE_BOX2D, (*i)->GetOffset().y * SCALE_BOX2D);
-		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-			_level.ground[i]->DrawTriangles();
+		Render::MatrixMove(_screenOffset.x, _screenOffset.y);
+		Render::MatrixScale(_viewScale, _viewScale);
+		Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
+
+		for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
+											e = _byker->physic.GetAllLines().end(); i != e; ++i) {
+			Render::PushMatrix();
+			Render::MatrixMove((*i)->GetOffset().x * SCALE_BOX2D, (*i)->GetOffset().y * SCALE_BOX2D);
+			// кусты
+			for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+				_level.beauties[i].Draw();
+			}
+			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+				_level.ground[i]->DrawTriangles();
+			}
+			Render::PopMatrix();
 		}
-		Render::PopMatrix();
-	}
-	if (!_editor) {
+
+		// мотоциклист
 		FPoint2D p(_byker->physic.GetPosition() * SCALE_BOX2D);
-		//const b2Transform &xf = _byker->_attachedBody->GetTransform();
-		//p.x = xf.position.x * SCALE_BOX2D;
-		//p.y = xf.position.y * SCALE_BOX2D;
 
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
@@ -699,9 +700,38 @@ void TileEditor::Draw() {
 		}
 		_byker->Draw(angle);
 		Render::PopMatrix();
-		//_byker->_attachedBody->SetAngularVelocity(30.f);
-		//_byker->_attachedBody2->SetAngularVelocity(30.f);
+
+		// смотрим не пора ли подставить новый кусок
+		float x = _endPoint.x;
+		float y = _endPoint.y;
+		Render::GetCurrentMatrix().Mul(x, y);
+		
+		float xByker = _byker->physic.GetPosition().x * SCALE_BOX2D;
+		if (_level.startpoint[0].x < xByker && xByker < _endPoint.x) {
+			if (_landBodies.size() >= 3) {
+				_byker->physic.RemoveLinesSet(NULL);
+			}			
+			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]);
+			FPoint2D b2shift;
+			b2shift.x = -shift.x / SCALE_BOX2D;
+			b2shift.y = -shift.y / SCALE_BOX2D;
+			for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
+												e = _byker->physic.GetAllLines().end(); i != e; ++i) {
+				(*i)->Move(b2shift);
+			}
+			_byker->physic.SetPosition(_byker->physic.GetPosition() + b2shift);
+			_worldOffset.y += shift.y;
+			_endPoint = _level.endpoint[0];
+			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+				_level.ground[i]->CreateBody(_byker, i);
+			}
+		}
+		Render::PopMatrix();
 	}
+	// фпс
+	char buff[10];
+	Math::FloatToChar(_viewScale, buff);
+	Render::PrintString(940, 0, "", buff);
 
 	//buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
 	if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
@@ -734,56 +764,6 @@ void TileEditor::Draw() {
 		//}
 	}
 	//Render::GetDC()->Gfx_FinishBatch(counter);
-	if (!_editor) {// смотрим не пора ли подставить новый кусок
-		float x = _endPoint.x;
-		float y = _endPoint.y;
-		Render::GetCurrentMatrix().Mul(x, y);
-		
-//		if (x >= 0 && x <= 960 && y >=0 && y <= 640) {
-		float xByker = _byker->physic.GetPosition().x * SCALE_BOX2D;
-		if (_level.startpoint[0].x < xByker && xByker < _endPoint.x) {
-			if (_landBodies.size() >= 3) {
-				//EraseBody(_landBodies.front());
-				//_landBodies.pop_front();
-				_byker->physic.RemoveLinesSet(NULL);
-			}
-			
-			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]);
-
-			FPoint2D b2shift;
-			b2shift.x = -shift.x / SCALE_BOX2D;
-			b2shift.y = -shift.y / SCALE_BOX2D;
-			for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
-												e = _byker->physic.GetAllLines().end(); i != e; ++i) {
-				(*i)->Move(b2shift);
-			}
-			_byker->physic.SetPosition(_byker->physic.GetPosition() + b2shift);
-			//for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-			//	const b2Transform &xf = body->GetTransform();
-			//	b2Vec2 p = xf.position;
-			//	body->SetTransform(p + b2shift, xf.GetAngle());
-			//}
-			_worldOffset.y += shift.y;
-
-			_endPoint = _level.endpoint[0];
-
-			//b2BodyDef bd;
-			//bd.type = b2_staticBody;  
-			//bd.position.Set(0.f, 0.f);
-			//bd.angle = 0.f;
-			//b2Body* body = m_world->CreateBody(&bd);		
-			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->CreateBody(_byker, i);
-			}
-			//body->ResetMassData();
-			//_landBodies.push_back(body);
-
-		}
-	}
-	Render::PopMatrix();
-	char buff[10];
-	Math::FloatToChar(_viewScale, buff);
-	Render::PrintString(940, 0, "", buff);
 }
 
 FPoint2D TileEditor::ScreenToWorld(const FPoint2D &screenPos) {
@@ -1054,9 +1034,9 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		b.pos = _worldOffset;
 		_level.beauties.push_back(b);
 	} else if (msg == "box") {
-		Messager::SendMessage("SmallList", "add curv");
-		Messager::SendMessage("SmallList", "add image");
-		Messager::SendMessage("SmallList", "add beauty");
+		Messager::SendMessage("SmallList", "prefix AddBoxElement");
+		Messager::SendMessage("SmallList", "add small");
+		Messager::SendMessage("SmallList", "add big");
 		Messager::SendMessage("SmallList", "special add cancel");
 	} else if (msg == "start pos") {
 		_level.startpoint.push_back(_worldOffset);
@@ -1064,6 +1044,13 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		_level.endpoint.push_back(_worldOffset);
 	} else if (msg == "bonus") {
 		AddElement("rubber");
+	}
+}
+
+void TileEditor::AddBoxElement(const std::string &msg) {
+	Messager::SendMessage("SmallList", "clear");
+	if (msg == "cancel") {
+		return;
 	}
 }
 
@@ -1135,6 +1122,10 @@ void TileEditor::OnMessage(const std::string &message) {
 	}
 	if (CanCut(message, "AddNewElement", msg)) {
 		AddNewElement(msg);
+		return;
+	}
+	if (CanCut(message, "AddBoxElement", msg)) {
+		AddBoxElement(msg);
 		return;
 	}
 	if (CanCut(message, "AddBackImage", msg)) {

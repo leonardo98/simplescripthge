@@ -244,6 +244,7 @@ protected:
 	void AddNewElement(const std::string &msg);
 	void AddBackImage(const std::string &msg);
 	void PreSaveLevel(const std::string &msg);
+	void AddBoxElement(const std::string &msg);
 	FPoint2D ScreenToWorld(const FPoint2D &screenPos);
 	FPoint2D WorldToScreen(const FPoint2D &worldPos);
 	float _scipScaleChanging;
