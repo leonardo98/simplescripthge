@@ -33,6 +33,7 @@ void TileEditor::LoadTemplates(const std::string &filename) {
 
 TileEditor::TileEditor(TiXmlElement *xe)
 	: _viewScale(1.f)
+	, _scipScaleChanging(0.f)
 	, _userLevelWin(false)
 	, _screenOffset((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
 					, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2  )
@@ -303,7 +304,10 @@ void TileEditor::AddElement(const std::string &typeId) {
 void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 {	
 	if (!_editor) {
-		_byker->physic.SetImpulse(FPoint2D(0.f, -4.5f));
+		FPoint2D imp(0.f, -4.5f);
+		_byker->physic.SetImpulse(imp);
+		float speedChange = imp.Length() / _byker->physic.GetMass();
+		_scipScaleChanging = speedChange / (2 * _byker->physic.GetGravity().Length());
 		return;
 	}
 	_mouseDown = true;
@@ -678,10 +682,22 @@ void TileEditor::Draw() {
 
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
-	//	Render::MatrixRotate(_byker->_rama->GetAngle());
+		float angle ;
+//		if (_byker->physic.IsGround()) {
+//			int spline;
+//			float f = _byker->physic.GetSplinePos(spline);
+//			float dx = _level.ground[spline]->xPoses.getGlobalGradient(f);
+//			float dy = _level.ground[spline]->yPoses.getGlobalGradient(f);
+//			angle = atan2(dy, dx);
+//		} else {
+//		}
+		angle = atan2(_byker->physic.GetSpeedVector().y, _byker->physic.GetSpeedVector().x);
+		Render::MatrixRotate(angle);
 		_byker->SetPos(FPoint2D(0, 0));
-		Render::Line(0, 0, _byker->physic.GetSpeedVector().x * SCALE_BOX2D, _byker->physic.GetSpeedVector().y * SCALE_BOX2D, 0xFFFFFFFF);
-		_byker->Draw();
+		if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
+			Render::Line(0, 0, _byker->physic.GetSpeedVector().x * SCALE_BOX2D, _byker->physic.GetSpeedVector().y * SCALE_BOX2D, 0xFFFFFFFF);
+		}
+		_byker->Draw(angle);
 		Render::PopMatrix();
 		//_byker->_attachedBody->SetAngularVelocity(30.f);
 		//_byker->_attachedBody2->SetAngularVelocity(30.f);
@@ -757,7 +773,7 @@ void TileEditor::Draw() {
 			//bd.angle = 0.f;
 			//b2Body* body = m_world->CreateBody(&bd);		
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->CreateBody(_byker);
+				_level.ground[i]->CreateBody(_byker, i);
 			}
 			//body->ResetMassData();
 			//_landBodies.push_back(body);
@@ -779,6 +795,7 @@ FPoint2D TileEditor::WorldToScreen(const FPoint2D &worldPos) {
 }
 
 void TileEditor::Update(float deltaTime) {	
+//	deltaTime *= 0.1f;
 	_signal += 2 * deltaTime;
 	while (_signal > 1.f) {
 		_signal -= 1.f;
@@ -859,26 +876,22 @@ void TileEditor::Update(float deltaTime) {
 			_worldOffset = _byker->physic.GetPosition() * SCALE_BOX2D;
 
 			_screenOffset.x = SCREEN_WIDTH / 6;
-			float newScreenOffsetY = _screenOffset.y;// = SCREEN_HEIGHT / 2;
-			//float kAngle = _byker->physic.GetSpeedVector().y / fabs(_byker->physic.GetSpeedVector().x);
-			//if (kAngle > 0.1f) {
-			//	newScreenOffsetY = SCREEN_HEIGHT / 3;
-			//} else if (kAngle < -0.1f) {
-			//	newScreenOffsetY = SCREEN_HEIGHT / 3 * 2;
-			//}
-			if (fabs(_byker->physic.GetSpeedVector().y * SCALE_BOX2D) > 10) {
-				float delta = -(_byker->physic.GetSpeedVector().y) / fabs(_byker->physic.GetSpeedVector().y);
-				_screenOffset.y = min(SCREEN_HEIGHT / 3 * 2, max(SCREEN_HEIGHT / 3, _screenOffset.y + delta * 100.f * deltaTime));
-			}
-			float newViewScale = min(1.f, 350.f / (_byker->physic.GetSpeedVector().Length() * SCALE_BOX2D));
-			if (_viewScale > newViewScale) {
-				_viewScale = newViewScale;
+
+			if (_scipScaleChanging < 1e-3) {
+				float newScreenOffsetY = _screenOffset.y;
+				if (fabs(_byker->physic.GetSpeedVector().y * SCALE_BOX2D) > 10) {
+					float delta = -(_byker->physic.GetSpeedVector().y) / fabs(_byker->physic.GetSpeedVector().y);
+					_screenOffset.y = min(SCREEN_HEIGHT / 3 * 2, max(SCREEN_HEIGHT / 3, _screenOffset.y + delta * 100.f * deltaTime));
+				}
+				float newViewScale = min(1.f, 350.f / (_byker->physic.GetSpeedVector().Length() * SCALE_BOX2D));
+				if (_viewScale > newViewScale) {
+					_viewScale = newViewScale;
+				} else {
+					_viewScale = min(newViewScale, _viewScale + 0.1f * deltaTime);
+				}
 			} else {
-				_viewScale = min(newViewScale, _viewScale + 0.1f * deltaTime);
+				_scipScaleChanging -= deltaTime;
 			}
-//			if (speed.Length() / 350 > SCREEN_HEIGHT / 3) {
-////				fabs(speed.y) * _viewScale > SCREEN_HEIGHT / 3
-//			}
 		}
 		if (_startLevel.Action()) {
 			_startLevel.Update(deltaTime);
@@ -1833,7 +1846,7 @@ bool Convex(Triangle &m_vertices) {
 	return true;
 }
 
-void LevelBlock::CreateBody(Byker *byker) {
+void LevelBlock::CreateBody(Byker *byker, int splineIndex) {
 	DotsList dots;
 	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
 	dots.resize(subLine);
@@ -1843,7 +1856,7 @@ void LevelBlock::CreateBody(Byker *byker) {
 		a.x = xPoses.getGlobalFrame(t) / SCALE_BOX2D;
 		a.y = yPoses.getGlobalFrame(t) / SCALE_BOX2D;
 	}
-	byker->physic.AddLinesSet(dots);
+	byker->physic.AddLinesSet(dots, splineIndex);
 	//// составление треугольников
 	//int n = triangles.size();
 	//std::vector<Triangle> massiv;
@@ -1929,7 +1942,7 @@ void TileEditor::SetupBox2D() {
 	EraseAllBodyes();
 
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		_level.ground[i]->CreateBody(_byker);
+		_level.ground[i]->CreateBody(_byker, i);
 	}
 	_byker->physic.SetPosition(FPoint2D(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D));
 	_byker->physic.SetMinSpeed(7.f);

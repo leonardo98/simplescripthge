@@ -1,10 +1,11 @@
 #include "LittleHero.h"
 #include "../Core/Math.h"
 
-Lines::Lines(const DotsList &dots) 
+Lines::Lines(const DotsList &dots, int index) 
 : _offset(0.f, 0.f)
-{
-	_dots = dots;		
+, splineIndex(index)
+, _dots(dots)
+{	
 }
 
 //float Lines::GetDistance(const FPoint2D &dot) const;
@@ -36,12 +37,10 @@ bool ProjectPointAgainstLine(const FPoint2D &t1, const FPoint2D &t2, const FPoin
 }
 
 bool Lines::MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius, FPoint2D &currentSpeed, bool &ground) {
-	_dots.push_back(_dots.front());// замыкаем
-
 	if ((oldPos - pos).Length() > radius) {
-		for (unsigned int i = 0, e = _dots.size() - 1; i != e; ++i) {
+		for (unsigned int i = 0, e = _dots.size(); i != e; ++i) {
 			const FPoint2D &a = _dots[i];
-			const FPoint2D &b = _dots[i + 1];
+			const FPoint2D &b = _dots[(i + 1) % _dots.size()];
 			FPoint2D r;
 			if (Math::Intersection(a, b, oldPos, pos, &r)) {
 				FPoint2D o(pos - r);
@@ -52,49 +51,45 @@ bool Lines::MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius,
 				currentSpeed.x *= -1;
 				o.Rotate(-angle);
 				currentSpeed.Rotate(-angle);
+				float angleTest = currentSpeed.Angle(&o);
 				currentSpeed *= 0.1f;
 				pos = o * 0.1f + r;
-				_dots.pop_back();
 				return true;
 			}
 		}
 	}
 
-	_dots.push_back(_dots[1]);
-	for (unsigned int i = 0, e = _dots.size() - 2; i != e; ++i) {
+	for (unsigned int i = 0, e = _dots.size(); i != e; ++i) {
 		const FPoint2D &a = _dots[i];
-		const FPoint2D &b = _dots[i + 1];
-		const FPoint2D &c = _dots[i + 2];
-		FPoint2D l1 = (a + b) * 0.5f;
-		FPoint2D l2 = (b + c) * 0.5f;
+		const FPoint2D &b = _dots[(i + 1) % _dots.size()];
+		const FPoint2D &c = _dots[(i + 2) % _dots.size()];
 		FPoint2D r;
 		if (ProjectPointAgainstLine(a, c, pos, r)) {
 			FPoint2D shift(pos - r);
 			if (shift.Length() < radius - 1e-3) {
 				float angle = (pos - oldPos).Angle();
 				pos = shift * radius / shift.Length() + r;
-				_dots.pop_back();
-				_dots.pop_back();
 				if (shift.y < 0) {
 					angle -= (pos - oldPos).Angle();
-					currentSpeed.Rotate(-angle);
-					currentSpeed *= (1.f - 0.9f * min(fabs(angle) / M_PI_2, 1.f));
+					float modSpeed = currentSpeed.Length();
+					if (modSpeed > 1e-3 && shift.Length() > 1e-3) {
+						currentSpeed = shift;
+						currentSpeed.Rotate(M_PI_2);
+						currentSpeed.Normalize();
+						currentSpeed *= modSpeed * (1.f - 0.9f * min(fabs(angle) / M_PI_2, 1.f));
+					}
 					ground = true;
+
+					if ((a.x <= b.x && r.x <= b.x) || (a.x >= b.x && r.x >= b.x)) {
+						splinePos = (i + fabs(r.x - a.x) / fabs(b.x - a.x)) / _dots.size();
+					} else {
+						splinePos = (i + 1 + fabs(r.x - b.x) / fabs(c.x - b.x)) / _dots.size();
+					}
 				}
 				return true;
 			}
-		//} else if ((a - pos).Length() < radius - 1e-3) {
-		//	pos = (pos - a) * radius / (a - pos).Length() + a; 
-		//	_dots.pop_back();
-		//	return true;
-		//} else if ((b - pos).Length() < radius - 1e-3) {
-		//	pos = (pos - b) * radius / (b - pos).Length() + b; 
-		//	_dots.pop_back();
-		//	return true;
 		}
 	}
-	_dots.pop_back();
-	_dots.pop_back();
 	return false;
 }
 
@@ -149,28 +144,34 @@ void LittleHero::Update(float dt) {
 		_impulse.x = 0.f;
 		_impulse.y = 0.f;
 	}
-	if (!_wasGround) {
+	//if (!_wasGround) {
 		_currentSpeed += _gravity * dt;
-	}
+	//}
 	FPoint2D newPos(_pos + _currentSpeed * dt);
 	// корректируем положение вверх или вних если произошло столкновение с линиями
 	FPoint2D oldPos(_pos);
 	FPoint2D beforeContact(newPos);
 	_wasGround = false;
+	_splinePos = 0.f;
 	for (AllLines::iterator i = _allLines.begin(), e = _allLines.end(); i != e; ++i) {
+		bool oldGround(_wasGround);
 		if ((*i)->MoveMeIfContact(oldPos, newPos, _radius, _currentSpeed, _wasGround)) {
 			//_wasGround = delta.Length() > 1e-3 && _gravity.Dot(&delta) < 0.f;
 			i = _allLines.begin();
 			oldPos = beforeContact;
 			beforeContact = newPos;
+			if (_wasGround && !oldGround) {
+				_splinePos = (*i)->splinePos;
+				_splineIndex = (*i)->splineIndex;
+			}
 		}
 	}
 	FPoint2D delta(_pos - newPos);
 	_pos = newPos;
 }
 
-Lines * LittleHero::AddLinesSet(const DotsList &dots) {
-	Lines *polygon = new Lines(dots);
+Lines * LittleHero::AddLinesSet(const DotsList &dots, int index) {
+	Lines *polygon = new Lines(dots, index);
 	_allLines.push_back(polygon);
 	return polygon;
 }
@@ -204,4 +205,17 @@ void LittleHero::SetSpeedVector(const FPoint2D &speed) {
 
 FPoint2D & LittleHero::GetSpeedVector() {
 	return _currentSpeed;
+}
+
+const FPoint2D & LittleHero::GetGravity() {
+	return _gravity;
+}
+
+float LittleHero::GetMass() {
+	return _mass;
+}
+
+float LittleHero::GetSplinePos(int &index) {
+	index = _splineIndex;
+	return _splinePos;
 }

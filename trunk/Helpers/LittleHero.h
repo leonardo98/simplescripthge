@@ -19,12 +19,14 @@ typedef std::vector<FPoint2D> DotsList;
 // предполагаю что точки образуют замкнутый контур
 class Lines {
 public:
-	Lines(const DotsList &dots);
+	Lines(const DotsList &dots, int index);
 	//float GetDistance(const FPoint2D &dot) const;
 	//bool Intersection(const FPoint2D &start, const FPoint2D &end) const;
 	void Move(const FPoint2D &offset);
 	bool MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius, FPoint2D &currentSpeed, bool &ground);
 	const FPoint2D &GetOffset() const;
+	float splinePos;
+	const int splineIndex;
 private:
 	DotsList _dots;
 	FPoint2D _offset;
@@ -40,9 +42,12 @@ public:
 	void SetSpeedVector(const FPoint2D &speed);
 	FPoint2D & GetSpeedVector();
 	void SetGravity(const FPoint2D &force);
+	const FPoint2D & GetGravity();
+	float GetMass();
+	float GetSplinePos(int &index);
 	void SetSpeed(float speed);
 	void Update(float dt);
-	Lines * AddLinesSet(const DotsList &dots);
+	Lines * AddLinesSet(const DotsList &dots, int index);
 	void RemoveLinesSet(Lines *lines);
 	void SetMinSpeed(float speed);
 	typedef std::list<Lines *> AllLines;
@@ -58,6 +63,8 @@ private:
 	float _mass;
 	float _minSpeed;
 	bool _wasGround;
+	float _splinePos;
+	int _splineIndex;
 };
 
 #endif//LINE_FUNCTIONS_H
