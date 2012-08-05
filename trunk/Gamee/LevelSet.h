@@ -7,17 +7,45 @@
 
 #define SCALE_BOX2D 60
 
-struct Beauty {
-	HTEXTURE texture;
-	Sprite *sprite;
-	bool mirror;
-	FPoint2D pos;
-	float scale;
-	float angle;
-	std::string filePath;
-	void SaveToXml(TiXmlElement *xe);
-	void LoadFromXml(TiXmlElement *xe);
-	void Draw();
+class SetItem {
+public:
+	enum Types{
+		beauty_item = 0,
+		destroyable_item = 1,
+		funbush_item = 2,
+		collectable_item = 3,
+	};
+	virtual ~SetItem();
+	SetItem(Types type);
+	SetItem(Types type, const char *fileName, const FPoint2D &pos, float angle);
+	bool HasPixel(float x, float y);
+	FPoint2D &Pos();
+	float &Angle();
+	virtual void SaveToXml(TiXmlElement *xe) const;
+	virtual void LoadFromXml(TiXmlElement *xe);
+	virtual void Draw() const;
+	int GetDrawOrder();
+	Types Type();
+protected:
+	const Types _type;
+	HTEXTURE _texture;
+	Sprite *_sprite;
+
+	FPoint2D _pos;
+	float _angle;
+	std::string _filePath;
+};
+
+class Beauty : public SetItem{
+public:
+	Beauty();
+	Beauty(const char *fileName, const FPoint2D &pos, float angle, float scale, bool mirror);
+	virtual void SaveToXml(TiXmlElement *xe) const;
+	virtual void LoadFromXml(TiXmlElement *xe);
+	virtual void Draw() const;
+private:
+	bool _mirror;
+	float _scale;
 };
 
 struct LevelBlock {
@@ -62,7 +90,7 @@ struct LevelSet {
 	LevelBlocks ground;
 	LevelBlocks surpris;
 	LevelBlocks movable;
-	std::vector<Beauty> beauties;
+	std::vector<SetItem *> beauties;
 	std::vector<OneImage> images;
 	std::vector<FPoint2D> startpoint;
 	std::vector<FPoint2D> endpoint;

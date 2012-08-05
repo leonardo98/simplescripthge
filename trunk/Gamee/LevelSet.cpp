@@ -1,40 +1,103 @@
 #include "LevelSet.h"
 #include "../Core/Math.h"
 
-void Beauty::SaveToXml(TiXmlElement *xe) {
-	xe->SetAttribute("filePath", filePath.c_str());
-	xe->SetAttribute("mirror", mirror ? "1" : "0");
+SetItem::~SetItem() {
+	delete _sprite;
+	Render::GetDC()->Texture_Free(_texture);
+}
+
+SetItem::SetItem(Types type) 
+: _type(type)
+{
+}
+
+SetItem::SetItem(Types type, const char *fileName, const FPoint2D &pos, float angle) 
+: _type(type)
+{
+	_filePath = fileName;
+	_angle = angle;
+	_pos = pos;
+
+	_texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + _filePath).c_str());
+	_sprite = new Sprite(_texture, 0, 0, Render::GetDC()->Texture_GetWidth(_texture), Render::GetDC()->Texture_GetHeight(_texture));
+}
+
+bool SetItem::HasPixel(float x, float y) {
+	return _sprite->HasPixel(x, y);
+}
+
+FPoint2D &SetItem::Pos() {
+	return _pos;
+}
+
+float &SetItem::Angle() {
+	return _angle;
+}
+
+void SetItem::SaveToXml(TiXmlElement *xe) const {
+	xe->SetAttribute("filePath", _filePath.c_str());
 	char s[16];
-	sprintf(s, "%f", scale);
-	xe->SetAttribute("scale", s);
-	sprintf(s, "%f", angle);
+	sprintf(s, "%f", _angle);
 	xe->SetAttribute("angle", s);
-	sprintf(s, "%f", pos.x);
+	sprintf(s, "%f", _pos.x);
 	xe->SetAttribute("x", s);
-	sprintf(s, "%f", pos.y);
+	sprintf(s, "%f", _pos.y);
 	xe->SetAttribute("y", s);
 }
 
-void Beauty::Draw() {
+void SetItem::Draw() const {
 	Render::PushMatrix();
-	Render::MatrixMove(pos.x, pos.y);
-	Render::MatrixRotate(angle / 180 * M_PI);
-	if (mirror) {
+	Render::MatrixMove(_pos.x, _pos.y);
+	Render::MatrixRotate(_angle / 180 * M_PI);
+	_sprite->Render(- _sprite->Width() / 2, - _sprite->Height());
+	Render::PopMatrix();
+}
+
+void SetItem::LoadFromXml(TiXmlElement *xe) {
+	_filePath = xe->Attribute("filePath");
+	_angle = atof(xe->Attribute("angle"));
+	_pos.x = atof(xe->Attribute("x"));
+	_pos.y = atof(xe->Attribute("y"));
+
+	_texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + _filePath).c_str());
+	_sprite = new Sprite(_texture, 0, 0, Render::GetDC()->Texture_GetWidth(_texture), Render::GetDC()->Texture_GetHeight(_texture));
+}
+
+Beauty::Beauty() 
+: SetItem(beauty_item)
+{}
+
+Beauty::Beauty(const char *fileName, const FPoint2D &pos, float angle, float scale, bool mirror) 
+: SetItem(beauty_item, fileName, pos, angle)
+, _scale(scale)
+, _mirror(mirror)
+{	
+}
+
+void Beauty::SaveToXml(TiXmlElement *xe) const {
+	SetItem::SaveToXml(xe);
+	xe->SetAttribute("mirror", _mirror ? "1" : "0");
+	char s[16];
+	sprintf(s, "%f", _scale);
+	xe->SetAttribute("scale", s);
+}
+
+void Beauty::Draw() const {
+	Render::PushMatrix();
+	Render::MatrixMove(_pos.x, _pos.y);
+	Render::MatrixMove(_scale, _scale);
+	Render::MatrixRotate(_angle / 180 * M_PI);
+	if (_mirror) {
 		Render::MatrixScale(-1.f, 1.f);
 	}
-	sprite->Render(- sprite->Width() / 2, - sprite->Height());
+	_sprite->Render(- _sprite->Width() / 2, - _sprite->Height());
 	Render::PopMatrix();
 }
 
 void Beauty::LoadFromXml(TiXmlElement *xe) {
-	filePath = xe->Attribute("filePath");
-	mirror = atoi(xe->Attribute("mirror")) != 0;
-	scale = atof(xe->Attribute("scale"));
-	angle = atof(xe->Attribute("angle"));
-	pos.x = atof(xe->Attribute("x"));
-	pos.y = atof(xe->Attribute("y"));
-	texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + filePath).c_str());
-	sprite = new Sprite(texture, 0, 0, Render::GetDC()->Texture_GetWidth(texture), Render::GetDC()->Texture_GetHeight(texture));
+	SetItem::LoadFromXml(xe);
+	_mirror = atoi(xe->Attribute("mirror")) != 0;
+	_scale = atof(xe->Attribute("scale"));
 }
 
 void LevelBlock::DrawLines() {
@@ -499,8 +562,7 @@ void LevelSet::Clear() {
 	}
 	images.clear();
 	for (unsigned int i = 0; i < beauties.size(); ++i) {
-		delete beauties[i].sprite;
-		Render::GetDC()->Texture_Free(beauties[i].texture);
+		delete beauties[i];
 	}
 	beauties.clear();
 }
@@ -553,8 +615,8 @@ void LevelSet::LoadFromXml(TiXmlElement *xe, bool gameMode) {
 		if (beautyList) {
 			TiXmlElement *elem = beautyList->FirstChildElement("beauty");
 			while (elem != NULL) {
-				Beauty beauty;
-				beauty.LoadFromXml(elem);
+				Beauty *beauty = new Beauty();
+				beauty->LoadFromXml(elem);
 				beauties.push_back(beauty);
 				elem = elem->NextSiblingElement("beauty");
 			}
