@@ -71,30 +71,118 @@
         </Beauties>
         <word x="1158" y="334" startX="-405" startY="-90" endX="2583" endY="115" scale="0.304081" />
     </level>
-    <level id="3">
+    <level id="4">
         <Ground>
             <elem>
-                <dot x="-204.000000" y="6.000000" />
-                <dot x="-138.648407" y="-46.548725" />
-                <dot x="-129.134079" y="65.682823" />
-                <dot x="-62.846916" y="-38.756050" />
-                <dot x="-33.509907" y="65.715027" />
-                <dot x="-0.088657" y="-22.587555" />
-                <dot x="61.127476" y="-68.509903" />
-                <dot x="18.621973" y="-131.559738" />
-                <dot x="114.967781" y="-171.231552" />
-                <dot x="25.999996" y="-233.000000" />
-                <dot x="-35.218338" y="-315.750244" />
-                <dot x="-94.017616" y="-236.406662" />
-                <dot x="-205.240356" y="-283.162720" />
-                <dot x="-171.000000" y="-197.000000" />
-                <dot x="-300.169312" y="-168.397842" />
-                <dot x="-200.989807" y="-87.637383" />
+                <dot x="-193.000000" y="235.000000" />
+                <dot x="1725.000000" y="258.000000" />
+                <dot x="1935.000000" y="49.000000" />
+                <dot x="1621.000000" y="54.000000" />
+                <dot x="1371.000000" y="-112.000000" />
+                <dot x="1068.000000" y="73.000000" />
+                <dot x="909.000000" y="22.000000" />
+                <dot x="699.000000" y="54.000000" />
+                <dot x="546.000000" y="-25.000000" />
+                <dot x="366.000000" y="56.000000" />
+                <dot x="194.000000" y="-29.000000" />
+                <dot x="-13.000003" y="12.000000" />
+                <dot x="-195.000000" y="-100.000000" />
+                <dot x="-402.000000" y="-86.000000" />
+            </elem>
+        </Ground>
+        <Images />
+        <Beauties>
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="9.000000" x="-18.000000" y="20.000000" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="-15.000000" x="88.000000" y="8.000000" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="0.000000" x="177.000000" y="-10.000000" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="30.000000" x="253.000000" y="11.000000" />
+        </Beauties>
+        <word x="739" y="58" startX="-432" startY="-224" endX="1973" endY="39" scale="0.372838" />
+    </level>
+    <level id="5">
+        <Ground>
+            <elem>
+                <dot x="-56.941895" y="305.262146" />
+                <dot x="305.369843" y="407.129486" />
+                <dot x="634.573975" y="298.294403" />
+                <dot x="-107.952637" y="170.287323" />
             </elem>
         </Ground>
         <Images />
         <Beauties />
-        <word x="-142" y="-124" scale="1.097198" />
+        <word x="255" y="247" startX="-159" startY="133" endX="645" endY="350" scale="0.937874" />
+    </level>
+</list><list>
+    <level id="1">
+        <Ground>
+            <elem>
+                <dot x="796.000000" y="710.000000" />
+                <dot x="819.000000" y="633.000000" />
+                <dot x="731.000000" y="641.000000" />
+                <dot x="605.000000" y="603.000000" />
+                <dot x="440.000000" y="391.000000" />
+                <dot x="278.000000" y="262.000000" />
+                <dot x="161.000000" y="282.000000" />
+                <dot x="223.000000" y="365.000000" />
+                <dot x="278.000000" y="399.000000" />
+                <dot x="307.000000" y="522.000000" />
+                <dot x="382.000000" y="597.000000" />
+                <dot x="466.000000" y="680.000000" />
+                <dot x="558.000000" y="699.000000" />
+                <dot x="660.000000" y="734.000000" />
+                <dot x="723.000000" y="713.000000" />
+            </elem>
+        </Ground>
+        <Images>
+            <image filePath="1024x1024.jpg" />
+        </Images>
+        <Beauties />
+        <word x="484" y="478" startX="159" startY="196" endX="824" endY="689" scale="0.733814" />
+    </level>
+    <level id="2">
+        <Ground>
+            <elem>
+                <dot x="44.415543" y="543.987061" />
+                <dot x="786.109741" y="573.548096" />
+                <dot x="702.477661" y="296.022247" />
+                <dot x="1215.700806" y="-78.485153" />
+                <dot x="650.507935" y="124.860458" />
+                <dot x="171.022186" y="10.729446" />
+                <dot x="-410.287506" y="42.913200" />
+            </elem>
+            <elem>
+                <dot x="1035.199707" y="537.017944" />
+                <dot x="2126.513916" y="585.163391" />
+                <dot x="2573.102539" y="185.642212" />
+                <dot x="1771.608887" y="178.628296" />
+                <dot x="1243.475464" y="34.817314" />
+                <dot x="935.851379" y="219.743698" />
+            </elem>
+            <elem>
+                <dot x="106.508911" y="-91.650986" />
+                <dot x="252.600342" y="-148.871201" />
+                <dot x="5.628082" y="-176.067352" />
+                <dot x="-26.371918" y="-144.067352" />
+            </elem>
+        </Ground>
+        <Images>
+            <image filePath="2048x2048.jpg" />
+        </Images>
+        <Beauties>
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="-12.000000" x="-295.813446" y="9.655815" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="0.000000" x="-195.681870" y="3.871365" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="0.000000" x="-102.028847" y="1.667770" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="6.000000" x="-6.172226" y="10.482178" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="0.000000" x="23.211182" y="-162.062546" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="12.000000" x="277.364288" y="40.165501" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="12.000000" x="509.628601" y="117.992287" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="0.000000" x="602.047913" y="131.368774" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="-9.000000" x="704.195557" y="127.720634" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="-6.000000" x="1969.359375" y="192.092239" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="9.000000" x="1726.776245" y="183.630066" />
+            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="-6.000000" x="1881.916870" y="197.733734" />
+        </Beauties>
+        <word x="1158" y="334" startX="-405" startY="-90" endX="2583" endY="115" scale="0.304081" />
     </level>
     <level id="4">
         <Ground>

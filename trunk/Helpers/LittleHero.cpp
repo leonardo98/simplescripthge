@@ -185,6 +185,7 @@ void LittleHero::RemoveLinesSet(Lines *lines) {
 	for (AllLines::iterator i = _allLines.begin(), e = _allLines.end(); i != e; ++i) {
 		if (*i == lines) {
 			delete (*i);
+			_allLines.erase(i);
 			return;
 		}
 	}

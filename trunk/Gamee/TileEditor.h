@@ -9,61 +9,12 @@
 #include "BodyTemplate.h"
 #include "../Helpers/Counter.h"
 #include "CommonBox2DTypes.h"
-#include "../Core/SplinePath.h"
 #include "../2dga_api/Animation.h"
 #include "Byker.h"
+#include "LevelSet.h"
 
 class TileEditor;
 struct Settings;
-
-struct LevelBlock {
-	SplinePath xPoses;
-	SplinePath yPoses;
-	std::vector<FPoint2D> lineDots;
-	std::vector<hgeTriple> triangles;
-	void ExportToLines(std::vector<FPoint2D> &lineDots);
-	static void FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri);
-	void GenerateTriangles();
-	void DrawLines();
-	void DrawTriangles();
-	void AddPoint(float x, float y);
-	int SearchNearest(float x, float y);
-	bool CreateDot(float x, float y);
-	void RemoveDot(int index);
-	bool SearchProection(FPoint2D &pos);
-	void CreateBody(Byker *byker, int splineIndex);
-};
-
-struct OneImage {
-	HTEXTURE texture;
-	Sprite *sprite;
-	FPoint2D pos;
-	std::string filePath;
-};
-
-struct Beauty {
-	HTEXTURE texture;
-	Sprite *sprite;
-	bool mirror;
-	FPoint2D pos;
-	float scale;
-	float angle;
-	std::string filePath;
-	void SaveToXml(TiXmlElement *xe);
-	void LoadFromXml(TiXmlElement *xe);
-	void Draw();
-};
-
-struct CurrentBlock {
-	LevelBlock *block;
-	int dotIndex;
-	float downX;
-	float downY;
-	SplinePath splineX;
-	SplinePath splineY;
-	bool moveAllDots;
-};
-
 struct SelectedElement {
 	enum {
 		none,
@@ -74,17 +25,7 @@ struct SelectedElement {
 	int index;
 };
 
-typedef std::vector<LevelBlock *> LevelBlocks;
 
-struct LevelSet {
-	LevelBlocks ground;
-	LevelBlocks surpris;
-	LevelBlocks movable;
-	std::vector<Beauty> beauties;
-	std::vector<OneImage> images;
-	std::vector<FPoint2D> startpoint;
-	std::vector<FPoint2D> endpoint;
-};
 
 // This is called when a joint in the world is implicitly destroyed
 // because an attached body is destroyed. This gives us a chance to
@@ -225,6 +166,8 @@ protected:
 
 
 	LevelSet _level;
+	std::vector<LevelSet *> _randomLevelsSet;
+	void LoadRandomLevelSet(const std::string &filename);
 	CurrentBlock _currents;
 	SelectedElement _currentElement;
 	void ClearLevel();
@@ -236,6 +179,13 @@ protected:
 	typedef std::list<b2Body *> LandBodies;
 	LandBodies _landBodies;
 	FPoint2D _endPoint;
+	FPoint2D _startPoint;
+	struct Island {
+		std::vector<Lines *> _lines;// для физики
+		LevelSet *_set;// для отрисовки только
+	};
+	typedef std::list<Island> Islands;
+	Islands _islands;
 	void CalcNextBykePos(float dt);
 	void SetupBox2D();
 	void NewLevelYesNo(const std::string &message);
@@ -248,6 +198,8 @@ protected:
 	FPoint2D ScreenToWorld(const FPoint2D &screenPos);
 	FPoint2D WorldToScreen(const FPoint2D &worldPos);
 	float _scipScaleChanging;
+	void LoadRandomLevelsSet(const std::string &fileName);
+	bool _useRandom;
 };
 
 #endif//MYENGINE_TILEEDITOR_H
