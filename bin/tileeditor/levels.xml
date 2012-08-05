@@ -117,12 +117,15 @@
         </Ground>
         <Images />
         <Beauties>
-            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="9.000000" x="-18.000000" y="20.000000" />
-            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="-15.000000" x="88.000000" y="8.000000" />
-            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="0.000000" x="177.000000" y="-10.000000" />
-            <beauty filePath="data\beauty\bush.png" mirror="0" scale="1.000000" angle="30.000000" x="253.000000" y="11.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="9.000000" x="-18.000000" y="20.000000" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="-15.000000" x="88.000000" y="8.000000" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="0.000000" x="177.000000" y="-10.000000" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="30.000000" x="253.000000" y="11.000000" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="21.000000" x="1426.207886" y="-71.576294" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="-18.000000" x="1338.200806" y="-79.649834" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="39.000000" x="1494.703979" y="-26.667015" mirror="0" scale="1.000000" />
         </Beauties>
-        <word x="739" y="58" startX="-432" startY="-224" endX="1973" endY="39" scale="0.372838" />
+        <word x="1338" y="-40" startX="-432" startY="-224" endX="1973" endY="39" scale="1.226813" />
     </level>
     <level id="5">
         <Ground>

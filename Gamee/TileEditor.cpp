@@ -350,7 +350,7 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 		}
 	} else {
 		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-			if (_level.beauties[i].sprite->HasPixel(mousePos.x, mousePos.y)) {
+			if (_level.beauties[i]->HasPixel(mousePos.x, mousePos.y)) {
 				_currentElement.selected = SelectedElement::beauty_element;
 				_currentElement.index = i;
 				break;
@@ -470,8 +470,8 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 
 	if (_currentElement.selected != SelectedElement::none && _mouseDown) {
 		if (_currentElement.selected == SelectedElement::beauty_element) {
-			_level.beauties[_currentElement.index].pos.x += (newMmouseWorld.x - _mouseWorld.x);
-			_level.beauties[_currentElement.index].pos.y += (newMmouseWorld.y - _mouseWorld.y);
+			_level.beauties[_currentElement.index]->Pos().x += (newMmouseWorld.x - _mouseWorld.x);
+			_level.beauties[_currentElement.index]->Pos().y += (newMmouseWorld.y - _mouseWorld.y);
 		} else if (_currentElement.selected == SelectedElement::start_flag) {
 			_level.startpoint[0].x += (newMmouseWorld.x - _mouseWorld.x);
 			_level.startpoint[0].y += (newMmouseWorld.y - _mouseWorld.y);
@@ -515,7 +515,7 @@ bool TileEditor::OnMouseWheel(int direction) {
 	_worldOffset = fp;
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currentElement.selected != SelectedElement::none) {
 		if (_currentElement.selected == SelectedElement::beauty_element) {
-			_level.beauties[_currentElement.index].angle += direction * 3;
+			_level.beauties[_currentElement.index]->Angle() += direction * 3;
 		}
 	} else if (direction > 0 && _viewScale < 4.f) {
 		_viewScale *= 1.09f * direction;
@@ -597,7 +597,7 @@ void TileEditor::Draw() {
 				Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
 				changeColor = true;
 			}
-			_level.beauties[i].Draw();
+			_level.beauties[i]->Draw();
 			if (changeColor) {
 				Render::SetColor(0xFFFFFFFF);
 			}
@@ -669,7 +669,7 @@ void TileEditor::Draw() {
 			Render::MatrixMove((*j)._lines[0]->GetOffset().x * SCALE_BOX2D, (*j)._lines[0]->GetOffset().y * SCALE_BOX2D);
 			// кусты
 			for (unsigned int i = 0; i < (*j)._set->beauties.size(); ++i) {
-				(*j)._set->beauties[i].Draw();
+				(*j)._set->beauties[i]->Draw();
 			}
 			for (unsigned int i = 0; i < (*j)._set->ground.size(); ++i) {
 				(*j)._set->ground[i]->DrawTriangles();
@@ -1059,14 +1059,11 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		}
 		Messager::SendMessage("MiddleList", "special add cancel");
 	} else if (msg == "beauty") {
-		Beauty b;
-		b.filePath = "data\\beauty\\bush.png";
-		b.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + b.filePath).c_str());
-		b.sprite = new Sprite(b.texture, 0, 0, Render::GetDC()->Texture_GetWidth(b.texture), Render::GetDC()->Texture_GetHeight(b.texture));
-		b.mirror = false;
-		b.scale = 1.f;
-		b.angle = 0.f;
-		b.pos = _worldOffset;
+		Beauty *b = new Beauty("data\\beauty\\bush.png",
+							_worldOffset,
+							0.f,
+							1.f,
+							false);
 		_level.beauties.push_back(b);
 	} else if (msg == "box") {
 		Messager::SendMessage("SmallList", "prefix AddBoxElement");
@@ -1306,7 +1303,7 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	TiXmlElement *beautyList = new TiXmlElement("Beauties");
 	for (int i = 0; i < _level.beauties.size(); i++) {
 		TiXmlElement *beauty = new TiXmlElement("beauty");
-		_level.beauties[i].SaveToXml(beauty);
+		_level.beauties[i]->SaveToXml(beauty);
 		beautyList->LinkEndChild(beauty);
 	}
 	_saveLevelXml->LinkEndChild(beautyList);
@@ -1353,8 +1350,7 @@ void TileEditor::ClearLevel() {
 	}
 	_level.images.clear();
 	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-		delete _level.beauties[i].sprite;
-		Render::GetDC()->Texture_Free(_level.beauties[i].texture);
+		delete _level.beauties[i];
 	}
 	_level.beauties.clear();
 }
@@ -1416,8 +1412,8 @@ void TileEditor::LoadLevel(const std::string &msg) {
 		if (beautyList) {
 			TiXmlElement *elem = beautyList->FirstChildElement("beauty");
 			while (elem != NULL) {
-				Beauty beauty;
-				beauty.LoadFromXml(elem);
+				Beauty *beauty = new Beauty();
+				beauty->LoadFromXml(elem);
 				_level.beauties.push_back(beauty);
 				elem = elem->NextSiblingElement("beauty");
 			}
