@@ -8,8 +8,6 @@
 #define DEC 0.01f
 #define HALFBORDER 0.0025f
 
-#define SCALE_BOX2D 60
-
 Texture *_allElements;
 
 
@@ -31,8 +29,12 @@ void TileEditor::LoadTemplates(const std::string &filename) {
 	}
 }
 
+void TileEditor::LoadRandomLevelSet(const std::string &filename) {
+}
+
 TileEditor::TileEditor(TiXmlElement *xe)
 	: _viewScale(1.f)
+	, _useRandom(false)
 	, _scipScaleChanging(0.f)
 	, _userLevelWin(false)
 	, _screenOffset((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
@@ -68,7 +70,8 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	_selectedUV[3].u = 0.f; _selectedUV[3].v = 0.f;
 
 	_allElements = Core::getTexture("allElements");
-	LoadTemplates(Render::GetDataDir() + "bodyes.xml");
+	//LoadTemplates(Render::GetDataDir() + "bodyes.xml");
+	LoadRandomLevelsSet(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "random.xml").c_str()));
 
 	//b2Vec2 gravity;
 	//gravity.Set(0.0f, 10.0f);
@@ -98,6 +101,9 @@ TileEditor::~TileEditor()
 	delete _endFlag;
 	Render::GetDC()->Texture_Free(_flags);
 	ClearLevel();
+	for (unsigned int i = 0, e = _randomLevelsSet.size(); i < e; ++i) {
+		delete _randomLevelsSet[i];
+	}
 	// By deleting the world, we delete the bomb, mouse joint, etc.
 	//delete m_world;
 	//m_world = NULL;
@@ -596,8 +602,9 @@ void TileEditor::Draw() {
 				Render::SetColor(0xFFFFFFFF);
 			}
 		}
-		Render::PopMatrix();
 		if (_netVisible) {// сетка
+			Render::PushMatrix();
+			Render::SetMatrixUnit();
 			float STEP = 64.f;
 			int n = SCREEN_WIDTH / (_viewScale * STEP);
 			float t = -_worldOffset.x / (STEP * _viewScale);
@@ -613,23 +620,14 @@ void TileEditor::Draw() {
 				float y = i * STEP * _viewScale + t;
 				Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
 			}
-			Render::PushMatrix();
-			Render::MatrixMove(_screenOffset.x, _screenOffset.y);
-			Render::MatrixScale(_viewScale, _viewScale);
-			Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
+			Render::PopMatrix();
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 				_level.ground[i]->DrawLines();
 			}
-			Render::PopMatrix();
 		} else {// залитая одним цветом земля
-			Render::PushMatrix();
-			Render::MatrixMove(_screenOffset.x, _screenOffset.y);
-			Render::MatrixScale(_viewScale, _viewScale);
-			Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 				_level.ground[i]->DrawTriangles();
 			}
-			Render::PopMatrix();
 		}
 		// флажек старта
 		if (_level.startpoint.size()) {
@@ -657,6 +655,7 @@ void TileEditor::Draw() {
 				Render::SetColor(0xFFFFFFFF);
 			}
 		}
+		Render::PopMatrix();
 	} else { // режим игры
 		// земля
 		Render::PushMatrix();
@@ -664,19 +663,32 @@ void TileEditor::Draw() {
 		Render::MatrixScale(_viewScale, _viewScale);
 		Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
 
-		for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
-											e = _byker->physic.GetAllLines().end(); i != e; ++i) {
+		for (Islands::iterator j = _islands.begin(), e = _islands.end(); j != e; ++j) {
 			Render::PushMatrix();
-			Render::MatrixMove((*i)->GetOffset().x * SCALE_BOX2D, (*i)->GetOffset().y * SCALE_BOX2D);
+			Render::MatrixMove((*j)._lines[0]->GetOffset().x * SCALE_BOX2D, (*j)._lines[0]->GetOffset().y * SCALE_BOX2D);
 			// кусты
-			for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-				_level.beauties[i].Draw();
+			for (unsigned int i = 0; i < (*j)._set->beauties.size(); ++i) {
+				(*j)._set->beauties[i].Draw();
 			}
-			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->DrawTriangles();
+			for (unsigned int i = 0; i < (*j)._set->ground.size(); ++i) {
+				(*j)._set->ground[i]->DrawTriangles();
 			}
 			Render::PopMatrix();
 		}
+
+		//for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
+		//									e = _byker->physic.GetAllLines().end(); i != e; ++i) {
+		//	Render::PushMatrix();
+		//	Render::MatrixMove((*i)->GetOffset().x * SCALE_BOX2D, (*i)->GetOffset().y * SCALE_BOX2D);
+		//	// кусты
+		//	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+		//		_level.beauties[i].Draw();
+		//	}
+		//	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+		//		_level.ground[i]->DrawTriangles();
+		//	}
+		//	Render::PopMatrix();
+		//}
 
 		// мотоциклист
 		FPoint2D p(_byker->physic.GetPosition() * SCALE_BOX2D);
@@ -705,13 +717,30 @@ void TileEditor::Draw() {
 		float x = _endPoint.x;
 		float y = _endPoint.y;
 		Render::GetCurrentMatrix().Mul(x, y);
+		float sx = _startPoint.x;
+		float sy = _startPoint.y;
+		Render::GetCurrentMatrix().Mul(x, y);
 		
 		float xByker = _byker->physic.GetPosition().x * SCALE_BOX2D;
-		if (_level.startpoint[0].x < xByker && xByker < _endPoint.x) {
-			if (_landBodies.size() >= 3) {
-				_byker->physic.RemoveLinesSet(NULL);
+		if (sx < xByker && xByker < _endPoint.x) {
+			if (_islands.size() >= 3) {
+				for (int i = 0; i < _islands.front()._lines.size(); ++i) {
+					_byker->physic.RemoveLinesSet(_islands.front()._lines[i]);
+				}
+				_islands.pop_front();
 			}			
-			FPoint2D shift = (_level.endpoint[0] - _level.startpoint[0]);
+
+			Island island;
+			LevelSet *newSet;
+			if (!_useRandom) {
+				newSet = island._set = &_level;
+			} else {
+				assert(_randomLevelsSet.size() > 0);
+				int r = rand() % _randomLevelsSet.size();
+				newSet = island._set = _randomLevelsSet[r];
+			}
+
+			FPoint2D shift = (_islands.back()._set->endpoint[0] - newSet->startpoint[0]);
 			FPoint2D b2shift;
 			b2shift.x = -shift.x / SCALE_BOX2D;
 			b2shift.y = -shift.y / SCALE_BOX2D;
@@ -721,10 +750,15 @@ void TileEditor::Draw() {
 			}
 			_byker->physic.SetPosition(_byker->physic.GetPosition() + b2shift);
 			_worldOffset.y += shift.y;
-			_endPoint = _level.endpoint[0];
-			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->CreateBody(_byker, i);
+
+			_startPoint = newSet->startpoint[0];
+			_endPoint = newSet->endpoint[0];
+
+			for (unsigned int i = 0; i < newSet->ground.size(); ++i) {
+				island._lines.push_back(newSet->ground[i]->CreateBody(_byker, i));
 			}
+			_islands.push_back(island);
+
 		}
 		Render::PopMatrix();
 	}
@@ -1149,12 +1183,13 @@ void TileEditor::OnMessage(const std::string &message) {
 				_level.ground[i]->GenerateTriangles();
 			}
 		}
-	} else if (message == "play") {
+	} else if (message == "play" || message == "random") {
 		if (_editor) { // переходим в режим игры
 			if (CanLevelStart()) {
 				//SetValueB("big", "visible", false);
 				//SetValueB("small", "visible", true);
 				SetValueS("play", "", "stop");
+				_useRandom = (message == "random");
 				_editor = false;
 				//InitParams(NULL);
 				SaveState();
@@ -1295,194 +1330,6 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	_currentLevel = levelName;
 }
 
-void Beauty::SaveToXml(TiXmlElement *xe) {
-	xe->SetAttribute("filePath", filePath.c_str());
-	xe->SetAttribute("mirror", mirror ? "1" : "0");
-	char s[16];
-	sprintf(s, "%f", scale);
-	xe->SetAttribute("scale", s);
-	sprintf(s, "%f", angle);
-	xe->SetAttribute("angle", s);
-	sprintf(s, "%f", pos.x);
-	xe->SetAttribute("x", s);
-	sprintf(s, "%f", pos.y);
-	xe->SetAttribute("y", s);
-}
-
-void Beauty::Draw() {
-	Render::PushMatrix();
-	Render::MatrixMove(pos.x, pos.y);
-	Render::MatrixRotate(angle / 180 * M_PI);
-	if (mirror) {
-		Render::MatrixScale(-1.f, 1.f);
-	}
-	sprite->Render(- sprite->Width() / 2, - sprite->Height());
-	Render::PopMatrix();
-}
-
-void Beauty::LoadFromXml(TiXmlElement *xe) {
-	filePath = xe->Attribute("filePath");
-	mirror = atoi(xe->Attribute("mirror")) != 0;
-	scale = atof(xe->Attribute("scale"));
-	angle = atof(xe->Attribute("angle"));
-	pos.x = atof(xe->Attribute("x"));
-	pos.y = atof(xe->Attribute("y"));
-	texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + filePath).c_str());
-	sprite = new Sprite(texture, 0, 0, Render::GetDC()->Texture_GetWidth(texture), Render::GetDC()->Texture_GetHeight(texture));
-}
-
-void LevelBlock::DrawLines() {
-	float t = 0.f;
-	float x1 = xPoses.getGlobalFrame(0.f);
-	float y1 = yPoses.getGlobalFrame(0.f);
-	float x2, y2;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	while (t + 1.f / subLine < 1.f) {
-		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
-		x2 = xPoses.getGlobalFrame(t);
-		y2 = yPoses.getGlobalFrame(t);
-		Render::Line(x1, y1, x2, y2, 0xFFFF0000);
-		x1 = x2;
-		y1 = y2;
-	}
-	x2 = xPoses.getGlobalFrame(1.f);
-	y2 = yPoses.getGlobalFrame(1.f);
-	Render::Line(x1, y1, x2, y2, 0xFFFF0000);			
-
-	static const float SIZEX = 3;
-	for (unsigned int i = 0; i < xPoses.keys.size() - 1; ++i) {
-		float x = xPoses.getFrame(i, 0.f);
-		float y = yPoses.getFrame(i, 0.f);
-		Render::Line(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFF0000);
-		Render::Line(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFF0000);
-	}
-}
-
-void LevelBlock::AddPoint(float x, float y) {
-	xPoses.addKey(x);
-	xPoses.CalculateGradient(true);
-	yPoses.addKey(y);
-	yPoses.CalculateGradient(true);
-}
-
-
-int LevelBlock::SearchNearest(float x, float y) {
-	int result = -1;
-	static const float SIZEX = 6;
-	for (unsigned int i = 0; i < xPoses.keys.size() - 1 && result < 0; ++i) {
-		float px = xPoses.getFrame(i, 0.f);
-		float py = yPoses.getFrame(i, 0.f);
-		if ((FPoint2D(x, y) - FPoint2D(px, py)).Length() < SIZEX) {
-			result = i;
-		}
-	}
-	return result;
-}
-
-bool DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPoint2D &p) {
-	float a = (one - p).Length();
-	float b = (p - two).Length();
-	float c = (one - two).Length();
-	if (c > a && c > b) {
-		float s;
-		Math::STrinagle(a, b, c, s);
-		return (s / c < 4);
-	}
-	return false;
-}
-
-bool LevelBlock::CreateDot(float x, float y) {
-	if (xPoses.keys.size() >= 50) {
-		return false;
-	}
-	bool result = false;
-	static const float SIZEX = 6;
-	FPoint2D p(x, y);
-
-	float t = 0.f;
-	FPoint2D one(xPoses.getGlobalFrame(0.f), yPoses.getGlobalFrame(0.f));
-	FPoint2D two;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	while (t + 1.f / subLine < 1.f && !result) {
-		t += 1.f / subLine;
-		two.x = xPoses.getGlobalFrame(t);
-		two.y = yPoses.getGlobalFrame(t);
-		if (result = DotNearLine(one, two, p)) {
-			int index = t * (xPoses.keys.size() - 1) + 1;
-
-			if (index < xPoses.keys.size() - 1) {
-				SplinePath splineX = xPoses;
-				SplinePath splineY = yPoses;
-				xPoses.Clear();
-				yPoses.Clear();
-				for (int i = 0; i < index; ++i) {
-					xPoses.addKey(splineX.getFrame(i, 0.f));
-					yPoses.addKey(splineY.getFrame(i, 0.f));
-				}
-				xPoses.addKey(x);
-				yPoses.addKey(y);
-				for (int i = index; i < splineX.keys.size() - 1; ++i) {
-					xPoses.addKey(splineX.getFrame(i, 0.f));
-					yPoses.addKey(splineY.getFrame(i, 0.f));
-				}
-				xPoses.CalculateGradient(true);
-				yPoses.CalculateGradient(true);
-			} else {
-				xPoses.addKey(x);
-				yPoses.addKey(y);
-				xPoses.CalculateGradient(true);
-				yPoses.CalculateGradient(true);
-			}
-		}
-		one = two;
-	}
-	if (!result) {
-		two.x = xPoses.getGlobalFrame(1.f);
-		two.y = yPoses.getGlobalFrame(1.f);
-		if (result = DotNearLine(one, two, p)) {
-			int index = xPoses.keys.size() - 1;
-			SplinePath splineX = xPoses;
-			SplinePath splineY = yPoses;
-			xPoses.Clear();
-			yPoses.Clear();
-			for (int i = 0; i < index; ++i) {
-				xPoses.addKey(splineX.getFrame(i, 0.f));
-				yPoses.addKey(splineY.getFrame(i, 0.f));
-			}
-			xPoses.addKey(x);
-			yPoses.addKey(y);
-			for (int i = index; i < splineX.keys.size() - 1; ++i) {
-				xPoses.addKey(splineX.getFrame(i, 0.f));
-				yPoses.addKey(splineY.getFrame(i, 0.f));
-			}
-			xPoses.CalculateGradient(true);
-			yPoses.CalculateGradient(true);
-		}
-	}
-
-	return result;
-}
-
-void LevelBlock::RemoveDot(int index) {
-	if (xPoses.keys.size() <= 4) {
-		return;
-	}
-	SplinePath splineX = xPoses;
-	SplinePath splineY = yPoses;
-	xPoses.Clear();
-	yPoses.Clear();
-	for (int i = 0; i < index; ++i) {
-		xPoses.addKey(splineX.getFrame(i, 0.f));
-		yPoses.addKey(splineY.getFrame(i, 0.f));
-	}
-	for (int i = index + 1; i < splineX.keys.size() - 1; ++i) {
-		xPoses.addKey(splineX.getFrame(i, 0.f));
-		yPoses.addKey(splineY.getFrame(i, 0.f));
-	}
-	xPoses.CalculateGradient(true);
-	yPoses.CalculateGradient(true);
-}
-
 void TileEditor::ClearLevel() {
 	_currentElement.selected = SelectedElement::none;
 	_level.startpoint.clear();
@@ -1603,203 +1450,6 @@ void TileEditor::LoadLevel(const std::string &msg) {
 	}
 }
 
-void LevelBlock::ExportToLines(std::vector<FPoint2D> &lineDots) {
-	lineDots.clear();
-	float t = 0.f;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	while (t < 1.f) {
-		float x = xPoses.getGlobalFrame(t);
-		float y = yPoses.getGlobalFrame(t);
-		lineDots.push_back(FPoint2D(x, y));
-		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
-	}
-}
-
-void LevelBlock::GenerateTriangles() {
-	triangles.clear();
-	std::vector<FPoint2D> &dots = lineDots;
-	ExportToLines(dots);
-
-	float sign = 0.f;
-	{
-		// ищем самый острый угол или наименее тупой
-		FPoint2D *a;
-		FPoint2D *b;
-		FPoint2D *c;
-		int index = 0;
-		float minAngle = 180.f;
-		for (int i = 0; i < dots.size(); ++i) {
-			a = &dots[i];
-			if (i < dots.size() - 1) {
-				b = &dots[i + 1];
-			} else {
-				b = &dots[i + 1 - dots.size()];
-			}
-			if (i < dots.size() - 2) {
-				c = &dots[i + 2];
-			} else {
-				c = &dots[i + 2 - dots.size()];
-			}
-			float angle = (*a - *b).Angle(&(*c - *b));
-			if (angle <= 0.f) {
-				assert(false);
-			}
-			if (angle < minAngle) {
-				minAngle = angle;
-				index = i;
-			}
-		}
-		a = &dots[index];
-		if (index < dots.size() - 1) {
-			b = &dots[index + 1];
-		} else {
-			b = &dots[index + 1 - dots.size()];
-		}
-		if (index < dots.size() - 2) {
-			c = &dots[index + 2];
-		} else {
-			c = &dots[index + 2 - dots.size()];
-		}
-		sign = Math::VMul(*b - *a, *c - *b);
-	}
-	while (dots.size() > 0) {
-		assert(dots.size() > 2);
-		if (dots.size() == 3) {
-			hgeTriple tri;
-			FillTriangle(dots[0], dots[1], dots[2], tri);
-			triangles.push_back(tri);
-			dots.clear();
-		} else {
-			FPoint2D *a;
-			FPoint2D *b;
-			FPoint2D *c;
-			for (int i = 0; i < dots.size(); ++i) {
-				a = &dots[i];
-				if (i < dots.size() - 1) {
-					b = &dots[i + 1];
-				} else {
-					b = &dots[i + 1 - dots.size()];
-				}
-				if (i < dots.size() - 2) {
-					c = &dots[i + 2];
-				} else {
-					c = &dots[i + 2 - dots.size()];
-				}
-				
-				bool intersection = false;
-				for (int j = 0; j < dots.size() && !intersection; ++j) {
-					FPoint2D *a2 = &dots[j];
-					FPoint2D *b2;
-					if (j < dots.size() - 1) {
-						b2 = &dots[j + 1];
-					} else {
-						b2 = &dots[j + 1 - dots.size()];
-					}
-					intersection = (a != a2 && a != b2 && b != a2 && b != b2 && Math::Intersection(*a, *c, *a2, *b2, NULL));
-				}
-				std::vector<FPoint2D> triangle(3);
-				triangle[0] = *a;
-				triangle[1] = *b;
-				triangle[2] = *c;
-				for (int j = 0; j < dots.size() && !intersection; ++j) {
-					FPoint2D *a2 = &dots[j];
-					intersection = (a2 != a && a2 != b && a2 != c && Math::Inside(*a2, triangle));
-				}
-				if (!intersection && Math::VMul(*b - *a, *c - *b) * sign > 0.f) {// выбираем только те что с нашим знаком
-					hgeTriple tri;
-					FillTriangle(*a, *b, *c, tri);
-					triangles.push_back(tri);
-					if (i < dots.size() - 1) {
-						dots.erase(dots.begin() + i + 1);
-					} else {
-						dots.erase(dots.begin());
-					}
-					break;
-				}
-			}
-		}		
-	}
-}
-
-void LevelBlock::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri) {
-	tri.v[0].x = a.x;
-	tri.v[0].y = a.y;
-	tri.v[1].x = b.x;
-	tri.v[1].y = b.y;
-	tri.v[2].x = c.x;
-	tri.v[2].y = c.y;
-
-	tri.blend = BLEND_ALPHABLEND | BLEND_COLORMUL;
-	// надо добавить в движке HGE режим без блендинга - можно только в игре,
-	// в редакторе не обязательно
-	tri.tex = 0;//_allElements->GetTexture();
-	for (unsigned int i = 0; i < 3; ++i) {
-		tri.v[i].col = 0xFF4c812d;
-		tri.v[i].z = 0.f;
-		tri.v[i].tx = tri.v[i].x / 512.f;
-		tri.v[i].ty = tri.v[i].y / 512.f;
-	}
-}
-
-void LevelBlock::DrawTriangles() {
-	int n = triangles.size();// * f;
-	const Matrix &m = Render::GetCurrentMatrix();
-	for (unsigned int j = 0; j < n; ++j) {
-		hgeTriple tri = triangles[j];
-		for (unsigned int i = 0; i < 3; ++i) {
-			m.Mul(tri.v[i].x, tri.v[i].y);
-		}
-		Render::GetDC()->Gfx_RenderTriple(&tri);
-	}
-
-	if (lineDots.size() >= 2) {
-		// test debug
-		float x1 = lineDots[0].x;
-		float y1 = lineDots[0].y;
-		float x2, y2;
-		for (unsigned int i = 0; i < lineDots.size(); ++i) {
-			x2 = lineDots[i].x;
-			y2 = lineDots[i].y;
-			Render::Line(x1, y1, x2, y2, 0x4FFFFFFF);
-			x1 = x2;
-			y1 = y2;
-		}
-		x2 = lineDots[0].x;
-		y2 = lineDots[0].y;
-		Render::Line(x1, y1, x2, y2, 0x4FFFFFFF);			
-	}
-}
-
-bool LevelBlock::SearchProection(FPoint2D &pos) {
-	float t = 0.f;
-	float x1 = xPoses.getGlobalFrame(0.f);
-	float y1 = yPoses.getGlobalFrame(0.f);
-	float x2, y2;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	FPoint2D gravity(0.f, 10.f);
-	float speed = 50.f;
-	//FPoint2D motor();
-	while (t + 1.f / subLine < 1.f) {
-		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
-		x2 = xPoses.getGlobalFrame(t);
-		y2 = yPoses.getGlobalFrame(t);
-		if (x1 <= pos.x && pos.x < x2) {
-			// calc pos
-		//Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);
-			return true;
-		}
-		x1 = x2;
-		y1 = y2;
-	}
-	x2 = xPoses.getGlobalFrame(1.f);
-	y2 = yPoses.getGlobalFrame(1.f);
-	if (x1 <= pos.x && pos.x < x2) {
-	//	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);			
-		return true;
-	}
-	return false;
-}
-
 void TileEditor::CalcNextBykePos(float dt) {
 	FPoint2D proection;
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
@@ -1837,111 +1487,25 @@ bool Convex(Triangle &m_vertices) {
 	return true;
 }
 
-void LevelBlock::CreateBody(Byker *byker, int splineIndex) {
-	DotsList dots;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	dots.resize(subLine);
-	for (unsigned int i = 0; i < subLine; ++i) {
-		FPoint2D &a = dots[i];
-		float t = static_cast<float>(i) / subLine;
-		a.x = xPoses.getGlobalFrame(t) / SCALE_BOX2D;
-		a.y = yPoses.getGlobalFrame(t) / SCALE_BOX2D;
-	}
-	byker->physic.AddLinesSet(dots, splineIndex);
-	//// составление треугольников
-	//int n = triangles.size();
-	//std::vector<Triangle> massiv;
-	//for (unsigned int j = 0; j < n; ++j) {
-	//	Triangle vec(3);
-	//	for (unsigned int i = 0; i < 3; ++i) {
-	//		vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
-	//		vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
-	//	}
-	//	massiv.push_back(vec);
-	//}
-	//// оптимизация - объединение треугольников в выпуклые многоугольники
-	//for (unsigned int i = 0; i < massiv.size(); ) {
-	//	Triangle t;
-	//	for (unsigned int j = i + 1; j < (massiv.size() - 1) && t.size() == 0; ++j) {
-	//		for (unsigned int k = 0; k < massiv[i].size() && t.size() == 0; ++k) {
-	//			b2Vec2 a = massiv[i][k];
-	//			b2Vec2 b = massiv[i][(k + 1) % massiv[i].size()];
-	//			for (unsigned int l = 0; l < massiv[j].size() && t.size() == 0; ++l) {
-	//				b2Vec2 d = massiv[j][l];
-	//				b2Vec2 e = massiv[j][(l + 1) % massiv[j].size()];
-	//				if ((a - d).Length() < 1e-3 && (b - e).Length() < 1e-3) {
-	//					// нашли общую грань
-	//					for (unsigned int q = 0; q < massiv[i].size(); ++q)  {
-	//						t.push_back(massiv[i][(q + k + 1) % massiv[i].size()]);
-	//					}
-	//					for (unsigned int q = 0; q < massiv[j].size(); ++q)  {
-	//						unsigned int index = massiv[j].size() - 1 - q;
-	//						if (index != l && index != (l + 1)) {
-	//							t.push_back(massiv[j][index]);
-	//						}
-	//					}
-	//					if (!Convex(t)) {
-	//						t.clear();
-	//					}
-	//				} else if ((a - e).Length() < 1e-3 && (b - d).Length() < 1e-3) {
-	//					// нашли общую грань
-	//					for (unsigned int q = 0; q < massiv[i].size(); ++q)  {
-	//						t.push_back(massiv[i][(q + k + 1) % massiv[i].size()]);
-	//					}
-	//					for (unsigned int q = 0; q < massiv[j].size(); ++q)  {
-	//						unsigned int index = massiv[j].size() - 1 - q;
-	//						if (index != l && index != (l + 1)) {
-	//							t.push_back(massiv[j][index]);
-	//						}
-	//					}
-	//					if (!Convex(t)) {
-	//						t.clear();
-	//					}
-	//				}
-	//			}
-	//		}
-	//		if (t.size()) {
-	//			massiv.erase(massiv.begin() + j);
-	//		}
-	//	}
-	//	if (t.size()) {
-	//		massiv[i] = t;
-	//		t.clear();
-	//	} else {
-	//		++i;
-	//	}
-	//}
-	//for (unsigned int j = 0; j < massiv.size(); ++j) {
-	//	b2FixtureDef fd;
-	//	fd.restitution = 0.f;
-	//	fd.friction = 1.0f;
-	//	fd.density = 1.0f;
-	//	b2PolygonShape shape;
-	//	//b2Vec2 vec[3];
-	//	//for (unsigned int i = 0; i < 3; ++i) {
-	//	//	vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
-	//	//	vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
-	//	//}
-	//	shape.Set(&(*massiv[j].begin()), massiv[j].size());
-	//	fd.shape = &shape;
-	//	body->CreateFixture(&fd);
-	//	body->ResetMassData();
-	//}
-}
-
 void TileEditor::SetupBox2D() {
 	EraseAllBodyes();
-
+	_viewScale = 1.f;
+	_islands.clear();
+	Island island;
+	island._set = &_level;
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		_level.ground[i]->CreateBody(_byker, i);
+		island._lines.push_back(_level.ground[i]->CreateBody(_byker, i));
 	}
+	_islands.push_back(island);
+
 	_byker->physic.SetPosition(FPoint2D(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D));
 	_byker->physic.SetMinSpeed(7.f);
 	_byker->physic.SetSpeedVector(FPoint2D(0.f, 0.f));
 	//b2BodyDef bd;
 	//bd.type = b2_staticBody;  
 	//bd.position.Set(0.f, 0.f);
-	//_endPoint = _level.endpoint[0];
+	_startPoint = _level.startpoint[0];
+	_endPoint = _level.endpoint[0];
 	//bd.angle = 0.f;
 	//b2Body* body = m_world->CreateBody(&bd);		
 	//for (unsigned int i = 0; i < _level.ground.size(); ++i) {
@@ -2051,4 +1615,23 @@ void TileEditor::SetupBox2D() {
 	//	m_world->CreateJoint(&jointDef);
 
 	//}
+}
+
+void TileEditor::LoadRandomLevelsSet(const std::string &fileName) {
+	if (_randomLevelsSet.size()) {
+		LOG("_randomLevelsSet.size() != 0");
+		assert(false);
+	}
+	TiXmlDocument doc(fileName.c_str());
+	if (doc.LoadFile() == false) {
+		LOG("file not found: " + fileName);
+		assert(false);
+	}
+	TiXmlElement *xe = doc.RootElement()->FirstChildElement();
+	while (xe != NULL) {
+		LevelSet *l = new LevelSet();
+		l->LoadFromXml(xe, true);
+		_randomLevelsSet.push_back(l);
+		xe = xe->NextSiblingElement();
+	}
 }

@@ -569,6 +569,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\LevelSet.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\LevelSet.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\Mask.cpp"
 					>
 				</File>

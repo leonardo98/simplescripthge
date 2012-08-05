@@ -3,8 +3,11 @@
   <Resources fileName="GUI_textures_test.xml"/>
   <!--StaticTexture x="0" y="0" texture="data/box2d/background0.png"/-->
   <TileEditor/>
-  <IButton name="play" x="920" y="0" width="40" height="40" caption="play">
+  <IButton name="play" x="870" y="0" width="40" height="40" caption="play">
     SendMessage("tile_editor", "play");
+  </IButton>
+  <IButton name="random" x="920" y="0" width="40" height="40" caption="random">
+    SendMessage("tile_editor", "random");
   </IButton>
   <IPanel name="small" x="0" y="0" width="20" height="40" visible="1" needDraw="0">
     <gui>
