@@ -603,24 +603,25 @@ void TileEditor::Draw() {
 			}
 		}
 		if (_netVisible) {// сетка
-			Render::PushMatrix();
-			Render::SetMatrixUnit();
+			Matrix m;
+			m.MakeRevers(Render::GetCurrentMatrix());
+			float startX = 0.f;
+			float startY = 0.f;
+			m.Mul(startX, startY);
+			float endX = 960.f;
+			float endY = 640.f;
+			m.Mul(endX, endY);
 			float STEP = 64.f;
-			int n = SCREEN_WIDTH / (_viewScale * STEP);
-			float t = -_worldOffset.x / (STEP * _viewScale);
-			t = (t - static_cast<int>(t)) * (STEP * _viewScale);
-			for (int i = 0; i <= n; i++) {
-				float x = i * STEP * _viewScale + t;
-				Render::GetDC()->Gfx_RenderLine(x, 0, x, SCREEN_HEIGHT, 0x4FFFFFFF);
+			float x = static_cast<int>(startX / STEP) * STEP;
+			while (x < endX) {
+				Render::Line(x, startY, x, endY, 0x4FFFFFFF);
+				x += STEP;
 			}
-			n = SCREEN_HEIGHT / (_viewScale * STEP) + 1;
-			t = -_worldOffset.y / (STEP * _viewScale);
-			t = (t - static_cast<int>(t)) * (STEP * _viewScale);
-			for (int i = 0; i <= n; i++) {
-				float y = i * STEP * _viewScale + t;
-				Render::GetDC()->Gfx_RenderLine(0, y, SCREEN_WIDTH, y, 0x4FFFFFFF);
+			float y = static_cast<int>(startY / STEP) * STEP;
+			while (y < endY) {
+				Render::Line(startX, y, endX, y, 0x4FFFFFFF);
+				y += STEP;
 			}
-			Render::PopMatrix();
 			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 				_level.ground[i]->DrawLines();
 			}
