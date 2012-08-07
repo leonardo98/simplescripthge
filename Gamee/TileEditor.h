@@ -186,6 +186,7 @@ protected:
 	};
 	typedef std::list<Island> Islands;
 	Islands _islands;
+	float _bykerAngle;
 	void CalcNextBykePos(float dt);
 	void SetupBox2D();
 	void NewLevelYesNo(const std::string &message);
