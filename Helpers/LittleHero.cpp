@@ -66,10 +66,11 @@ bool Lines::MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius,
 		FPoint2D r;
 		if (ProjectPointAgainstLine(a, c, pos, r)) {
 			FPoint2D shift(pos - r);
+			ground = (shift.y < 0 && shift.Length() < radius * 1.2f);
 			if (shift.Length() < radius - 1e-3) {
 				float angle = (pos - oldPos).Angle();
 				pos = shift * radius / shift.Length() + r;
-				if (shift.y < 0) {
+				if (shift.y < 0) {// тут упрощение - т.к. мы знаем что сила тяжести имеет вид (0, а) и а > 0
 					angle -= (pos - oldPos).Angle();
 					float modSpeed = currentSpeed.Length();
 					if (modSpeed > 1e-3 && shift.Length() > 1e-3) {
@@ -81,9 +82,13 @@ bool Lines::MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius,
 					ground = true;
 
 					if ((a.x <= b.x && r.x <= b.x) || (a.x >= b.x && r.x >= b.x)) {
-						splinePos = (i + fabs(r.x - a.x) / fabs(b.x - a.x)) / _dots.size();
+						float ab = sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+						float ar = sqrt((r.x - a.x) * (r.x - a.x) + (r.y - a.y) * (r.y - a.y));
+						splinePos = (i + ar / ab) / _dots.size();
 					} else {
-						splinePos = (i + 1 + fabs(r.x - b.x) / fabs(c.x - b.x)) / _dots.size();
+						float cb = sqrt((b.x - c.x) * (b.x - c.x) + (b.y - c.y) * (b.y - c.y));
+						float rb = sqrt((b.x - r.x) * (b.x - r.x) + (b.y - r.y) * (b.y - r.y));
+						splinePos = (i + 1 + rb / cb) / _dots.size();
 					}
 				}
 				return true;
@@ -144,9 +149,7 @@ void LittleHero::Update(float dt) {
 		_impulse.x = 0.f;
 		_impulse.y = 0.f;
 	}
-	//if (!_wasGround) {
-		_currentSpeed += _gravity * dt;
-	//}
+	_currentSpeed += _gravity * dt;
 	FPoint2D newPos(_pos + _currentSpeed * dt);
 	// корректируем положение вверх или вних если произошло столкновение с линиями
 	FPoint2D oldPos(_pos);
@@ -156,7 +159,6 @@ void LittleHero::Update(float dt) {
 	for (AllLines::iterator i = _allLines.begin(), e = _allLines.end(); i != e; ++i) {
 		bool oldGround(_wasGround);
 		if ((*i)->MoveMeIfContact(oldPos, newPos, _radius, _currentSpeed, _wasGround)) {
-			//_wasGround = delta.Length() > 1e-3 && _gravity.Dot(&delta) < 0.f;
 			i = _allLines.begin();
 			oldPos = beforeContact;
 			beforeContact = newPos;
