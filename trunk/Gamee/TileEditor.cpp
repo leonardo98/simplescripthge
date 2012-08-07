@@ -682,27 +682,12 @@ void TileEditor::Draw() {
 
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
-		float angle ;
-		//if (_byker->physic.IsGround()) {
-		//	int spline;
-		//	float f = _byker->physic.GetSplinePos(spline);
-		//	float dx = _level.ground[spline]->xPoses.getGlobalGradient(f);
-		//	float dy = _level.ground[spline]->yPoses.getGlobalGradient(f);
-		//	if (dx < 0) {
-		//		dx = -dx;
-		//		dy = -dy;
-		//	}
-		//	angle = atan2(dy, dx);
-		//} else {
-		//	angle = atan2(_byker->physic.GetSpeedVector().y, _byker->physic.GetSpeedVector().x);
-		//}
-			angle = atan2(_byker->physic.GetSpeedVector().y, _byker->physic.GetSpeedVector().x);
-		Render::MatrixRotate(angle);
+		Render::MatrixRotate(_bykerAngle);
 		_byker->SetPos(FPoint2D(0, 0));
 		if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
 			Render::Line(0, 0, _byker->physic.GetSpeedVector().x * SCALE_BOX2D, _byker->physic.GetSpeedVector().y * SCALE_BOX2D, 0xFFFFFFFF);
 		}
-		_byker->Draw(angle);
+		_byker->Draw(_bykerAngle);
 		Render::PopMatrix();
 
 		// смотрим не пора ли подставить новый кусок
@@ -801,7 +786,6 @@ FPoint2D TileEditor::WorldToScreen(const FPoint2D &worldPos) {
 }
 
 void TileEditor::Update(float deltaTime) {	
-	deltaTime *= 0.1f;
 	_signal += 2 * deltaTime;
 	while (_signal > 1.f) {
 		_signal -= 1.f;
@@ -867,10 +851,14 @@ void TileEditor::Update(float deltaTime) {
 	} else {
 		_byker->Update(deltaTime);
 		if (Render::GetDC()->Input_GetKeyState(HGEK_SPACE)) {
-			//_byker->_rama->ApplyLinearImpulse(b2Vec2(0.f, -2.f), _byker->_rama->GetPosition());
 		}
-		//Step(&settings);
 		_byker->physic.Update(deltaTime);
+		float angle = atan2(_byker->physic.GetSpeedVector().y, _byker->physic.GetSpeedVector().x);
+		if (fabs(_bykerAngle - angle) > 3e-1) {
+			_bykerAngle = angle;
+		} else {
+			_bykerAngle = _bykerAngle * 0.7f + angle * 0.3f;
+		}
 		{// двигаем камеру
 			FPoint2D bykerScreenPos = WorldToScreen(_byker->physic.GetPosition() * SCALE_BOX2D);
 			FPoint2D speedVScreenPos = WorldToScreen((_byker->physic.GetPosition() + _byker->physic.GetSpeedVector()) * SCALE_BOX2D);

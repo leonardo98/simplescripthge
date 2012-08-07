@@ -44,7 +44,6 @@ public:
 	void SetGravity(const FPoint2D &force);
 	const FPoint2D & GetGravity();
 	float GetMass();
-	float GetSplinePos(int &index);
 	void SetSpeed(float speed);
 	void Update(float dt);
 	Lines * AddLinesSet(const DotsList &dots, int index);
@@ -63,8 +62,6 @@ private:
 	float _mass;
 	float _minSpeed;
 	bool _wasGround;
-	float _splinePos;
-	int _splineIndex;
 };
 
 #endif//LINE_FUNCTIONS_H

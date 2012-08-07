@@ -80,16 +80,6 @@ bool Lines::MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius,
 						currentSpeed *= modSpeed * (1.f - 0.9f * min(fabs(angle) / M_PI_2, 1.f));
 					}
 					ground = true;
-
-					if ((a.x <= b.x && r.x <= b.x) || (a.x >= b.x && r.x >= b.x)) {
-						float ab = sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
-						float ar = sqrt((r.x - a.x) * (r.x - a.x) + (r.y - a.y) * (r.y - a.y));
-						splinePos = (i + ar / ab) / _dots.size();
-					} else {
-						float cb = sqrt((b.x - c.x) * (b.x - c.x) + (b.y - c.y) * (b.y - c.y));
-						float rb = sqrt((b.x - r.x) * (b.x - r.x) + (b.y - r.y) * (b.y - r.y));
-						splinePos = (i + 1 + rb / cb) / _dots.size();
-					}
 				}
 				return true;
 			}
@@ -155,17 +145,11 @@ void LittleHero::Update(float dt) {
 	FPoint2D oldPos(_pos);
 	FPoint2D beforeContact(newPos);
 	_wasGround = false;
-	_splinePos = 0.f;
 	for (AllLines::iterator i = _allLines.begin(), e = _allLines.end(); i != e; ++i) {
-		bool oldGround(_wasGround);
 		if ((*i)->MoveMeIfContact(oldPos, newPos, _radius, _currentSpeed, _wasGround)) {
 			i = _allLines.begin();
 			oldPos = beforeContact;
 			beforeContact = newPos;
-			if (_wasGround && !oldGround) {
-				_splinePos = (*i)->splinePos;
-				_splineIndex = (*i)->splineIndex;
-			}
 		}
 	}
 	FPoint2D delta(_pos - newPos);
@@ -218,7 +202,3 @@ float LittleHero::GetMass() {
 	return _mass;
 }
 
-float LittleHero::GetSplinePos(int &index) {
-	index = _splineIndex;
-	return _splinePos;
-}
