@@ -1,7 +1,7 @@
 #include "Byker.h"
 
 Byker::Byker() 
-: physic(0.f, 0.f, 0.8f)
+: physic(0.f, 0.f, 0.65f)
 {
 	_byker_balans_2 = My::AnimationManager::getAnimation("byker_balans_2");
 	_ride_wheels = My::AnimationManager::getAnimation("ride_wheels");

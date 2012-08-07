@@ -677,35 +677,26 @@ void TileEditor::Draw() {
 			Render::PopMatrix();
 		}
 
-		//for (LittleHero::AllLines::iterator i = _byker->physic.GetAllLines().begin(), 
-		//									e = _byker->physic.GetAllLines().end(); i != e; ++i) {
-		//	Render::PushMatrix();
-		//	Render::MatrixMove((*i)->GetOffset().x * SCALE_BOX2D, (*i)->GetOffset().y * SCALE_BOX2D);
-		//	// кусты
-		//	for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-		//		_level.beauties[i].Draw();
-		//	}
-		//	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		//		_level.ground[i]->DrawTriangles();
-		//	}
-		//	Render::PopMatrix();
-		//}
-
 		// мотоциклист
 		FPoint2D p(_byker->physic.GetPosition() * SCALE_BOX2D);
 
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
 		float angle ;
-//		if (_byker->physic.IsGround()) {
-//			int spline;
-//			float f = _byker->physic.GetSplinePos(spline);
-//			float dx = _level.ground[spline]->xPoses.getGlobalGradient(f);
-//			float dy = _level.ground[spline]->yPoses.getGlobalGradient(f);
-//			angle = atan2(dy, dx);
-//		} else {
-//		}
-		angle = atan2(_byker->physic.GetSpeedVector().y, _byker->physic.GetSpeedVector().x);
+		//if (_byker->physic.IsGround()) {
+		//	int spline;
+		//	float f = _byker->physic.GetSplinePos(spline);
+		//	float dx = _level.ground[spline]->xPoses.getGlobalGradient(f);
+		//	float dy = _level.ground[spline]->yPoses.getGlobalGradient(f);
+		//	if (dx < 0) {
+		//		dx = -dx;
+		//		dy = -dy;
+		//	}
+		//	angle = atan2(dy, dx);
+		//} else {
+		//	angle = atan2(_byker->physic.GetSpeedVector().y, _byker->physic.GetSpeedVector().x);
+		//}
+			angle = atan2(_byker->physic.GetSpeedVector().y, _byker->physic.GetSpeedVector().x);
 		Render::MatrixRotate(angle);
 		_byker->SetPos(FPoint2D(0, 0));
 		if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
@@ -810,7 +801,7 @@ FPoint2D TileEditor::WorldToScreen(const FPoint2D &worldPos) {
 }
 
 void TileEditor::Update(float deltaTime) {	
-//	deltaTime *= 0.1f;
+	deltaTime *= 0.1f;
 	_signal += 2 * deltaTime;
 	while (_signal > 1.f) {
 		_signal -= 1.f;
@@ -881,17 +872,10 @@ void TileEditor::Update(float deltaTime) {
 		//Step(&settings);
 		_byker->physic.Update(deltaTime);
 		{// двигаем камеру
-			//const b2Transform &xf = _byker->_attachedBody->GetTransform();
-			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2);
-			//_worldCenter.y = (-xf.position.y * SCALE_BOX2D * _viewScale + SCREEN_HEIGHT / 2);			
-			//_worldCenter.x = (-xf.position.x * SCALE_BOX2D * _viewScale + SCREEN_WIDTH / 2 - SCREEN_WIDTH / 3);
 			FPoint2D bykerScreenPos = WorldToScreen(_byker->physic.GetPosition() * SCALE_BOX2D);
 			FPoint2D speedVScreenPos = WorldToScreen((_byker->physic.GetPosition() + _byker->physic.GetSpeedVector()) * SCALE_BOX2D);
-
 			_worldOffset = _byker->physic.GetPosition() * SCALE_BOX2D;
-
 			_screenOffset.x = SCREEN_WIDTH / 6;
-
 			if (_scipScaleChanging < 1e-3) {
 				float newScreenOffsetY = _screenOffset.y;
 				if (fabs(_byker->physic.GetSpeedVector().y * SCALE_BOX2D) > 10) {
