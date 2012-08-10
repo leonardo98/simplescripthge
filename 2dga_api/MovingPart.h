@@ -20,8 +20,6 @@
 
 #include <string>
 #include "TinyXml.h"
-#include "hge.h"
-#include "hgeVector.h"
 #include "../Core/MotionValues.h"
 #include "../Core/Matrix.h"
 
