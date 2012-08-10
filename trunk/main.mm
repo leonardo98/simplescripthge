@@ -51,12 +51,12 @@ bool FrameFunc()
 int main (int argc, char * const argv[])
 {
     
-#define PROJECT_PATH "bin/farmmania3"
+#define PROJECT_PATH "bin/giperion"
     
-	if ( Render::InitApplication(FrameFunc, RenderFunc, PROJECT_PATH) ) {
+	if ( Render::InitApplication(FrameFunc, RenderFunc) ) {
 		//LOG(argv);
 		Interface::Init();
-		BACKGROUND_FILL = Render::IniFileGetUnsignedInt("system", "background", BACKGROUND_FILL);
+		BACKGROUND_FILL = Render::GetDC()->Ini_GetInt("system", "background", BACKGROUND_FILL);
 
 		Core::Init();
 		Core::Load("start.xml");
