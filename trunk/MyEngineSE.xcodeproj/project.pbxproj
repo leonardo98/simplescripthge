@@ -56,8 +56,6 @@
 		2B7AC2CE148986AE00A633D4 /* TextBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2AC148986AE00A633D4 /* TextBox.cpp */; };
 		2B7AC2CF148986AE00A633D4 /* TextureCut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2AE148986AE00A633D4 /* TextureCut.cpp */; };
 		2B7AC2D0148986AE00A633D4 /* TreePlace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2B0148986AE00A633D4 /* TreePlace.cpp */; };
-		2B7AC2D1148986AE00A633D4 /* VideoFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2B2148986AE00A633D4 /* VideoFrame.cpp */; };
-		2B7AC2E1148986B700A633D4 /* AnimationEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2D3148986B700A633D4 /* AnimationEditor.cpp */; };
 		2B7AC2E2148986B700A633D4 /* Counter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2D5148986B700A633D4 /* Counter.cpp */; };
 		2B7AC2E3148986B700A633D4 /* cursors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2D7148986B700A633D4 /* cursors.cpp */; };
 		2B7AC2E4148986B700A633D4 /* FpsCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AC2D9148986B700A633D4 /* FpsCounter.cpp */; };
@@ -136,6 +134,8 @@
 		2B7D63C8148AAE3D008F8B38 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D636F148AAE3D008F8B38 /* lvm.c */; };
 		2B7D63C9148AAE3D008F8B38 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D6371148AAE3D008F8B38 /* lzio.c */; };
 		2B7D63CB148AAE3D008F8B38 /* print.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D6374148AAE3D008F8B38 /* print.c */; };
+		2B7E16D214AA53FF00FAB76B /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7E16CE14AA53FF00FAB76B /* Client.cpp */; };
+		2B7E16D314AA53FF00FAB76B /* Moneypod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7E16D014AA53FF00FAB76B /* Moneypod.cpp */; };
 		2B8018281497C7C9004BC220 /* Action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8018191497C7C9004BC220 /* Action.cpp */; };
 		2B8018291497C7C9004BC220 /* BirdsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B80181B1497C7C9004BC220 /* BirdsManager.cpp */; };
 		2B80182A1497C7C9004BC220 /* ClientManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B80181D1497C7C9004BC220 /* ClientManager.cpp */; };
@@ -280,10 +280,6 @@
 		2B7AC2AF148986AE00A633D4 /* TextureCut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureCut.h; sourceTree = "<group>"; };
 		2B7AC2B0148986AE00A633D4 /* TreePlace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TreePlace.cpp; sourceTree = "<group>"; };
 		2B7AC2B1148986AE00A633D4 /* TreePlace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TreePlace.h; sourceTree = "<group>"; };
-		2B7AC2B2148986AE00A633D4 /* VideoFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VideoFrame.cpp; sourceTree = "<group>"; };
-		2B7AC2B3148986AE00A633D4 /* VideoFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoFrame.h; sourceTree = "<group>"; };
-		2B7AC2D3148986B700A633D4 /* AnimationEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationEditor.cpp; sourceTree = "<group>"; };
-		2B7AC2D4148986B700A633D4 /* AnimationEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationEditor.h; sourceTree = "<group>"; };
 		2B7AC2D5148986B700A633D4 /* Counter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Counter.cpp; sourceTree = "<group>"; };
 		2B7AC2D6148986B700A633D4 /* Counter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Counter.h; sourceTree = "<group>"; };
 		2B7AC2D7148986B700A633D4 /* cursors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cursors.cpp; sourceTree = "<group>"; };
@@ -424,6 +420,10 @@
 		2B7D6371148AAE3D008F8B38 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		2B7D6372148AAE3D008F8B38 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		2B7D6374148AAE3D008F8B38 /* print.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = print.c; sourceTree = "<group>"; };
+		2B7E16CE14AA53FF00FAB76B /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
+		2B7E16CF14AA53FF00FAB76B /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
+		2B7E16D014AA53FF00FAB76B /* Moneypod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Moneypod.cpp; sourceTree = "<group>"; };
+		2B7E16D114AA53FF00FAB76B /* Moneypod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Moneypod.h; sourceTree = "<group>"; };
 		2B8018191497C7C9004BC220 /* Action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Action.cpp; sourceTree = "<group>"; };
 		2B80181A1497C7C9004BC220 /* Action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Action.h; sourceTree = "<group>"; };
 		2B80181B1497C7C9004BC220 /* BirdsManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BirdsManager.cpp; sourceTree = "<group>"; };
@@ -607,6 +607,10 @@
 		2B7AC274148986AE00A633D4 /* Gamee */ = {
 			isa = PBXGroup;
 			children = (
+				2B7E16CE14AA53FF00FAB76B /* Client.cpp */,
+				2B7E16CF14AA53FF00FAB76B /* Client.h */,
+				2B7E16D014AA53FF00FAB76B /* Moneypod.cpp */,
+				2B7E16D114AA53FF00FAB76B /* Moneypod.h */,
 				2B8018191497C7C9004BC220 /* Action.cpp */,
 				2B80181A1497C7C9004BC220 /* Action.h */,
 				2B80181B1497C7C9004BC220 /* BirdsManager.cpp */,
@@ -683,8 +687,6 @@
 				2B7AC2AF148986AE00A633D4 /* TextureCut.h */,
 				2B7AC2B0148986AE00A633D4 /* TreePlace.cpp */,
 				2B7AC2B1148986AE00A633D4 /* TreePlace.h */,
-				2B7AC2B2148986AE00A633D4 /* VideoFrame.cpp */,
-				2B7AC2B3148986AE00A633D4 /* VideoFrame.h */,
 			);
 			path = Gamee;
 			sourceTree = "<group>";
@@ -692,8 +694,6 @@
 		2B7AC2D2148986B700A633D4 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				2B7AC2D3148986B700A633D4 /* AnimationEditor.cpp */,
-				2B7AC2D4148986B700A633D4 /* AnimationEditor.h */,
 				2B7AC2D5148986B700A633D4 /* Counter.cpp */,
 				2B7AC2D6148986B700A633D4 /* Counter.h */,
 				2B7AC2D7148986B700A633D4 /* cursors.cpp */,
@@ -1057,8 +1057,6 @@
 				2B7AC2CE148986AE00A633D4 /* TextBox.cpp in Sources */,
 				2B7AC2CF148986AE00A633D4 /* TextureCut.cpp in Sources */,
 				2B7AC2D0148986AE00A633D4 /* TreePlace.cpp in Sources */,
-				2B7AC2D1148986AE00A633D4 /* VideoFrame.cpp in Sources */,
-				2B7AC2E1148986B700A633D4 /* AnimationEditor.cpp in Sources */,
 				2B7AC2E2148986B700A633D4 /* Counter.cpp in Sources */,
 				2B7AC2E3148986B700A633D4 /* cursors.cpp in Sources */,
 				2B7AC2E4148986B700A633D4 /* FpsCounter.cpp in Sources */,
@@ -1139,6 +1137,8 @@
 				2B80182C1497C7C9004BC220 /* ProductManager.cpp in Sources */,
 				2B80182D1497C7C9004BC220 /* SwampPlace.cpp in Sources */,
 				2B80182E1497C7C9004BC220 /* Waterpan.cpp in Sources */,
+				2B7E16D214AA53FF00FAB76B /* Client.cpp in Sources */,
+				2B7E16D314AA53FF00FAB76B /* Moneypod.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1167,7 +1167,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = tutorial01_Prefix.pch;
-				HEADER_SEARCH_PATHS = "\"../CppLib/Box2D_v2.1.2/Box2D\"";
+				HEADER_SEARCH_PATHS = (
+					"\"/Users/monoblok/work/hge181-for-osx/trunk/include\"",
+					"\"../CppLib/Box2D_v2.1.2/Box2D\"",
+				);
 				INFOPLIST_FILE = "tutorial01-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -1200,7 +1203,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = tutorial01_Prefix.pch;
-				HEADER_SEARCH_PATHS = "\"../CppLib/Box2D_v2.1.2/Box2D\"";
+				HEADER_SEARCH_PATHS = (
+					"\"/Users/monoblok/work/hge181-for-osx/trunk/include\"",
+					"\"../CppLib/Box2D_v2.1.2/Box2D\"",
+				);
 				INFOPLIST_FILE = "tutorial01-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
