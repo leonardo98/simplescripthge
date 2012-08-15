@@ -101,46 +101,41 @@ void Beauty::LoadFromXml(TiXmlElement *xe) {
 }
 
 void LevelBlock::DrawLines() {
-	float t = 0.f;
-	float x1 = xPoses.getGlobalFrame(0.f);
-	float y1 = yPoses.getGlobalFrame(0.f);
-	float x2, y2;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	while (t + 1.f / subLine < 1.f) {
-		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
-		x2 = xPoses.getGlobalFrame(t);
-		y2 = yPoses.getGlobalFrame(t);
-		Render::Line(x1, y1, x2, y2, 0xFFFF0000);
-		x1 = x2;
-		y1 = y2;
+	assert(xPoses.size() != 1);
+	for (unsigned int i = 0; i < xPoses.size() - 1; ++i) {
+		float minx = xPoses[i];
+		float maxx = xPoses[i + 1];
+		for (unsigned int k = 0; k < 6; ++k) {
+			float x1 = minx + (maxx - minx) * k / 6.f;
+			float x2 = minx + (maxx - minx) * (k + 1) / 6.f;
+			float y1 = yPoses.getFrame(i, k / 6.f);
+			float y2 = yPoses.getFrame(i, (k + 1) / 6.f);
+			Render::Line(x1, y1, x2, y2, 0xFFFF0000);
+		}
 	}
-	x2 = xPoses.getGlobalFrame(1.f);
-	y2 = yPoses.getGlobalFrame(1.f);
-	Render::Line(x1, y1, x2, y2, 0xFFFF0000);			
 
 	static const float SIZEX = 3;
-	for (unsigned int i = 0; i < xPoses.keys.size() - 1; ++i) {
-		float x = xPoses.getFrame(i, 0.f);
-		float y = yPoses.getFrame(i, 0.f);
+	for (unsigned int i = 0; i < xPoses.size(); ++i) {
+		float x = xPoses[i];
+		float y = yPoses.keys[i].first;
 		Render::Line(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFF0000);
 		Render::Line(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFF0000);
 	}
 }
 
 void LevelBlock::AddPoint(float x, float y) {
-	xPoses.addKey(x);
-	xPoses.CalculateGradient(true);
 	yPoses.addKey(y);
-	yPoses.CalculateGradient(true);
+	yPoses.CalculateGradient(false);
+	xPoses.push_back(x);
 }
 
 
 int LevelBlock::SearchNearest(float x, float y) {
 	int result = -1;
 	static const float SIZEX = 6;
-	for (unsigned int i = 0; i < xPoses.keys.size() - 1 && result < 0; ++i) {
-		float px = xPoses.getFrame(i, 0.f);
-		float py = yPoses.getFrame(i, 0.f);
+	for (unsigned int i = 0; i < xPoses.size() && result < 0; ++i) {
+		float px = xPoses[i];
+		float py = yPoses.keys[i].first;
 		if ((FPoint2D(x, y) - FPoint2D(px, py)).Length() < SIZEX) {
 			result = i;
 		}
@@ -152,6 +147,18 @@ void LevelBlock::GenerateTriangles() {
 	triangles.clear();
 	std::vector<FPoint2D> &dots = lineDots;
 	ExportToLines(dots);
+
+	float minx = dots.front().x;
+	float maxx = dots.back().x;
+	float maxy = dots[0].y;
+	for (unsigned int i = 1; i < dots.size(); ++i) {
+		if (maxy > dots[i].y) {
+			maxy = dots[i].y;
+		}
+	}
+	maxy += 1000.f;
+	dots.push_back(FPoint2D(maxx, maxy));
+	dots.push_back(FPoint2D(minx, maxy));
 
 	float sign = 0.f;
 	{
@@ -304,32 +311,34 @@ void LevelBlock::DrawTriangles() {
 }
 
 bool LevelBlock::SearchProection(FPoint2D &pos) {
-	float t = 0.f;
-	float x1 = xPoses.getGlobalFrame(0.f);
-	float y1 = yPoses.getGlobalFrame(0.f);
-	float x2, y2;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	FPoint2D gravity(0.f, 10.f);
-	float speed = 50.f;
-	//FPoint2D motor();
-	while (t + 1.f / subLine < 1.f) {
-		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
-		x2 = xPoses.getGlobalFrame(t);
-		y2 = yPoses.getGlobalFrame(t);
-		if (x1 <= pos.x && pos.x < x2) {
-			// calc pos
-		//Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);
-			return true;
-		}
-		x1 = x2;
-		y1 = y2;
-	}
-	x2 = xPoses.getGlobalFrame(1.f);
-	y2 = yPoses.getGlobalFrame(1.f);
-	if (x1 <= pos.x && pos.x < x2) {
-	//	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);			
-		return true;
-	}
+	//float t = 0.f;
+	//float x1 = xPoses.front();
+	//float y1 = yPoses.getGlobalFrame(0.f);
+	//float x2, y2;
+	//int subLine = xPoses.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
+	//FPoint2D gravity(0.f, 10.f);
+	//float speed = 50.f;
+	////FPoint2D motor();
+	//while (t + 1.f / subLine < 1.f) {
+	//	t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
+	//	x2 = xPoses.getGlobalFrame(t);
+	//	int index = t * (yPoses.size() - 1);
+	//	float f = (t - index * subLine) / subLine;
+	//	y2 = (yPoses[index + 1] - yPoses[index]) * f + yPoses[index];
+	//	if (x1 <= pos.x && pos.x < x2) {
+	//		// calc pos
+	//	//Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);
+	//		return true;
+	//	}
+	//	x1 = x2;
+	//	y1 = y2;
+	//}
+	//x2 = xPoses.getGlobalFrame(1.f);
+	//y2 = yPoses.back();
+	//if (x1 <= pos.x && pos.x < x2) {
+	////	Render::GetDC()->Gfx_RenderLine(x1, y1, x2, y2, 0xFFFF0000);			
+	//	return true;
+	//}
 	return false;
 }
 
@@ -346,199 +355,93 @@ bool LevelBlock::DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPo
 }
 
 bool LevelBlock::CreateDot(float x, float y) {
-	if (xPoses.keys.size() >= 50) {
+	if (xPoses.size() >= 20) {
 		return false;
 	}
 	bool result = false;
 	static const float SIZEX = 6;
 	FPoint2D p(x, y);
-
-	float t = 0.f;
-	FPoint2D one(xPoses.getGlobalFrame(0.f), yPoses.getGlobalFrame(0.f));
+	FPoint2D one;
 	FPoint2D two;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	while (t + 1.f / subLine < 1.f && !result) {
-		t += 1.f / subLine;
-		two.x = xPoses.getGlobalFrame(t);
-		two.y = yPoses.getGlobalFrame(t);
-		if (result = DotNearLine(one, two, p)) {
-			int index = t * (xPoses.keys.size() - 1) + 1;
-
-			if (index < xPoses.keys.size() - 1) {
-				SplinePath splineX = xPoses;
-				SplinePath splineY = yPoses;
-				xPoses.Clear();
-				yPoses.Clear();
-				for (int i = 0; i < index; ++i) {
-					xPoses.addKey(splineX.getFrame(i, 0.f));
-					yPoses.addKey(splineY.getFrame(i, 0.f));
+	for (unsigned int i = 0; i < (xPoses.size() - 1) && !result; ++i) {
+		float minx = xPoses[i];
+		float maxx = xPoses[i + 1];
+		for (unsigned int k = 0; k < 6 && !result; ++k) {
+			one.x = minx + (maxx - minx) * k / 6.f;
+			two.x = minx + (maxx - minx) * (k + 1) / 6.f;
+			one.y = yPoses.getFrame(i, k / 6.f);
+			two.y = yPoses.getFrame(i, (k + 1) / 6.f);
+			if (result = DotNearLine(one, two, p)) {
+				int index = i + 1;
+				if (index < xPoses.size()) {
+					std::vector<float> splineX = xPoses;
+					SplinePath splineY = yPoses;
+					xPoses.clear();
+					yPoses.Clear();
+					for (int i = 0; i < index; ++i) {
+						xPoses.push_back(splineX[i]);
+						yPoses.addKey(splineY.keys[i].first);
+					}
+					xPoses.push_back(x);
+					yPoses.addKey(y);
+					for (int i = index; i < splineX.size(); ++i) {
+						xPoses.push_back(splineX[i]);
+						yPoses.addKey(splineY.keys[i].first);
+					}
+					yPoses.CalculateGradient(false);
+				} else {
+					xPoses.push_back(x);
+					yPoses.addKey(y);
+					yPoses.CalculateGradient(false);
 				}
-				xPoses.addKey(x);
-				yPoses.addKey(y);
-				for (int i = index; i < splineX.keys.size() - 1; ++i) {
-					xPoses.addKey(splineX.getFrame(i, 0.f));
-					yPoses.addKey(splineY.getFrame(i, 0.f));
-				}
-				xPoses.CalculateGradient(true);
-				yPoses.CalculateGradient(true);
-			} else {
-				xPoses.addKey(x);
-				yPoses.addKey(y);
-				xPoses.CalculateGradient(true);
-				yPoses.CalculateGradient(true);
 			}
 		}
-		one = two;
 	}
-	if (!result) {
-		two.x = xPoses.getGlobalFrame(1.f);
-		two.y = yPoses.getGlobalFrame(1.f);
-		if (result = DotNearLine(one, two, p)) {
-			int index = xPoses.keys.size() - 1;
-			SplinePath splineX = xPoses;
-			SplinePath splineY = yPoses;
-			xPoses.Clear();
-			yPoses.Clear();
-			for (int i = 0; i < index; ++i) {
-				xPoses.addKey(splineX.getFrame(i, 0.f));
-				yPoses.addKey(splineY.getFrame(i, 0.f));
-			}
-			xPoses.addKey(x);
-			yPoses.addKey(y);
-			for (int i = index; i < splineX.keys.size() - 1; ++i) {
-				xPoses.addKey(splineX.getFrame(i, 0.f));
-				yPoses.addKey(splineY.getFrame(i, 0.f));
-			}
-			xPoses.CalculateGradient(true);
-			yPoses.CalculateGradient(true);
-		}
-	}
-
 	return result;
 }
 
 void LevelBlock::RemoveDot(int index) {
-	if (xPoses.keys.size() <= 4) {
+	if (xPoses.size() <= 4) {
 		return;
 	}
-	SplinePath splineX = xPoses;
+	std::vector<float> splineX = xPoses;
 	SplinePath splineY = yPoses;
-	xPoses.Clear();
+	xPoses.clear();
 	yPoses.Clear();
 	for (int i = 0; i < index; ++i) {
-		xPoses.addKey(splineX.getFrame(i, 0.f));
-		yPoses.addKey(splineY.getFrame(i, 0.f));
+		xPoses.push_back(splineX[i]);
+		yPoses.addKey(splineY.keys[i].first);
 	}
-	for (int i = index + 1; i < splineX.keys.size() - 1; ++i) {
-		xPoses.addKey(splineX.getFrame(i, 0.f));
-		yPoses.addKey(splineY.getFrame(i, 0.f));
+	for (int i = index + 1; i < splineX.size(); ++i) {
+		xPoses.push_back(splineX[i]);
+		yPoses.addKey(splineY.keys[i].first);
 	}
-	xPoses.CalculateGradient(true);
-	yPoses.CalculateGradient(true);
+	yPoses.CalculateGradient(false);
 }
 
 void LevelBlock::ExportToLines(std::vector<FPoint2D> &lineDots) {
 	lineDots.clear();
-	float t = 0.f;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	while (t < 1.f) {
-		float x = xPoses.getGlobalFrame(t);
-		float y = yPoses.getGlobalFrame(t);
-		lineDots.push_back(FPoint2D(x, y));
-		t += 1.f / subLine;//количество прямых кусочков из которых рисуется кривая сплайна
+	for (unsigned int i = 0; i < xPoses.size() - 1; ++i) {
+		float minx = xPoses[i];
+		float maxx = xPoses[i + 1];
+		for (unsigned int k = 0; k < 6; ++k) {
+			float x = minx + (maxx - minx) * k / 6.f;
+			float y = yPoses.getFrame(i, k / 6.f);
+			lineDots.push_back(FPoint2D(x, y));
+		}
 	}
+	float x = xPoses.back();
+	float y = yPoses.getGlobalFrame(1.f);
+	lineDots.push_back(FPoint2D(x, y));
 }
 
 Lines * LevelBlock::CreateBody(Byker *byker, int splineIndex) {
 	DotsList dots;
-	int subLine = xPoses.keys.size() * 6;//количество прямых кусочков из которых рисуется кривая сплайна
-	dots.resize(subLine);
-	for (unsigned int i = 0; i < subLine; ++i) {
-		FPoint2D &a = dots[i];
-		float t = static_cast<float>(i) / subLine;
-		a.x = xPoses.getGlobalFrame(t) / SCALE_BOX2D;
-		a.y = yPoses.getGlobalFrame(t) / SCALE_BOX2D;
+	ExportToLines(dots);
+	for (unsigned int i = 0; i < dots.size(); ++i) {
+		dots[i] *= (1.f / SCALE_BOX2D);
 	}
 	return byker->physic.AddLinesSet(dots, splineIndex);
-	//// составление треугольников
-	//int n = triangles.size();
-	//std::vector<Triangle> massiv;
-	//for (unsigned int j = 0; j < n; ++j) {
-	//	Triangle vec(3);
-	//	for (unsigned int i = 0; i < 3; ++i) {
-	//		vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
-	//		vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
-	//	}
-	//	massiv.push_back(vec);
-	//}
-	//// оптимизация - объединение треугольников в выпуклые многоугольники
-	//for (unsigned int i = 0; i < massiv.size(); ) {
-	//	Triangle t;
-	//	for (unsigned int j = i + 1; j < (massiv.size() - 1) && t.size() == 0; ++j) {
-	//		for (unsigned int k = 0; k < massiv[i].size() && t.size() == 0; ++k) {
-	//			b2Vec2 a = massiv[i][k];
-	//			b2Vec2 b = massiv[i][(k + 1) % massiv[i].size()];
-	//			for (unsigned int l = 0; l < massiv[j].size() && t.size() == 0; ++l) {
-	//				b2Vec2 d = massiv[j][l];
-	//				b2Vec2 e = massiv[j][(l + 1) % massiv[j].size()];
-	//				if ((a - d).Length() < 1e-3 && (b - e).Length() < 1e-3) {
-	//					// нашли общую грань
-	//					for (unsigned int q = 0; q < massiv[i].size(); ++q)  {
-	//						t.push_back(massiv[i][(q + k + 1) % massiv[i].size()]);
-	//					}
-	//					for (unsigned int q = 0; q < massiv[j].size(); ++q)  {
-	//						unsigned int index = massiv[j].size() - 1 - q;
-	//						if (index != l && index != (l + 1)) {
-	//							t.push_back(massiv[j][index]);
-	//						}
-	//					}
-	//					if (!Convex(t)) {
-	//						t.clear();
-	//					}
-	//				} else if ((a - e).Length() < 1e-3 && (b - d).Length() < 1e-3) {
-	//					// нашли общую грань
-	//					for (unsigned int q = 0; q < massiv[i].size(); ++q)  {
-	//						t.push_back(massiv[i][(q + k + 1) % massiv[i].size()]);
-	//					}
-	//					for (unsigned int q = 0; q < massiv[j].size(); ++q)  {
-	//						unsigned int index = massiv[j].size() - 1 - q;
-	//						if (index != l && index != (l + 1)) {
-	//							t.push_back(massiv[j][index]);
-	//						}
-	//					}
-	//					if (!Convex(t)) {
-	//						t.clear();
-	//					}
-	//				}
-	//			}
-	//		}
-	//		if (t.size()) {
-	//			massiv.erase(massiv.begin() + j);
-	//		}
-	//	}
-	//	if (t.size()) {
-	//		massiv[i] = t;
-	//		t.clear();
-	//	} else {
-	//		++i;
-	//	}
-	//}
-	//for (unsigned int j = 0; j < massiv.size(); ++j) {
-	//	b2FixtureDef fd;
-	//	fd.restitution = 0.f;
-	//	fd.friction = 1.0f;
-	//	fd.density = 1.0f;
-	//	b2PolygonShape shape;
-	//	//b2Vec2 vec[3];
-	//	//for (unsigned int i = 0; i < 3; ++i) {
-	//	//	vec[i].x = (triangles[j].v[2 - i].x) / SCALE_BOX2D;
-	//	//	vec[i].y = (triangles[j].v[2 - i].y) / SCALE_BOX2D;
-	//	//}
-	//	shape.Set(&(*massiv[j].begin()), massiv[j].size());
-	//	fd.shape = &shape;
-	//	body->CreateFixture(&fd);
-	//	body->ResetMassData();
-	//}
 }
 
 void LevelSet::Clear() {
@@ -578,16 +481,15 @@ void LevelSet::LoadFromXml(TiXmlElement *xe, bool gameMode) {
 			LevelBlock *l = new LevelBlock();
 			ground.push_back(l);
 		
-			SplinePath x;
+			std::vector<float> x;
 			SplinePath y;
 			TiXmlElement *dot = elem->FirstChildElement("dot");
 			while (dot != NULL) {
-				x.addKey(atof(dot->Attribute("x")));
+				x.push_back(atof(dot->Attribute("x")));
 				y.addKey(atof(dot->Attribute("y")));
 				dot = dot->NextSiblingElement();
 			}
-			x.CalculateGradient(true);
-			y.CalculateGradient(true);
+			y.CalculateGradient(false);
 			l->xPoses = x;
 			l->yPoses = y;
 

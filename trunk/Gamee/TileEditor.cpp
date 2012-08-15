@@ -312,8 +312,8 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	if (!_editor) {
 		FPoint2D imp(0.f, -4.5f);
 		_byker->physic.SetImpulse(imp);
-		float speedChange = imp.Length() / _byker->physic.GetMass();
-		_scipScaleChanging = speedChange / (2 * _byker->physic.GetGravity().Length());
+		float speedChange = imp.Length() / _byker->physic.GetMass() + max(0.f, -_byker->physic.GetSpeedVector().y);
+		_scipScaleChanging = speedChange / (_byker->physic.GetGravity().Length());
 		return;
 	}
 	_mouseDown = true;
@@ -480,20 +480,20 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 			_level.endpoint[0].y += (newMmouseWorld.y - _mouseWorld.y);
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
-		SplinePath tmpx, tmpy;
+		std::vector<float> tmpx;
+		SplinePath tmpy;
 		float dx = newMmouseWorld.x - _currents.downX;
 		float dy = newMmouseWorld.y - _currents.downY;
-		for (unsigned int i = 0; i < _currents.block->xPoses.keys.size() - 1; ++i) {
+		for (unsigned int i = 0; i < _currents.block->xPoses.size(); ++i) {
 			if (i == _currents.dotIndex || _currents.moveAllDots) {
-				tmpx.addKey(_currents.splineX.getFrame(i, 0.f) + dx);
-				tmpy.addKey(_currents.splineY.getFrame(i, 0.f) + dy);
+				tmpx.push_back(_currents.splineX[i] + dx);
+				tmpy.addKey(_currents.splineY.keys[i].first + dy);
 			} else {
-				tmpx.addKey(_currents.splineX.getFrame(i, 0.f));
-				tmpy.addKey(_currents.splineY.getFrame(i, 0.f));
+				tmpx.push_back(_currents.splineX[i]);
+				tmpy.addKey(_currents.splineY.keys[i].first);
 			}
 		}
-		tmpx.CalculateGradient(true);
-		tmpy.CalculateGradient(true);
+		tmpy.CalculateGradient(false);
 		_currents.block->xPoses = tmpx;
 		_currents.block->yPoses = tmpy;
 	} else {
@@ -866,9 +866,9 @@ void TileEditor::Update(float deltaTime) {
 			_screenOffset.x = SCREEN_WIDTH / 6;
 			if (_scipScaleChanging < 1e-3) {
 				float newScreenOffsetY = _screenOffset.y;
-				if (fabs(_byker->physic.GetSpeedVector().y * SCALE_BOX2D) > 10) {
+				if (fabs(_byker->physic.GetSpeedVector().y * SCALE_BOX2D) > 20) {
 					float delta = -(_byker->physic.GetSpeedVector().y) / fabs(_byker->physic.GetSpeedVector().y);
-					_screenOffset.y = min(SCREEN_HEIGHT / 3 * 2, max(SCREEN_HEIGHT / 3, _screenOffset.y + delta * 100.f * deltaTime));
+					_screenOffset.y = min(SCREEN_HEIGHT / 3 * 2, max(SCREEN_HEIGHT / 4, _screenOffset.y + (delta) * 100.f * deltaTime));
 				}
 				float newViewScale = min(1.f, 350.f / (_byker->physic.GetSpeedVector().Length() * SCALE_BOX2D));
 				if (_viewScale > newViewScale) {
@@ -991,10 +991,10 @@ void TileEditor::AddNewElement(const std::string &msg) {
 	//	ResetState();
 	//}
 	//InitParams(AddElement(msg));
-	if (msg == "curv") {
+	if (msg == "ground") {
 		LevelBlock *b = new LevelBlock();
-		for (int i = 0; i < 4; ++i) {
-			b->AddPoint(_worldOffset.x + 32.f * sin(M_PI / 2 * i), _worldOffset.y + 32.f * cos(M_PI / 2 * i));
+		for (int i = 0; i < 5; ++i) {
+			b->AddPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y);
 		}
 		_level.ground.push_back(b);
 	} else if (msg == "image") {
@@ -1184,13 +1184,14 @@ void TileEditor::OnMessage(const std::string &message) {
 		//	Messager::SendMessage("SmallList", "add " + (*i)->_id);
 		//}
 		Messager::SendMessage("SmallList", "prefix AddNewElement");
-		Messager::SendMessage("SmallList", "add curv");
+		Messager::SendMessage("SmallList", "add ground");
+		//Messager::SendMessage("SmallList", "add curv");
 		Messager::SendMessage("SmallList", "add image");
 		Messager::SendMessage("SmallList", "add beauty");
-		Messager::SendMessage("SmallList", "add bonus");
-		Messager::SendMessage("SmallList", "add box");
-		Messager::SendMessage("SmallList", "add transport");
-		Messager::SendMessage("SmallList", "add animal");
+		//Messager::SendMessage("SmallList", "add bonus");
+		//Messager::SendMessage("SmallList", "add box");
+		//Messager::SendMessage("SmallList", "add transport");
+		//Messager::SendMessage("SmallList", "add animal");
 		if (_level.startpoint.size() == 0) {
 			Messager::SendMessage("SmallList", "add start pos");
 		}
@@ -1254,11 +1255,11 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	_saveLevelXml->LinkEndChild(elemGround);
 	for (LevelBlocks::iterator i = _level.ground.begin(), e = _level.ground.end(); i != e; i++) {
 		TiXmlElement *elem = new TiXmlElement("elem");
-		for (int j = 0; j < (*i)->xPoses.keys.size() - 1; ++j) {
+		for (int j = 0; j < (*i)->xPoses.size(); ++j) {
 			TiXmlElement *dot = new TiXmlElement("dot");
 			char s[16];
-			sprintf(s, "%f", (*i)->xPoses.getFrame(j, 0.f)); dot->SetAttribute("x", s);
-			sprintf(s, "%f", (*i)->yPoses.getFrame(j, 0.f)); dot->SetAttribute("y", s);
+			sprintf(s, "%f", (*i)->xPoses[j]); dot->SetAttribute("x", s);
+			sprintf(s, "%f", (*i)->yPoses.keys[j].first); dot->SetAttribute("y", s);
 			elem->LinkEndChild(dot);
 		}
 		elemGround->LinkEndChild(elem);
@@ -1347,16 +1348,15 @@ void TileEditor::LoadLevel(const std::string &msg) {
 			LevelBlock *l = new LevelBlock();
 			_level.ground.push_back(l);
 		
-			SplinePath x;
+			std::vector<float> x;
 			SplinePath y;
 			TiXmlElement *dot = elem->FirstChildElement("dot");
 			while (dot != NULL) {
-				x.addKey(atof(dot->Attribute("x")));
+				x.push_back(atof(dot->Attribute("x")));
 				y.addKey(atof(dot->Attribute("y")));
 				dot = dot->NextSiblingElement();
 			}
-			x.CalculateGradient(true);
-			y.CalculateGradient(true);
+			y.CalculateGradient(false);
 			l->xPoses = x;
 			l->yPoses = y;
 

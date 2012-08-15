@@ -49,8 +49,9 @@ private:
 };
 
 struct LevelBlock {
-	SplinePath xPoses;
-	SplinePath yPoses;
+	SplinePath yPoses;// это сплайн флоатов - поле высот
+	std::vector<float> xPoses;// это положение на экране контрольных точек 
+							  // и постфактум распределение флоатов в сплайне
 	std::vector<FPoint2D> lineDots;
 	std::vector<hgeTriple> triangles;
 	void ExportToLines(std::vector<FPoint2D> &lineDots);
@@ -79,8 +80,8 @@ struct CurrentBlock {
 	int dotIndex;
 	float downX;
 	float downY;
-	SplinePath splineX;
-	SplinePath splineY;
+	std::vector<float> splineX;
+	SplinePath splineY;//fake
 	bool moveAllDots;
 };
 
