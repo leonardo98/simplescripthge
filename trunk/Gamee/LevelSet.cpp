@@ -445,8 +445,6 @@ Lines * LevelBlock::CreateBody(Byker *byker, int splineIndex) {
 }
 
 void LevelSet::Clear() {
-	startpoint.clear();
-	endpoint.clear();
 	for (unsigned int i = 0; i < ground.size(); ++i) {
 		delete ground[i];
 	}
@@ -527,16 +525,6 @@ void LevelSet::LoadFromXml(TiXmlElement *xe, bool gameMode) {
 
 	TiXmlElement *word = xe->FirstChildElement("word");
 
-	if (word->Attribute("startX")) {
-		startpoint.push_back(
-			FPoint2D(atof(word->Attribute("startX")), 
-						atof(word->Attribute("startY"))));
-	}
-	if (word->Attribute("endX")) {
-		endpoint.push_back(
-			FPoint2D(atof(word->Attribute("endX")), 
-						atof(word->Attribute("endY"))));
-	}
 	for (unsigned int i = 0; i < ground.size(); ++i) {
 		ground[i]->GenerateTriangles();
 	}

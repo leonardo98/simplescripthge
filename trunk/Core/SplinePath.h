@@ -131,8 +131,8 @@ public:
 		{
 			if (keys.size() > 1)
 			{
-				keys[0].second = keys[1].first-keys[0].first;
-				keys[keys.size()-1].second = keys[keys.size()-1].first-keys[keys.size()-2].first;
+				keys.front().second = 0.f;//keys[1].first-keys[0].first;
+				keys.back().second = 0.f;//keys[keys.size()-1].first-keys[keys.size()-2].first;
 			}
 		}
 
