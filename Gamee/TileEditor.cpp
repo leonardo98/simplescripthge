@@ -357,11 +357,6 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 			}
 		}
 		if (_currentElement.selected == SelectedElement::none) {
-			if (_level.startpoint.size() && _startFlag->HasPixel(mousePos.x, mousePos.y)) {
-				_currentElement.selected = SelectedElement::start_flag;
-			} else if (_level.endpoint.size() && _endFlag->HasPixel(mousePos.x, mousePos.y)) {
-				_currentElement.selected = SelectedElement::end_flag;
-			}
 		} else if (_currentElement.selected = SelectedElement::beauty_element) {
 		}
 	}
@@ -456,7 +451,7 @@ void TileEditor::InitParams(b2Body *body)
 }
 
 bool TileEditor::CanLevelStart() {
-	return _level.endpoint.size() > 0 && _level.startpoint.size() > 0;
+	return true;
 }
 
 bool TileEditor::IsLevelFinish() {
@@ -472,12 +467,6 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 		if (_currentElement.selected == SelectedElement::beauty_element) {
 			_level.beauties[_currentElement.index]->Pos().x += (newMmouseWorld.x - _mouseWorld.x);
 			_level.beauties[_currentElement.index]->Pos().y += (newMmouseWorld.y - _mouseWorld.y);
-		} else if (_currentElement.selected == SelectedElement::start_flag) {
-			_level.startpoint[0].x += (newMmouseWorld.x - _mouseWorld.x);
-			_level.startpoint[0].y += (newMmouseWorld.y - _mouseWorld.y);
-		} else if (_currentElement.selected == SelectedElement::end_flag) {
-			_level.endpoint[0].x += (newMmouseWorld.x - _mouseWorld.x);
-			_level.endpoint[0].y += (newMmouseWorld.y - _mouseWorld.y);
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
 		std::vector<float> tmpx;
@@ -630,32 +619,6 @@ void TileEditor::Draw() {
 				_level.ground[i]->DrawTriangles();
 			}
 		}
-		// флажек старта
-		if (_level.startpoint.size()) {
-			bool changeColor = false;
-			if (_currentElement.selected == SelectedElement::start_flag) {
-				DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-				Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-				changeColor = true;
-			}
-			_startFlag->Render(_level.startpoint[0].x, _level.startpoint[0].y - _startFlag->Height());
-			if (changeColor) {
-				Render::SetColor(0xFFFFFFFF);
-			}
-		}
-		// флажек финиша
-		if (_level.endpoint.size()) {
-			bool changeColor = false;
-			if (_currentElement.selected == SelectedElement::end_flag) {
-				DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-				Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-				changeColor = true;
-			}
-			_endFlag->Render(_level.endpoint[0].x, _level.endpoint[0].y - _endFlag->Height());
-			if (changeColor) {
-				Render::SetColor(0xFFFFFFFF);
-			}
-		}
 		Render::PopMatrix();
 	} else { // режим игры
 		// земля
@@ -679,6 +642,8 @@ void TileEditor::Draw() {
 
 		// мотоциклист
 		FPoint2D p(_byker->physic.GetPosition() * SCALE_BOX2D);
+
+		Render::Line(LittleHero::a.x * SCALE_BOX2D, LittleHero::a.y * SCALE_BOX2D, LittleHero::b.x * SCALE_BOX2D, LittleHero::b.y * SCALE_BOX2D, 0xFFFFFFFF);
 
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
@@ -717,7 +682,7 @@ void TileEditor::Draw() {
 				newSet = island._set = _randomLevelsSet[r];
 			}
 
-			FPoint2D shift = (_islands.back()._set->endpoint[0] - newSet->startpoint[0]);
+			FPoint2D shift = (_islands.back()._set->endpoint - newSet->startpoint);
 			FPoint2D b2shift;
 			b2shift.x = -shift.x / SCALE_BOX2D;
 			b2shift.y = -shift.y / SCALE_BOX2D;
@@ -728,12 +693,25 @@ void TileEditor::Draw() {
 			_byker->physic.SetPosition(_byker->physic.GetPosition() + b2shift);
 			_worldOffset.y += shift.y;
 
-			_startPoint = newSet->startpoint[0];
-			_endPoint = newSet->endpoint[0];
-
+			newSet->startpoint.x = newSet->ground[0]->xPoses.front();
+			newSet->startpoint.y = newSet->ground[0]->yPoses.keys.front().first;
+			newSet->endpoint.x = newSet->ground[0]->xPoses.back();
+			newSet->endpoint.y = newSet->ground[0]->yPoses.keys.back().first;
 			for (unsigned int i = 0; i < newSet->ground.size(); ++i) {
 				island._lines.push_back(newSet->ground[i]->CreateBody(_byker, i));
+				if (newSet->ground[i]->xPoses.front() < newSet->startpoint.x) {
+					newSet->startpoint.x = newSet->ground[i]->xPoses.front();
+					newSet->startpoint.y = newSet->ground[i]->yPoses.keys.front().first;
+				}
+				if (newSet->endpoint.x < newSet->ground[i]->xPoses.back()) {
+					newSet->endpoint.x = newSet->ground[i]->xPoses.back();
+					newSet->endpoint.y = newSet->ground[i]->yPoses.keys.back().first;
+				}
 			}
+
+			_startPoint = newSet->startpoint;
+			_endPoint = newSet->endpoint;
+
 			_islands.push_back(island);
 
 		}
@@ -945,10 +923,8 @@ void TileEditor::SaveState() {
 void TileEditor::ResetState() {
 	InitParams(NULL);
 	_editor = true;
-	if (_level.startpoint.size()) {
-		_screenOffset = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-		_worldOffset = _level.startpoint[0];
-	}
+	_screenOffset = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+	_worldOffset = _level.startpoint;
 	EraseAllBodyes();
 	//for (BodyStates::iterator i = _state.begin(), e = _state.end(); i != e; i++) {
 
@@ -1042,10 +1018,6 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		Messager::SendMessage("SmallList", "add small");
 		Messager::SendMessage("SmallList", "add big");
 		Messager::SendMessage("SmallList", "special add cancel");
-	} else if (msg == "start pos") {
-		_level.startpoint.push_back(_worldOffset);
-	} else if (msg == "end pos") {
-		_level.endpoint.push_back(_worldOffset);
 	} else if (msg == "bonus") {
 		AddElement("rubber");
 	}
@@ -1192,12 +1164,6 @@ void TileEditor::OnMessage(const std::string &message) {
 		//Messager::SendMessage("SmallList", "add box");
 		//Messager::SendMessage("SmallList", "add transport");
 		//Messager::SendMessage("SmallList", "add animal");
-		if (_level.startpoint.size() == 0) {
-			Messager::SendMessage("SmallList", "add start pos");
-		}
-		if (_level.endpoint.size() == 0) {
-			Messager::SendMessage("SmallList", "add end pos");
-		}
 		Messager::SendMessage("SmallList", "special add cancel");
 	} else if (message == "left") {
 	} else if (message == "right") {
@@ -1284,14 +1250,6 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	TiXmlElement *word = new TiXmlElement("word");
 	word->SetAttribute("x", _worldOffset.x);
 	word->SetAttribute("y", _worldOffset.y);
-	if (_level.startpoint.size()) {
-		word->SetAttribute("startX", _level.startpoint[0].x);
-		word->SetAttribute("startY", _level.startpoint[0].y);
-	}
-	if (_level.endpoint.size()) {
-		word->SetAttribute("endX", _level.endpoint[0].x);
-		word->SetAttribute("endY", _level.endpoint[0].y);
-	}
 	char s[16];
 	sprintf(s, "%f", _viewScale);
 	word->SetAttribute("scale", s);
@@ -1303,8 +1261,8 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 
 void TileEditor::ClearLevel() {
 	_currentElement.selected = SelectedElement::none;
-	_level.startpoint.clear();
-	_level.endpoint.clear();
+	_level.startpoint = FPoint2D(0.f, 0.f);
+	_level.endpoint = FPoint2D(0.f, 0.f);
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 		delete _level.ground[i];
 	}
@@ -1396,18 +1354,6 @@ void TileEditor::LoadLevel(const std::string &msg) {
 	_worldOffset.x = atof(word->Attribute("x"));
 	_worldOffset.y = atof(word->Attribute("y"));
 
-	if (word->Attribute("startX")) {
-		_level.startpoint.push_back(
-			FPoint2D(atof(word->Attribute("startX")), 
-						atof(word->Attribute("startY"))));
-	}
-	if (word->Attribute("endX")) {
-		_level.endpoint.push_back(
-			FPoint2D(atof(word->Attribute("endX")), 
-						atof(word->Attribute("endY"))));
-	}
-
-
 	_viewScale = atof(word->Attribute("scale"));
 	SetValueS("play", "", "play");
 	//ResetState();
@@ -1462,128 +1408,28 @@ void TileEditor::SetupBox2D() {
 	_islands.clear();
 	Island island;
 	island._set = &_level;
+	_level.startpoint.x = _level.ground[0]->xPoses.front();
+	_level.startpoint.y = _level.ground[0]->yPoses.keys.front().first;
+	_level.endpoint.x = _level.ground[0]->xPoses.back();
+	_level.endpoint.y = _level.ground[0]->yPoses.keys.back().first;
 	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
 		island._lines.push_back(_level.ground[i]->CreateBody(_byker, i));
+		if (_level.ground[i]->xPoses.front() < _level.startpoint.x) {
+			_level.startpoint.x = _level.ground[i]->xPoses.front();
+			_level.startpoint.y = _level.ground[i]->yPoses.keys.front().first;
+		}
+		if (_level.endpoint.x < _level.ground[i]->xPoses.back()) {
+			_level.endpoint.x = _level.ground[i]->xPoses.back();
+			_level.endpoint.y = _level.ground[i]->yPoses.keys.back().first;
+		}
 	}
 	_islands.push_back(island);
 
-	_byker->physic.SetPosition(FPoint2D(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D));
+	_byker->physic.SetPosition(FPoint2D(_level.startpoint.x / SCALE_BOX2D, _level.startpoint.y / SCALE_BOX2D));
 	_byker->physic.SetMinSpeed(7.f);
 	_byker->physic.SetSpeedVector(FPoint2D(0.f, 0.f));
-	//b2BodyDef bd;
-	//bd.type = b2_staticBody;  
-	//bd.position.Set(0.f, 0.f);
-	_startPoint = _level.startpoint[0];
-	_endPoint = _level.endpoint[0];
-	//bd.angle = 0.f;
-	//b2Body* body = m_world->CreateBody(&bd);		
-	//for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-	//	_level.ground[i]->CreateBody(body);
-	//}
-	//body->ResetMassData();
-	//_landBodies.push_back(body);
-
-	//{
-	//	// first wheel
-	//	b2BodyDef bd;
-	//	bd.type = b2_dynamicBody;  
-	//	bd.fixedRotation = false;
-
-	//	bd.position.Set(_level.startpoint[0].x / SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
-	//	bd.angle = 0.f;
-	//	
-	//	b2Body* body = m_world->CreateBody(&bd);
-	//	
-	//	b2FixtureDef fd;
-	//	fd.restitution = 0.0f;
-	//	fd.friction = 1.f;
-	//	fd.density = 1.f;
-
-	//	b2CircleShape shape;//34px - 0.7m
-	//	shape.m_radius = 17.f / SCALE_BOX2D;
-	//	fd.shape = &shape;
-	//	body->CreateFixture(&fd);
-
-	//	body->SetUserData(_byker);
-	//	body->ResetMassData();
-	//	_byker->_attachedBody = body;
-
-	//	// second wheel
-	//	bd.position.Set((_level.startpoint[0].x + 78.f)/ SCALE_BOX2D, _level.startpoint[0].y / SCALE_BOX2D);
-	//	bd.angle = 0.f;
-	//	
-	//	body = m_world->CreateBody(&bd);
-	//	
-	//	fd.restitution = 0.0f;
-	//	fd.friction = 1.f;
-	//	fd.density = 1.f;
-
-	//	shape.m_radius = 17.f / SCALE_BOX2D;
-	//	fd.shape = &shape;
-	//	body->CreateFixture(&fd);
-
-	//	body->ResetMassData();
-	//	_byker->_attachedBody2 = body;
-
-	//	//b2DistanceJointDef jointDef;
-	//	//jointDef.Initialize(_byker->_attachedBody, _byker->_attachedBody2, _byker->_attachedBody->GetPosition(), _byker->_attachedBody2->GetPosition());
-	//	//jointDef.collideConnected = true;
-
-	//	//m_world->CreateJoint(&jointDef);
-
-	//	// hidden part - byke
-	//	bd.position.Set((_level.startpoint[0].x + 30.f)/ SCALE_BOX2D, (_level.startpoint[0].y) / SCALE_BOX2D);
-	//	bd.angle = 0.f;
-	//	bd.fixedRotation = false;
-	//	
-	//	body = m_world->CreateBody(&bd);
-	//	_byker->_rama = body;
-	//	
-	//	fd.restitution = 0.0f;
-	//	fd.friction = 0.f;
-	//	fd.density = 1.f;
-
-	//	b2PolygonShape box;
-	//	box.SetAsBox(20.f / SCALE_BOX2D, 4.f / SCALE_BOX2D);
-	//	//shape.m_radius = 36.f / SCALE_BOX2D;
-	//	fd.shape = &box;
-	//	body->CreateFixture(&fd);
-	//	body->ResetMassData();
-
-	//	b2RevoluteJointDef jointDef;
-	//	jointDef.collideConnected = false;
-
-	//	jointDef.Initialize(body, _byker->_attachedBody, _byker->_attachedBody->GetPosition());
-	//	m_world->CreateJoint(&jointDef);
-
-	//	jointDef.Initialize(body, _byker->_attachedBody2, _byker->_attachedBody2->GetPosition());
-	//	m_world->CreateJoint(&jointDef);
-
-
-	//	// hidden second part head
-	//	bd.position.Set((_level.startpoint[0].x + 38.f)/ SCALE_BOX2D, (_level.startpoint[0].y - 63) / SCALE_BOX2D);
-	//	bd.angle = 0.f;
-	//	bd.fixedRotation = true;
-	//	
-	//	b2Body *head = m_world->CreateBody(&bd);
-	//	
-	//	fd.restitution = 0.0f;
-	//	fd.friction = 0.f;
-	//	fd.density = 1.f;
-
-	//	shape.m_radius = 10.f / SCALE_BOX2D;
-	//	fd.shape = &shape;
-	//	head->CreateFixture(&fd);
-	//	head->ResetMassData();
-	//	_byker->_head = head;
-
-	//	jointDef.Initialize(body, head, body->GetPosition());
-	//	jointDef.enableLimit = true;
-	//	jointDef.lowerAngle = - M_PI_4 / 2;// * 3;
-	//	jointDef.upperAngle = M_PI_4 / 2;// * 3;
-	//	m_world->CreateJoint(&jointDef);
-
-	//}
+	_startPoint = _level.startpoint;
+	_endPoint = _level.endpoint;
 }
 
 void TileEditor::LoadRandomLevelsSet(const std::string &fileName) {

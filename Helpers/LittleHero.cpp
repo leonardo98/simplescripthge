@@ -59,12 +59,14 @@ bool Lines::MoveMeIfContact(const FPoint2D &oldPos, FPoint2D &pos, float radius,
 		}
 	}
 
-	for (unsigned int i = 0, e = _dots.size(); i != e; ++i) {
+	for (unsigned int i = 0, e = _dots.size() - 2; i != e; ++i) {
 		const FPoint2D &a = _dots[i];
 		const FPoint2D &b = _dots[(i + 1) % _dots.size()];
 		const FPoint2D &c = _dots[(i + 2) % _dots.size()];
 		FPoint2D r;
 		if (ProjectPointAgainstLine(a, c, pos, r)) {
+			LittleHero::a = a;
+			LittleHero::b = c;
 			FPoint2D shift(pos - r);
 			ground = (shift.y < 0 && shift.Length() < radius * 1.2f);
 			if (shift.Length() < radius - 1e-3) {
@@ -202,3 +204,5 @@ float LittleHero::GetMass() {
 	return _mass;
 }
 
+FPoint2D LittleHero::a;
+FPoint2D LittleHero::b;

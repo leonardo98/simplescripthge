@@ -93,8 +93,8 @@ struct LevelSet {
 	LevelBlocks movable;
 	std::vector<SetItem *> beauties;
 	std::vector<OneImage> images;
-	std::vector<FPoint2D> startpoint;
-	std::vector<FPoint2D> endpoint;
+	FPoint2D startpoint;
+	FPoint2D endpoint;
 	void Clear();
 	void LoadFromXml(TiXmlElement *xe, bool gameMode);
 };

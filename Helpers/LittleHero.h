@@ -51,6 +51,8 @@ public:
 	void SetMinSpeed(float speed);
 	typedef std::list<Lines *> AllLines;
 	AllLines &GetAllLines();
+	static FPoint2D a;
+	static FPoint2D b;
 private:
 	AllLines _allLines;
 	FPoint2D _pos;
