@@ -17,7 +17,11 @@ IPanel::IPanel(TiXmlElement *xe)
 	_needDraw = xe->Attribute("needDraw") == NULL?true:atoi(xe->Attribute("needDraw"))!=0;
 	TiXmlElement *element = xe->FirstChildElement("gui")->FirstChildElement();
 	while (element != NULL) {
+#ifdef ANIMATION_EDITOR
+		_objects.push_back((InputSystem *)CoreFactory::Create(element));
+#else
 		_objects.push_back((InputSystem *)ObjectFactory::Create(element));
+#endif
 		RemoveFromList(_objects.back());
 		element = element->NextSiblingElement();
 	}

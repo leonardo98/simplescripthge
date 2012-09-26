@@ -206,3 +206,7 @@ float LittleHero::GetMass() {
 
 FPoint2D LittleHero::a;
 FPoint2D LittleHero::b;
+
+float LittleHero::GetSize() const {
+	return _radius * 2;
+}

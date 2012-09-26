@@ -37,6 +37,7 @@ public:
 	LittleHero(float x, float y, float radius);
 	void SetPosition(const FPoint2D &position);
 	FPoint2D GetPosition() const;
+	float GetSize() const;
 	bool IsGround();
 	void SetImpulse(const FPoint2D &impulse);
 	void SetSpeedVector(const FPoint2D &speed);
