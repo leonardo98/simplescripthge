@@ -24,13 +24,14 @@ public:
 	virtual void SaveToXml(TiXmlElement *xe) const;
 	virtual void LoadFromXml(TiXmlElement *xe);
 	virtual void Draw() const;
-	int GetDrawOrder();
+	int GetDrawOrder() {return _drawOrder;}
+	void SetDrawOrder(int order) {_drawOrder = order; }
 	Types Type();
 protected:
 	const Types _type;
 	HTEXTURE _texture;
 	Sprite *_sprite;
-
+	int _drawOrder;
 	FPoint2D _pos;
 	float _angle;
 	std::string _filePath;
@@ -93,10 +94,13 @@ struct LevelSet {
 	LevelBlocks movable;
 	std::vector<SetItem *> beauties;
 	std::vector<OneImage> images;
-	FPoint2D startpoint;
-	FPoint2D endpoint;
+	FPoint2D Startpoint();
+	FPoint2D Endpoint();
 	void Clear();
 	void LoadFromXml(TiXmlElement *xe, bool gameMode);
+private:
+	std::vector<FPoint2D> _start;
+	std::vector<FPoint2D> _end;
 };
 
 #endif//LEVELSET_H

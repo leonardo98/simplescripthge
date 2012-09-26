@@ -8,11 +8,13 @@ SetItem::~SetItem() {
 
 SetItem::SetItem(Types type) 
 : _type(type)
+, _drawOrder(0)
 {
 }
 
 SetItem::SetItem(Types type, const char *fileName, const FPoint2D &pos, float angle) 
 : _type(type)
+, _drawOrder(0)
 {
 	_filePath = fileName;
 	_angle = angle;
@@ -43,6 +45,8 @@ void SetItem::SaveToXml(TiXmlElement *xe) const {
 	xe->SetAttribute("x", s);
 	sprintf(s, "%f", _pos.y);
 	xe->SetAttribute("y", s);
+	sprintf(s, "%i", _drawOrder);
+	xe->SetAttribute("draw_order", s);
 }
 
 void SetItem::Draw() const {
@@ -58,6 +62,7 @@ void SetItem::LoadFromXml(TiXmlElement *xe) {
 	_angle = atof(xe->Attribute("angle"));
 	_pos.x = atof(xe->Attribute("x"));
 	_pos.y = atof(xe->Attribute("y"));
+	_drawOrder = (xe->Attribute("draw_order") ? atoi(xe->Attribute("draw_order")) : 0);
 
 	_texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + _filePath).c_str());
 	_sprite = new Sprite(_texture, 0, 0, Render::GetDC()->Texture_GetWidth(_texture), Render::GetDC()->Texture_GetHeight(_texture));
@@ -466,6 +471,8 @@ void LevelSet::Clear() {
 		delete beauties[i];
 	}
 	beauties.clear();
+	_start.clear();
+	_end.clear();
 }
 
 void LevelSet::LoadFromXml(TiXmlElement *xe, bool gameMode) {
@@ -530,3 +537,38 @@ void LevelSet::LoadFromXml(TiXmlElement *xe, bool gameMode) {
 	}
 }
 
+FPoint2D LevelSet::Startpoint() {
+	if (_start.size()) {
+		assert(_start.size() == 1);
+		return _start.front();
+	}
+	FPoint2D s;
+	s.x = ground[0]->xPoses.front();
+	s.y = ground[0]->yPoses.keys.front().first;
+	for (unsigned int i = 0; i < ground.size(); ++i) {
+		if (ground[i]->xPoses.front() < s.x) {
+			s.x = ground[i]->xPoses.front();
+			s.y = ground[i]->yPoses.keys.front().first;
+		}
+	}
+	_start.push_back(s);
+	return s;
+}
+
+FPoint2D LevelSet::Endpoint() {
+	if (_end.size()) {
+		assert(_end.size() == 1);
+		return _end.front();
+	}
+	FPoint2D e;
+	e.x = ground[0]->xPoses.back();
+	e.y = ground[0]->yPoses.keys.back().first;
+	for (unsigned int i = 0; i < ground.size(); ++i) {
+		if (e.x < ground[i]->xPoses.back()) {
+			e.x = ground[i]->xPoses.back();
+			e.y = ground[i]->yPoses.keys.back().first;
+		}
+	}
+	_end.push_back(e);
+	return e;
+}

@@ -338,6 +338,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Core\AnimationPlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Core\Core.cpp"
 				>
 			</File>
@@ -416,6 +420,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Core\AnimationPlayer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Core\Core.h"
 				>
 			</File>
@@ -480,6 +488,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Gamee\ObjectFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Gamee\ObjectFactory.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Core\Render.h"
 				>
 			</File>
@@ -497,6 +513,26 @@
 			</File>
 			<File
 				RelativePath="..\Core\Variables.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="2dga_api"
+			>
+			<File
+				RelativePath="..\2dga_api\Animation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\2dga_api\MovingPart.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\2dga_api\MovingPart.h"
+				>
+			</File>
+			<File
+				RelativePath="..\2dga_api\MyAnimation.cpp"
 				>
 			</File>
 		</Filter>

@@ -269,7 +269,11 @@ void Core::Load(const char *fileName)
 			} else if (name == "MyAnimations") {
 				My::AnimationManager::Load(Render::GetDataDir() + element->Attribute("fileName"));
 			} else {
+#ifdef ANIMATION_EDITOR
+				_objects.push_back(CoreFactory::Create(element));
+#else
 				_objects.push_back(ObjectFactory::Create(element));
+#endif
 			}
 			element = element->NextSiblingElement();
 		}

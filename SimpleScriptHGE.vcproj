@@ -184,7 +184,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="false"
-				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib tinyxmld_STL.lib hgehelp.lib lua51d.lib libogg_staticd.lib libtheora_staticd.lib dbox2d.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib hge.lib tinyxmld_STL.lib hgehelp.lib lua51d.lib dbox2d.lib"
 				OutputFile=".\bin\SimpleScriptHGE_D.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -612,10 +612,6 @@
 					RelativePath=".\Gamee\TileEditor.cpp"
 					>
 				</File>
-				<File
-					RelativePath=".\Gamee\VideoFrame.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Helpers"
@@ -819,10 +815,6 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\TileEditor.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Gamee\VideoFrame.h"
 					>
 				</File>
 			</Filter>
