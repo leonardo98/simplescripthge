@@ -1,4 +1,5 @@
 #include "SetItem.h"
+#include "../Core/Math.h"
 
 SetItem::~SetItem() {
 	delete _sprite;
@@ -136,7 +137,7 @@ void GroundLine::SaveToXml(TiXmlElement *xe) const {
 
 void GroundLine::Draw() const {
 	Render::PushMatrix();
-	Render::MatrixMove(_pos.x, _pos.y);
+	Render::MatrixMove(Math::round(_pos.x), Math::round(_pos.y));
 	Render::MatrixMove(_scale, _scale);
 	Render::MatrixRotate(_angle / 180 * M_PI);
 	if (_mirror) {

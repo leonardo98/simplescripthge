@@ -72,6 +72,7 @@ public:
 	//virtual b2Body * AddElement(const BodyState &bodyState);
 	virtual void OnMouseDown(const FPoint2D &mousePos);
 	virtual void OnMouseUp();
+	virtual bool OnKey(int key);
 	void OnMouseMove(const FPoint2D &mousePos);
 	//virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
 

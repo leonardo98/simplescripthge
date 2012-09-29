@@ -786,6 +786,21 @@ FPoint2D TileEditor::WorldToScreen(const FPoint2D &worldPos) {
 	return (worldPos - _worldOffset) * _viewScale + _screenOffset;
 }
 
+bool TileEditor::OnKey(int key) {
+	if (_currentElement.selected == SelectedElement::beauty_element) {
+		if (key == HGEK_LEFT) {
+			_level.beauties[_currentElement.index]->Pos().x -= 1;
+		} else if (key == HGEK_RIGHT) {
+			_level.beauties[_currentElement.index]->Pos().x += 1;
+		} else if (key == HGEK_UP) {
+			_level.beauties[_currentElement.index]->Pos().y -= 1;
+		} else if (key == HGEK_DOWN) {
+			_level.beauties[_currentElement.index]->Pos().y += 1;
+		}
+	}
+	return true;
+}
+
 void TileEditor::Update(float deltaTime) {	
 	_signal += 2 * deltaTime;
 	while (_signal > 1.f) {
@@ -1037,6 +1052,8 @@ void TileEditor::AddNewElement(const std::string &msg) {
 							false);
 		b->SetDrawOrder(0);
 		_level.beauties.push_back(b);
+		_currentElement.selected = SelectedElement::beauty_element;
+		_currentElement.index = _level.beauties.size() - 1;
 	} else if (msg == "groundline") {
 		GroundLine *b = new GroundLine(_worldOffset,
 							0.f,
@@ -1044,6 +1061,8 @@ void TileEditor::AddNewElement(const std::string &msg) {
 							false);
 		b->SetDrawOrder(1);
 		_level.beauties.push_back(b);
+		_currentElement.selected = SelectedElement::beauty_element;
+		_currentElement.index = _level.beauties.size() - 1;
 	} else if (msg == "box") {
 		Messager::SendMessage("SmallList", "prefix AddBoxElement");
 		Messager::SendMessage("SmallList", "add small");
