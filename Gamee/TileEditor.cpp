@@ -504,7 +504,7 @@ bool TileEditor::OnMouseWheel(int direction) {
 	_worldOffset = fp;
 	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currentElement.selected != SelectedElement::none) {
 		if (_currentElement.selected == SelectedElement::beauty_element) {
-			_level.beauties[_currentElement.index]->Angle() += direction * 3;
+			_level.beauties[_currentElement.index]->Change(direction);
 		}
 	} else if (direction > 0 && _viewScale < 4.f) {
 		_viewScale *= 1.09f * direction;
@@ -1038,8 +1038,7 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		b->SetDrawOrder(0);
 		_level.beauties.push_back(b);
 	} else if (msg == "groundline") {
-		Beauty *b = new Beauty("data\\beauty\\line.png",
-							_worldOffset,
+		GroundLine *b = new GroundLine(_worldOffset,
 							0.f,
 							1.f,
 							false);
