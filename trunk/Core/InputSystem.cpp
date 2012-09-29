@@ -46,6 +46,8 @@ void InputSystem::OnDoubleClick(const FPoint2D &mousePos) {}
 
 bool InputSystem::OnMouseWheel(int direction) {return false;}
 
+bool InputSystem::OnKey(int key) {return false;}
+
 void InputSystem::MouseDown(const FPoint2D &mousePos) {
 	for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
 		if ((*i)->IsMouseOver(mousePos)) {
@@ -151,7 +153,12 @@ bool InputSystem::CheckForEvent(float dt) {
 			_longTap &= (_longTapPos - pos).Length() > LONG_TAP_EPS;
 		} else if (event.type == INPUT_MOUSEWHEEL) {
 			MouseWheel(event.wheel);
-		//} else if (event.type == INPUT_KEYDOWN && event.key == HGEK_ESCAPE) {
+		} else if (event.type == INPUT_KEYDOWN /*&& event.key == HGEK_ESCAPE*/) {
+			for (Listeners::reverse_iterator i = _listeners.rbegin(), e = _listeners.rend(); i != e; i++) {
+				if ((*i)->OnKey(event.key)) {
+					break;
+				}
+			}
 		//	return true;
 		}
 	}

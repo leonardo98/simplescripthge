@@ -39,6 +39,9 @@ public:
 	virtual void OnMouseMove(const FPoint2D &mousePos);
 	// колесико мыши
 	virtual bool OnMouseWheel(int direction);
+
+	virtual bool OnKey(int key);
+
 	// длительное нажатие и удержание
 	virtual void OnLongTap(const FPoint2D &mousePos);
 	// двойной клик
