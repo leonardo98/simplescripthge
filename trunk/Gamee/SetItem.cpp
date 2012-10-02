@@ -36,6 +36,10 @@ float &SetItem::Angle() {
 	return _angle;
 }
 
+SetItem::Types SetItem::Type() {
+	return _type;
+}
+
 void SetItem::SaveToXml(TiXmlElement *xe) const {
 	xe->SetAttribute("filePath", _filePath.c_str());
 	char s[16];
@@ -117,7 +121,7 @@ GroundLine::GroundLine()
 {}
 
 GroundLine::GroundLine(const FPoint2D &pos, float angle, float scale, bool mirror) 
-: SetItem(beauty_item, std::string("data\\beauty\\a_grass_part01.png").c_str(), pos, angle)
+: SetItem(beauty_cover, std::string("data\\covers\\a_grass_part01.png").c_str(), pos, angle)
 , _scale(scale)
 , _mirror(mirror)
 , _index(0)
@@ -143,7 +147,9 @@ void GroundLine::Draw() const {
 	if (_mirror) {
 		Render::MatrixScale(-1.f, 1.f);
 	}
-	_sprite->Render(- _sprite->Width() / 2, - _sprite->Height());
+	Render::GetDC()->System_SetState(HGE_TEXTUREFILTER, false);
+	_sprite->Render(- _sprite->Width() / 2, - _sprite->Height() / 2);
+	Render::GetDC()->System_SetState(HGE_TEXTUREFILTER, true);
 	Render::PopMatrix();
 }
 
@@ -155,6 +161,7 @@ void GroundLine::LoadFromXml(TiXmlElement *xe) {
 }
 
 void GroundLine::Change(int p) {
+	/* рабочий вариант но почему-то не понравился А.Митчанину, поэтому и закомментировал @Леня
 	delete _sprite;
 	Render::GetDC()->Texture_Free(_texture);
 	
@@ -170,6 +177,16 @@ void GroundLine::Change(int p) {
 		_index = _index;
 	}
 	_filePath = std::string("data\\beauty\\a_grass_part") + (s.size() == 1 ? "0" : "") + s + ".png";
+	_texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + _filePath).c_str());
+	_sprite = new Sprite(_texture, 0, 0, Render::GetDC()->Texture_GetWidth(_texture), Render::GetDC()->Texture_GetHeight(_texture));
+	*/
+}
+
+void GroundLine::SetFileName(const std::string &fileName) {
+	delete _sprite;
+	Render::GetDC()->Texture_Free(_texture);
+	
+	_filePath = std::string("data\\covers\\") + fileName;
 	_texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + _filePath).c_str());
 	_sprite = new Sprite(_texture, 0, 0, Render::GetDC()->Texture_GetWidth(_texture), Render::GetDC()->Texture_GetHeight(_texture));
 }

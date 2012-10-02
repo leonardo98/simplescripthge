@@ -14,20 +14,18 @@
         </Ground>
         <Images />
         <Beauties>
-            <beauty filePath="data\beauty\bush.png" angle="24.000000" x="-445.303680" y="-26.507896" draw_order="0" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="24.000000" x="-446.232452" y="-28.365494" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="21.000000" x="-527.387085" y="-73.234177" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="6.000000" x="153.332809" y="-31.128887" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="-18.000000" x="-226.331406" y="-19.718338" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="-15.000000" x="386.675690" y="-62.172211" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="15.000000" x="71.974274" y="-52.719490" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="9.000000" x="480.859009" y="-67.400703" draw_order="0" mirror="0" scale="1.000000" />
-            <beauty filePath="data\beauty\a_grass_part13.png" angle="0.000000" x="-389.000000" y="-9.000000" draw_order="1" mirror="0" scale="1.000000" index="12" />
-            <beauty filePath="data\beauty\a_grass_part01.png" angle="0.000000" x="-516.471741" y="-137.038025" draw_order="1" mirror="0" scale="1.000000" index="0" />
-            <beauty filePath="data\beauty\a_grass_part07.png" angle="0.000000" x="-644.369873" y="-178.740540" draw_order="1" mirror="0" scale="1.000000" index="6" />
-            <beauty filePath="data\beauty\a_grass_part11.png" angle="0.000000" x="-261.275208" y="-18.523781" draw_order="1" mirror="0" scale="1.000000" index="10" />
-            <beauty filePath="data\beauty\a_grass_part07.png" angle="0.000000" x="-133.438873" y="-48.756866" draw_order="1" mirror="0" scale="1.000000" index="6" />
+            <beauty filePath="data\covers\a_grass_part05.png" angle="0.000000" x="-12.272308" y="17.555931" draw_order="1" mirror="0" scale="1.000000" />
+            <ground filePath="data\covers\a_grass_part11.png" angle="0.000000" x="-513.155762" y="-37.759148" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part14.png" angle="0.000000" x="-386.335724" y="72.871071" draw_order="1" mirror="0" scale="1.000000" index="0" />
         </Beauties>
-        <word x="-371" y="-49" scale="1.076662" />
+        <word x="-443" y="27" scale="0.741208" />
     </level>
     <level id="2">
         <Ground>

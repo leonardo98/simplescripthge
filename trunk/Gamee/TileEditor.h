@@ -195,6 +195,7 @@ protected:
 	void OverwriteYesNo(const std::string &message);
 	void AddNewElement(const std::string &msg);
 	void AddBackImage(const std::string &msg);
+	void AddCover(const std::string &msg);
 	void PreSaveLevel(const std::string &msg);
 	void AddBoxElement(const std::string &msg);
 	FPoint2D ScreenToWorld(const FPoint2D &screenPos);
