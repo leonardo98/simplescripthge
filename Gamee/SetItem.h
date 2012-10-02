@@ -4,9 +4,10 @@ class SetItem {
 public:
 	enum Types{
 		beauty_item = 0,
-		destroyable_item = 1,
-		funbush_item = 2,
-		collectable_item = 3,
+		beauty_cover = 1,
+		destroyable_item = 2,
+		funbush_item = 3,
+		collectable_item = 4
 	};
 	virtual ~SetItem();
 	SetItem(Types type);
@@ -52,6 +53,7 @@ public:
 	virtual void LoadFromXml(TiXmlElement *xe);
 	virtual void Draw() const;
 	virtual void Change(int p);
+	void SetFileName(const std::string &fileName);
 private:
 	bool _mirror;
 	float _scale;

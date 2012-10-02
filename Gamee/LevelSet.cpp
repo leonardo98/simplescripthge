@@ -423,6 +423,13 @@ void LevelSet::LoadFromXml(TiXmlElement *xe, bool gameMode) {
 				beauties.push_back(beauty);
 				elem = elem->NextSiblingElement("beauty");
 			}
+			elem = beautyList->FirstChildElement("ground");
+			while (elem != NULL) {
+				GroundLine *beauty = new GroundLine();
+				beauty->LoadFromXml(elem);
+				beauties.push_back(beauty);
+				elem = elem->NextSiblingElement("ground");
+			}
 		}
 	}
 

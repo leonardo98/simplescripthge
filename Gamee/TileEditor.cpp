@@ -112,201 +112,19 @@ TileEditor::~TileEditor()
 	}
 }
 
-//void TileEditor::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
-//{
-//	const b2Manifold* manifold = contact->GetManifold();
-//
-//	if (manifold->pointCount == 0) {
-//		return;
-//	}
-//
-//	b2Fixture* fixtureA = contact->GetFixtureA();
-//	b2Fixture* fixtureB = contact->GetFixtureB();
-//
-//	b2PointState state1[b2_maxManifoldPoints], state2[b2_maxManifoldPoints];
-//	b2GetPointStates(state1, state2, oldManifold, manifold);
-//
-//	b2WorldManifold worldManifold;
-//	contact->GetWorldManifold(&worldManifold);
-//
-//	for (int32 i = 0; i < manifold->pointCount && m_pointCount < k_maxContactPoints; ++i)
-//	{
-//		ContactPoint* cp = m_points + m_pointCount;
-//		cp->fixtureA = fixtureA;
-//		cp->fixtureB = fixtureB;
-//		cp->position = worldManifold.points[i];
-//		cp->normal = worldManifold.normal;
-//		cp->state = state2[i];
-//		++m_pointCount;
-//	}
-//}
-//
-//void TileEditor::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
-//{
-//	return;
-//
-//	if (_startLevel.Action()) {
-//		return;
-//	}
-//	BodyTemplate *btA = static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->base;
-//	BodyTemplate *btB = static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->base;
-//	if (!(btA->_breakable) && !(btB->_breakable))
-//	{
-//		if ((btA->_hero && btB->_hero)) {
-//			_userLevelWin = true;
-//		}
-//		return;
-//	}
-//
-//	// Should the body break?
-//	int32 count = contact->GetManifold()->pointCount;
-//
-//	float32 maxImpulse = 0.0f;
-//	for (int32 i = 0; i < count; ++i)
-//	{
-//		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-//	}
-//
-//	if (maxImpulse > 0.1f) {
-//		// Flag the body for breaking.
-//		if (btA->_breakable) {
-//			static_cast<MyBody *>(contact->GetFixtureA()->GetBody()->GetUserData())->broken = true;
-//		}
-//		if (btB->_breakable) {
-//			static_cast<MyBody *>(contact->GetFixtureB()->GetBody()->GetUserData())->broken = true;
-//		}
-//	}
-//}
-//
-//class QueryCallback : public b2QueryCallback
-//{
-//public:
-//	QueryCallback(const b2Vec2& point)
-//	{
-//		m_point = point;
-//		m_fixture = NULL;
-//	}
-//
-//	bool ReportFixture(b2Fixture* fixture)
-//	{
-//		b2Body* body = fixture->GetBody();
-//		if (body->GetType() == b2_dynamicBody)
-//		{
-//			bool inside = fixture->TestPoint(m_point);
-//			if (inside) {
-//				m_fixture = fixture;
-//
-//				// We are done, terminate the query.
-//				return false;
-//			}
-//		}
-//		// Continue the query.
-//		return true;
-//	}
-//	b2Vec2 m_point;
-//	b2Fixture* m_fixture;
-//};
-
 void TileEditor::EraseSelected() {
-	//if (body->GetUserData() != NULL && body->GetUserData() != _byker) {
-	//	MyBody *t = static_cast<MyBody *>(body->GetUserData());
-	//	delete t;
-	//	body->SetUserData(NULL);
-	//}
-	//m_world->DestroyBody(body);
 }
 
 void TileEditor::EraseAllBodyes() {
 	while (_byker->physic.GetAllLines().size()) {
 		_byker->physic.RemoveLinesSet(NULL);
 	}
-	//for (b2Body *body = m_world->GetBodyList(); body; ) {
-	//	b2Body *remove = body;
-	//	body = body->GetNext();
-	//	if (remove) {
-	//		EraseBody(remove);
-	//	}
-	//}
-	//_landBodies.clear();
 }
 
 // добавляем новый элемент в "случайное" место на экране
 void TileEditor::AddElement(const std::string &typeId) {
-	//Collection::iterator index = _collection.begin();
-	//while (index != _collection.end() && (*index)->_id != typeId ) {index++;}
-	//assert(index != _collection.end() && (*index)->_id == typeId );
-
-	//BodyState bs;
-	//bs.base = (*index);	
-	//bs.angle = 0;
-	//{// найдём центр экрана 
-
-	//}
-	//bs.pos = b2Vec2((SCREEN_WIDTH / 2 - _worldCenter.x) / _viewScale, (_worldCenter.y - SCREEN_HEIGHT / 2) / _viewScale);
-	//bs.pos = b2Vec2(_level.Startpoint()[0].x / SCALE_BOX2D, _level.Startpoint()[0].y / SCALE_BOX2D);
-	//bs.width = bs.base->_width;
-	//bs.height = bs.base->_height;
-	//bs.radius = bs.base->_radius;
-	//
-	//return AddElement(bs);
 }
-//
-//// ДЛЯ ИГРЫ тут можно соптимизировать - все элементы "земли" вынести в одно body
-//// создаем физическое тело по описанию
-//b2Body * TileEditor::AddElement(const BodyState &bodyState){ 
-//
-//	b2BodyDef bd;
-//	bd.type = b2_dynamicBody;  
-//	//if (bodyState.base->_fixed) {
-//		//bd.type = b2_staticBody;);// ХАК - QueryAABB не работает со статичными объктами, 
-//	//}								// т.е. иначе их нельзя будет двигать в редакторе
-//									// поэтому в статик они переключаются только в режиме игры,
-//									// а в редакторе псевдо-динамик
-//	bd.position.Set(bodyState.pos.x, bodyState.pos.y);
-//	bd.angle = bodyState.angle;
-//	
-//	b2Body* body = m_world->CreateBody(&bd);
-//	
-//	b2FixtureDef fd;
-//	fd.restitution = bodyState.base->_restitution;
-//	fd.friction = bodyState.base->_friction;
-//	fd.density = 1.0f;
-//
-//	if (bodyState.base->_shape == "circle") {
-//		b2CircleShape shape;
-//		shape.m_radius = bodyState.radius + HALFBORDER;
-//		fd.shape = &shape;
-//		body->CreateFixture(&fd);
-//	} else if (bodyState.base->_shape == "box") {
-//		b2PolygonShape shape;
-//		shape.SetAsBox(bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
-//		fd.shape = &shape;
-//		body->CreateFixture(&fd);
-//	} else if (bodyState.base->_shape == "triangle") {
-//		b2PolygonShape shape;
-//		b2Vec2 vec[3];
-//		vec[0] = b2Vec2( bodyState.width / 2.f - DEC + HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
-//		vec[1] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, bodyState.height / 2.f - DEC + HALFBORDER);
-//		vec[2] = b2Vec2(-bodyState.width / 2.f + DEC - HALFBORDER, -bodyState.height / 2.f + DEC - HALFBORDER);
-//		shape.Set(vec, 3);
-//		fd.shape = &shape;
-//		body->CreateFixture(&fd);
-//	} else {
-//		EraseBody(body);
-//		return NULL;
-//	}
-//	MyBody *myBody = new MyBody();
-//	myBody->base = bodyState.base;
-//	myBody->broken = false;
-//
-//	myBody->width = bodyState.width;		
-//	myBody->height = bodyState.height;
-//	myBody->radius = bodyState.radius;		
-//
-//	body->SetUserData(myBody);
-//	return body;
-//}
-//
+
 void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 {	
 	if (!_editor) {
@@ -360,34 +178,6 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 		} else if (_currentElement.selected = SelectedElement::beauty_element) {
 		}
 	}
-
-	//b2Vec2 p(fp.x, - fp.y);// нужен для выбора объекта по которому кликнули
-	//
-	//if (m_mouseJoint != NULL)
-	//{
-	//	return;
-	//}
-
-	//// Make a small box.
-	//b2AABB aabb;
-	//b2Vec2 d;
-	//d.Set(0.001f, 0.001f);
-	//aabb.lowerBound = p - d;
-	//aabb.upperBound = p + d;
-
-	//// Query the world for overlapping shapes.
-	//QueryCallback callback(p);
-	//m_world->QueryAABB(&callback, aabb);
-
-	//if (callback.m_fixture)
-	//{
-	//	b2Body* body = callback.m_fixture->GetBody();
-	//	//BodyTemplate *bt = static_cast<MyBody *>(body->GetUserData())->base;
-	//	if (_editor) {
-	//		InitParams(body);
-	//		return;
-	//	}
-	//}
 }
 
 void TileEditor::OnMouseUp()
@@ -744,38 +534,6 @@ void TileEditor::Draw() {
 	char buff[10];
 	Math::FloatToChar(_viewScale, buff);
 	Render::PrintString(940, 0, "", buff);
-
-	//buffer = Render::GetDC()->Gfx_StartBatch(HGEPRIM_QUADS, _allElements->GetTexture(), BLEND_DEFAULT, &max);
-	if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
-		//for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
-		//	Render::PushMatrix();
-		//	const b2Transform & xf = body->GetTransform();
-		//	Render::MatrixMove(xf.position.x * SCALE_BOX2D, xf.position.y * SCALE_BOX2D);
-		//	Render::MatrixRotate(xf.GetAngle());
-		//	for (b2Fixture *fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
-		//		b2Shape *shape = fixture->GetShape();
-		//		if (shape->GetType() == b2Shape::e_polygon) {
-		//			b2PolygonShape *polygon = (b2PolygonShape *)shape;				
-		//			for (unsigned int i = 0; i < polygon->GetVertexCount(); ++i) {
-		//				const b2Vec2 &start = polygon->GetVertex(i);
-		//				const b2Vec2 &end = polygon->GetVertex((i + 1) % polygon->GetVertexCount());
-		//				Render::Line(start.x * SCALE_BOX2D, start.y * SCALE_BOX2D
-		//					, end.x * SCALE_BOX2D, end.y * SCALE_BOX2D, 0xFFFFFFFF);
-		//			}
-		//		} else if (shape->GetType() == b2Shape::e_circle) {
-		//			b2CircleShape *circle = (b2CircleShape *)shape;
-		//			Render::Circle(circle->m_p.y, circle->m_p.y, circle->m_radius * SCALE_BOX2D, 0xFFFFFFFF);
-		//		}			
-		//	}
-		//	Render::PopMatrix();
-		//	if (body->GetJointList()) {
-		//		for (b2Joint *joint = body->GetJointList()->joint; joint; joint = joint->GetNext()) {
-		//			DrawJoint(joint);
-		//		}
-		//	}
-		//}
-	}
-	//Render::GetDC()->Gfx_FinishBatch(counter);
 }
 
 FPoint2D TileEditor::ScreenToWorld(const FPoint2D &screenPos) {
@@ -796,6 +554,10 @@ bool TileEditor::OnKey(int key) {
 			_level.beauties[_currentElement.index]->Pos().y -= 1;
 		} else if (key == HGEK_DOWN) {
 			_level.beauties[_currentElement.index]->Pos().y += 1;
+		} else if (key == HGEK_DELETE) {
+			delete _level.beauties[_currentElement.index];
+			_level.beauties.erase(_level.beauties.begin() + _currentElement.index);
+			_currentElement.selected = SelectedElement::none;
 		}
 	}
 	return true;
@@ -1054,15 +816,24 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		_level.beauties.push_back(b);
 		_currentElement.selected = SelectedElement::beauty_element;
 		_currentElement.index = _level.beauties.size() - 1;
-	} else if (msg == "groundline") {
-		GroundLine *b = new GroundLine(_worldOffset,
-							0.f,
-							1.f,
-							false);
-		b->SetDrawOrder(1);
-		_level.beauties.push_back(b);
-		_currentElement.selected = SelectedElement::beauty_element;
-		_currentElement.index = _level.beauties.size() - 1;
+	} else if (msg == "groundcover") {
+		//MiddleList ?
+		Messager::SendMessage("MiddleList", "prefix cover");
+		{
+			WIN32_FIND_DATA FindFileData;
+			HANDLE hf;
+			std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
+			s += "data\\covers\\*.png";
+			hf = FindFirstFile(s.c_str(), &FindFileData);
+			if (hf != INVALID_HANDLE_VALUE){
+				do {
+					Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
+				}
+				while (FindNextFile(hf,&FindFileData) != 0);
+				FindClose(hf);
+			}
+		}
+		Messager::SendMessage("MiddleList", "special add cancel");
 	} else if (msg == "box") {
 		Messager::SendMessage("SmallList", "prefix AddBoxElement");
 		Messager::SendMessage("SmallList", "add small");
@@ -1098,6 +869,23 @@ void TileEditor::AddBackImage(const std::string &msg) {
 		_level.images.clear();
 	}
 	_level.images.push_back(image);
+}
+
+void TileEditor::AddCover(const std::string &msg) 
+{
+	Messager::SendMessage("MiddleList", "clear");
+	if (msg == "cancel") {
+		return;
+	}
+	GroundLine *b = new GroundLine(_worldOffset,
+						0.f,
+						1.f,
+						false);
+	b->SetFileName(msg);
+	b->SetDrawOrder(1);
+	_level.beauties.push_back(b);
+	_currentElement.selected = SelectedElement::beauty_element;
+	_currentElement.index = _level.beauties.size() - 1;
 }
 
 void TileEditor::PreSaveLevel(const std::string &msg) {
@@ -1136,6 +924,10 @@ void TileEditor::OnMessage(const std::string &message) {
 	std::string msg;
 	if (CanCut(message, "NewLevelYesNo", msg)) {
 		NewLevelYesNo(msg);
+		return;
+	}
+	if (CanCut(message, "cover", msg)) {
+		AddCover(msg);
 		return;
 	}
 	if (CanCut(message, "DeleteSelectedYesNo", msg)) {
@@ -1204,7 +996,7 @@ void TileEditor::OnMessage(const std::string &message) {
 		//Messager::SendMessage("SmallList", "add curv");
 		Messager::SendMessage("SmallList", "add image");
 		Messager::SendMessage("SmallList", "add beauty");
-		Messager::SendMessage("SmallList", "add groundline");
+		Messager::SendMessage("SmallList", "add groundcover");
 		//Messager::SendMessage("SmallList", "add bonus");
 		//Messager::SendMessage("SmallList", "add box");
 		//Messager::SendMessage("SmallList", "add transport");
@@ -1286,7 +1078,7 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 
 	TiXmlElement *beautyList = new TiXmlElement("Beauties");
 	for (int i = 0; i < _level.beauties.size(); i++) {
-		TiXmlElement *beauty = new TiXmlElement("beauty");
+		TiXmlElement *beauty = new TiXmlElement(_level.beauties[i]->Type() == SetItem::beauty_item ? "beauty" : "ground");
 		_level.beauties[i]->SaveToXml(beauty);
 		beautyList->LinkEndChild(beauty);
 	}
@@ -1323,58 +1115,7 @@ void TileEditor::LoadLevel(const std::string &msg) {
 	assert(xe != NULL);
 	// level loading
 	_level.LoadFromXml(xe, false);
-/*	_state.clear();
-	TiXmlElement *ground = xe->FirstChildElement("Ground");
-	if (ground) {
-		TiXmlElement *elem = ground->FirstChildElement("elem");
-		while (elem != NULL) {
-			LevelBlock *l = new LevelBlock();
-			_level.ground.push_back(l);
-		
-			std::vector<float> x;
-			SplinePath y;
-			TiXmlElement *dot = elem->FirstChildElement("dot");
-			while (dot != NULL) {
-				x.push_back(atof(dot->Attribute("x")));
-				y.addKey(atof(dot->Attribute("y")));
-				dot = dot->NextSiblingElement();
-			}
-			y.CalculateGradient(false);
-			l->xPoses = x;
-			l->yPoses = y;
 
-			elem = elem->NextSiblingElement("elem");
-		}
-	}
-	{
-		TiXmlElement *imagesList = xe->FirstChildElement("Images");
-		if (imagesList) {
-			TiXmlElement *elem = imagesList->FirstChildElement("image");
-			while (elem != NULL) {
-				OneImage image;
-				std::string msg = elem->Attribute("filePath");
-				image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
-				image.sprite = new Sprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
-				image.pos = FPoint2D(0.f, 0.f);
-				image.filePath = msg;
-				_level.images.push_back(image);
-				elem = elem->NextSiblingElement("image");
-			}
-		}
-	}
-	{
-		TiXmlElement *beautyList = xe->FirstChildElement("Beauties");
-		if (beautyList) {
-			TiXmlElement *elem = beautyList->FirstChildElement("beauty");
-			while (elem != NULL) {
-				Beauty *beauty = new Beauty();
-				beauty->LoadFromXml(elem);
-				_level.beauties.push_back(beauty);
-				elem = elem->NextSiblingElement("beauty");
-			}
-		}
-	}
-	*/
 	TiXmlElement *word = xe->FirstChildElement("word");
 	_worldOffset.x = atof(word->Attribute("x"));
 	_worldOffset.y = atof(word->Attribute("y"));
