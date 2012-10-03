@@ -345,6 +345,326 @@ Lines * LevelBlock::CreateBody(Byker *byker, int splineIndex) {
 	return byker->physic.AddLinesSet(dots, splineIndex);
 }
 
+std::string LevelBlock::Type() {
+	return "elem";
+}
+
+void LevelBlock::SaveToXml(TiXmlElement *xe) {
+	for (int j = 0; j < xPoses.size(); ++j) {
+		TiXmlElement *dot = new TiXmlElement("dot");
+		char s[16];
+		sprintf(s, "%f", xPoses[j]); 
+		dot->SetAttribute("x", s);
+		sprintf(s, "%f", yPoses.keys[j].first); 
+		dot->SetAttribute("y", s);
+		xe->LinkEndChild(dot);
+	}
+}
+
+void LevelBlock::LoadFromXml(TiXmlElement* xe) {
+	std::vector<float> x;
+	SplinePath y;
+	TiXmlElement *dot = xe->FirstChildElement("dot");
+	while (dot != NULL) {
+		x.push_back(atof(dot->Attribute("x")));
+		y.addKey(atof(dot->Attribute("y")));
+		dot = dot->NextSiblingElement();
+	}
+	y.CalculateGradient(false);
+	
+	xPoses = x;
+	yPoses = y;
+}
+
+
+
+
+void LevelIsland::AddBottomPoint(float x, float y) {
+	yBottomPoses.addKey(y);
+	yBottomPoses.CalculateGradient(false);
+	xBottomPoses.push_back(x);
+}
+
+void LevelIsland::ExportToLines(std::vector<FPoint2D> &lineDots) {
+	LevelBlock::ExportToLines(lineDots);
+	for (unsigned int i = 0; i < xBottomPoses.size() - 1; ++i) {
+		float minx = xBottomPoses[i];
+		float maxx = xBottomPoses[i + 1];
+		for (unsigned int k = 0; k < 6; ++k) {
+			float x = minx + (maxx - minx) * k / 6.f;
+			float y = yBottomPoses.getFrame(i, k / 6.f);
+			lineDots.push_back(FPoint2D(x, y));
+		}
+	}
+	float x = xBottomPoses.back();
+	float y = yBottomPoses.getGlobalFrame(1.f);
+	lineDots.push_back(FPoint2D(x, y));
+	lineDots.push_back(lineDots.front());
+}
+
+void LevelIsland::GenerateTriangles() {
+	triangles.clear();
+	std::vector<FPoint2D> &dots = lineDots;
+	ExportToLines(dots);
+
+	float sign = 0.f;
+	{
+		// ищем самый острый угол или наименее тупой
+		FPoint2D *a;
+		FPoint2D *b;
+		FPoint2D *c;
+		int index = 0;
+		float minAngle = 180.f;
+		for (int i = 0; i < dots.size(); ++i) {
+			a = &dots[i];
+			if (i < dots.size() - 1) {
+				b = &dots[i + 1];
+			} else {
+				b = &dots[i + 1 - dots.size()];
+			}
+			if (i < dots.size() - 2) {
+				c = &dots[i + 2];
+			} else {
+				c = &dots[i + 2 - dots.size()];
+			}
+			float angle = (*a - *b).Angle(&(*c - *b));
+			if (angle <= 0.f) {
+				assert(false);
+			}
+			if (angle < minAngle) {
+				minAngle = angle;
+				index = i;
+			}
+		}
+		a = &dots[index];
+		if (index < dots.size() - 1) {
+			b = &dots[index + 1];
+		} else {
+			b = &dots[index + 1 - dots.size()];
+		}
+		if (index < dots.size() - 2) {
+			c = &dots[index + 2];
+		} else {
+			c = &dots[index + 2 - dots.size()];
+		}
+		sign = Math::VMul(*b - *a, *c - *b);
+	}
+	while (dots.size() > 0) {
+		assert(dots.size() > 2);
+		if (dots.size() == 3) {
+			hgeTriple tri;
+			FillTriangle(dots[0], dots[1], dots[2], tri);
+			triangles.push_back(tri);
+			dots.clear();
+		} else {
+			FPoint2D *a;
+			FPoint2D *b;
+			FPoint2D *c;
+			for (int i = 0; i < dots.size(); ++i) {
+				a = &dots[i];
+				if (i < dots.size() - 1) {
+					b = &dots[i + 1];
+				} else {
+					b = &dots[i + 1 - dots.size()];
+				}
+				if (i < dots.size() - 2) {
+					c = &dots[i + 2];
+				} else {
+					c = &dots[i + 2 - dots.size()];
+				}
+				
+				bool intersection = false;
+				for (int j = 0; j < dots.size() && !intersection; ++j) {
+					FPoint2D *a2 = &dots[j];
+					FPoint2D *b2;
+					if (j < dots.size() - 1) {
+						b2 = &dots[j + 1];
+					} else {
+						b2 = &dots[j + 1 - dots.size()];
+					}
+					intersection = (a != a2 && a != b2 && b != a2 && b != b2 && Math::Intersection(*a, *c, *a2, *b2, NULL));
+				}
+				std::vector<FPoint2D> triangle(3);
+				triangle[0] = *a;
+				triangle[1] = *b;
+				triangle[2] = *c;
+				for (int j = 0; j < dots.size() && !intersection; ++j) {
+					FPoint2D *a2 = &dots[j];
+					intersection = (a2 != a && a2 != b && a2 != c && Math::Inside(*a2, triangle));
+				}
+				if (!intersection && Math::VMul(*b - *a, *c - *b) * sign > 0.f) {// выбираем только те что с нашим знаком
+					hgeTriple tri;
+					FillTriangle(*a, *b, *c, tri);
+					triangles.push_back(tri);
+					if (i < dots.size() - 1) {
+						dots.erase(dots.begin() + i + 1);
+					} else {
+						dots.erase(dots.begin());
+					}
+					break;
+				}
+			}
+		}		
+	}
+}
+
+void LevelIsland::DrawLines() {
+	LevelBlock::DrawLines();
+
+	assert(xBottomPoses.size() != 1);
+
+	for (unsigned int i = 0; i < xBottomPoses.size() - 1; ++i) {
+		float minx = xBottomPoses[i];
+		float maxx = xBottomPoses[i + 1];
+		for (unsigned int k = 0; k < 6; ++k) {
+			float x1 = minx + (maxx - minx) * k / 6.f;
+			float x2 = minx + (maxx - minx) * (k + 1) / 6.f;
+			float y1 = yBottomPoses.getFrame(i, k / 6.f);
+			float y2 = yBottomPoses.getFrame(i, (k + 1) / 6.f);
+			Render::Line(x1, y1, x2, y2, 0xFFFF0000);
+		}
+	}
+
+	static const float SIZEX = 3;
+	for (unsigned int i = 0; i < xBottomPoses.size(); ++i) {
+		float x = xBottomPoses[i];
+		float y = yBottomPoses.keys[i].first;
+		Render::Line(x - SIZEX, y - SIZEX, x + SIZEX, y + SIZEX, 0xFFFF0000);
+		Render::Line(x - SIZEX, y + SIZEX, x + SIZEX, y - SIZEX, 0xFFFF0000);
+	}
+
+	Render::Line(xBottomPoses.front(), yBottomPoses.getGlobalFrame(0.f), xPoses.back(), yPoses.getGlobalFrame(1.f), 0xFFFF0000);
+	Render::Line(xBottomPoses.back(), yBottomPoses.getGlobalFrame(1.f), xPoses.front(), yPoses.getGlobalFrame(0.f), 0xFFFF0000);
+
+}
+
+int LevelIsland::SearchNearest(float x, float y) {
+	int result = -1;
+	static const float SIZEX = 6;
+	for (unsigned int i = 0; i < xBottomPoses.size() && result < 0; ++i) {
+		float px = xBottomPoses[i];
+		float py = yBottomPoses.keys[i].first;
+		if ((FPoint2D(x, y) - FPoint2D(px, py)).Length() < SIZEX) {
+			result = i;
+		}
+	}
+	return (result != -1 ? result + xPoses.size(): LevelBlock::SearchNearest(x, y));
+}
+
+bool LevelIsland::CreateDot(float x, float y) {
+	if (xBottomPoses.size() >= 20) {
+		return false;
+	}
+	bool result = false;
+	static const float SIZEX = 6;
+	FPoint2D p(x, y);
+	FPoint2D one;
+	FPoint2D two;
+	for (unsigned int i = 0; i < (xBottomPoses.size() - 1) && !result; ++i) {
+		float minx = xBottomPoses[i];
+		float maxx = xBottomPoses[i + 1];
+		for (unsigned int k = 0; k < 6 && !result; ++k) {
+			one.x = minx + (maxx - minx) * k / 6.f;
+			two.x = minx + (maxx - minx) * (k + 1) / 6.f;
+			one.y = yBottomPoses.getFrame(i, k / 6.f);
+			two.y = yBottomPoses.getFrame(i, (k + 1) / 6.f);
+			if (result = DotNearLine(one, two, p)) {
+				int index = i + 1;
+				if (index < xBottomPoses.size()) {
+					std::vector<float> splineX = xBottomPoses;
+					SplinePath splineY = yBottomPoses;
+					xBottomPoses.clear();
+					yBottomPoses.Clear();
+					for (int i = 0; i < index; ++i) {
+						xBottomPoses.push_back(splineX[i]);
+						yBottomPoses.addKey(splineY.keys[i].first);
+					}
+					xBottomPoses.push_back(x);
+					yBottomPoses.addKey(y);
+					for (int i = index; i < splineX.size(); ++i) {
+						xBottomPoses.push_back(splineX[i]);
+						yBottomPoses.addKey(splineY.keys[i].first);
+					}
+					yBottomPoses.CalculateGradient(false);
+				} else {
+					xBottomPoses.push_back(x);
+					yBottomPoses.addKey(y);
+					yBottomPoses.CalculateGradient(false);
+				}
+			}
+		}
+	}
+	return result || LevelBlock::CreateDot(x, y);
+}
+
+void LevelIsland::RemoveDot(int index) {
+	if (index < xPoses.size()) {
+		LevelBlock::RemoveDot(index);
+		return;
+	}
+	index -= xPoses.size();
+	if (xBottomPoses.size() <= 4) {
+		return;
+	}
+	std::vector<float> splineX = xBottomPoses;
+	SplinePath splineY = yBottomPoses;
+	xBottomPoses.clear();
+	yBottomPoses.Clear();
+	for (int i = 0; i < index; ++i) {
+		xBottomPoses.push_back(splineX[i]);
+		yBottomPoses.addKey(splineY.keys[i].first);
+	}
+	for (int i = index + 1; i < splineX.size(); ++i) {
+		xBottomPoses.push_back(splineX[i]);
+		yBottomPoses.addKey(splineY.keys[i].first);
+	}
+	yBottomPoses.CalculateGradient(false);
+}
+
+std::string LevelIsland::Type() {
+	return "island";
+}
+
+void LevelIsland::SaveToXml(TiXmlElement *xe) {
+	TiXmlElement *top = new TiXmlElement("top");
+	LevelBlock::SaveToXml(top);
+	xe->LinkEndChild(top);
+
+	TiXmlElement *bottom = new TiXmlElement("bottom");
+	for (int j = 0; j < xBottomPoses.size(); ++j) {
+		TiXmlElement *dot = new TiXmlElement("dot");
+		char s[16];
+		sprintf(s, "%f", xBottomPoses[j]); 
+		dot->SetAttribute("x", s);
+		sprintf(s, "%f", yBottomPoses.keys[j].first); 
+		dot->SetAttribute("y", s);
+		bottom->LinkEndChild(dot);
+	}
+	xe->LinkEndChild(bottom);
+}
+
+void LevelIsland::LoadFromXml(TiXmlElement* xe) {
+	LevelBlock::LoadFromXml(xe->FirstChildElement("top"));
+
+	xe = xe->FirstChildElement("bottom");
+
+	std::vector<float> x;
+	SplinePath y;
+	TiXmlElement *dot = xe->FirstChildElement("dot");
+	while (dot != NULL) {
+		x.push_back(atof(dot->Attribute("x")));
+		y.addKey(atof(dot->Attribute("y")));
+		dot = dot->NextSiblingElement();
+	}
+	y.CalculateGradient(false);
+	
+	xBottomPoses = x;
+	yBottomPoses = y;
+}
+
+
+
+
 void LevelSet::Clear() {
 	for (unsigned int i = 0; i < ground.size(); ++i) {
 		delete ground[i];
@@ -382,19 +702,16 @@ void LevelSet::LoadFromXml(TiXmlElement *xe, bool gameMode) {
 			LevelBlock *l = new LevelBlock();
 			ground.push_back(l);
 		
-			std::vector<float> x;
-			SplinePath y;
-			TiXmlElement *dot = elem->FirstChildElement("dot");
-			while (dot != NULL) {
-				x.push_back(atof(dot->Attribute("x")));
-				y.addKey(atof(dot->Attribute("y")));
-				dot = dot->NextSiblingElement();
-			}
-			y.CalculateGradient(false);
-			l->xPoses = x;
-			l->yPoses = y;
-
+			l->LoadFromXml(elem);
 			elem = elem->NextSiblingElement("elem");
+		}
+		elem = groundXML->FirstChildElement("island");
+		while (elem != NULL) {
+			LevelIsland *l = new LevelIsland();
+			ground.push_back(l);
+		
+			l->LoadFromXml(elem);
+			elem = elem->NextSiblingElement("island");
 		}
 	}
 	if (!gameMode) {
