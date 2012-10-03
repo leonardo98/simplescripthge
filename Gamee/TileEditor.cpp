@@ -275,6 +275,7 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 		tmpy.CalculateGradient(false);
 		_currents.block->xPoses = tmpx;
 		_currents.block->yPoses = tmpy;
+		// надо перенести это внутрь класса LevelBlock и переписать для наследника LevelIsland
 	} else {
 		if (_mouseDown) {
 			_worldOffset -= (mousePos - _lastMousePos) / _viewScale;
@@ -773,6 +774,15 @@ void TileEditor::AddNewElement(const std::string &msg) {
 			b->AddPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y);
 		}
 		_level.ground.push_back(b);
+	} else if (msg == "island") {
+		LevelIsland *b = new LevelIsland();
+		for (int i = 0; i < 5; ++i) {
+			b->AddPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y);
+		}
+		for (int i = 5; i >= 0; --i) {
+			b->AddBottomPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y + 50);
+		}
+		_level.ground.push_back(b);
 	} else if (msg == "image") {
 		Messager::SendMessage("MiddleList", "prefix AddBackImage");
 		{
@@ -993,6 +1003,7 @@ void TileEditor::OnMessage(const std::string &message) {
 		//}
 		Messager::SendMessage("SmallList", "prefix AddNewElement");
 		Messager::SendMessage("SmallList", "add ground");
+		Messager::SendMessage("SmallList", "add island");
 		//Messager::SendMessage("SmallList", "add curv");
 		Messager::SendMessage("SmallList", "add image");
 		Messager::SendMessage("SmallList", "add beauty");
@@ -1057,14 +1068,8 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 	TiXmlElement *elemGround = new TiXmlElement("Ground");
 	_saveLevelXml->LinkEndChild(elemGround);
 	for (LevelBlocks::iterator i = _level.ground.begin(), e = _level.ground.end(); i != e; i++) {
-		TiXmlElement *elem = new TiXmlElement("elem");
-		for (int j = 0; j < (*i)->xPoses.size(); ++j) {
-			TiXmlElement *dot = new TiXmlElement("dot");
-			char s[16];
-			sprintf(s, "%f", (*i)->xPoses[j]); dot->SetAttribute("x", s);
-			sprintf(s, "%f", (*i)->yPoses.keys[j].first); dot->SetAttribute("y", s);
-			elem->LinkEndChild(dot);
-		}
+		TiXmlElement *elem = new TiXmlElement((*i)->Type());
+		(*i)->SaveToXml(elem);
 		elemGround->LinkEndChild(elem);
 	}
 
