@@ -140,7 +140,24 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	FPoint2D fp = ScreenToWorld(mousePos);
 	_currentElement.selected = SelectedElement::none;
 	
-	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+	if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
+		bool found = false;
+		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
+			found = _level.ground[i]->CreateDot(fp.x, fp.y);
+		}
+	} else if (Render::GetDC()->Input_GetKeyState(HGEK_D)) {
+		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
+			int index = _level.ground[i]->SearchNearest(fp.x, fp.y);
+			if (index >= 0) {
+				_level.ground[i]->RemoveDot(index);
+				if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+					delete _level.ground[i];
+					_level.ground.erase(_level.ground.begin() + i);
+				}
+				break;
+			}
+		}
+	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
 		bool found = false;
 		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
 			_currents.dotIndex = _level.ground[i]->SearchNearest(fp.x, fp.y);
@@ -151,20 +168,6 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 			_currents.downX = fp.x;
 			_currents.downY = fp.y;
 			found = _currents.dotIndex >= 0;
-		}
-	} else if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
-		bool found = false;
-		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
-			found = _level.ground[i]->CreateDot(fp.x, fp.y);
-		}
-	} else if (Render::GetDC()->Input_GetKeyState(HGEK_D)) {
-		bool found = false;
-		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
-			int index = _level.ground[i]->SearchNearest(fp.x, fp.y);
-			if (index >= 0) {
-				found = true;
-				_level.ground[i]->RemoveDot(index);
-			}
 		}
 	} else {
 		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
@@ -259,23 +262,11 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 			_level.beauties[_currentElement.index]->Pos().y += (newMmouseWorld.y - _mouseWorld.y);
 		}
 	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
-		std::vector<float> tmpx;
-		SplinePath tmpy;
-		float dx = newMmouseWorld.x - _currents.downX;
-		float dy = newMmouseWorld.y - _currents.downY;
-		for (unsigned int i = 0; i < _currents.block->xPoses.size(); ++i) {
-			if (i == _currents.dotIndex || _currents.moveAllDots) {
-				tmpx.push_back(_currents.splineX[i] + dx);
-				tmpy.addKey(_currents.splineY.keys[i].first + dy);
-			} else {
-				tmpx.push_back(_currents.splineX[i]);
-				tmpy.addKey(_currents.splineY.keys[i].first);
-			}
-		}
-		tmpy.CalculateGradient(false);
-		_currents.block->xPoses = tmpx;
-		_currents.block->yPoses = tmpy;
-		// надо перенести это внутрь класса LevelBlock и переписать для наследника LevelIsland
+		float dx = newMmouseWorld.x - _mouseWorld.x;
+		float dy = newMmouseWorld.y - _mouseWorld.y;
+
+		_currents.block->ShiftDot(_currents.dotIndex, dx, dy, _currents.moveAllDots);
+
 	} else {
 		if (_mouseDown) {
 			_worldOffset -= (mousePos - _lastMousePos) / _viewScale;
@@ -779,7 +770,7 @@ void TileEditor::AddNewElement(const std::string &msg) {
 		for (int i = 0; i < 5; ++i) {
 			b->AddPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y);
 		}
-		for (int i = 5; i >= 0; --i) {
+		for (int i = 4; i >= 0; --i) {
 			b->AddBottomPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y + 50);
 		}
 		_level.ground.push_back(b);
