@@ -637,7 +637,7 @@ void TileEditor::Update(float deltaTime) {
 			if (_scipScaleChanging < 1e-3) {
 				float newScreenOffsetY = _screenOffset.y;
 				if (fabs(_byker->physic.GetSpeedVector().y * SCALE_BOX2D) > 20) {
-					float delta = -(_byker->physic.GetSpeedVector().y) / fabs(_byker->physic.GetSpeedVector().y);
+					float delta = -(_byker->physic.GetSpeedVector().y) / fabs(_byker->physic.GetSpeedVector().y) + 0.4f;
 					_screenOffset.y = min(SCREEN_HEIGHT / 3 * 2, max(SCREEN_HEIGHT / 4, _screenOffset.y + (delta) * 100.f * deltaTime));
 				}
 				float newViewScale = min(1.f, 350.f / (_byker->physic.GetSpeedVector().Length() * SCALE_BOX2D));
