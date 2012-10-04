@@ -30,34 +30,34 @@
     <level id="2">
         <Ground>
             <elem>
-                <dot x="-414.000000" y="-66.000000" />
-                <dot x="-78.000000" y="-72.000000" />
+                <dot x="-657.211853" y="-77.741272" />
+                <dot x="-196.664642" y="-61.070358" />
                 <dot x="135.000000" y="-164.000000" />
                 <dot x="318.000000" y="-80.000000" />
                 <dot x="678.453430" y="-112.600937" />
-                <dot x="1109.819702" y="54.725235" />
+                <dot x="1430.204590" y="37.862869" />
             </elem>
             <island>
                 <top>
-                    <dot x="-686.015076" y="-277.946747" />
-                    <dot x="-550.007568" y="-309.195282" />
-                    <dot x="-362.371948" y="-390.713257" />
-                    <dot x="-177.453629" y="-328.216156" />
-                    <dot x="12.899231" y="-296.967590" />
+                    <dot x="-556.944641" y="-734.447449" />
+                    <dot x="-372.026825" y="-716.785278" />
+                    <dot x="-166.729279" y="-761.620178" />
+                    <dot x="191.402725" y="-907.414612" />
+                    <dot x="446.752808" y="-590.011108" />
+                    <dot x="911.995544" y="-539.435547" />
                 </top>
                 <bottom>
-                    <dot x="-222.000000" y="-16.000000" />
-                    <dot x="-286.000000" y="-16.000000" />
-                    <dot x="-350.000000" y="-16.000000" />
-                    <dot x="-414.000000" y="-16.000000" />
-                    <dot x="-478.000000" y="-16.000000" />
-                    <dot x="-542.000000" y="-16.000000" />
+                    <dot x="983.413940" y="-487.006744" />
+                    <dot x="499.739471" y="-326.436340" />
+                    <dot x="24.838005" y="-416.796783" />
+                    <dot x="-304.095428" y="-317.616577" />
+                    <dot x="-593.381470" y="-722.711548" />
                 </bottom>
             </island>
         </Ground>
         <Images />
         <Beauties />
-        <word x="-435" y="-124" scale="0.736034" />
+        <word x="412" y="-149" scale="0.406708" />
     </level>
     <level id="3">
         <Ground>
@@ -76,5 +76,45 @@
         <Images />
         <Beauties />
         <word x="-199" y="-170" startX="-609" startY="-167" endX="577" endY="-59" scale="0.900000" />
+    </level>
+    <level id="4">
+        <Ground>
+            <elem>
+                <dot x="-0.250000" y="278.000000" />
+                <dot x="57.000000" y="275.750000" />
+                <dot x="112.500000" y="253.000000" />
+                <dot x="152.277771" y="236.731476" />
+                <dot x="218.519791" y="217.449158" />
+                <dot x="331.728912" y="164.278580" />
+                <dot x="402.225311" y="127.980865" />
+                <dot x="492.627075" y="84.466019" />
+                <dot x="551.147156" y="70.536530" />
+                <dot x="586.067505" y="68.423904" />
+                <dot x="639.436340" y="60.860687" />
+                <dot x="727.305847" y="67.500595" />
+                <dot x="829.223083" y="39.593567" />
+                <dot x="884.485352" y="43.475628" />
+                <dot x="956.861145" y="58.027573" />
+                <dot x="1044.548950" y="49.607857" />
+                <dot x="1161.104248" y="80.155655" />
+                <dot x="1279.554199" y="102.366455" />
+            </elem>
+        </Ground>
+        <Images>
+            <image filePath="high_hill01_work_part01.jpg" />
+        </Images>
+        <Beauties>
+            <ground filePath="data\covers\a_grass_part01.png" angle="0.000000" x="63.496353" y="271.695343" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part02.png" angle="0.000000" x="190.648956" y="233.935089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part03.png" angle="0.000000" x="318.648956" y="179.685089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part04.png" angle="0.000000" x="446.898956" y="118.185089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part05.png" angle="0.000000" x="574.898926" y="78.935089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part06.png" angle="0.000000" x="703.148926" y="69.685089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part07.png" angle="0.000000" x="830.898926" y="55.935089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part08.png" angle="0.000000" x="959.148926" y="57.935089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part09.png" angle="0.000000" x="1087.148926" y="70.935089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <ground filePath="data\covers\a_grass_part10.png" angle="0.000000" x="1214.648926" y="97.935089" draw_order="1" mirror="0" scale="1.000000" index="0" />
+        </Beauties>
+        <word x="514" y="208" scale="0.836909" />
     </level>
 </list>
