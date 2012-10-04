@@ -376,6 +376,26 @@ void LevelBlock::LoadFromXml(TiXmlElement* xe) {
 	yPoses = y;
 }
 
+void LevelBlock::ShiftDot(int index, float dx, float dy, bool moveAllDots) {
+	std::vector<float> splineX = xPoses;
+	SplinePath splineY = yPoses;
+
+	std::vector<float> tmpx;
+	SplinePath tmpy;
+	for (unsigned int i = 0; i < xPoses.size(); ++i) {
+		if (i == index || moveAllDots) {
+			tmpx.push_back(splineX[i] + dx);
+			tmpy.addKey(splineY.keys[i].first + dy);
+		} else {
+			tmpx.push_back(splineX[i]);
+			tmpy.addKey(splineY.keys[i].first);
+		}
+	}
+	tmpy.CalculateGradient(false);
+
+	xPoses = tmpx;
+	yPoses = tmpy;
+}
 
 
 
@@ -552,7 +572,7 @@ int LevelIsland::SearchNearest(float x, float y) {
 }
 
 bool LevelIsland::CreateDot(float x, float y) {
-	if (xBottomPoses.size() >= 20) {
+	if (xBottomPoses.size() >= 50) {
 		return false;
 	}
 	bool result = false;
@@ -660,6 +680,35 @@ void LevelIsland::LoadFromXml(TiXmlElement* xe) {
 	
 	xBottomPoses = x;
 	yBottomPoses = y;
+}
+
+void LevelIsland::ShiftDot(int index, float dx, float dy, bool moveAllDots) {
+	if (index < xPoses.size() || moveAllDots) {
+		LevelBlock::ShiftDot(index, dx, dy, moveAllDots);
+		if (!moveAllDots) {
+			return;
+		}
+	}
+	index -= xPoses.size();
+
+	std::vector<float> splineX = xBottomPoses;
+	SplinePath splineY = yBottomPoses;
+
+	std::vector<float> tmpx;
+	SplinePath tmpy;
+	for (unsigned int i = 0; i < xBottomPoses.size(); ++i) {
+		if (i == index || moveAllDots) {
+			tmpx.push_back(splineX[i] + dx);
+			tmpy.addKey(splineY.keys[i].first + dy);
+		} else {
+			tmpx.push_back(splineX[i]);
+			tmpy.addKey(splineY.keys[i].first);
+		}
+	}
+	tmpy.CalculateGradient(false);
+
+	xBottomPoses = tmpx;
+	yBottomPoses = tmpy;
 }
 
 

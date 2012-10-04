@@ -30,6 +30,7 @@ struct LevelBlock {
 	virtual bool CreateDot(float x, float y);
 	virtual void RemoveDot(int index);
 	virtual std::string Type();
+	virtual void ShiftDot(int index, float dx, float dy, bool moveAllDots);
 
 	virtual void SaveToXml(TiXmlElement *xe);
 	virtual void LoadFromXml(TiXmlElement *xe);
@@ -49,6 +50,7 @@ struct LevelIsland : public LevelBlock{
 	virtual bool CreateDot(float x, float y);
 	virtual void RemoveDot(int index);
 	virtual std::string Type();
+	virtual void ShiftDot(int index, float dx, float dy, bool moveAllDots);
 
 	virtual void SaveToXml(TiXmlElement *xe);
 	virtual void LoadFromXml(TiXmlElement *xe);
