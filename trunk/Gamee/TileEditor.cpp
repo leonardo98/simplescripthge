@@ -758,6 +758,8 @@ void TileEditor::AddNewElement(const std::string &msg) {
 			b->AddPoint(_worldOffset.x - 256.f + 256 * i / 2, _worldOffset.y);
 		}
 		_level.groundLines.push_back(b);
+	} else if (msg == "beauty") {
+
 	} else if (CanCut(msg, "beauty", message)) {
 		BeautyBase *origin = _collection[atoi(message.c_str())];
 		BeautyBase *b;
