@@ -42,6 +42,10 @@ HGE *Render::GetDC() {
 }
 
 Sprite::Sprite(HTEXTURE hTexture, int x, int y, int w, int h) {
+	if (w == 0 && h == 0) {
+		w = Render::GetDC()->Texture_GetWidth(hTexture, true);
+		h = Render::GetDC()->Texture_GetHeight(hTexture, true);
+	}
 	_lastRender.blend = 0;
 	_lastRender.tex = hTexture;
 	float width = 1.f;

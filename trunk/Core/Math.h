@@ -21,6 +21,7 @@ public:
 	static float lerp(float one, float two, float p);
 	// площадь треугольника
 	static bool STrinagle(float a, float b, float c, float &s);
+	static float Distance(const FPoint2D &one, const FPoint2D &two, const FPoint2D &point);
 	static std::string IntToStr(int i);
 	
 	// поиск пересечения двух отрезков
@@ -29,6 +30,7 @@ public:
 
 	// точка внтури многоугольника или нет
 	static bool Inside(const FPoint2D m, const std::vector<FPoint2D> &dots);
+	static bool DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPoint2D &p);
 };
 
 #endif//MYENGINE_MATH_H

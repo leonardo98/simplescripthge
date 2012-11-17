@@ -12,6 +12,7 @@
 #include "../2dga_api/Animation.h"
 #include "Byker.h"
 #include "LevelSet.h"
+#include "Beauty.h"
 
 class TileEditor;
 struct Settings;
@@ -88,7 +89,7 @@ public:
 
 	void LoadTemplates(const std::string &filename);
 
-	typedef std::list<BodyTemplate *> Collection;
+	typedef std::vector<BeautyBase *> Collection;
 	//BodyTemplate *_fish;
 	//BodyTemplate *_cat;
 	Collection _collection;

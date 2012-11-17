@@ -5,27 +5,51 @@
             <elem>
                 <dot x="-569.000000" y="-92.000000" />
                 <dot x="-395.484955" y="-13.743668" />
-                <dot x="-227.297668" y="-23.659351" />
-                <dot x="-65.914925" y="-89.368088" />
-                <dot x="213.974426" y="-24.631912" />
-                <dot x="440.447174" y="-77.611832" />
-                <dot x="712.783325" y="-36.500679" />
+                <dot x="-80.957863" y="25.120571" />
+                <dot x="-68.551682" y="165.078568" />
+                <dot x="-62.884628" y="518.539246" />
+                <dot x="465.925446" y="532.910400" />
+                <dot x="915.062744" y="426.007965" />
+                <dot x="1229.265381" y="311.423187" />
+                <dot x="1834.721680" y="115.112625" />
             </elem>
+            <island>
+                <top>
+                    <dot x="109.878998" y="12.305420" />
+                    <dot x="319.659210" y="-37.722580" />
+                    <dot x="453.533081" y="-35.085846" />
+                    <dot x="758.795898" y="-57.498230" />
+                    <dot x="959.508301" y="32.354824" />
+                    <dot x="1235.049072" y="-17.743446" />
+                    <dot x="1392.334106" y="12.375694" />
+                </top>
+                <bottom>
+                    <dot x="1383.105713" y="115.110733" />
+                    <dot x="1022.790527" y="170.784317" />
+                    <dot x="844.809814" y="267.025757" />
+                    <dot x="645.415588" y="261.450470" />
+                    <dot x="487.810883" y="286.499634" />
+                    <dot x="306.475464" y="258.813721" />
+                    <dot x="191.058838" y="163.890640" />
+                </bottom>
+            </island>
         </Ground>
         <Images />
         <Beauties>
             <beauty filePath="data\beauty\bush.png" angle="24.000000" x="-446.232452" y="-28.365494" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="21.000000" x="-527.387085" y="-73.234177" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="6.000000" x="153.332809" y="-31.128887" draw_order="0" mirror="0" scale="1.000000" />
-            <beauty filePath="data\beauty\bush.png" angle="-18.000000" x="-226.331406" y="-19.718338" draw_order="0" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="-18.000000" x="-254.388855" y="-9.515629" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="-15.000000" x="386.675690" y="-62.172211" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="15.000000" x="71.974274" y="-52.719490" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\beauty\bush.png" angle="9.000000" x="480.859009" y="-67.400703" draw_order="0" mirror="0" scale="1.000000" />
             <beauty filePath="data\covers\a_grass_part05.png" angle="0.000000" x="-12.272308" y="17.555931" draw_order="1" mirror="0" scale="1.000000" />
-            <ground filePath="data\covers\a_grass_part11.png" angle="0.000000" x="-513.155762" y="-37.759148" draw_order="1" mirror="0" scale="1.000000" index="0" />
-            <ground filePath="data\covers\a_grass_part14.png" angle="0.000000" x="-386.335724" y="72.871071" draw_order="1" mirror="0" scale="1.000000" index="0" />
+            <beauty filePath="data\covers\a_grass_part11.png" angle="0.000000" x="-513.155762" y="-37.759148" draw_order="1" mirror="0" scale="1.000000" />
+            <beauty filePath="data\covers\a_grass_part14.png" angle="0.000000" x="-386.335724" y="72.871071" draw_order="1" mirror="0" scale="1.000000" />
+            <beauty filePath="data\beauty\bush.png" angle="0.000000" x="-356.092651" y="2.778107" draw_order="0" mirror="0" scale="1.000000" />
+            <beauty filePath="data\covers\a_grass_part10.png" angle="0.000000" x="-639.053406" y="-61.780891" draw_order="1" mirror="0" scale="1.000000" index="0" />
         </Beauties>
-        <word x="-443" y="27" scale="0.741208" />
+        <word x="281" y="174" scale="0.758509" />
     </level>
     <level id="2">
         <Ground>

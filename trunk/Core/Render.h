@@ -11,7 +11,7 @@
 class Sprite
 {
 public:
-	Sprite(HTEXTURE hTexture, int x, int y, int w, int h);
+	Sprite(HTEXTURE hTexture, int x = 0, int y = 0, int w = 0, int h = 0);
 	bool HasPixel(int x, int y) const;// valid for last render only!
 	void Render();
 	void Render(float x, float y);

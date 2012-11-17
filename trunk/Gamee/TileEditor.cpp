@@ -4,6 +4,8 @@
 #include "../Core/Render.h"
 #include "../Core/Math.h"
 #include <cstdio>
+#include "ColoredPolygon.h"
+
 #define LEVELS_FILE "levels.xml"
 #define DEC 0.01f
 #define HALFBORDER 0.0025f
@@ -22,10 +24,23 @@ void TileEditor::LoadTemplates(const std::string &filename) {
 		LOG("File not found : " + Render::GetDC()->Resource_MakePath(filename.c_str()));
 		return;
 	}
-	TiXmlElement *bodyDef = doc.RootElement()->FirstChildElement("b2object");
-	while (bodyDef) {
-		_collection.push_back(new BodyTemplate(bodyDef));
-		bodyDef = bodyDef->NextSiblingElement("b2object");
+	TiXmlElement *beautyList = doc.RootElement()->FirstChildElement("Beauties");
+	if (beautyList) {
+		TiXmlElement *elem = beautyList->FirstChildElement();
+		std::string typeName;
+		BeautyBase *beauty;
+		while (elem != NULL) {
+			typeName = elem->Value();// Attribute("type");
+			if (typeName == "ColoredPolygon") {
+				beauty = new ColoredPolygon(elem);
+			} else if (typeName == "Beauty") {
+				beauty = new Beauty(elem);
+			} else {
+				assert(false);
+			}
+			_collection.push_back(beauty);
+			elem = elem->NextSiblingElement();
+		}
 	}
 }
 
@@ -51,6 +66,8 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, SLIDER_MIN(0.2f)
 	, _netVisible(true)
 {
+	_currents.beauty = NULL;
+	_currents.line = NULL;
 	My::AnimationManager::Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "data\\byker\\ride.xml").c_str()));
 	_byker = new Byker();
 	_flags = Render::GetDC()->Texture_Load(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "data\\flagspoint.png").c_str()));
@@ -58,8 +75,6 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	_endFlag = new Sprite(_flags, 63, 0, 64, 64);
 
 	_currentElement.selected = SelectedElement::none;
-	_currents.dotIndex = -1;
-	_currents.moveAllDots = false;
 	if (!_doc.LoadFile(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + LEVELS_FILE).c_str()))) {
 		//OkMessageShow();
 		LOG("Error! Levels file not found! " + Render::GetDC()->Resource_MakePath((Render::GetDataDir() + LEVELS_FILE).c_str()));
@@ -138,56 +153,57 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 	_lastMousePos = mousePos;
 	InitParams(NULL);
 	FPoint2D fp = ScreenToWorld(mousePos);
-	_currentElement.selected = SelectedElement::none;
-	
-	if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
-		bool found = false;
-		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
-			found = _level.ground[i]->CreateDot(fp.x, fp.y);
+
+	{// ищем по кому кликнули
+		_currents.beauty = NULL;
+		_currents.line = NULL;
+		for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+			if (_level.groundLines[i]->DoesContainPoint(mousePos)) {
+				_currents.line = _level.groundLines[i];
+				break;
+			}
 		}
-	} else if (Render::GetDC()->Input_GetKeyState(HGEK_D)) {
-		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-			int index = _level.ground[i]->SearchNearest(fp.x, fp.y);
-			if (index >= 0) {
-				_level.ground[i]->RemoveDot(index);
-				if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
-					delete _level.ground[i];
-					_level.ground.erase(_level.ground.begin() + i);
+		if (!_currents.line) {
+			for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+				if (_level.beauties[i]->PixelCheck(mousePos)) {
+					_currents.beauty = _level.beauties[i];
+					break;
 				}
-				break;
 			}
-		}
-	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
-		bool found = false;
-		for (unsigned int i = 0; i < _level.ground.size() && !found; ++i) {
-			_currents.dotIndex = _level.ground[i]->SearchNearest(fp.x, fp.y);
-			_currents.moveAllDots = Render::GetDC()->Input_GetKeyState(HGEK_ALT);
-			_currents.block = _level.ground[i];
-			_currents.splineX = _level.ground[i]->xPoses;
-			_currents.splineY = _level.ground[i]->yPoses;
-			_currents.downX = fp.x;
-			_currents.downY = fp.y;
-			found = _currents.dotIndex >= 0;
-		}
-	} else {
-		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-			if (_level.beauties[i]->HasPixel(mousePos.x, mousePos.y)) {
-				_currentElement.selected = SelectedElement::beauty_element;
-				_currentElement.index = i;
-				break;
-			}
-		}
-		if (_currentElement.selected == SelectedElement::none) {
-		} else if (_currentElement.selected = SelectedElement::beauty_element) {
 		}
 	}
+
+	if (_currents.line) {
+		if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
+			if (Render::GetDC()->Input_GetKeyState(HGEK_D)) {
+				for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+					if (_level.groundLines[i]->DoesContainPoint(mousePos)) {
+						delete _level.groundLines[i];
+						_level.groundLines.erase(_level.groundLines.begin() + i);
+						_currents.line = NULL;
+						break;
+					}
+				}
+			}
+		} else {
+			_currents.line->MouseDown(mousePos);
+		}
+	} else if (_currents.beauty) {
+		_currents.beauty->MouseDown(mousePos);
+	}
+	
 }
 
 void TileEditor::OnMouseUp()
 {
 	_mouseDown = false;
-	_currents.dotIndex = -1;
-	_currents.moveAllDots = false;
+	if (_currents.beauty) {
+		_currents.beauty->MouseUp(_lastMousePos);
+		assert(_currents.line == NULL);
+	} else if (_currents.line) {
+		_currents.line->MouseUp(_lastMousePos);
+		assert(_currents.beauty == NULL);//?
+	}
 }
 
 void TileEditor::InitParams(b2Body *body) 
@@ -254,20 +270,34 @@ bool TileEditor::IsLevelFinish() {
 
 void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 {
+	if (!_editor) {
+		return;
+	}
 	FPoint2D newMmouseWorld = ScreenToWorld(mousePos);
 
-	if (_currentElement.selected != SelectedElement::none && _mouseDown) {
-		if (_currentElement.selected == SelectedElement::beauty_element) {
-			_level.beauties[_currentElement.index]->Pos().x += (newMmouseWorld.x - _mouseWorld.x);
-			_level.beauties[_currentElement.index]->Pos().y += (newMmouseWorld.y - _mouseWorld.y);
+	if (!Render::GetDC()->Input_GetKeyState(HGEK_ALT)) {
+		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+			_level.beauties[i]->MouseMove(mousePos);
 		}
-	} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
-		float dx = newMmouseWorld.x - _mouseWorld.x;
-		float dy = newMmouseWorld.y - _mouseWorld.y;
 
-		_currents.block->ShiftDot(_currents.dotIndex, dx, dy, _currents.moveAllDots);
+		for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+			_level.groundLines[i]->MouseMove(mousePos);
+		}
+	}
 
-	} else {
+	//if (_currentElement.selected != SelectedElement::none && _mouseDown) {
+	//	if (_currentElement.selected == SelectedElement::beauty_element) {
+	//		_level.beauties[_currentElement.index]->Pos().x += (newMmouseWorld.x - _mouseWorld.x);
+	//		_level.beauties[_currentElement.index]->Pos().y += (newMmouseWorld.y - _mouseWorld.y);
+	//	}
+	//} else if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currents.dotIndex >= 0) {
+	//	float dx = newMmouseWorld.x - _mouseWorld.x;
+	//	float dy = newMmouseWorld.y - _mouseWorld.y;
+
+	//	_currents.block->ShiftDot(_currents.dotIndex, dx, dy, _currents.moveAllDots);
+
+	//} else 
+	if ((_currents.beauty == NULL && _currents.line == NULL) || Render::GetDC()->Input_GetKeyState(HGEK_ALT)) {
 		if (_mouseDown) {
 			_worldOffset -= (mousePos - _lastMousePos) / _viewScale;
 		}
@@ -284,11 +314,7 @@ bool TileEditor::OnMouseWheel(int direction) {
 	FPoint2D fp = ScreenToWorld(_lastMousePos);
 	_screenOffset = _lastMousePos;
 	_worldOffset = fp;
-	if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT) && _currentElement.selected != SelectedElement::none) {
-		if (_currentElement.selected == SelectedElement::beauty_element) {
-			_level.beauties[_currentElement.index]->Change(direction);
-		}
-	} else if (direction > 0 && _viewScale < 4.f) {
+	if (direction > 0 && _viewScale < 4.f) {
 		_viewScale *= 1.09f * direction;
 	} else if (direction < 0 && _viewScale > 1.f / 8.f) {
 		_viewScale *= 0.9f * abs(direction);
@@ -355,45 +381,12 @@ void TileEditor::Draw() {
 		Render::MatrixMove(_screenOffset.x, _screenOffset.y);
 		Render::MatrixScale(_viewScale, _viewScale);
 		Render::MatrixMove(-_worldOffset.x, -_worldOffset.y);
-		if (_netVisible) {// текстуры подложка
-			for (unsigned int i = 0; i < _level.images.size(); ++i) {
-				_level.images[i].sprite->Render(_level.images[i].pos.x, _level.images[i].pos.y);
-			}
-		}
 		// кусты
 		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-			if (_level.beauties[i]->GetDrawOrder() == 0) {
-				bool changeColor = false;
-				if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
-					DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-					Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-					changeColor = true;
-				}
-				_level.beauties[i]->Draw();
-				if (changeColor) {
-					Render::SetColor(0xFFFFFFFF);
-				}
-			}
+			_level.beauties[i]->Draw();
 		}
-		if (!_netVisible) {// залитая одним цветом земля
-			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->DrawTriangles();
-			}
-		}
-		// кусты
-		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-			if (_level.beauties[i]->GetDrawOrder() == 1) {
-				bool changeColor = false;
-				if (_currentElement.selected == SelectedElement::beauty_element && _currentElement.index == i) {
-					DWORD f = 0x7F + 0x7F * sin(M_PI * _signal);
-					Render::SetColor(0xFF000000 | f << 16 | f << 8 | f);
-					changeColor = true;
-				}
-				_level.beauties[i]->Draw();
-				if (changeColor) {
-					Render::SetColor(0xFFFFFFFF);
-				}
-			}
+		for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+			_level.groundLines[i]->DebugDrawLines();
 		}
 		if (_netVisible) {// сетка
 			Matrix m;
@@ -415,9 +408,6 @@ void TileEditor::Draw() {
 				Render::Line(startX, y, endX, y, 0x4FFFFFFF);
 				y += STEP;
 			}
-			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->DrawLines();
-			}
 		} 
 		Render::PopMatrix();
 	} else { // режим игры
@@ -432,19 +422,7 @@ void TileEditor::Draw() {
 			Render::MatrixMove((*j)._lines[0]->GetOffset().x * SCALE_BOX2D, (*j)._lines[0]->GetOffset().y * SCALE_BOX2D);
 			// кусты
 			for (unsigned int i = 0; i < (*j)._set->beauties.size(); ++i) {
-				SetItem *b = (*j)._set->beauties[i];
-				if (b->GetDrawOrder() == 0) {
-					b->Draw();
-				}
-			}
-			for (unsigned int i = 0; i < (*j)._set->ground.size(); ++i) {
-				(*j)._set->ground[i]->DrawTriangles();
-			}
-			for (unsigned int i = 0; i < (*j)._set->beauties.size(); ++i) {
-				SetItem *b = (*j)._set->beauties[i];
-				if (b->GetDrawOrder() == 1) {
-					b->Draw();
-				}
+				(*j)._set->beauties[i]->Draw();
 			}
 			Render::Line((*j)._set->Startpoint().x - 5, (*j)._set->Startpoint().y - 5,
 				(*j)._set->Startpoint().x + 5, (*j)._set->Startpoint().y + 5, 0xFF44FF44);
@@ -510,8 +488,8 @@ void TileEditor::Draw() {
 			_byker->physic.SetPosition(_byker->physic.GetPosition() + b2shift);
 			_worldOffset.y += shift.y;
 
-			for (unsigned int i = 0; i < newSet->ground.size(); ++i) {
-				island._lines.push_back(newSet->ground[i]->CreateBody(_byker, i));
+			for (unsigned int i = 0; i < newSet->groundLines.size(); ++i) {
+				island._lines.push_back(newSet->groundLines[i]->CreateBody(_byker, i));
 			}
 
 			_startPoint = newSet->Startpoint();
@@ -538,18 +516,29 @@ FPoint2D TileEditor::WorldToScreen(const FPoint2D &worldPos) {
 
 bool TileEditor::OnKey(int key) {
 	if (_currentElement.selected == SelectedElement::beauty_element) {
-		if (key == HGEK_LEFT) {
-			_level.beauties[_currentElement.index]->Pos().x -= 1;
-		} else if (key == HGEK_RIGHT) {
-			_level.beauties[_currentElement.index]->Pos().x += 1;
-		} else if (key == HGEK_UP) {
-			_level.beauties[_currentElement.index]->Pos().y -= 1;
-		} else if (key == HGEK_DOWN) {
-			_level.beauties[_currentElement.index]->Pos().y += 1;
-		} else if (key == HGEK_DELETE) {
-			delete _level.beauties[_currentElement.index];
-			_level.beauties.erase(_level.beauties.begin() + _currentElement.index);
-			_currentElement.selected = SelectedElement::none;
+		if (key == HGEK_DELETE) {
+			if (_currents.beauty) {
+				for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
+					if (_level.beauties[i] == _currents.beauty) {
+						delete _level.beauties[i];
+						_level.beauties.erase(_level.beauties.begin() + i);
+						_currents.beauty = NULL;
+						break;
+					}
+				}
+				for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+					_level.groundLines[i]->DrawLines();
+				}
+			} else if (_currents.line) {
+				for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+					if (_level.groundLines[i] == _currents.line) {
+						delete _level.groundLines[i];
+						_level.groundLines.erase(_level.groundLines.begin() + i);
+						_currents.line = NULL;
+						break;
+					}
+				}
+			}
 		}
 	}
 	return true;
@@ -754,87 +743,32 @@ void TileEditor::AddNewElement(const std::string &msg) {
 	if (msg == "cancel") {
 		return;
 	}
+
 	//if (!_editor) {
 	//	SetValueS("play", "", "play");
 	//	ResetState();
 	//}
 	//InitParams(AddElement(msg));
+
+	std::string message(msg);
+
 	if (msg == "ground") {
-		LevelBlock *b = new LevelBlock();
+		SolidGroundLine *b = new SolidGroundLine();
 		for (int i = 0; i < 5; ++i) {
-			b->AddPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y);
+			b->AddPoint(_worldOffset.x - 256.f + 256 * i / 2, _worldOffset.y);
 		}
-		_level.ground.push_back(b);
-	} else if (msg == "island") {
-		LevelIsland *b = new LevelIsland();
-		for (int i = 0; i < 5; ++i) {
-			b->AddPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y);
+		_level.groundLines.push_back(b);
+	} else if (CanCut(msg, "beauty", message)) {
+		BeautyBase *origin = _collection[atoi(message.c_str())];
+		BeautyBase *b;
+		if (origin->Type() == "Beauty") {
+			b = new Beauty(*(Beauty *)origin);
+		} else {
+			assert(false);
 		}
-		for (int i = 4; i >= 0; --i) {
-			b->AddBottomPoint(_worldOffset.x - 128.f + 128 * i / 2, _worldOffset.y + 50);
-		}
-		_level.ground.push_back(b);
-	} else if (msg == "image") {
-		Messager::SendMessage("MiddleList", "prefix AddBackImage");
-		{
-			WIN32_FIND_DATA FindFileData;
-			HANDLE hf;
-			std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
-			s += "data\\images\\*.jpg";
-			hf = FindFirstFile(s.c_str(), &FindFileData);
-			if (hf != INVALID_HANDLE_VALUE){
-				do {
-					//std::cout << FindFileData.cFileName << "\n";
-					Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
-				}
-				while (FindNextFile(hf,&FindFileData) != 0);
-				FindClose(hf);
-			}
-		}
-		{
-			WIN32_FIND_DATA FindFileData;
-			HANDLE hf;
-			std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
-			s += "data\\images\\*.png";
-			hf = FindFirstFile(s.c_str(), &FindFileData);
-			if (hf != INVALID_HANDLE_VALUE){
-				do {
-					//std::cout << FindFileData.cFileName << "\n";
-					Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
-				}
-				while (FindNextFile(hf,&FindFileData) != 0);
-				FindClose(hf);
-			}
-		}
-		Messager::SendMessage("MiddleList", "special add cancel");
-	} else if (msg == "beauty") {
-		Beauty *b = new Beauty("data\\beauty\\bush.png",
-							_worldOffset,
-							0.f,
-							1.f,
-							false);
-		b->SetDrawOrder(0);
-		_level.beauties.push_back(b);
-		_currentElement.selected = SelectedElement::beauty_element;
-		_currentElement.index = _level.beauties.size() - 1;
-	} else if (msg == "groundcover") {
-		//MiddleList ?
-		Messager::SendMessage("MiddleList", "prefix cover");
-		{
-			WIN32_FIND_DATA FindFileData;
-			HANDLE hf;
-			std::string s(Render::GetDC()->Resource_MakePath(Render::GetDataDir().c_str()));
-			s += "data\\covers\\*.png";
-			hf = FindFirstFile(s.c_str(), &FindFileData);
-			if (hf != INVALID_HANDLE_VALUE){
-				do {
-					Messager::SendMessage("MiddleList", std::string("add ") + FindFileData.cFileName);
-				}
-				while (FindNextFile(hf,&FindFileData) != 0);
-				FindClose(hf);
-			}
-		}
-		Messager::SendMessage("MiddleList", "special add cancel");
+		b->MoveTo(_screenOffset.x, _screenOffset.y);
+		 _level.beauties.push_back(b);
+		_currents.beauty = b;
 	} else if (msg == "box") {
 		Messager::SendMessage("SmallList", "prefix AddBoxElement");
 		Messager::SendMessage("SmallList", "add small");
@@ -850,43 +784,6 @@ void TileEditor::AddBoxElement(const std::string &msg) {
 	if (msg == "cancel") {
 		return;
 	}
-}
-
-void TileEditor::AddBackImage(const std::string &msg) {
-	Messager::SendMessage("MiddleList", "clear");
-	if (msg == "cancel") {
-		return;
-	}
-	OneImage image;
-	image.texture = Render::GetDC()->Texture_Load((Render::GetDataDir() + "data\\images\\" + msg).c_str());
-	image.sprite = new Sprite(image.texture, 0, 0, Render::GetDC()->Texture_GetWidth(image.texture), Render::GetDC()->Texture_GetHeight(image.texture));
-	image.pos = FPoint2D(0.f, 0.f);
-	image.filePath = msg;
-	if (_level.images.size() > 0) {
-		for (unsigned int i = 0; i < _level.images.size(); ++i) {
-			delete _level.images[i].sprite;
-			Render::GetDC()->Texture_Free(_level.images[i].texture);
-		}
-		_level.images.clear();
-	}
-	_level.images.push_back(image);
-}
-
-void TileEditor::AddCover(const std::string &msg) 
-{
-	Messager::SendMessage("MiddleList", "clear");
-	if (msg == "cancel") {
-		return;
-	}
-	GroundLine *b = new GroundLine(_worldOffset,
-						0.f,
-						1.f,
-						false);
-	b->SetFileName(msg);
-	b->SetDrawOrder(1);
-	_level.beauties.push_back(b);
-	_currentElement.selected = SelectedElement::beauty_element;
-	_currentElement.index = _level.beauties.size() - 1;
 }
 
 void TileEditor::PreSaveLevel(const std::string &msg) {
@@ -927,10 +824,6 @@ void TileEditor::OnMessage(const std::string &message) {
 		NewLevelYesNo(msg);
 		return;
 	}
-	if (CanCut(message, "cover", msg)) {
-		AddCover(msg);
-		return;
-	}
 	if (CanCut(message, "DeleteSelectedYesNo", msg)) {
 		DeleteSelectedYesNo(msg);
 		return;
@@ -947,10 +840,6 @@ void TileEditor::OnMessage(const std::string &message) {
 		AddBoxElement(msg);
 		return;
 	}
-	if (CanCut(message, "AddBackImage", msg)) {
-		AddBackImage(msg);
-		return;
-	}
 	if (CanCut(message, "LoadLevel", msg)) {
 		LoadLevel(msg);
 		return;
@@ -963,11 +852,6 @@ void TileEditor::OnMessage(const std::string &message) {
 		InitParams(_selectedBody);
 	} else if (message == "net") {
 		_netVisible = !_netVisible;
-		if (!_netVisible) {
-			for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-				_level.ground[i]->GenerateTriangles();
-			}
-		}
 	} else if (message == "play" || message == "random") {
 		if (_editor) { // переходим в режим игры
 			if (CanLevelStart()) {
@@ -976,9 +860,6 @@ void TileEditor::OnMessage(const std::string &message) {
 				_editor = false;
 				SaveState();
 				_netVisible = false;
-				for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-					_level.ground[i]->GenerateTriangles();
-				}
 				SetupBox2D();
 			} else {
 				OkMessageShow("Error!\nLevel must have START and END poses!");
@@ -994,11 +875,8 @@ void TileEditor::OnMessage(const std::string &message) {
 		//}
 		Messager::SendMessage("SmallList", "prefix AddNewElement");
 		Messager::SendMessage("SmallList", "add ground");
-		Messager::SendMessage("SmallList", "add island");
 		//Messager::SendMessage("SmallList", "add curv");
-		Messager::SendMessage("SmallList", "add image");
 		Messager::SendMessage("SmallList", "add beauty");
-		Messager::SendMessage("SmallList", "add groundcover");
 		//Messager::SendMessage("SmallList", "add bonus");
 		//Messager::SendMessage("SmallList", "add box");
 		//Messager::SendMessage("SmallList", "add transport");
@@ -1056,25 +934,18 @@ void TileEditor::SaveLevel(const std::string &levelName) {
 		elem = elem->NextSiblingElement();
 		_saveLevelXml->RemoveChild(remove);
 	}
+
 	TiXmlElement *elemGround = new TiXmlElement("Ground");
 	_saveLevelXml->LinkEndChild(elemGround);
-	for (LevelBlocks::iterator i = _level.ground.begin(), e = _level.ground.end(); i != e; i++) {
+	for (LevelGroundLines::iterator i = _level.groundLines.begin(), e = _level.groundLines.end(); i != e; i++) {
 		TiXmlElement *elem = new TiXmlElement((*i)->Type());
 		(*i)->SaveToXml(elem);
 		elemGround->LinkEndChild(elem);
 	}
 
-	TiXmlElement *imagesList = new TiXmlElement("Images");
-	for (int i = 0; i < _level.images.size(); i++) {
-		TiXmlElement *image = new TiXmlElement("image");
-		image->SetAttribute("filePath", _level.images[i].filePath.c_str());
-		imagesList->LinkEndChild(image);
-	}
-	_saveLevelXml->LinkEndChild(imagesList);
-
 	TiXmlElement *beautyList = new TiXmlElement("Beauties");
 	for (int i = 0; i < _level.beauties.size(); i++) {
-		TiXmlElement *beauty = new TiXmlElement(_level.beauties[i]->Type() == SetItem::beauty_item ? "beauty" : "ground");
+		TiXmlElement *beauty = new TiXmlElement(_level.beauties[i]->Type());
 		_level.beauties[i]->SaveToXml(beauty);
 		beautyList->LinkEndChild(beauty);
 	}
@@ -1120,17 +991,13 @@ void TileEditor::LoadLevel(const std::string &msg) {
 	SetValueS("play", "", "play");
 	//ResetState();
 	_currentLevel = msg;
-	if (!_netVisible) {
-		for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-			_level.ground[i]->GenerateTriangles();
-		}
-	}
 }
 
 void TileEditor::CalcNextBykePos(float dt) {
+	assert(false);
 	FPoint2D proection;
-	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		if (_level.ground[i]->SearchProection(proection)) {
+	for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+		if (_level.groundLines[i]->SearchProection(proection)) {
 		}
 	}
 }
@@ -1170,8 +1037,8 @@ void TileEditor::SetupBox2D() {
 	_islands.clear();
 	Island island;
 	island._set = &_level;
-	for (unsigned int i = 0; i < _level.ground.size(); ++i) {
-		island._lines.push_back(_level.ground[i]->CreateBody(_byker, i));
+	for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+		island._lines.push_back(_level.groundLines[i]->CreateBody(_byker, i));
 	}
 	_islands.push_back(island);
 

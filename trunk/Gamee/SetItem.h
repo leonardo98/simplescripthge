@@ -32,19 +32,6 @@ protected:
 	std::string _filePath;
 };
 
-class Beauty : public SetItem{
-public:
-	Beauty();
-	Beauty(const char *fileName, const FPoint2D &pos, float angle, float scale, bool mirror);
-	virtual void SaveToXml(TiXmlElement *xe) const;
-	virtual void LoadFromXml(TiXmlElement *xe);
-	virtual void Draw() const;
-	virtual void Change(int p);
-private:
-	bool _mirror;
-	float _scale;
-};
-
 class GroundLine : public SetItem{
 public:
 	GroundLine();
