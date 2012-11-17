@@ -27,7 +27,6 @@ BeautyBase::BeautyBase(TiXmlElement *xe) {
 
 	_canBeRotated = atoi(xe->Attribute("canBeRotated")) == 1;
 	_canBeScaled = atoi(xe->Attribute("canBeScaled")) == 1;
-	_linearFiltering = atoi(xe->Attribute("linearFiltering")) == 1;
 
 	_debugDraw = false;
 
@@ -63,7 +62,6 @@ void BeautyBase::SaveToXml(TiXmlElement *xe) {
 
 	xe->SetAttribute("canBeRotated", (_canBeRotated ? "1" : "0"));
 	xe->SetAttribute("canBeScaled", (_canBeScaled ? "1" : "0"));
-	xe->SetAttribute("linearFiltering", (_linearFiltering ? "1" : "0"));
 }
 
 void BeautyBase::Draw() {
@@ -98,7 +96,7 @@ void BeautyBase::DebugDraw() {
 			}
 			Render::SetAlpha(0xAF);
 			FPoint2D corners[4];
-			{
+			if (_canBeScaled) {
 				matrix.Move(- Width() / 2, - Height() / 2);
 				
 				matrix.Mul(r.x1, r.y1, corners[0].x, corners[0].y);
@@ -121,14 +119,14 @@ void BeautyBase::DebugDraw() {
 				corners[3].y = Math::round(corners[3].y);
 				scale[3]->Render(corners[3].x - scale[3]->Width() / 2.f, corners[3].y - scale[3]->Height() / 2.f);
 			}
-			{
+			if (_canBeScaled) {
 				for (int i = 0; i < 4; ++i) {
 					float x = (corners[i].x + corners[(i + 1) % 4].x) / 2;
 					float y = (corners[i].y + corners[(i + 1) % 4].y) / 2;
 					scaleSide[i]->Render(x - scaleSide[i]->Width() / 2.f, y - scaleSide[i]->Height() / 2.f);
 				}
 			}
-			{
+			if (_canBeRotated) {
 				Render::PushMatrix();
 				Render::MatrixMove(x, y);
 				
@@ -147,7 +145,7 @@ void BeautyBase::DebugDraw() {
 				rotate->Render( Math::round(rpos.x - rotate->Width() / 2.f), Math::round(rpos.y - rotate->Height() / 2.f));
 				Render::PopMatrix();
 			}
-			{
+			if (_canBeRotated) {
 				move->Render(x - move->Width() / 2.f, y - move->Height() / 2.f);
 			}
 			Render::SetAlpha(0xFF);
@@ -159,12 +157,12 @@ void BeautyBase::MouseDown(const FPoint2D &mousePos) {
 	if (!_debugDraw) {
 		return;
 	}
-	if (
-		rotate->HasPixel((int)mousePos.x, (int)mousePos.y)) {
+	if (_canBeRotated
+		&& rotate->HasPixel((int)mousePos.x, (int)mousePos.y)) {
 		_state = edit_rotate;
 		return;
-	} else if (
-		(scale[0]->HasPixel((int)mousePos.x, (int)mousePos.y)
+	} else if (_canBeScaled
+		&& (scale[0]->HasPixel((int)mousePos.x, (int)mousePos.y)
 		|| scale[1]->HasPixel((int)mousePos.x, (int)mousePos.y)
 		|| scale[2]->HasPixel((int)mousePos.x, (int)mousePos.y)
 		|| scale[3]->HasPixel((int)mousePos.x, (int)mousePos.y)
@@ -175,8 +173,8 @@ void BeautyBase::MouseDown(const FPoint2D &mousePos) {
 		_scaleY = true;
 		_beforeDragScale = FPoint2D(_sx, _sy);
 		return;
-	} else if (
-		((_scaleY = scaleSide[0]->HasPixel((int)mousePos.x, (int)mousePos.y))
+	} else if (_canBeScaled
+		&& ((_scaleY = scaleSide[0]->HasPixel((int)mousePos.x, (int)mousePos.y))
 		|| (_scaleX = scaleSide[1]->HasPixel((int)mousePos.x, (int)mousePos.y))
 		|| (_scaleY = scaleSide[2]->HasPixel((int)mousePos.x, (int)mousePos.y))
 		|| (_scaleX = scaleSide[3]->HasPixel((int)mousePos.x, (int)mousePos.y))

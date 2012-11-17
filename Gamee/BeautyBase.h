@@ -13,7 +13,6 @@ protected:
 	// эти переменные нужны только для редактора
 	bool _canBeRotated;
 	bool _canBeScaled;
-	bool _linearFiltering;
 
 	// эти переменные общие для украшений
 	FPoint2D _pos;

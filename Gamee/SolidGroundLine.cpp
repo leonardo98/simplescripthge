@@ -40,6 +40,7 @@ void SolidGroundLine::DebugDrawLines() {
 	float sx, sy;
 	parent.GetScale(sx, sy);
 
+	Render::GetDC()->System_SetState(HGE_TEXTUREFILTER, false);
 	for (unsigned int i = 0; i < xPoses.size(); ++i) {
 		float x = xPoses[i];
 		float y = yPoses.keys[i].first;
@@ -53,6 +54,7 @@ void SolidGroundLine::DebugDrawLines() {
 		}
 		Render::PopMatrix();
 	}
+	Render::GetDC()->System_SetState(HGE_TEXTUREFILTER, true);
 
 }
 
