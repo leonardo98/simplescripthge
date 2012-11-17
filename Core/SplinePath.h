@@ -1,6 +1,8 @@
 #ifndef MYENGINE_SPLINE_H
 #define MYENGINE_SPLINE_H
 
+#include <vector>
+
 inline float LineInterpolation(float x1, float x2, float t)
 {
 	return x1 + (x2 - x1) * t;

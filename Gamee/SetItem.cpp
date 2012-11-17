@@ -72,49 +72,6 @@ void SetItem::LoadFromXml(TiXmlElement *xe) {
 	_sprite = new Sprite(_texture, 0, 0, Render::GetDC()->Texture_GetWidth(_texture), Render::GetDC()->Texture_GetHeight(_texture));
 }
 
-Beauty::Beauty() 
-: SetItem(beauty_item)
-{}
-
-Beauty::Beauty(const char *fileName, const FPoint2D &pos, float angle, float scale, bool mirror) 
-: SetItem(beauty_item, fileName, pos, angle)
-, _scale(scale)
-, _mirror(mirror)
-{	
-}
-
-void Beauty::SaveToXml(TiXmlElement *xe) const {
-	SetItem::SaveToXml(xe);
-	xe->SetAttribute("mirror", _mirror ? "1" : "0");
-	char s[16];
-	sprintf(s, "%f", _scale);
-	xe->SetAttribute("scale", s);
-}
-
-void Beauty::Draw() const {
-	Render::PushMatrix();
-	Render::MatrixMove(_pos.x, _pos.y);
-	Render::MatrixMove(_scale, _scale);
-	Render::MatrixRotate(_angle / 180 * M_PI);
-	if (_mirror) {
-		Render::MatrixScale(-1.f, 1.f);
-	}
-	_sprite->Render(- _sprite->Width() / 2, - _sprite->Height());
-	Render::PopMatrix();
-}
-
-void Beauty::LoadFromXml(TiXmlElement *xe) {
-	SetItem::LoadFromXml(xe);
-	_mirror = atoi(xe->Attribute("mirror")) != 0;
-	_scale = atof(xe->Attribute("scale"));
-}
-
-void Beauty::Change(int p) {
-	_angle += p * 3;
-}
-
-
-
 GroundLine::GroundLine() 
 : SetItem(beauty_item)
 , _maxIndex(19)

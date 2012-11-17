@@ -754,6 +754,22 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\Beauty.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\Beauty.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\BeautyBase.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\BeautyBase.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\BodyTemplate.h"
 					>
 				</File>
@@ -767,6 +783,10 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\Byker.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\ColoredPolygon.cpp"
 					>
 				</File>
 				<File
@@ -803,6 +823,14 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\Simulator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\SolidGroundLine.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\SolidGroundLine.h"
 					>
 				</File>
 				<File

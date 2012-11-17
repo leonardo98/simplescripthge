@@ -128,6 +128,10 @@ public:
 
 		Mul(1.f / det);
 	}
+	void GetScale(float &sx, float &sy) {
+		sx = _matrix[0][0];
+		sy = _matrix[1][1];
+	}
 };
 
 #endif//MYENGINE_MATRIX_H

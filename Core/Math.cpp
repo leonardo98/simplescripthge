@@ -238,3 +238,23 @@ bool Math::Inside(const FPoint2D m, const std::vector<FPoint2D> &dots) {
 	}
 	return (counter % 2 == 1);
 }
+
+float Math::Distance(const FPoint2D &one, const FPoint2D &two, const FPoint2D &point) {
+	float d = 0;
+	float ab = (one - two).Length();
+	STrinagle(ab, (two - point).Length(), (point - one).Length(), d);
+	return d * 2 / ab; 
+}
+
+bool Math::DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPoint2D &p) {
+	float a = (one - p).Length();
+	float b = (p - two).Length();
+	float c = (one - two).Length();
+	if (c > a && c > b) {
+		float s;
+		Math::STrinagle(a, b, c, s);
+		return (s / c < 4);
+	}
+	return false;
+}
+
