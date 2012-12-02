@@ -85,7 +85,7 @@ BykerGame::BykerGame(TiXmlElement *xe)
 
 	_allElements = Core::getTexture("allElements");
 	//LoadTemplates(Render::GetDataDir() + "bodyes.xml");
-	LoadRandomLevelsSet(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "random.xml").c_str()));
+	LoadRandomLevelsSet(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "levels.xml").c_str()));
 
 	//b2Vec2 gravity;
 	//gravity.Set(0.0f, 10.0f);
@@ -208,7 +208,7 @@ void BykerGame::InitParams(b2Body *body)
 }
 
 bool BykerGame::CanLevelStart() {
-	return true;
+	return _level.groundLines.size() > 0;
 }
 
 bool BykerGame::IsLevelFinish() {
@@ -635,7 +635,7 @@ void BykerGame::OnMessage(const std::string &message) {
 				SaveState();
 				SetupBox2D();
 			} else {
-				OkMessageShow("Error!\nLevel must have START and END poses!");
+				OkMessageShow("Error!\nLoad level first!");
 			}
 		} else { // в редактор
 			SetValueS("play", "", "play");
