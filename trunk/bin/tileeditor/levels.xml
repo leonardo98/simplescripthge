@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 <list>
     <level id="1">
-        <Ground />
         <Beauties>
             <ColoredPolygon x="-607.355591" y="-130.739548" color="0xFF4C812D">
-                <dot x="-412.943054" y="147.562500" />
+                <dot x="-409.716003" y="773.609985" />
                 <dot x="-407.419647" y="-302.439026" />
                 <dot x="70.174377" y="-354.845734" />
                 <dot x="198.854156" y="-338.052673" />
@@ -13,8 +12,8 @@
                 <dot x="959.674133" y="-412.605499" />
                 <dot x="1257.884521" y="-463.263153" />
                 <dot x="1525.473267" y="-437.342560" />
-                <dot x="2022.217896" y="-356.240967" />
-                <dot x="2026.162109" y="153.122070" />
+                <dot x="2026.023071" y="-355.740967" />
+                <dot x="2032.616211" y="730.763794" />
             </ColoredPolygon>
             <Beauty x="-772.626404" y="-533.015259" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
             <Beauty x="-870.825378" y="-521.737061" angle="-0.227557" sx="-0.820102" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
@@ -23,8 +22,8 @@
             <Beauty x="249.643921" y="-653.148926" angle="0.317503" sx="-0.863069" sy="1.370954" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
             <Beauty x="137.001526" y="-654.090515" angle="0.142594" sx="1.227528" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
             <Beauty x="-823.864807" y="-452.428650" texture="data\highhill\a_grass_part05.png" />
-            <SolidGroundLine inGameType="groundline" x="-830.547791" y="-443.624390" color="0xFFFF0000">
-                <dot x="-182.686249" y="-0.251282" />
+            <SolidGroundLine inGameType="groundline" x="-832.547791" y="-450.374390" color="0xFFFF0000">
+                <dot x="-181.985718" y="3.210724" />
                 <dot x="-98.111755" y="4.031677" />
                 <dot x="33.286224" y="-20.272980" />
                 <dot x="157.234741" y="-18.394958" />
@@ -65,11 +64,10 @@
             <Animation x="382.079346" y="-598.021729" canBeRotated="1" canBeScaled="1" file="data\byker\bananas.xml" id="banana_level2" />
             <Animation x="-300.709106" y="-579.451721" canBeRotated="1" canBeScaled="1" file="data\byker\bananas.xml" id="banana_level4" />
         </Beauties>
-        <word x="581" y="-338" scale="0.379508" />
+        <word x="1288" y="-600" scale="1.107932" />
     </level>
     <level id="2">
         <Beauties>
-            <Beauty x="-68.149048" y="-617.098938" angle="-0.269234" sx="2.139382" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
             <Beauty x="-870.825378" y="-521.737061" angle="-0.227557" sx="-0.820102" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
             <Beauty x="-772.626404" y="-533.015259" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
             <Beauty x="-627.559204" y="-544.348511" angle="-0.236211" sx="-1.500004" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
@@ -83,7 +81,7 @@
             </ColoredPolygon>
             <Beauty x="133.988770" y="-655.727356" angle="0.137075" canBeRotated="1" canBeScaled="1" texture="data\beauty\bush.png" />
             <ColoredPolygon x="-606.467407" y="-127.937881" color="0xFF4C812D">
-                <dot x="-412.943054" y="147.562500" />
+                <dot x="-410.764954" y="528.734741" />
                 <dot x="-407.419647" y="-302.439026" />
                 <dot x="50.174377" y="-361.845734" />
                 <dot x="209.854156" y="-354.052673" />
@@ -94,13 +92,14 @@
                 <dot x="1394.385986" y="-172.906097" />
                 <dot x="1724.768921" y="-235.917877" />
                 <dot x="1830.610840" y="-396.516357" />
-                <dot x="2020.753784" y="-427.665527" />
-                <dot x="2026.162109" y="153.122070" />
+                <dot x="2023.269897" y="-437.421326" />
+                <dot x="2023.984131" y="549.541260" />
             </ColoredPolygon>
             <Beauty x="-823.864807" y="-452.428650" texture="data\highhill\a_grass_part05.png" />
             <SolidGroundLine inGameType="groundline" x="-839.873230" y="-443.793182" color="0xFFFF0000">
-                <dot x="-177.686249" y="12.748718" />
-                <dot x="33.286224" y="-20.272980" />
+                <dot x="-174.813232" y="-4.056854" />
+                <dot x="-85.871399" y="2.186737" />
+                <dot x="25.286224" y="-22.272980" />
                 <dot x="157.234741" y="-18.394958" />
                 <dot x="281.183228" y="-44.687042" />
                 <dot x="409.826721" y="-30.601929" />
@@ -119,7 +118,7 @@
             <Beauty x="73.406128" y="-575.284729" texture="data\highhill\a_grass_part07.png" />
             <Beauty x="200.901123" y="-564.140381" texture="data\highhill\a_grass_part09.png" />
             <Beauty x="1351.112183" y="-545.484863" texture="data\highhill\a_grass_part05.png" />
-            <Beauty x="-951.849548" y="-435.891968" texture="data\highhill\a_grass_part06.png" />
+            <Beauty x="-951.349548" y="-436.141968" texture="data\highhill\a_grass_part06.png" />
             <Beauty x="328.700165" y="-471.031067" canBeScaled="1" texture="data\lake\lakeline_start.png" />
             <Beauty x="1225.458740" y="-465.918060" canBeScaled="1" texture="data\lake\lakeline_end.png" />
             <Beauty x="456.731323" y="-391.487854" canBeScaled="1" texture="data\lake\lakeline_part01.png" />
@@ -129,16 +128,16 @@
             <Beauty x="968.791870" y="-319.171173" canBeScaled="1" texture="data\lake\lakeline_part16.png" />
             <Beauty x="1096.816162" y="-387.105194" canBeScaled="1" texture="data\lake\lakeline_part17.png" />
             <SolidGroundLine inGameType="groundline" x="1375.159790" y="-562.143921" color="0xFFFF0000">
-                <dot x="-221.035568" y="57.846542" />
+                <dot x="-230.035568" y="89.846542" />
                 <dot x="-88.902313" y="13.141541" />
-                <dot x="40.000000" y="0.000000" />
+                <dot x="40.000000" y="-4.000000" />
             </SolidGroundLine>
-            <SolidGroundLine inGameType="waterline" x="416.031128" y="-504.787964" color="0xFF0000FF">
+            <SolidGroundLine inGameType="waterline" x="416.102905" y="-478.496277" color="0xFF0000FF">
                 <dot x="-40.000000" y="0.000000" />
                 <dot x="765.943848" y="-3.681641" />
             </SolidGroundLine>
         </Beauties>
-        <word x="570" y="-348" scale="0.390191" />
+        <word x="997" y="-609" scale="1.000000" />
     </level>
     <level id="3">
         <Ground />
