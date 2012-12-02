@@ -1,4 +1,4 @@
-#include "TileEditor.h"
+#include "BykerGame.h"
 #include "../Helpers/MyMessageBox.h"
 #include "../Core/Core.h"
 #include "../Core/Render.h"
@@ -13,12 +13,12 @@
 Texture *_allElements;
 
 
-int TileEditor::round(float a) {
+int BykerGame::round(float a) {
 	int b = static_cast<int>(a);
 	return (a - b) >= 0.5f ? b + 1 : b;
 } 
 
-void TileEditor::LoadTemplates(const std::string &filename) {
+void BykerGame::LoadTemplates(const std::string &filename) {
 	TiXmlDocument doc(Render::GetDC()->Resource_MakePath(filename.c_str()));
 	if (!doc.LoadFile()) {
 		LOG("File not found : " + Render::GetDC()->Resource_MakePath(filename.c_str()));
@@ -44,10 +44,10 @@ void TileEditor::LoadTemplates(const std::string &filename) {
 	}
 }
 
-void TileEditor::LoadRandomLevelSet(const std::string &filename) {
+void BykerGame::LoadRandomLevelSet(const std::string &filename) {
 }
 
-TileEditor::TileEditor(TiXmlElement *xe)
+BykerGame::BykerGame(TiXmlElement *xe)
 	: _viewScale(1.f)
 	, _useRandom(false)
 	, _scipScaleChanging(0.f)
@@ -64,7 +64,6 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	, _mouseDown(false)
 	, SLIDER_SCALE(1.2f)
 	, SLIDER_MIN(0.2f)
-	, _netVisible(true)
 {
 	_currents.beauty = NULL;
 	_currents.line = NULL;
@@ -107,7 +106,7 @@ TileEditor::TileEditor(TiXmlElement *xe)
 	//m_stepCount = 0;
 }
 
-TileEditor::~TileEditor()
+BykerGame::~BykerGame()
 {
 	EraseAllBodyes();
 	delete _byker;
@@ -127,21 +126,21 @@ TileEditor::~TileEditor()
 	}
 }
 
-void TileEditor::EraseSelected() {
+void BykerGame::EraseSelected() {
 }
 
-void TileEditor::EraseAllBodyes() {
+void BykerGame::EraseAllBodyes() {
 	while (_byker->physic.GetAllLines().size()) {
 		_byker->physic.RemoveLinesSet(NULL);
 	}
 }
 
 // добавл€ем новый элемент в "случайное" место на экране
-void TileEditor::AddElement(const std::string &typeId) {
+void BykerGame::AddElement(const std::string &typeId) {
 }
 
-void TileEditor::OnMouseDown(const FPoint2D &mousePos)
-{	
+void BykerGame::OnMouseDown(const FPoint2D &mousePos)
+{
 	if (!_editor) {
 		FPoint2D imp(0.f, -4.5f);
 		_byker->physic.SetImpulse(imp);
@@ -149,64 +148,13 @@ void TileEditor::OnMouseDown(const FPoint2D &mousePos)
 		_scipScaleChanging = speedChange / (_byker->physic.GetGravity().Length());
 		return;
 	}
-	_mouseDown = true;
-	_lastMousePos = mousePos;
-	InitParams(NULL);
-	FPoint2D fp = ScreenToWorld(mousePos);
-
-	{// ищем по кому кликнули
-		_currents.beauty = NULL;
-		_currents.line = NULL;
-		for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
-			if (_level.groundLines[i]->DoesContainPoint(mousePos)) {
-				_currents.line = _level.groundLines[i];
-				break;
-			}
-		}
-		if (!_currents.line) {
-			for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-				if (_level.beauties[i]->PixelCheck(mousePos)) {
-					_currents.beauty = _level.beauties[i];
-					break;
-				}
-			}
-		}
-	}
-
-	if (_currents.line) {
-		if (Render::GetDC()->Input_GetKeyState(HGEK_SHIFT)) {
-			if (Render::GetDC()->Input_GetKeyState(HGEK_D)) {
-				for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
-					if (_level.groundLines[i]->DoesContainPoint(mousePos)) {
-						delete _level.groundLines[i];
-						_level.groundLines.erase(_level.groundLines.begin() + i);
-						_currents.line = NULL;
-						break;
-					}
-				}
-			}
-		} else {
-			_currents.line->MouseDown(mousePos);
-		}
-	} else if (_currents.beauty) {
-		_currents.beauty->MouseDown(mousePos);
-	}
-	
 }
 
-void TileEditor::OnMouseUp()
+void BykerGame::OnMouseUp()
 {
-	_mouseDown = false;
-	if (_currents.beauty) {
-		_currents.beauty->MouseUp(_lastMousePos);
-		assert(_currents.line == NULL);
-	} else if (_currents.line) {
-		_currents.line->MouseUp(_lastMousePos);
-		assert(_currents.beauty == NULL);//?
-	}
 }
 
-void TileEditor::InitParams(b2Body *body) 
+void BykerGame::InitParams(b2Body *body) 
 {
 	if (body == NULL) {
 		_selectedBody = NULL;
@@ -259,16 +207,16 @@ void TileEditor::InitParams(b2Body *body)
 	}
 }
 
-bool TileEditor::CanLevelStart() {
+bool BykerGame::CanLevelStart() {
 	return true;
 }
 
-bool TileEditor::IsLevelFinish() {
+bool BykerGame::IsLevelFinish() {
 	return _userLevelWin;//_finish != 0x3;
 }
 
 
-void TileEditor::OnMouseMove(const FPoint2D &mousePos)
+void BykerGame::OnMouseMove(const FPoint2D &mousePos)
 {
 	if (!_editor) {
 		return;
@@ -306,7 +254,7 @@ void TileEditor::OnMouseMove(const FPoint2D &mousePos)
 	_mouseWorld = newMmouseWorld;
 }
 
-bool TileEditor::OnMouseWheel(int direction) {
+bool BykerGame::OnMouseWheel(int direction) {
 	if (!_editor) {
 		return true;
 	}
@@ -326,7 +274,7 @@ bool TileEditor::OnMouseWheel(int direction) {
 	return true;
 } 
 
-bool TileEditor::IsMouseOver(const FPoint2D &mousePos) {
+bool BykerGame::IsMouseOver(const FPoint2D &mousePos) {
 	return true;
 }
 
@@ -370,7 +318,7 @@ void DrawJoint(b2Joint* joint)
 }
 
 
-void TileEditor::Draw() {
+void BykerGame::Draw() {
 	bool tnt = false;
 	bool blue = false;
 	_finish = 0x0;
@@ -385,30 +333,9 @@ void TileEditor::Draw() {
 		for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
 			_level.beauties[i]->Draw();
 		}
-		for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
-			_level.groundLines[i]->DebugDrawLines();
-		}
-		if (_netVisible) {// сетка
-			Matrix m;
-			m.MakeRevers(Render::GetCurrentMatrix());
-			float startX = 0.f;
-			float startY = 0.f;
-			m.Mul(startX, startY);
-			float endX = 960.f;
-			float endY = 640.f;
-			m.Mul(endX, endY);
-			float STEP = 64.f;
-			float x = static_cast<int>(startX / STEP) * STEP;
-			while (x < endX) {
-				Render::Line(x, startY, x, endY, 0x4FFFFFFF);
-				x += STEP;
-			}
-			float y = static_cast<int>(startY / STEP) * STEP;
-			while (y < endY) {
-				Render::Line(startX, y, endX, y, 0x4FFFFFFF);
-				y += STEP;
-			}
-		} 
+		//for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
+		//	_level.groundLines[i]->DebugDrawLines();
+		//}
 		Render::PopMatrix();
 	} else { // режим игры
 		// земл€
@@ -424,29 +351,30 @@ void TileEditor::Draw() {
 			for (unsigned int i = 0; i < (*j)._set->beauties.size(); ++i) {
 				(*j)._set->beauties[i]->Draw();
 			}
-			Render::Line((*j)._set->Startpoint().x - 5, (*j)._set->Startpoint().y - 5,
-				(*j)._set->Startpoint().x + 5, (*j)._set->Startpoint().y + 5, 0xFF44FF44);
-			Render::Line((*j)._set->Startpoint().x + 5, (*j)._set->Startpoint().y - 5,
-				(*j)._set->Startpoint().x - 5, (*j)._set->Startpoint().y + 5, 0xFF44FF44);
-			Render::Line((*j)._set->Endpoint().x - 5, (*j)._set->Endpoint().y - 5,
-				(*j)._set->Endpoint().x + 5, (*j)._set->Endpoint().y + 5, 0xFF44FF44);
-			Render::Line((*j)._set->Endpoint().x + 5, (*j)._set->Endpoint().y - 5,
-				(*j)._set->Endpoint().x - 5, (*j)._set->Endpoint().y + 5, 0xFF44FF44);
+
+			//Render::Line((*j)._set->Startpoint().x - 5, (*j)._set->Startpoint().y - 5,
+			//	(*j)._set->Startpoint().x + 5, (*j)._set->Startpoint().y + 5, 0xFF44FF44);
+			//Render::Line((*j)._set->Startpoint().x + 5, (*j)._set->Startpoint().y - 5,
+			//	(*j)._set->Startpoint().x - 5, (*j)._set->Startpoint().y + 5, 0xFF44FF44);
+			//Render::Line((*j)._set->Endpoint().x - 5, (*j)._set->Endpoint().y - 5,
+			//	(*j)._set->Endpoint().x + 5, (*j)._set->Endpoint().y + 5, 0xFF44FF44);
+			//Render::Line((*j)._set->Endpoint().x + 5, (*j)._set->Endpoint().y - 5,
+			//	(*j)._set->Endpoint().x - 5, (*j)._set->Endpoint().y + 5, 0xFF44FF44);
 			Render::PopMatrix();
 		}
 
 		// мотоциклист
 		FPoint2D p(_byker->physic.GetPosition() * SCALE_BOX2D);
 
-		Render::Line(LittleHero::a.x * SCALE_BOX2D, LittleHero::a.y * SCALE_BOX2D, LittleHero::b.x * SCALE_BOX2D, LittleHero::b.y * SCALE_BOX2D, 0xFFFFFFFF);
+		//Render::Line(LittleHero::a.x * SCALE_BOX2D, LittleHero::a.y * SCALE_BOX2D, LittleHero::b.x * SCALE_BOX2D, LittleHero::b.y * SCALE_BOX2D, 0xFFFFFFFF);
 
 		Render::PushMatrix();
 		Render::MatrixMove(p.x, p.y);
 		Render::MatrixRotate(_bykerAngle);
 		_byker->SetPos(FPoint2D(0, 0));
-		if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
-			Render::Line(0, 0, _byker->physic.GetSpeedVector().x * SCALE_BOX2D, _byker->physic.GetSpeedVector().y * SCALE_BOX2D, 0xFFFFFFFF);
-		}
+		//if (Render::GetDC()->Input_GetKeyState(HGEK_CTRL)) {
+		//	Render::Line(0, 0, _byker->physic.GetSpeedVector().x * SCALE_BOX2D, _byker->physic.GetSpeedVector().y * SCALE_BOX2D, 0xFFFFFFFF);
+		//}
 		_byker->Draw(_bykerAngle);
 		Render::PopMatrix();
 
@@ -506,45 +434,21 @@ void TileEditor::Draw() {
 	Render::PrintString(940, 0, "", buff);
 }
 
-FPoint2D TileEditor::ScreenToWorld(const FPoint2D &screenPos) {
+FPoint2D BykerGame::ScreenToWorld(const FPoint2D &screenPos) {
 	return (screenPos - _screenOffset) / _viewScale + _worldOffset;
 }
 
-FPoint2D TileEditor::WorldToScreen(const FPoint2D &worldPos) {
+FPoint2D BykerGame::WorldToScreen(const FPoint2D &worldPos) {
 	return (worldPos - _worldOffset) * _viewScale + _screenOffset;
 }
 
-bool TileEditor::OnKey(int key) {
-	if (_currentElement.selected == SelectedElement::beauty_element) {
-		if (key == HGEK_DELETE) {
-			if (_currents.beauty) {
-				for (unsigned int i = 0; i < _level.beauties.size(); ++i) {
-					if (_level.beauties[i] == _currents.beauty) {
-						delete _level.beauties[i];
-						_level.beauties.erase(_level.beauties.begin() + i);
-						_currents.beauty = NULL;
-						break;
-					}
-				}
-				for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
-					_level.groundLines[i]->DrawLines();
-				}
-			} else if (_currents.line) {
-				for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
-					if (_level.groundLines[i] == _currents.line) {
-						delete _level.groundLines[i];
-						_level.groundLines.erase(_level.groundLines.begin() + i);
-						_currents.line = NULL;
-						break;
-					}
-				}
-			}
-		}
-	}
+bool BykerGame::OnKey(int key) {
 	return true;
 }
 
-void TileEditor::Update(float deltaTime) {	
+void BykerGame::Update(float deltaTime) {	
+	//deltaTime *= 0.1f;
+
 	_signal += 2 * deltaTime;
 	while (_signal > 1.f) {
 		_signal -= 1.f;
@@ -660,7 +564,7 @@ void TileEditor::Update(float deltaTime) {
 	}
 }
 
-void TileEditor::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
+void BykerGame::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 {
 	//b2Vec2 b2TouchPosition = b2Vec2(pos.x, pos.y);
 	//b2Vec2 b2BodyPosition;
@@ -681,7 +585,7 @@ void TileEditor::Explosion(b2Vec2 pos, float maxDistance, float maxForce)
 	//}
 }
 
-void TileEditor::SaveState() {
+void BykerGame::SaveState() {
 	//_state.clear();
 	//for (b2Body *body = m_world->GetBodyList(); body; body = body->GetNext()) {
 	//	const b2Transform & xf = body->GetTransform();
@@ -701,7 +605,7 @@ void TileEditor::SaveState() {
 	//}
 }
 
-void TileEditor::ResetState() {
+void BykerGame::ResetState() {
 	InitParams(NULL);
 	_editor = true;
 	_screenOffset = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
@@ -714,146 +618,14 @@ void TileEditor::ResetState() {
 	//}
 }
 
-void TileEditor::NewLevelYesNo(const std::string &message) {
-	if (message == "yes") {
-		InitParams(NULL);
-		_currentLevel = "";
-		_state.clear();
-		EraseAllBodyes();
-		_screenOffset = FPoint2D(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-		_worldOffset = FPoint2D(0.f, 0.f);
-		_viewScale = 1.f;
-		ClearLevel();
-	}
-}
-
-void TileEditor::DeleteSelectedYesNo(const std::string &message) {
-	EraseSelected(/*_selectedBody*/);
-	InitParams(NULL);
-}
-
-void TileEditor::OverwriteYesNo(const std::string &message) {
-	if (message == "yes") {
-		SaveLevel(_saveLevelName);
-	}
-}
-
-void TileEditor::AddNewElement(const std::string &msg) {
-	Messager::SendMessage("SmallList", "clear");
-	if (msg == "cancel") {
-		return;
-	}
-
-	//if (!_editor) {
-	//	SetValueS("play", "", "play");
-	//	ResetState();
-	//}
-	//InitParams(AddElement(msg));
-
-	std::string message(msg);
-
-	if (msg == "ground") {
-		SolidGroundLine *b = new SolidGroundLine();
-		for (int i = 0; i < 5; ++i) {
-			b->AddPoint(_worldOffset.x - 256.f + 256 * i / 2, _worldOffset.y);
-		}
-		_level.groundLines.push_back(b);
-	} else if (msg == "beauty") {
-
-	} else if (CanCut(msg, "beauty", message)) {
-		BeautyBase *origin = _collection[atoi(message.c_str())];
-		BeautyBase *b;
-		if (origin->Type() == "Beauty") {
-			b = new Beauty(*(Beauty *)origin);
-		} else {
-			assert(false);
-		}
-		b->MoveTo(_screenOffset.x, _screenOffset.y);
-		 _level.beauties.push_back(b);
-		_currents.beauty = b;
-	} else if (msg == "box") {
-		Messager::SendMessage("SmallList", "prefix AddBoxElement");
-		Messager::SendMessage("SmallList", "add small");
-		Messager::SendMessage("SmallList", "add big");
-		Messager::SendMessage("SmallList", "special add cancel");
-	} else if (msg == "bonus") {
-		AddElement("rubber");
-	}
-}
-
-void TileEditor::AddBoxElement(const std::string &msg) {
-	Messager::SendMessage("SmallList", "clear");
-	if (msg == "cancel") {
-		return;
-	}
-}
-
-void TileEditor::PreSaveLevel(const std::string &msg) {
-	Messager::SendMessage("BigList", "clear");
-	if (msg == "cancel") {
-		return;
-	}
-	TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
-	std::string s;
-	while (xe != NULL && xe->Attribute("id") != msg) {			
-		s = xe->Attribute("id");
-		xe = xe->NextSiblingElement();
-	}
-	_saveLevelXml = xe;
-	if (xe == NULL) {
-		int save_as_new = atoi(s.c_str()) + 1;
-		char buff[10];
-		sprintf(buff, "%i", save_as_new);
-		TiXmlElement *level = new TiXmlElement("level");
-		level->SetAttribute("id", buff);
-		_doc.RootElement()->LinkEndChild(level);
-		xe = level; 
-		_saveLevelXml = xe;
-		SaveLevel(buff);
-		return;
-	} else if (_currentLevel != msg) {
-		PrefixedAskMessageShow("Are you sure?\nDo you want overwrite " + msg + "?", "OverwriteYesNo");
-		_saveLevelName = msg;
-		_saveLevelXml = xe;
-		return;
-	}
-	SaveLevel(msg);
-}
-
-void TileEditor::OnMessage(const std::string &message) {
+void BykerGame::OnMessage(const std::string &message) {
 	std::string msg;
-	if (CanCut(message, "NewLevelYesNo", msg)) {
-		NewLevelYesNo(msg);
-		return;
-	}
-	if (CanCut(message, "DeleteSelectedYesNo", msg)) {
-		DeleteSelectedYesNo(msg);
-		return;
-	}
-	if (CanCut(message, "OverwriteYesNo", msg)) {
-		OverwriteYesNo(msg);
-		return;
-	}
-	if (CanCut(message, "AddNewElement", msg)) {
-		AddNewElement(msg);
-		return;
-	}
-	if (CanCut(message, "AddBoxElement", msg)) {
-		AddBoxElement(msg);
-		return;
-	}
 	if (CanCut(message, "LoadLevel", msg)) {
 		LoadLevel(msg);
 		return;
 	}
-	if (CanCut(message, "PreSaveLevel", msg)) {
-		PreSaveLevel(msg);
-		return;
-	}
 	if (message == "changes") {
 		InitParams(_selectedBody);
-	} else if (message == "net") {
-		_netVisible = !_netVisible;
 	} else if (message == "play" || message == "random") {
 		if (_editor) { // переходим в режим игры
 			if (CanLevelStart()) {
@@ -861,35 +633,14 @@ void TileEditor::OnMessage(const std::string &message) {
 				_useRandom = (message == "random");
 				_editor = false;
 				SaveState();
-				_netVisible = false;
 				SetupBox2D();
 			} else {
 				OkMessageShow("Error!\nLevel must have START and END poses!");
 			}
 		} else { // в редактор
 			SetValueS("play", "", "play");
-			_netVisible = true;
 			ResetState();
 		}
-	} else if (message == "add new elem") {
-		//for (Collection::iterator i = _collection.begin(); i != _collection.end(); i++) {
-		//	Messager::SendMessage("SmallList", "add " + (*i)->_id);
-		//}
-		Messager::SendMessage("SmallList", "prefix AddNewElement");
-		Messager::SendMessage("SmallList", "add ground");
-		//Messager::SendMessage("SmallList", "add curv");
-		Messager::SendMessage("SmallList", "add beauty");
-		//Messager::SendMessage("SmallList", "add bonus");
-		//Messager::SendMessage("SmallList", "add box");
-		//Messager::SendMessage("SmallList", "add transport");
-		//Messager::SendMessage("SmallList", "add animal");
-		Messager::SendMessage("SmallList", "special add cancel");
-	} else if (message == "left") {
-	} else if (message == "right") {
-	} else if (message == "up") {
-	} else if (message == "down") {
-	} else if (message == "new") {
-		PrefixedAskMessageShow("Are you sure?\nDelete all objects?", "NewLevelYesNo");
 	} else if (message == "open") {
 		Messager::SendMessage("BigList", "prefix LoadLevel");
 		TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
@@ -904,74 +655,18 @@ void TileEditor::OnMessage(const std::string &message) {
 			xe = xe->NextSiblingElement();
 		}
 		Messager::SendMessage("BigList", "special add cancel");
-	} else if (message == "save") {
-		Messager::SendMessage("BigList", "prefix PreSaveLevel");
-		if (!_editor) {
-			OnMessage("play");
-		}
-		TiXmlElement *xe = _doc.RootElement()->FirstChildElement();
-		std::string s;
-		while (xe) {
-			s = xe->Attribute("id");
-			if (_currentLevel == s) {
-				Messager::SendMessage("BigList", "special add " + s);
-			} else {
-				Messager::SendMessage("BigList", "add " + s);
-			}
-			xe = xe->NextSiblingElement();
-		}
-		Messager::SendMessage("BigList", "special add cancel");
-		Messager::SendMessage("BigList", "special add as new");
 	} else {
 		assert(message == "ok");
 	}
 }
 
-void TileEditor::SaveLevel(const std::string &levelName) {
-	// level saving
-	SaveState();
-	TiXmlElement *elem = _saveLevelXml->FirstChildElement();
-	while (elem != NULL) {
-		TiXmlElement *remove = elem;
-		elem = elem->NextSiblingElement();
-		_saveLevelXml->RemoveChild(remove);
-	}
-
-	TiXmlElement *elemGround = new TiXmlElement("Ground");
-	_saveLevelXml->LinkEndChild(elemGround);
-	for (LevelGroundLines::iterator i = _level.groundLines.begin(), e = _level.groundLines.end(); i != e; i++) {
-		TiXmlElement *elem = new TiXmlElement((*i)->Type());
-		(*i)->SaveToXml(elem);
-		elemGround->LinkEndChild(elem);
-	}
-
-	TiXmlElement *beautyList = new TiXmlElement("Beauties");
-	for (int i = 0; i < _level.beauties.size(); i++) {
-		TiXmlElement *beauty = new TiXmlElement(_level.beauties[i]->Type());
-		_level.beauties[i]->SaveToXml(beauty);
-		beautyList->LinkEndChild(beauty);
-	}
-	_saveLevelXml->LinkEndChild(beautyList);
-
-	TiXmlElement *word = new TiXmlElement("word");
-	word->SetAttribute("x", _worldOffset.x);
-	word->SetAttribute("y", _worldOffset.y);
-	char s[16];
-	sprintf(s, "%f", _viewScale);
-	word->SetAttribute("scale", s);
-	_saveLevelXml->LinkEndChild(word);
-
-	_doc.SaveFile();
-	_currentLevel = levelName;
-}
-
-void TileEditor::ClearLevel() {
+void BykerGame::ClearLevel() {
 	_currentElement.selected = SelectedElement::none;
 	_level.Clear();
 
 }
 
-void TileEditor::LoadLevel(const std::string &msg) {
+void BykerGame::LoadLevel(const std::string &msg) {
 	Messager::SendMessage("BigList", "clear");
 	if (msg == "cancel") {
 		return;
@@ -993,15 +688,6 @@ void TileEditor::LoadLevel(const std::string &msg) {
 	SetValueS("play", "", "play");
 	//ResetState();
 	_currentLevel = msg;
-}
-
-void TileEditor::CalcNextBykePos(float dt) {
-	assert(false);
-	FPoint2D proection;
-	for (unsigned int i = 0; i < _level.groundLines.size(); ++i) {
-		if (_level.groundLines[i]->SearchProection(proection)) {
-		}
-	}
 }
 
 typedef std::vector<b2Vec2> Triangle;
@@ -1033,7 +719,7 @@ bool Convex(Triangle &m_vertices) {
 	return true;
 }
 
-void TileEditor::SetupBox2D() {
+void BykerGame::SetupBox2D() {
 	EraseAllBodyes();
 	_viewScale = 1.f;
 	_islands.clear();
@@ -1045,13 +731,13 @@ void TileEditor::SetupBox2D() {
 	_islands.push_back(island);
 
 	_byker->physic.SetPosition(FPoint2D(_level.Startpoint().x / SCALE_BOX2D, _level.Startpoint().y / SCALE_BOX2D - _byker->physic.GetSize()));
-	_byker->physic.SetMinSpeed(7.f);
+	_byker->physic.SetMinSpeed(4.5f);
 	_byker->physic.SetSpeedVector(FPoint2D(0.f, 0.f));
 	_startPoint = _level.Startpoint();
 	_endPoint = _level.Endpoint();
 }
 
-void TileEditor::LoadRandomLevelsSet(const std::string &fileName) {
+void BykerGame::LoadRandomLevelsSet(const std::string &fileName) {
 	if (_randomLevelsSet.size()) {
 		LOG("_randomLevelsSet.size() != 0");
 		assert(false);

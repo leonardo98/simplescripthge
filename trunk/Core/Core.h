@@ -23,20 +23,15 @@ public:
 	static void Release();
 	static bool DoLua(const char *code);
 	static bool DoScript(const std::string &name);
-	static Animation *getAnimation(const std::string &animationId, bool uploadTextures = true);
-	static My::Animation *getMyAnimation(const std::string &animationId);
-	static void addAnimation(const std::string &id, Animation *animation);
+	static My::Animation *getAnimation(const std::string &animationId);
 	static void DrawBar(float x, float y, float width, float height, DWORD color);// Debug only
 	static void OnMessage(const std::string &message);
 	static bool LoadAnimations(const char *fileName);
-	static bool SaveAnimations(const char *fileName);
 	static void GetAnimationsList(std::vector<std::string> &names);
-	static void RenameAnimation(const std::string &oldName, const std::string &newName);
-	static void RemoveAnimation(const std::string &name);
 
 	typedef std::list<Object *> Objects;
 	typedef std::map<std::string, LuaScript *> ScriptMap;
-	typedef std::map<std::string, Animation *> AnimationMap;
+	typedef std::map<std::string, My::Animation *> AnimationMap;
 
 protected:
 

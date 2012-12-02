@@ -1,5 +1,6 @@
 #include "Beauty.h"
 #include "../Core/Core.h"
+#include "../Core/Math.h"
 
 Beauty::~Beauty() {
 	delete _sprite;
@@ -12,28 +13,31 @@ Beauty::Beauty(TiXmlElement *xe)
 	_sprite = new Sprite(Core::getTexture(_fileName)->GetTexture());
 }
 
+void Beauty::SaveToXml(TiXmlElement *xe) {
+	BeautyBase::SaveToXml(xe);
+	xe->SetAttribute("texture", _fileName.c_str());
+}
+
 void Beauty::Draw() {
 	Render::PushMatrix();
-	Render::MatrixMove(_pos.x, _pos.y);
+	Render::MatrixMove(Math::round(_pos.x), Math::round(_pos.y));
 	Render::MatrixRotate(_angle);
-	Render::MatrixMove(_sx, _sy);
+	Render::MatrixScale(_sx, _sy);
+	Render::MatrixMove(Math::round(- Width() / 2), Math::round(- Height() / 2));
 	_sprite->Render();
 	Render::PopMatrix();
 	BeautyBase::Draw();
 }
 
-void Beauty::DebugDraw() {
-	Draw();
+void Beauty::DebugDraw(bool onlyControl) {
+	if (!onlyControl) {
+		Draw();
+	}
 	BeautyBase::DebugDraw();
 }
 
-bool Beauty::PixelCheck(FPoint2D point) { 
+bool Beauty::PixelCheck(const FPoint2D &point) { 
 	return _sprite->HasPixel(point.x, point.y) || BeautyBase::PixelCheck(point); 
-}
-
-void Beauty::SaveToXml(TiXmlElement *xe) {
-	BeautyBase::SaveToXml(xe);
-	xe->SetAttribute("fileName", _fileName.c_str());
 }
 
 std::string Beauty::Type() { 
@@ -53,4 +57,8 @@ Beauty::Beauty(const Beauty &b)
 {
 	_fileName = b._fileName;
 	_sprite = new Sprite(Core::getTexture(_fileName)->GetTexture());
+}
+
+Sprite *Beauty::LinkToSprite() {
+	return _sprite;
 }

@@ -33,6 +33,10 @@ struct LevelSet {
 	FPoint2D Endpoint();
 	void Clear();
 	void LoadFromXml(TiXmlElement *xe, bool gameMode);
+	const LevelSet &operator=(const LevelSet &l);
+	LevelSet(const LevelSet &l);
+	~LevelSet();
+	LevelSet() {}
 private:
 	std::vector<FPoint2D> _start;
 	std::vector<FPoint2D> _end;

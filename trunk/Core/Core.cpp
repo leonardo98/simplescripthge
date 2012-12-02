@@ -183,63 +183,43 @@ void Core::Init() {
 }
 
 bool Core::LoadAnimations(const char *fileName) {
-	TiXmlDocument doc;
-    std::string s =Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str());
-	if ((fileName[1] == ':' && doc.LoadFile(fileName)) || doc.LoadFile(s.c_str())) {
-		TiXmlElement *root = doc.RootElement();
-		TiXmlElement *animation = root->FirstChildElement("Animation");
-		while (animation) {
-			const char *id = animation->Attribute("id");
-			if (_animations.find(id) != _animations.end()) {
-				LOG("animation already exist: " + id);
-				assert(false);
-			}
-			_animations[id] = new Animation(animation);
-			animation = animation->NextSiblingElement("Animation");
-		}
-		return true;
-	} else {
-		LOG("file not found: " + fileName);
-		return false;
-	}
+	//TiXmlDocument doc;
+ //   std::string s =Render::GetDC()->Resource_MakePath((Render::GetDataDir() + fileName).c_str());
+	//if ((fileName[1] == ':' && doc.LoadFile(fileName)) || doc.LoadFile(s.c_str())) {
+	//	TiXmlElement *root = doc.RootElement();
+	//	TiXmlElement *animation = root->FirstChildElement("Animation");
+	//	while (animation) {
+	//		const char *id = animation->Attribute("id");
+	//		if (_animations.find(id) != _animations.end()) {
+	//			LOG("animation already exist: " + id);
+	//			assert(false);
+	//		}
+	//		_animations[id] = new My::Animation(animation);
+	//		animation = animation->NextSiblingElement("Animation");
+	//	}
+	//	return true;
+	//} else {
+	//	LOG("file not found: " + fileName);
+	//	return false;
+	//}
+	return false;
 }
 
-bool Core::SaveAnimations(const char *fileName) {
-	TiXmlDocument doc(fileName);
-	TiXmlDeclaration *declaration = new TiXmlDeclaration("3.0", "utf-8", "no");
-	doc.LinkEndChild(declaration);
-	TiXmlElement *root = new TiXmlElement("root");
-	doc.LinkEndChild(root);
-
-	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; ++i) {
-		TiXmlElement *a = new TiXmlElement("Animation");
-		a->SetAttribute("id", i->first.c_str());
-		i->second->SaveToXml(a);
-		root->LinkEndChild(a);
-	}
-	return doc.SaveFile();
-}
-
-Animation *Core::getAnimation(const std::string &animationId, bool uploadTextures) {
+My::Animation *Core::getAnimation(const std::string &animationId) {
 	AnimationMap::iterator find = _animations.find(animationId);
 	if (find != _animations.end()) {
-		if (uploadTextures && find->second->TextureLoaded() == false) {
-			find->second->LoadTextures();
-		}
+		//if (uploadTextures && find->second->TextureLoaded() == false) {
+		//	find->second->LoadTextures();
+		//}
 		return (find->second);
 	}
 	LOG("animation " + animationId + " not found.");
 	return NULL;
 }
 
-My::Animation *Core::getMyAnimation(const std::string &animationId) {
-	return My::AnimationManager::getAnimation(animationId);
-}
-
-void Core::addAnimation(const std::string &id, Animation *animation) {
-	assert(_animations.find(id) == _animations.end());
-	_animations[id] = animation;
-}
+//My::Animation *Core::getMyAnimation(const std::string &animationId) {
+//	return My::AnimationManager::getAnimation(animationId);
+//}
 
 void Core::Load(const char *fileName)
 {
@@ -365,23 +345,4 @@ void Core::GetAnimationsList(std::vector<std::string> &names) {
 	for (AnimationMap::iterator i = _animations.begin(), e = _animations.end(); i != e; i++) {
 		names.push_back(i->first);
 	}
-}
-
-void Core::RenameAnimation(const std::string &oldName, const std::string &newName) {
-	AnimationMap::iterator i = _animations.find(oldName);
-	assert(i != _animations.end());
-	Animation *tmp = i->second;
-	_animations.erase(i);
-
-	i = _animations.find(newName);
-	assert(i == _animations.end());
-
-	_animations[newName] = tmp;
-}
-
-void Core::RemoveAnimation(const std::string &name) {
-	AnimationMap::iterator i = _animations.find(name);
-	assert(i != _animations.end());
-	delete i->second;
-	_animations.erase(i);
 }

@@ -1,192 +1,192 @@
-<?xml version="3.0" encoding="utf-8" standalone="no" ?>
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <root>
     <Animation id="byker_balans_2" time="2" pivotX="0" pivotY="0">
-        <movingPart name="holder" moving_type="line" centerX="82" centerY="75">
-            <pos angle="0.02" />
-            <pos time="1" />
-            <movingPart name="mw_body_copy1" moving_type="line" centerX="64.6" centerY="69.4" texture="0:93:27:33:58:43">
-                <pos x="79.0023" y="57.623" angle="0.322846" />
-                <pos time="0.394737" x="64.6" y="69.4" angle="0.07" />
-                <pos time="0.6" x="64.6" y="69.4" angle="-0.07" />
-                <pos time="1" x="49.7324" y="65.47" angle="0.514336" />
-                <movingPart name="mw_l_thigh" moving_type="line" offparent="bottom" centerX="64.6" centerY="66.2" texture="131:45:23:14:63:62">
-                    <pos x="64.6" y="66.2" angle="0.750847" />
-                    <pos time="0.4" x="64.6" y="66.2" angle="-0.07" />
-                    <pos time="0.6" x="64.6" y="66.2" angle="0.07" />
-                    <pos time="1" x="64.6" y="66.2" angle="-0.168026" />
-                    <movingPart name="mw_l_calf" moving_type="line" centerX="77" centerY="72" texture="94:32:10:18:72:67">
-                        <pos x="77" y="72" angle="-0.785312" />
-                        <pos time="0.402632" x="77" y="72" />
-                        <pos time="0.605263" x="77" y="72" />
-                        <pos time="1" x="77" y="72" angle="-0.843608" />
-                        <movingPart name="mw_l_foot" moving_type="line" centerX="76.2" centerY="81.7" texture="108:83:16:15:71:80">
-                            <pos x="76.2" y="81.4" />
-                            <pos time="1" x="76.2" y="81.4" />
+        <movingPart name="holder" moving_type="line" order="1" treeOrder="0" centerX="82" centerY="75">
+            <pos angle="0.02" alpha="1" />
+            <pos time="1" alpha="1" />
+            <movingPart name="mw_body_copy1" moving_type="line" order="2" treeOrder="0" centerX="64.6" centerY="69.4" texture="0:93:27:33:58:43">
+                <pos x="79.0023" y="57.623" angle="0.322846" alpha="1" />
+                <pos time="0.394737" x="64.6" y="69.4" angle="0.07" alpha="1" />
+                <pos time="0.6" x="64.6" y="69.4" angle="-0.07" alpha="1" />
+                <pos time="1" x="49.7324" y="65.47" angle="0.514336" alpha="1" />
+                <movingPart name="mw_l_thigh" moving_type="line" order="3" treeOrder="0" centerX="64.6" centerY="66.2" texture="131:45:23:14:63:62">
+                    <pos x="64.6" y="66.2" angle="0.750847" alpha="1" />
+                    <pos time="0.4" x="64.6" y="66.2" angle="-0.07" alpha="1" />
+                    <pos time="0.6" x="64.6" y="66.2" angle="0.07" alpha="1" />
+                    <pos time="1" x="64.6" y="66.2" angle="-0.168026" alpha="1" />
+                    <movingPart name="mw_l_calf" moving_type="line" order="4" treeOrder="0" centerX="77" centerY="72" texture="94:32:10:18:72:67">
+                        <pos x="77" y="72" angle="-0.785312" alpha="1" />
+                        <pos time="0.402632" x="77" y="72" alpha="1" />
+                        <pos time="0.605263" x="77" y="72" alpha="1" />
+                        <pos time="1" x="77" y="72" angle="-0.843608" alpha="1" />
+                        <movingPart name="mw_l_foot" moving_type="line" order="5" treeOrder="0" centerX="76.2" centerY="81.7" texture="108:83:16:15:71:80">
+                            <pos x="76.2" y="81.4" alpha="1" />
+                            <pos time="1" x="76.2" y="81.4" alpha="1" />
                         </movingPart>
                     </movingPart>
                 </movingPart>
             </movingPart>
-            <movingPart name="byke" moving_type="line">
-                <pos />
-                <pos time="1" />
-                <movingPart name="mw_bike_smallstone_saddlebasis" moving_type="line" texture="108:0:57:28:37:68">
-                    <pos />
-                    <pos time="1" />
+            <movingPart name="byke" moving_type="line" order="6" treeOrder="0">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
+                <movingPart name="mw_bike_smallstone_saddlebasis" moving_type="line" order="7" treeOrder="0" texture="108:0:57:28:37:68">
+                    <pos alpha="1" />
+                    <pos time="1" alpha="1" />
                 </movingPart>
-                <movingPart name="mw_bike_greywool_mat" moving_type="line" texture="188:0:53:24:36:60">
-                    <pos />
-                    <pos time="1" />
+                <movingPart name="mw_bike_greywool_mat" moving_type="line" order="8" treeOrder="0" texture="188:0:53:24:36:60">
+                    <pos alpha="1" />
+                    <pos time="1" alpha="1" />
                 </movingPart>
-                <movingPart name="mw_bike_frontholder_r" moving_type="line" texture="0:0:39:51:88:55">
-                    <pos />
-                    <pos time="1" />
+                <movingPart name="mw_bike_frontholder_r" moving_type="line" order="9" treeOrder="0" texture="0:0:39:51:88:55">
+                    <pos alpha="1" />
+                    <pos time="1" alpha="1" />
                 </movingPart>
-                <movingPart name="mw_bike_woodrack_pedaldisk" moving_type="line" texture="108:67:15:15:67:85">
-                    <pos />
-                    <pos time="1" />
+                <movingPart name="mw_bike_woodrack_pedaldisk" moving_type="line" order="10" treeOrder="0" texture="108:67:15:15:67:85">
+                    <pos alpha="1" />
+                    <pos time="1" alpha="1" />
                 </movingPart>
-                <movingPart name="mw_bike_wood_pedal" moving_type="line" texture="108:115:7:11:72:85">
-                    <pos />
-                    <pos time="1" />
+                <movingPart name="mw_bike_wood_pedal" moving_type="line" order="11" treeOrder="0" texture="108:115:7:11:72:85">
+                    <pos alpha="1" />
+                    <pos time="1" alpha="1" />
                 </movingPart>
             </movingPart>
-            <movingPart name="mw_body" moving_type="line" centerX="64.6" centerY="69.4" texture="0:93:27:33:58:43">
-                <pos x="79.0023" y="57.623" angle="0.322846" />
-                <pos time="0.394737" x="64.6" y="69.4" angle="0.07" />
-                <pos time="0.6" x="64.6" y="69.4" angle="-0.07" />
-                <pos time="1" x="49.7324" y="65.47" angle="0.514336" />
-                <movingPart name="builder_head_left" moving_type="line" centerX="80" centerY="46" texture="0:52:37:40:65:12">
-                    <pos x="80" y="46" angle="0.568154" />
-                    <pos time="0.4" x="80" y="46" angle="0.238838" />
-                    <pos time="0.6" x="80" y="46" angle="-0.0791492" />
-                    <pos time="1" x="80" y="46" angle="-0.495889" />
-                    <movingPart name="mw_neck" moving_type="line" offparent="bottom" texture="242:0:11:11:74:41">
-                        <pos />
-                        <pos time="1" />
+            <movingPart name="mw_body" moving_type="line" order="12" treeOrder="0" centerX="64.6" centerY="69.4" texture="0:93:27:33:58:43">
+                <pos x="79.0023" y="57.623" angle="0.322846" alpha="1" />
+                <pos time="0.394737" x="64.6" y="69.4" angle="0.07" alpha="1" />
+                <pos time="0.6" x="64.6" y="69.4" angle="-0.07" alpha="1" />
+                <pos time="1" x="49.7324" y="65.47" angle="0.514336" alpha="1" />
+                <movingPart name="builder_head_left" moving_type="line" order="13" treeOrder="0" centerX="80" centerY="46" texture="0:52:37:40:65:12">
+                    <pos x="80" y="46" angle="0.568154" alpha="1" />
+                    <pos time="0.4" x="80" y="46" angle="0.238838" alpha="1" />
+                    <pos time="0.6" x="80" y="46" angle="-0.0791492" alpha="1" />
+                    <pos time="1" x="80" y="46" angle="-0.495889" alpha="1" />
+                    <movingPart name="mw_neck" moving_type="line" order="14" treeOrder="0" texture="242:0:11:11:74:41">
+                        <pos alpha="1" />
+                        <pos time="1" alpha="1" />
                     </movingPart>
-                    <movingPart name="builder_headhired_left" moving_type="line" texture="40:0:38:37:63:10">
-                        <pos />
-                        <pos time="1" />
+                    <movingPart name="builder_headhired_left" moving_type="line" order="15" treeOrder="0" texture="40:0:38:37:63:10">
+                        <pos alpha="1" />
+                        <pos time="1" alpha="1" />
                     </movingPart>
                 </movingPart>
-                <movingPart name="m_body_up_cl_brownwool" moving_type="line" texture="79:0:28:31:59:41">
-                    <pos />
-                    <pos time="1" />
+                <movingPart name="m_body_up_cl_brownwool" moving_type="line" order="16" treeOrder="0" texture="79:0:28:31:59:41">
+                    <pos alpha="1" />
+                    <pos time="1" alpha="1" />
                 </movingPart>
-                <movingPart name="mw_l_upperarm " moving_type="line" offparent="bottom" centerX="74.8" centerY="46.6" texture="79:32:14:21:71:43">
-                    <pos x="74.8" y="46.6" angle="0.583996" />
-                    <pos time="0.194737" x="74.8" y="46.6" angle="0.441311" />
-                    <pos time="0.4" x="74.8" y="46.6" angle="0.119481" />
-                    <pos time="0.6" x="74.8" y="46.6" />
-                    <pos time="1" x="74.8" y="46.6" angle="-0.873168" />
-                    <movingPart name="mw_l_forearm" moving_type="line" centerX="81.2" centerY="59.4" texture="79:117:15:8:78:56">
-                        <pos x="81.2" y="59.4" angle="0.532998" />
-                        <pos time="0.186842" x="81.2" y="59.4" angle="-0.0868734" />
-                        <pos time="0.4" x="81.2" y="59.4" angle="-0.342476" />
-                        <pos time="0.6" x="81.2" y="59.4" angle="0.167512" />
-                        <pos time="1" x="81.2" y="59.4" />
-                        <movingPart name="mw_l_hand" moving_type="line" centerX="89.8" centerY="59.6" texture="116:115:11:11:87:56">
-                            <pos x="89.8" y="59.6" angle="-1.56835" />
-                            <pos time="0.405263" x="89.8" y="59.6" />
-                            <pos time="0.6" x="89.8" y="59.6" />
-                            <pos time="1" x="89.8" y="59.6" />
+                <movingPart name="mw_l_upperarm " moving_type="line" order="17" treeOrder="0" centerX="74.8" centerY="46.6" texture="79:32:14:21:71:43">
+                    <pos x="74.8" y="46.6" angle="0.583996" alpha="1" />
+                    <pos time="0.194737" x="74.8" y="46.6" angle="0.441311" alpha="1" />
+                    <pos time="0.4" x="74.8" y="46.6" angle="0.119481" alpha="1" />
+                    <pos time="0.6" x="74.8" y="46.6" alpha="1" />
+                    <pos time="1" x="74.8" y="46.6" angle="-0.873168" alpha="1" />
+                    <movingPart name="mw_l_forearm" moving_type="line" order="18" treeOrder="0" centerX="81.2" centerY="59.4" texture="79:117:15:8:78:56">
+                        <pos x="81.2" y="59.4" angle="0.532998" alpha="1" />
+                        <pos time="0.186842" x="81.2" y="59.4" angle="-0.0868734" alpha="1" />
+                        <pos time="0.4" x="81.2" y="59.4" angle="-0.342476" alpha="1" />
+                        <pos time="0.6" x="81.2" y="59.4" angle="0.167512" alpha="1" />
+                        <pos time="1" x="81.2" y="59.4" alpha="1" />
+                        <movingPart name="mw_l_hand" moving_type="line" order="19" treeOrder="0" centerX="89.8" centerY="59.6" texture="116:115:11:11:87:56">
+                            <pos x="89.8" y="59.6" angle="-1.56835" alpha="1" />
+                            <pos time="0.405263" x="89.8" y="59.6" alpha="1" />
+                            <pos time="0.6" x="89.8" y="59.6" alpha="1" />
+                            <pos time="1" x="89.8" y="59.6" alpha="1" />
                         </movingPart>
                     </movingPart>
                 </movingPart>
-                <movingPart name="mw_body_dn_cl_brownwool" moving_type="line" texture="40:110:20:16:58:60">
-                    <pos />
-                    <pos time="1" />
+                <movingPart name="mw_body_dn_cl_brownwool" moving_type="line" order="20" treeOrder="0" texture="40:110:20:16:58:60">
+                    <pos alpha="1" />
+                    <pos time="1" alpha="1" />
                 </movingPart>
-                <movingPart name="mw_r_thigh" moving_type="line" centerX="64.6" centerY="69.4" texture="131:29:23:15:63:65">
-                    <pos x="64.6" y="69.4" angle="0.785341" />
-                    <pos time="0.4" x="64.6" y="69.4" angle="-0.07" />
-                    <pos time="0.6" x="64.6" y="69.4" angle="0.07" />
-                    <pos time="1" x="64.6" y="69.4" angle="-0.1857" />
-                    <movingPart name="mw_r_calf" moving_type="line" centerX="76.8" centerY="75" texture="94:54:10:17:72:71">
-                        <pos x="76.8" y="75" angle="-0.819278" />
-                        <pos time="0.397368" x="76.8" y="75" />
-                        <pos time="0.6" x="76.8" y="75" />
-                        <pos time="1" x="76.8" y="75" angle="-0.903165" />
-                        <movingPart name="mw_r_foot" moving_type="line" centerX="76" centerY="86.4" texture="108:99:18:15:71:83">
-                            <pos x="76" y="86.4" />
-                            <pos time="1" x="76" y="86.4" />
+                <movingPart name="mw_r_thigh" moving_type="line" order="21" treeOrder="0" centerX="64.6" centerY="69.4" texture="131:29:23:15:63:65">
+                    <pos x="64.6" y="69.4" angle="0.785341" alpha="1" />
+                    <pos time="0.4" x="64.6" y="69.4" angle="-0.07" alpha="1" />
+                    <pos time="0.6" x="64.6" y="69.4" angle="0.07" alpha="1" />
+                    <pos time="1" x="64.6" y="69.4" angle="-0.1857" alpha="1" />
+                    <movingPart name="mw_r_calf" moving_type="line" order="22" treeOrder="0" centerX="76.8" centerY="75" texture="94:54:10:17:72:71">
+                        <pos x="76.8" y="75" angle="-0.819278" alpha="1" />
+                        <pos time="0.397368" x="76.8" y="75" alpha="1" />
+                        <pos time="0.6" x="76.8" y="75" alpha="1" />
+                        <pos time="1" x="76.8" y="75" angle="-0.903165" alpha="1" />
+                        <movingPart name="mw_r_foot" moving_type="line" order="23" treeOrder="0" centerX="76" centerY="86.4" texture="108:99:18:15:71:83">
+                            <pos x="76" y="86.4" alpha="1" />
+                            <pos time="1" x="76" y="86.4" alpha="1" />
                         </movingPart>
                     </movingPart>
-                    <movingPart name="mw_r_thigh_cl_brownwool" moving_type="line" texture="108:29:22:19:56:61">
-                        <pos />
-                        <pos time="1" />
+                    <movingPart name="mw_r_thigh_cl_brownwool" moving_type="line" order="24" treeOrder="0" texture="108:29:22:19:56:61">
+                        <pos alpha="1" />
+                        <pos time="1" alpha="1" />
                     </movingPart>
                 </movingPart>
-                <movingPart name="mw_r_upperarm " moving_type="line" centerX="74.8" centerY="51.8" texture="79:54:14:21:71:48">
-                    <pos x="74.8" y="51.8" angle="0.630577" />
-                    <pos time="0.192105" x="74.8" y="51.8" angle="0.556197" />
-                    <pos time="0.402632" x="74.8" y="51.8" angle="0.0695622" />
-                    <pos time="0.6" x="74.8" y="51.8" />
-                    <pos time="1" x="74.8" y="51.8" angle="-1.01992" />
-                    <movingPart name="mw_r_forearm" moving_type="line" centerX="81" centerY="64.8" texture="187:29:15:8:78:61">
-                        <pos x="81" y="64.8" angle="0.18984" />
-                        <pos time="0.207895" x="81" y="64.8" angle="-0.383714" />
-                        <pos time="0.4" x="81" y="64.8" angle="-0.240806" />
-                        <pos time="0.6" x="81" y="64.8" angle="0.159564" />
-                        <pos time="1" x="81" y="64.8" angle="0.76471" />
-                        <movingPart name="mw_r_hand" moving_type="line" centerX="89.8" centerY="65" texture="242:12:11:10:87:62">
-                            <pos x="89.8" y="65" angle="-0.917432" />
-                            <pos time="0.4" x="89.8" y="65" />
-                            <pos time="0.6" x="89.8" y="65" />
-                            <pos time="1" x="89.8" y="65" angle="-0.790271" />
+                <movingPart name="mw_r_upperarm " moving_type="line" order="25" treeOrder="0" centerX="74.8" centerY="51.8" texture="79:54:14:21:71:48">
+                    <pos x="74.8" y="51.8" angle="0.630577" alpha="1" />
+                    <pos time="0.192105" x="74.8" y="51.8" angle="0.556197" alpha="1" />
+                    <pos time="0.402632" x="74.8" y="51.8" angle="0.0695622" alpha="1" />
+                    <pos time="0.6" x="74.8" y="51.8" alpha="1" />
+                    <pos time="1" x="74.8" y="51.8" angle="-1.01992" alpha="1" />
+                    <movingPart name="mw_r_forearm" moving_type="line" order="26" treeOrder="0" centerX="81" centerY="64.8" texture="187:29:15:8:78:61">
+                        <pos x="81" y="64.8" angle="0.18984" alpha="1" />
+                        <pos time="0.207895" x="81" y="64.8" angle="-0.383714" alpha="1" />
+                        <pos time="0.4" x="81" y="64.8" angle="-0.240806" alpha="1" />
+                        <pos time="0.6" x="81" y="64.8" angle="0.159564" alpha="1" />
+                        <pos time="1" x="81" y="64.8" angle="0.76471" alpha="1" />
+                        <movingPart name="mw_r_hand" moving_type="line" order="27" treeOrder="0" centerX="89.8" centerY="65" texture="242:12:11:10:87:62">
+                            <pos x="89.8" y="65" angle="-0.917432" alpha="1" />
+                            <pos time="0.4" x="89.8" y="65" alpha="1" />
+                            <pos time="0.6" x="89.8" y="65" alpha="1" />
+                            <pos time="1" x="89.8" y="65" angle="-0.790271" alpha="1" />
                         </movingPart>
                     </movingPart>
-                    <movingPart name="m_r_upperarm_cl_brownwool" moving_type="line" texture="61:110:16:15:68:47">
-                        <pos />
-                        <pos time="1" />
+                    <movingPart name="m_r_upperarm_cl_brownwool" moving_type="line" order="28" treeOrder="0" texture="61:110:16:15:68:47">
+                        <pos alpha="1" />
+                        <pos time="1" alpha="1" />
                     </movingPart>
                 </movingPart>
             </movingPart>
         </movingPart>
     </Animation>
     <Animation id="ride_wheels" time="1" pivotX="0" pivotY="0">
-        <movingPart name="holder" moving_type="line" centerX="82" centerY="75">
-            <pos />
-            <pos time="1" />
-            <movingPart name="mw_bike_backholder_l" moving_type="line" texture="79:76:28:20:38:83">
-                <pos />
-                <pos time="1" />
+        <movingPart name="holder" moving_type="line" order="1" treeOrder="0" centerX="82" centerY="75">
+            <pos alpha="1" />
+            <pos time="1" alpha="1" />
+            <movingPart name="mw_bike_backholder_l" moving_type="line" order="2" treeOrder="0" texture="79:76:28:20:38:83">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
             </movingPart>
-            <movingPart name="mw_bike_wood_wheel_in_copy1" moving_type="line" texture="40:38:35:35:100:77">
-                <pos x="-72" y="-0.285714" />
-                <pos time="1" x="-72" y="-0.285714" />
+            <movingPart name="mw_bike_wood_wheel_in_copy1" moving_type="line" order="3" treeOrder="0" texture="40:38:35:35:100:77">
+                <pos x="-72" y="-0.285714" alpha="1" />
+                <pos time="1" x="-72" y="-0.285714" alpha="1" />
             </movingPart>
-            <movingPart name="ride_wheels_copy1" moving_type="line" centerX="117.4" centerY="96.4" texture="40:74:36:35:100:79">
-                <pos x="45.4" y="96.6" />
-                <pos time="1" x="45.4" y="96.6" angle="6.29" />
+            <movingPart name="ride_wheels_copy1" moving_type="line" order="4" treeOrder="0" centerX="117.4" centerY="96.4" texture="40:74:36:35:100:79">
+                <pos x="45.4" y="96.6" alpha="1" />
+                <pos time="1" x="45.4" y="96.6" angle="6.29" alpha="1" />
             </movingPart>
-            <movingPart name="mw_bike_frontholder_l" moving_type="line" texture="79:97:28:19:38:85">
-                <pos />
-                <pos time="1" />
+            <movingPart name="mw_bike_frontholder_l" moving_type="line" order="5" treeOrder="0" texture="79:97:28:19:38:85">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
             </movingPart>
-            <movingPart name="mw_bike_wood_tail" moving_type="line" texture="108:49:22:17:27:60">
-                <pos />
-                <pos time="1" />
+            <movingPart name="mw_bike_wood_tail" moving_type="line" order="6" treeOrder="0" texture="108:49:22:17:27:60">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
             </movingPart>
-            <movingPart name="mw_bike_backholder_r" moving_type="line" texture="166:0:21:26:102:77">
-                <pos />
-                <pos time="1" />
+            <movingPart name="mw_bike_backholder_r" moving_type="line" order="7" treeOrder="0" texture="166:0:21:26:102:77">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
             </movingPart>
-            <movingPart name="mw_bike_wood_wheel_in" moving_type="line" texture="40:38:35:35:100:77">
-                <pos />
-                <pos time="1" />
+            <movingPart name="mw_bike_wood_wheel_in" moving_type="line" order="8" treeOrder="0" texture="40:38:35:35:100:77">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
             </movingPart>
-            <movingPart name="ride_wheels" moving_type="line" centerX="117.4" centerY="96.4" texture="40:74:36:35:100:79">
-                <pos x="117.4" y="96.4" />
-                <pos time="1" x="117.4" y="96.4" angle="6.28" />
+            <movingPart name="ride_wheels" moving_type="line" order="9" treeOrder="0" centerX="117.4" centerY="96.4" texture="40:74:36:35:100:79">
+                <pos x="117.4" y="96.4" alpha="1" />
+                <pos time="1" x="117.4" y="96.4" angle="6.28" alpha="1" />
             </movingPart>
-            <movingPart name="mw_bike_wood_scute" moving_type="line" texture="155:29:31:10:100:70">
-                <pos />
-                <pos time="1" />
+            <movingPart name="mw_bike_wood_scute" moving_type="line" order="10" treeOrder="0" texture="155:29:31:10:100:70">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
             </movingPart>
-            <movingPart name="mw_bike_frontholder_r" moving_type="line" texture="0:0:39:51:88:55">
-                <pos />
-                <pos time="1" />
+            <movingPart name="mw_bike_frontholder_r" moving_type="line" order="11" treeOrder="0" texture="0:0:39:51:88:55">
+                <pos alpha="1" />
+                <pos time="1" alpha="1" />
             </movingPart>
         </movingPart>
     </Animation>

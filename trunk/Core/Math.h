@@ -8,7 +8,10 @@
 class Math {
 public:
 	static int round(float a);
+	static int sign(float a);
 	static float random(float a, float b);
+	static DWORD ReadColor(std::string color);
+	static std::string ColorToString(DWORD color);
 	static float Read(TiXmlElement *xe, const char *name, const float defaultValue);
 	static bool Read(TiXmlElement *xe, const char *name, const bool defaultValue);
 	static void Write(TiXmlElement *xe, const char *name, const float value);
@@ -29,7 +32,8 @@ public:
 								const FPoint2D &line2Start, const FPoint2D &line2End, FPoint2D *result);
 
 	// точка внтури многоугольника или нет
-	static bool Inside(const FPoint2D m, const std::vector<FPoint2D> &dots);
+	static bool Inside(const FPoint2D &m, const std::vector<FPoint2D> &dots);
+	static bool Inside(const FPoint2D &m, const FPoint2D &a, const FPoint2D &b, const FPoint2D &c);
 	static bool DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPoint2D &p);
 };
 

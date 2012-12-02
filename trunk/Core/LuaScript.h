@@ -3,6 +3,8 @@
 
 #include "types.h"
 #include <string>
+#include "lua.h"
+
 using std::string;
 
 class LuaScript
