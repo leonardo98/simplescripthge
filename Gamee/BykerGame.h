@@ -14,7 +14,7 @@
 #include "LevelSet.h"
 #include "Beauty.h"
 
-class TileEditor;
+class BykerGame;
 struct Settings;
 struct SelectedElement {
 	enum {
@@ -37,19 +37,19 @@ struct SelectedElement {
 //	void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
 //	void SayGoodbye(b2Joint* joint);
 //
-//	TileEditor* test;
+//	BykerGame* test;
 //};
 
 // класс описывающий физическую сцену и ее отображение
-class TileEditor 
+class BykerGame 
 	: public b2ContactListener
 	, public InputSystem
 	, public Messager
 {
 public:
 	
-	TileEditor(TiXmlElement *xe);
-	virtual ~TileEditor();
+	BykerGame(TiXmlElement *xe);
+	virtual ~BykerGame();
 
 	//virtual void Step(Settings* settings);
 
@@ -125,7 +125,6 @@ protected:
 
 	std::string _saveLevelName;
 	TiXmlElement *_saveLevelXml;
-	void SaveLevel(const std::string &levelName);
 
 	FPoint2D _lastMousePos;
 	Settings settings;
@@ -134,8 +133,6 @@ protected:
 	
 	FPoint2D _worldOffset; // смещение всех точек мира для отображения их на экране
 	FPoint2D _screenOffset; // точка на экране в которую проецируется точка (0, 0) мира(в режиме редактирования она фактически равна центру экрана)
-
-	bool _netVisible;
 
 	float _angleMultiplier;
 	bool _editor;
@@ -189,16 +186,7 @@ protected:
 	typedef std::list<Island> Islands;
 	Islands _islands;
 	float _bykerAngle;
-	void CalcNextBykePos(float dt);
 	void SetupBox2D();
-	void NewLevelYesNo(const std::string &message);
-	void DeleteSelectedYesNo(const std::string &message);
-	void OverwriteYesNo(const std::string &message);
-	void AddNewElement(const std::string &msg);
-	void AddBackImage(const std::string &msg);
-	void AddCover(const std::string &msg);
-	void PreSaveLevel(const std::string &msg);
-	void AddBoxElement(const std::string &msg);
 	FPoint2D ScreenToWorld(const FPoint2D &screenPos);
 	FPoint2D WorldToScreen(const FPoint2D &worldPos);
 	float _scipScaleChanging;

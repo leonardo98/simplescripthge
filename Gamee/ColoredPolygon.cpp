@@ -1,9 +1,12 @@
 #include "ColoredPolygon.h"
 #include "../Core/Math.h"
+#include "../Core/Core.h"
+#include "../Core/Messager.h"
 
 ColoredPolygon::ColoredPolygon(TiXmlElement *xe)
 : BeautyBase(xe)
 {
+	_color = Math::ReadColor(xe->Attribute("color"));
 	TiXmlElement *dot = xe->FirstChildElement("dot");
 	while (dot != NULL) {
 		_dots.push_back(FPoint2D(atof(dot->Attribute("x")), atof(dot->Attribute("y"))));
@@ -14,37 +17,27 @@ ColoredPolygon::ColoredPolygon(TiXmlElement *xe)
 }
 
 void ColoredPolygon::Draw() {
+
 	Render::PushMatrix();
 	Render::MatrixMove(_pos.x, _pos.y);
-	Render::MatrixRotate(_angle);
-	Render::MatrixMove(_sx, _sy);
+
+	DrawTriangles();
+
+	// этот кусок нужен для определения клика по многоугольнику
+	_screenDots = _dots;
 	for (unsigned int i = 0; i < _dots.size(); ++i) {
-		Render::Line(_dots[i].x, _dots[i].y, _dots[(i + 1) % _dots.size()].x, _dots[(i + 1) % _dots.size()].y, 0xFFFFFFFF);
+		Render::GetCurrentMatrix().Mul(_screenDots[i]);	
 	}
+
 	Render::PopMatrix();
 	BeautyBase::Draw();
 }
 
-void ColoredPolygon::DebugDraw() {
-	Draw();
-	BeautyBase::DebugDraw();
-}
-
-bool ColoredPolygon::PixelCheck(FPoint2D point) { 
-	return Math::Inside(point, _dots) || BeautyBase::PixelCheck(point); 
-}
-
-void ColoredPolygon::SaveToXml(TiXmlElement *xe) {
-	BeautyBase::SaveToXml(xe);
-	for (int j = 0; j < _dots.size(); ++j) {
-		TiXmlElement *dot = new TiXmlElement("dot");
-		char s[16];
-		sprintf(s, "%f", _dots[j].x); 
-		dot->SetAttribute("x", s);
-		sprintf(s, "%f", _dots[j].y); 
-		dot->SetAttribute("y", s);
-		xe->LinkEndChild(dot);
+bool ColoredPolygon::PixelCheck(const FPoint2D &point) { 
+	if (Math::Inside(point, _screenDots)) {
+		return true;
 	}
+	return false;
 }
 
 std::string ColoredPolygon::Type() { 
@@ -60,79 +53,142 @@ int ColoredPolygon::Height() {
 }
 
 void ColoredPolygon::CalcWidthAndHeight() {
-	int minX = _dots[0].x;
-	int maxX = _dots[0].x;
-	int minY = _dots[0].y;
-	int maxY = _dots[0].y;
-
-	for (int i = 1; i < _dots.size(); ++i) {
-		if (minX > _dots[i].x) {
-			minX = _dots[i].x;
-		} else if (maxX < _dots[i].x) {
-			maxX = _dots[i].x;
-		}
-		if (minY > _dots[i].y) {
-			minY = _dots[i].y;
-		} else if (maxY < _dots[i].y) {
-			maxY = _dots[i].y;
-		}
+	hgeRect rect;
+	rect.Clear();
+	for (int i = 0; i < _dots.size(); ++i) {
+		rect.Encapsulate(_dots[i].x, _dots[i].y);
 	}
-
-	_width = maxX - minX;
-	_height = maxY - minY;
+	_width = fabs(rect.x2 - rect.x1);
+	_height = fabs(rect.y2 - rect.y1);
 }
 
 bool ColoredPolygon::GenerateTriangles() {
-	return false;
-}
+	_triangles.clear();
+	std::vector<FPoint2D> dots = _dots;
 
-int ColoredPolygon::SearchNearest(float x, float y) {
-	int result = -1;
-	static const float SIZEX = 6;
-	FPoint2D p(x, y);
-	for (unsigned int i = 0; i < _dots.size() && result < 0; ++i) {
-		if ((_dots[i] - p).Length() < SIZEX) {
-			result = i;
-		}
-	}
-	return result;
-}
-
-bool ColoredPolygon::CreateDot(float x, float y) {
-	if (_dots.size() >= 20) {
-		return false;
-	}
-	bool result = false;
-	static const float SIZEX = 6;
-	FPoint2D p(x, y);
-	for (unsigned int i = 0; i < _dots.size() && !result; ++i) {
-		if (result = Math::DotNearLine(_dots[i], _dots[(i + 1) % _dots.size()], p)) {
-			int index = (i + 1) % _dots.size();
-			if (index < _dots.size()) {
-				_dots.insert(_dots.begin() + index, p);
-			} else {
-				_dots.push_back(p);
+	float sign = 0.f;
+	{
+		// ищем самый острый угол или наименее тупой
+		FPoint2D *a;
+		FPoint2D *b;
+		FPoint2D *c;
+		int index = 0;
+		float minAngle = 180.f;
+		for (int i = 0; i < dots.size(); ++i) {
+			a = &dots[i];
+			b = &dots[(i + 1) % dots.size()];
+			c = &dots[(i + 2) % dots.size()];
+			FPoint2D m((*a + *b + *c) / 3);
+			if (Math::Inside(m, dots)) {
+				float angle = (*a - *b).Angle(&(*c - *b));
+				if (angle <= 0.f) {
+					assert(false);
+				}
+				if (angle < minAngle) {
+					minAngle = angle;
+					index = i;
+				}
 			}
 		}
+		a = &dots[index];
+		b = &dots[(index + 1) % dots.size()];
+		c = &dots[(index + 2) % dots.size()];
+		sign = Math::VMul(*b - *a, *c - *b);
 	}
-	if (result) {
-		GenerateTriangles();
+	int counter = 0;
+	int dsize = 0;
+	while (dots.size() > 0) {
+		assert(dots.size() > 2);
+		if (dots.size() != dsize) {
+			dsize = dots.size();
+			counter = 0;
+		} else {
+			++counter;
+			if (counter > 10) {
+				_triangles.clear();
+				return false;
+			}
+		}
+		if (dots.size() == 3) {
+			hgeTriple tri;
+			FillTriangle(dots[0], dots[1], dots[2], tri);
+			_triangles.push_back(tri);
+			dots.clear();
+		} else {
+			FPoint2D *a;
+			FPoint2D *b;
+			FPoint2D *c;
+			for (int i = 0; i < dots.size(); ++i) {
+				a = &dots[i];
+				b = &dots[(i + 1) % dots.size()];
+				c = &dots[(i + 2) % dots.size()];
+				
+				bool intersection = false;
+				for (int j = 0; j < dots.size() && !intersection; ++j) {
+					FPoint2D *a2 = &dots[j];
+					FPoint2D *b2 = &dots[(j + 1) % dots.size()];
+					intersection = (Math::Intersection(*a, *c, *a2, *b2, NULL) 
+									|| Math::Intersection(*a, *b, *a2, *b2, NULL)
+									|| Math::Intersection(*b, *c, *a2, *b2, NULL));
+				}
+
+				for (int j = 0; j < dots.size() && !intersection; ++j) {
+					FPoint2D *a2 = &dots[j];
+					intersection = (a2 != a && a2 != b && a2 != c && Math::Inside(*a2, *a, *b, *c));
+				}
+
+				if (!intersection && Math::VMul(*b - *a, *c - *b) * sign > 0.f) {// выбираем только те что с нашим знаком
+					hgeTriple tri;
+					FillTriangle(*a, *b, *c, tri);
+					_triangles.push_back(tri);
+					if (i < dots.size() - 1) {
+						dots.erase(dots.begin() + i + 1);
+					} else {
+						dots.erase(dots.begin());
+					}
+					break;
+				}
+			}
+		}		
 	}
-	return result;
+	return true;
 }
 
-void ColoredPolygon::RemoveDot(int index) {
-	if (_dots.size() <= 3) {
-		return;
+void ColoredPolygon::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri) {
+	tri.v[0].x = a.x;
+	tri.v[0].y = a.y;
+	tri.v[1].x = b.x;
+	tri.v[1].y = b.y;
+	tri.v[2].x = c.x;
+	tri.v[2].y = c.y;
+
+	tri.blend = BLEND_ALPHABLEND | BLEND_COLORMUL;
+	// надо добавить в движке HGE режим без блендинга - можно только в игре,
+	// в редакторе не обязательно
+	tri.tex = 0;//_allElements->GetTexture();
+	for (unsigned int i = 0; i < 3; ++i) {
+		tri.v[i].col = _color;
+		tri.v[i].z = 0.f;
+		tri.v[i].tx = tri.v[i].x / 512.f;
+		tri.v[i].ty = tri.v[i].y / 512.f;
 	}
-	_dots.erase(_dots.begin() + index);
 }
 
-void ColoredPolygon::MouseDown(FPoint2D mouse) {
+void ColoredPolygon::DrawTriangles() {
+	int n = _triangles.size();// * f;
+	const Matrix &m = Render::GetCurrentMatrix();
+	int counter = 500;
+	hgeVertex *vertexs = Render::GetDC()->Gfx_StartBatch(HGEPRIM_TRIPLES, 0, BLEND_DEFAULT, &counter);
+	n = min(n, counter);
+	int num = 0;
+	for (unsigned int j = 0; j < n; ++j) {
+		hgeTriple tri = _triangles[j];
+		for (unsigned int i = 0; i < 3; ++i) {
+			vertexs[num] = tri.v[i];
+			m.Mul(vertexs[num].x, vertexs[num].y);
+			++num;
+		}
+	}
+	Render::GetDC()->Gfx_FinishBatch(num / 3);
 }
 
-void ColoredPolygon::MouseMove(FPoint2D mouse) {
-}
-
-void ColoredPolygon::MouseUp(FPoint2D mouse) {
-}

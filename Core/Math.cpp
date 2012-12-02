@@ -4,6 +4,11 @@ int Math::round(float a) {
 	int b = static_cast<int>(a);
 	return (a - b) >= 0.5f ? b + 1 : b;
 } 
+
+int Math::sign(float a) {
+	return (a > 0 ? 1 : (a < 0 ? -1 : 0));
+}
+
 float Math::random(float a, float b) {
 	return a + (b - a) * rand() / RAND_MAX;
 } 
@@ -20,7 +25,11 @@ void Math::Write(TiXmlElement *xe, const char *name, const float value) {
 
 bool Math::Read(TiXmlElement *xe, const char *name, const bool defaultValue) {
 	const char *tmp = xe->Attribute(name);
-	return (tmp ? std::string(tmp) == "true" : defaultValue);
+	if (tmp) {
+		std::string s(tmp);
+		return (tmp ? (s == "true" || s == "1") : defaultValue);
+	}
+	return defaultValue;
 }
 
 bool Math::GetCirclesIntersect(float X1, float Y1, float R1, float X2, float Y2, float R2, FPoint2D &P1, FPoint2D &P2)
@@ -215,19 +224,16 @@ bool Math::Intersection(const FPoint2D &line1Start, const FPoint2D &line1End,
 	return false;
 }
 
-bool Math::Inside(const FPoint2D m, const std::vector<FPoint2D> &dots) {
+bool Math::Inside(const FPoint2D &m, const std::vector<FPoint2D> &dots) {
 	// проверим находитьс€ ли центр треугольника внтури области
 	int counter = 0;
 	int n = dots.size();
 	for (int j = 0; j < n; ++j) {
 		const FPoint2D *a2 = &dots[j];
-		const FPoint2D *b2;
-		if (j < dots.size() - 1) {
-			b2 = &dots[j + 1];
-		} else {
-			b2 = &dots[j + 1 - dots.size()];
-		} 
-		if (a2->x < m.x && m.x <= b2->x) {// найти точку пересечени€ луча из ћ и отрезка a2b2
+		const FPoint2D *b2 = &dots[(j + 1) % dots.size()];
+		if ((a2->x < b2->x && a2->x < m.x && m.x <= b2->x)
+			|| (a2->x > b2->x && a2->x >= m.x && m.x > b2->x)
+			) {// найти точку пересечени€ луча из ћ и отрезка a2b2
 			float k = (a2->y - b2->y) / (a2->x - b2->x);
 			float b = a2->y - a2->x * k;
 			float y = k * m.x + b;
@@ -238,6 +244,15 @@ bool Math::Inside(const FPoint2D m, const std::vector<FPoint2D> &dots) {
 	}
 	return (counter % 2 == 1);
 }
+
+bool Math::Inside(const FPoint2D &m, const FPoint2D &a, const FPoint2D &b, const FPoint2D &c) {
+	std::vector<FPoint2D> d;
+	d.push_back(a);
+	d.push_back(b);
+	d.push_back(c);
+	return Inside(m, d);
+}
+
 
 float Math::Distance(const FPoint2D &one, const FPoint2D &two, const FPoint2D &point) {
 	float d = 0;
@@ -258,3 +273,30 @@ bool Math::DotNearLine(const FPoint2D &one, const FPoint2D &two, const FPoint2D 
 	return false;
 }
 
+DWORD Math::ReadColor(std::string color) {
+	assert(color.substr(0, 2) == "0x" && color.size() == 10);
+	DWORD result = 0;
+	unsigned char c;
+	for (unsigned int i = 2; i < color.size(); ++i) {
+		if (color[i] >= '0' && color[i] <= '9') {
+			c = color[i] - '0';
+		} else if (color[i] >= 'A' && color[i] <= 'F') {
+			c = 10 + (color[i] - 'A');
+		} else if (color[i] >= 'a' && color[i] <= 'f') {
+			c = 10 + (color[i] - 'a');
+		} else {
+			assert(false);
+		}
+		result = (result << 4) + static_cast<DWORD>(c);
+	}
+	return result;
+}
+
+std::string Math::ColorToString(DWORD color) {
+	static std::string hex("0123456789ABCDEF");
+	std::string result;
+	for (;color > 0; color = color >> 4) {
+		result = hex[color & 0xF] + result;
+	}
+	return "0x" + result;
+}

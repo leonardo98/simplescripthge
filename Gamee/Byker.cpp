@@ -1,4 +1,5 @@
 #include "Byker.h"
+#include "../Core/Core.h"
 
 Byker::Byker() 
 : physic(0.f, 0.f, 0.65f)

@@ -14,32 +14,25 @@ private:
 
 	int _width;
 	int _height;
-	bool _needUpdate;
+	DWORD _color;
 	void CalcWidthAndHeight();
 
 	std::vector<FPoint2D> _dots; // точки для редактирования
+	std::vector<FPoint2D> _screenDots; 
 	std::vector<hgeTriple> _triangles;
 
 	bool GenerateTriangles();
-
-	int SearchNearest(float x, float y);
-
-	bool CreateDot(float x, float y);
-	void RemoveDot(int index);
+	void FillTriangle(const FPoint2D &a, const FPoint2D &b, const FPoint2D &c, hgeTriple &tri);
+	void DrawTriangles();
 
 public:
 
 	ColoredPolygon(TiXmlElement *xe);
 
 	virtual void Draw();
-	virtual void DebugDraw();
 	virtual void Update(float dt) {}
-	virtual void MouseDown(FPoint2D mouse);
-	virtual void MouseMove(FPoint2D mouse);
-	virtual void MouseUp(FPoint2D mouse);
-	virtual bool PixelCheck(FPoint2D point);
+	virtual bool PixelCheck(const FPoint2D &point);
 
-	virtual void SaveToXml(TiXmlElement *xe);
 	virtual std::string Type();
 
 	virtual int Width();

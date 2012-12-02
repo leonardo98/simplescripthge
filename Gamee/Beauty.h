@@ -12,15 +12,18 @@ public:
 	Beauty(TiXmlElement *xe);
 
 	virtual void Draw();
-	virtual void DebugDraw();
+	virtual void DebugDraw(bool onlyControl);
 	virtual void Update(float dt) {}
-	virtual bool PixelCheck(FPoint2D point);
+	virtual bool PixelCheck(const FPoint2D &point);
 
 	virtual void SaveToXml(TiXmlElement *xe);
 	virtual std::string Type();
 
 	virtual int Width();
 	virtual int Height();
+
+	virtual Sprite *LinkToSprite();
+	const std::string &FileName() const {return _fileName;}
 
 private:
 	std::string _fileName;

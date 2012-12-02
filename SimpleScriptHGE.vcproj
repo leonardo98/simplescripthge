@@ -458,6 +458,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="C:\Projects\GWEN\trunk\gwen\Samples\LevelEditor\2dga_api"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TIXML_USE_STLWIN32;TIXML_USE_STL;HGE_COMPILE_KEY"
 				IgnoreStandardIncludePath="false"
 				MinimalRebuild="true"
@@ -557,6 +558,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Gamee\BykerGame.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Gamee\CommonBox2DTypes.h"
 					>
 				</File>
@@ -612,10 +617,6 @@
 					RelativePath=".\Gamee\TextureCut.cpp"
 					>
 				</File>
-				<File
-					RelativePath=".\Gamee\TileEditor.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Helpers"
@@ -646,10 +647,6 @@
 				>
 				<File
 					RelativePath=".\Core\Animation.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Core\AnimationPlayer.cpp"
 					>
 				</File>
 				<File
@@ -728,14 +725,6 @@
 			<Filter
 				Name="2dga_api"
 				>
-				<File
-					RelativePath=".\2dga_api\MovingPart.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\2dga_api\MyAnimation.cpp"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -749,6 +738,14 @@
 			<Filter
 				Name="Game"
 				>
+				<File
+					RelativePath=".\Gamee\AnimationArea.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\AnimationArea.h"
+					>
+				</File>
 				<File
 					RelativePath=".\Gamee\AnimationViewer.h"
 					>
@@ -783,6 +780,10 @@
 				</File>
 				<File
 					RelativePath=".\Gamee\Byker.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamee\BykerGame.h"
 					>
 				</File>
 				<File
@@ -849,10 +850,6 @@
 					RelativePath=".\Gamee\TextureCut.h"
 					>
 				</File>
-				<File
-					RelativePath=".\Gamee\TileEditor.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Helpers"
@@ -883,10 +880,6 @@
 				>
 				<File
 					RelativePath=".\Core\Animation.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Core\AnimationPlayer.h"
 					>
 				</File>
 				<File
@@ -970,11 +963,19 @@
 				Name="2dga_api"
 				>
 				<File
-					RelativePath=".\2dga_api\Animation.h"
+					RelativePath="..\GWEN\trunk\gwen\Samples\LevelEditor\2dga_api\Animation.h"
 					>
 				</File>
 				<File
-					RelativePath=".\2dga_api\MovingPart.h"
+					RelativePath="..\GWEN\trunk\gwen\Samples\LevelEditor\2dga_api\MovingPart.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\GWEN\trunk\gwen\Samples\LevelEditor\2dga_api\MovingPart.h"
+					>
+				</File>
+				<File
+					RelativePath="..\GWEN\trunk\gwen\Samples\LevelEditor\2dga_api\MyAnimation.cpp"
 					>
 				</File>
 			</Filter>
