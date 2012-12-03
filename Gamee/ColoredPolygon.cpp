@@ -165,7 +165,7 @@ void ColoredPolygon::FillTriangle(const FPoint2D &a, const FPoint2D &b, const FP
 	tri.blend = BLEND_ALPHABLEND | BLEND_COLORMUL;
 	// надо добавить в движке HGE режим без блендинга - можно только в игре,
 	// в редакторе не обязательно
-	tri.tex = 0;//_allElements->GetTexture();
+	tri.tex = 0;
 	for (unsigned int i = 0; i < 3; ++i) {
 		tri.v[i].col = _color;
 		tri.v[i].z = 0.f;

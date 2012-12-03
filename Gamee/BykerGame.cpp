@@ -8,10 +8,7 @@
 
 #define LEVELS_FILE "levels.xml"
 #define DEC 0.01f
-#define HALFBORDER 0.0025f
-
-Texture *_allElements;
-
+#define HALFBORDER 0.0025f	
 
 int BykerGame::round(float a) {
 	int b = static_cast<int>(a);
@@ -55,7 +52,6 @@ BykerGame::BykerGame(TiXmlElement *xe)
 	, _screenOffset((SCREEN_WIDTH = Render::GetDC()->System_GetState(HGE_SCREENWIDTH)) / 2
 					, (SCREEN_HEIGHT = Render::GetDC()->System_GetState(HGE_SCREENHEIGHT)) / 2  )
 	, _worldOffset(0.f, 0.f)
-//	, _angleMultiplier(BodyTemplate::MAX / (M_PI * 2))
 	, Messager("tile_editor")
 	, _editor(true)
 	, _selectedBody(NULL)
@@ -83,8 +79,6 @@ BykerGame::BykerGame(TiXmlElement *xe)
 	_selectedUV[2].u = 0.f; _selectedUV[2].v = 0.f;
 	_selectedUV[3].u = 0.f; _selectedUV[3].v = 0.f;
 
-	_allElements = Core::getTexture("allElements");
-	//LoadTemplates(Render::GetDataDir() + "bodyes.xml");
 	LoadRandomLevelsSet(Render::GetDC()->Resource_MakePath((Render::GetDataDir() + "levels.xml").c_str()));
 
 	//b2Vec2 gravity;
