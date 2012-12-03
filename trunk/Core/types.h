@@ -30,8 +30,12 @@ extern "C"
 #include "tinyxml.h"
 typedef hgeVector FPoint2D;
 typedef hgeVertex Vertex;
-#define LOG(a) { Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str()); /*OutputDebugString((std::string("message : ") + a + "\n").c_str());*/ }
 
+#ifndef WIN32
+	#define LOG(a) { Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str()); printf((std::string("message : ") + a + "\n").c_str()); }
+#else
+	#define LOG(a) { Render::GetDC()->System_Log((std::string("message : ") + a + "\n").c_str()); OutputDebugString((std::string("message : ") + a + "\n").c_str()); }
+#endif
 //#undef assert
 //#define assert(exp) if (!(exp)) {int j = 0; j = 1 / j;}
 
