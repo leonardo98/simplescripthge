@@ -141,35 +141,6 @@ float heightVariance = 0.0;
 float amplitudeMax = 0.0;
 
 // ----------------------------------------------------------------------------
-// CLOUDS
-// ----------------------------------------------------------------------------
-
-void drawClouds(const vec4f &sun, const mat4f &mat)
-{
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glUseProgram(clouds->program);
-    glUniformMatrix4fv(glGetUniformLocation(clouds->program, "worldToScreen"), 1, true, mat.coefficients());
-    glUniform3f(glGetUniformLocation(clouds->program, "worldCamera"), 0.0, 0.0, cameraHeight - meanHeight);
-    glUniform3f(glGetUniformLocation(clouds->program, "worldSunDir"), sun.x, sun.y, sun.z);
-    glUniform1f(glGetUniformLocation(clouds->program, "hdrExposure"), hdrExposure);
-    glUniform1f(glGetUniformLocation(clouds->program, "octaves"), octaves);
-    glUniform1f(glGetUniformLocation(clouds->program, "lacunarity"), lacunarity);
-    glUniform1f(glGetUniformLocation(clouds->program, "gain"), gain);
-    glUniform1f(glGetUniformLocation(clouds->program, "norm"), norm);
-    glUniform1f(glGetUniformLocation(clouds->program, "clamp1"), clamp1);
-    glUniform1f(glGetUniformLocation(clouds->program, "clamp2"), clamp2);
-    glUniform4f(glGetUniformLocation(clouds->program, "cloudsColor"), cloudColor[0], cloudColor[1], cloudColor[2], cloudColor[3]);
-    glBegin(GL_TRIANGLE_STRIP);
-    glVertex3f(-1e6, -1e6, 3000.0);
-    glVertex3f(1e6, -1e6, 3000.0);
-    glVertex3f(-1e6, 1e6, 3000.0);
-    glVertex3f(1e6, 1e6, 3000.0);
-    glEnd();
-    glDisable(GL_BLEND);
-}
-
-// ----------------------------------------------------------------------------
 // PROGRAM RELOAD
 // ----------------------------------------------------------------------------
 
@@ -500,24 +471,21 @@ void redisplayFunc()
     windToWorld[2] = sin(waveDirection);
     windToWorld[3] = cos(waveDirection);
 
-    glUseProgram(sky->program);
-    glUniformMatrix4fv(glGetUniformLocation(sky->program, "screenToCamera"), 1, true, proj.inverse().coefficients());
-    glUniformMatrix4fv(glGetUniformLocation(sky->program, "cameraToWorld"), 1, true, view.inverse().coefficients());
-    glUniform3f(glGetUniformLocation(sky->program, "worldCamera"), 0.0, 0.0, ch);
-    glUniform3f(glGetUniformLocation(sky->program, "worldSunDir"), sun.x, sun.y, sun.z);
-    glUniform1f(glGetUniformLocation(sky->program, "hdrExposure"), hdrExposure);
-    glBegin(GL_TRIANGLE_STRIP);
-    glVertex2f(-1, -1);
-    glVertex2f(1, -1);
-    glVertex2f(-1, 1);
-    glVertex2f(1, 1);
-    glEnd();
+	// небо
+    //glUseProgram(sky->program);
+    //glUniformMatrix4fv(glGetUniformLocation(sky->program, "screenToCamera"), 1, true, proj.inverse().coefficients());
+    //glUniformMatrix4fv(glGetUniformLocation(sky->program, "cameraToWorld"), 1, true, view.inverse().coefficients());
+    //glUniform3f(glGetUniformLocation(sky->program, "worldCamera"), 0.0, 0.0, ch);
+    //glUniform3f(glGetUniformLocation(sky->program, "worldSunDir"), sun.x, sun.y, sun.z);
+    //glUniform1f(glGetUniformLocation(sky->program, "hdrExposure"), hdrExposure);
+    //glBegin(GL_TRIANGLE_STRIP);
+    //glVertex2f(-1, -1);
+    //glVertex2f(1, -1);
+    //glVertex2f(-1, 1);
+    //glVertex2f(1, 1);
+    //glEnd();
 
-    if (cloudLayer && ch < 3000.0) {
-        drawClouds(sun, proj * view);
-    }
-
-    glUseProgram(render->program);
+	glUseProgram(render->program);
     glUniformMatrix4fv(glGetUniformLocation(render->program, "screenToCamera"), 1, true, proj.inverse().coefficients());
     glUniformMatrix4fv(glGetUniformLocation(render->program, "cameraToWorld"), 1, true, view.inverse().coefficients());
     glUniformMatrix4fv(glGetUniformLocation(render->program, "worldToScreen"), 1, true, (proj * view).coefficients());
@@ -531,7 +499,7 @@ void redisplayFunc()
     glUniform1f(glGetUniformLocation(render->program, "heightOffset"), -meanHeight);
     glUniform2f(glGetUniformLocation(render->program, "sigmaSqTotal"), sigmaXsq, sigmaYsq);
     if (animate) {
-        glUniform1f(glGetUniformLocation(render->program, "time"), time());
+        glUniform1f(glGetUniformLocation(render->program, "time"), time() * 0.5f);
     }
 
     glUniform4f(glGetUniformLocation(render->program, "lods"),
@@ -544,10 +512,12 @@ void redisplayFunc()
 
     glUniform3f(glGetUniformLocation(render->program, "seaColor"), seaColor[0] * seaColor[3], seaColor[1] * seaColor[3], seaColor[2] * seaColor[3]);
 
-    if (grid) {
-        glPolygonMode(GL_FRONT, GL_LINE);
-        glPolygonMode(GL_BACK, GL_LINE);
-    } else {
+	// cетка океана
+	//{
+	//    glPolygonMode(GL_FRONT, GL_LINE);
+	//    glPolygonMode(GL_BACK, GL_LINE);
+	//}
+	{
         glPolygonMode(GL_FRONT, GL_FILL);
         glPolygonMode(GL_BACK, GL_FILL);
     }
@@ -558,10 +528,6 @@ void redisplayFunc()
     glEnableClientState(GL_VERTEX_ARRAY);
     glDrawElements(GL_TRIANGLES, vboSize, GL_UNSIGNED_INT, 0);
     glDisableClientState(GL_VERTEX_ARRAY);
-
-    if (cloudLayer && ch > 3000.0) {
-        drawClouds(sun, proj * view);
-    }
 
     glutSwapBuffers();
 }
@@ -591,22 +557,23 @@ int main(int argc, char* argv[])
     glewInit();
 
     GLuint transmittanceTex;
-    GLuint irradianceTex;
+    //GLuint irradianceTex;
     GLuint inscatterTex;
 
     float *data = new float[16*64*3];
-    FILE *f = fopen("data/irradiance.raw", "rb");
-    fread(data, 1, 16*64*3*sizeof(float), f);
-    fclose(f);
-    glActiveTexture(GL_TEXTURE0 + IRRADIANCE_UNIT);
-    glGenTextures(1, &irradianceTex);
-    glBindTexture(GL_TEXTURE_2D, irradianceTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, 64, 16, 0, GL_RGB, GL_FLOAT, data);
+	FILE *f;
+ //   f = fopen("data/irradiance.raw", "rb");
+ //   fread(data, 1, 16*64*3*sizeof(float), f);
+ //   fclose(f);
+ //   glActiveTexture(GL_TEXTURE0 + IRRADIANCE_UNIT);
+ //   glGenTextures(1, &irradianceTex);
+ //   glBindTexture(GL_TEXTURE_2D, irradianceTex);
+ //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+ //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+ //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+ //   glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+ //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, 64, 16, 0, GL_RGB, GL_FLOAT, data);
     delete[] data;
 
     int res = 64;
