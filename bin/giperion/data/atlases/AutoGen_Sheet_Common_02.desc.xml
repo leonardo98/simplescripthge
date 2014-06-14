@@ -1,9 +1,0 @@
-<Frames count="7">
-  <frame x="0" y="0" width="1024" height="768" innerX="0" innerY="0" frameWidth="1024" frameHeight="768" path="data\cabinet\fon_cabinet.png" />
-  <frame x="0" y="768" width="200" height="211" innerX="321" innerY="277" frameWidth="1024" frameHeight="768" path="data\street\comok_scarf_street.png" />
-  <frame x="200" y="768" width="145" height="206" innerX="0" innerY="0" frameWidth="145" frameHeight="206" path="shtora_open_icebox" />
-  <frame x="200" y="974" width="81" height="47" innerX="452" innerY="233" frameWidth="1024" frameHeight="768" path="data\street\comok_carrot_street.png" />
-  <frame x="345" y="768" width="240" height="204" innerX="0" innerY="0" frameWidth="240" frameHeight="204" path="shtora_icebox" />
-  <frame x="585" y="768" width="311" height="201" innerX="0" innerY="0" frameWidth="311" frameHeight="203" path="picture_closet" />
-  <frame x="896" y="768" width="118" height="186" innerX="382" innerY="227" frameWidth="1024" frameHeight="768" path="bucket_closet" />
-</Frames>

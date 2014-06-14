@@ -1,8 +1,0 @@
-<Frames count="6">
-  <frame x="0" y="0" width="443" height="673" innerX="312" innerY="95" frameWidth="1024" frameHeight="768" path="bobcat_casket1" />
-  <frame x="0" y="673" width="361" height="338" innerX="379" innerY="370" frameWidth="1024" frameHeight="768" path="data\room_2\box_room2.png" />
-  <frame x="443" y="0" width="443" height="673" innerX="312" innerY="95" frameWidth="1024" frameHeight="768" path="bobcat_casket2" />
-  <frame x="886" y="0" width="119" height="560" innerX="497" innerY="43" frameWidth="1024" frameHeight="768" path="data\street\comok_broom_street.png" />
-  <frame x="443" y="673" width="370" height="324" innerX="249" innerY="397" frameWidth="1024" frameHeight="768" path="data\cabinet\bullfinch2_cabinet.png" />
-  <frame x="813" y="673" width="108" height="317" innerX="0" innerY="0" frameWidth="108" frameHeight="317" path="shtora_open2_room" />
-</Frames>

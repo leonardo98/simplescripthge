@@ -1,6 +1,0 @@
-<Frames count="4">
-  <frame x="0" y="0" width="1024" height="768" innerX="0" innerY="0" frameWidth="1024" frameHeight="768" path="data\street_2\fon_housetree_street2.png" />
-  <frame x="0" y="768" width="442" height="159" innerX="311" innerY="609" frameWidth="1024" frameHeight="768" path="data\street_2\conez_street2.png" />
-  <frame x="442" y="768" width="273" height="151" innerX="378" innerY="298" frameWidth="1024" frameHeight="768" path="icebox_kerrot" />
-  <frame x="442" y="919" width="127" height="105" innerX="386" innerY="208" frameWidth="1024" frameHeight="768" path="data\street\comok_3_street.png" />
-</Frames>

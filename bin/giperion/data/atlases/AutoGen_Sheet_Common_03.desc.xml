@@ -1,6 +1,0 @@
-<Frames count="4">
-  <frame x="0" y="0" width="1024" height="768" innerX="0" innerY="0" frameWidth="1024" frameHeight="768" path="fon_closet" />
-  <frame x="0" y="768" width="860" height="195" innerX="82" innerY="38" frameWidth="1024" frameHeight="768" path="data\street\cloud_street.png" />
-  <frame x="860" y="768" width="114" height="180" innerX="387" innerY="119" frameWidth="1024" frameHeight="768" path="data\street\comok_bucket_street.png" />
-  <frame x="860" y="948" width="108" height="75" innerX="0" innerY="0" frameWidth="108" frameHeight="75" path="cheese_closet" />
-</Frames>

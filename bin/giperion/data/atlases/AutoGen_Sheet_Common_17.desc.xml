@@ -1,5 +1,0 @@
-<Frames count="3">
-  <frame x="0" y="0" width="601" height="522" innerX="58" innerY="121" frameWidth="1024" frameHeight="768" path="bobcat_closet" />
-  <frame x="601" y="0" width="329" height="522" innerX="15" innerY="156" frameWidth="1024" frameHeight="768" path="bobcat2_icebox" />
-  <frame x="0" y="522" width="995" height="490" innerX="23" innerY="4" frameWidth="1024" frameHeight="768" path="babl_room" />
-</Frames>

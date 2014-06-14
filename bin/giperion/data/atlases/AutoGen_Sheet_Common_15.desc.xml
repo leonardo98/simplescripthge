@@ -1,7 +1,0 @@
-<Frames count="5">
-  <frame x="0" y="0" width="509" height="584" innerX="433" innerY="184" frameWidth="1024" frameHeight="768" path="data\cabinet\bobcat1_cabinet.png" />
-  <frame x="0" y="584" width="341" height="428" innerX="90" innerY="103" frameWidth="1024" frameHeight="768" path="door_room" />
-  <frame x="509" y="0" width="509" height="584" innerX="499" innerY="184" frameWidth="1024" frameHeight="768" path="data\cabinet\bobcat2_cabinet.png" />
-  <frame x="509" y="584" width="291" height="422" innerX="671" innerY="343" frameWidth="1024" frameHeight="768" path="bobcat5_room" />
-  <frame x="800" y="584" width="177" height="316" innerX="0" innerY="0" frameWidth="177" frameHeight="316" path="shtora_close2_room" />
-</Frames>

@@ -1,8 +1,0 @@
-<Frames count="6">
-  <frame x="0" y="0" width="1024" height="768" innerX="0" innerY="0" frameWidth="1024" frameHeight="768" path="data\room_2\fon_room2.png" />
-  <frame x="0" y="768" width="169" height="231" innerX="42" innerY="78" frameWidth="1024" frameHeight="768" path="data\street_2\fon_tree_street2.png" />
-  <frame x="169" y="768" width="122" height="228" innerX="0" innerY="0" frameWidth="122" frameHeight="228" path="clock_room" />
-  <frame x="291" y="768" width="341" height="224" innerX="651" innerY="360" frameWidth="1024" frameHeight="768" path="casket_open2" />
-  <frame x="632" y="768" width="186" height="223" innerX="781" innerY="133" frameWidth="1024" frameHeight="768" path="data\street\fon_tree_street2.png" />
-  <frame x="818" y="768" width="130" height="221" innerX="0" innerY="0" frameWidth="130" frameHeight="221" path="clock_birds_room" />
-</Frames>

@@ -1,7 +1,0 @@
-<Frames count="5">
-  <frame x="0" y="0" width="830" height="674" innerX="102" innerY="37" frameWidth="1024" frameHeight="768" path="data\shema\_text.png" />
-  <frame x="830" y="0" width="163" height="671" innerX="383" innerY="49" frameWidth="1024" frameHeight="768" path="data\cabinet\cabinet_open_cabinet2.png" />
-  <frame x="0" y="674" width="364" height="344" innerX="43" innerY="343" frameWidth="1024" frameHeight="768" path="data\room_2\bullfinch_room2.png" />
-  <frame x="364" y="674" width="317" height="344" innerX="45" innerY="413" frameWidth="1024" frameHeight="768" path="bullfinch2_room" />
-  <frame x="681" y="674" width="305" height="344" innerX="45" innerY="413" frameWidth="1024" frameHeight="768" path="bullfinch3_room" />
-</Frames>

@@ -1,6 +1,0 @@
-<Frames count="4">
-  <frame x="0" y="0" width="579" height="508" innerX="58" innerY="169" frameWidth="1024" frameHeight="768" path="data\street\bobcat7_street.png" />
-  <frame x="579" y="0" width="343" height="409" innerX="331" innerY="269" frameWidth="1024" frameHeight="768" path="data\street_2\bullfinch1_street2.png" />
-  <frame x="0" y="508" width="579" height="508" innerX="58" innerY="169" frameWidth="1024" frameHeight="768" path="data\street\bobcat6_street.png" />
-  <frame x="579" y="508" width="440" height="371" innerX="448" innerY="339" frameWidth="1024" frameHeight="768" path="data\street\bullfinch3_street.png" />
-</Frames>

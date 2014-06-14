@@ -1,6 +1,0 @@
-<Frames count="4">
-  <frame x="0" y="0" width="599" height="511" innerX="168" innerY="208" frameWidth="1024" frameHeight="768" path="data\street\comok_street.png" />
-  <frame x="599" y="0" width="291" height="461" innerX="561" innerY="241" frameWidth="1024" frameHeight="768" path="bobcat2_room" />
-  <frame x="0" y="511" width="579" height="508" innerX="57" innerY="168" frameWidth="1024" frameHeight="768" path="data\street\bobcat2_street.png" />
-  <frame x="579" y="511" width="291" height="461" innerX="491" innerY="241" frameWidth="1024" frameHeight="768" path="bobcat1_room" />
-</Frames>
