@@ -11,7 +11,6 @@ using namespace std;
 
 #include "glew.h"
 #include "glut.h"
-#include "AntTweakBar.h"
 
 #include "vec4.h"
 #include "mat4.h"
@@ -36,8 +35,6 @@ using namespace std;
 int width = 1024;
 
 int height = 768;
-
-TwBar *bar;
 
 Program *render = NULL;
 
@@ -236,17 +233,6 @@ void loadPrograms(bool all)
     }
 }
 
-void TW_CALL getBool(void *value, void *clientData)
-{
-    *((bool*) value) = *((bool*) clientData);
-}
-
-void TW_CALL setBool(const void *value, void *clientData)
-{
-    *((bool*) clientData) = *((bool*) value);
-    loadPrograms(clientData == &cloudLayer);
-}
-
 // ----------------------------------------------------------------------------
 // MESH GENERATION
 // ----------------------------------------------------------------------------
@@ -432,120 +418,6 @@ void generateWaves()
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F_ARB, nbWaves, 0, GL_RGBA, GL_FLOAT, waves);
 }
 
-void TW_CALL getFloat(void *value, void *clientData)
-{
-    *((float*) value) = *((float*) clientData);
-}
-
-void TW_CALL setFloat(const void *value, void *clientData)
-{
-    *((float*) clientData) = *((float*) value);
-    generateWaves();
-}
-
-void TW_CALL getInt(void *value, void *clientData)
-{
-    *((int*) value) = *((int*) clientData);
-}
-
-void TW_CALL setInt(const void *value, void *clientData)
-{
-    *((int*) clientData) = *((int*) value);
-    generateWaves();
-}
-
-// ----------------------------------------------------------------------------
-
-void save(int id)
-{
-    char buf[256];
-    sprintf(buf, "data/scene%d.dat", id);
-    std::ofstream out;
-    out.open(buf);
-    out << sunTheta << std::endl;
-    out << sunPhi << std::endl;
-    out << cameraHeight << std::endl;
-    out << cameraTheta << std::endl;
-    out << gridSize << std::endl;
-    out << nyquistMin << std::endl;
-    out << nyquistMax << std::endl;
-    out << seaColor[0] << std::endl;
-    out << seaColor[1] << std::endl;
-    out << seaColor[2] << std::endl;
-    out << seaColor[3] << std::endl;
-    out << hdrExposure << std::endl;
-    out << grid << std::endl;
-    out << animate << std::endl;
-    out << seaContrib << std::endl;
-    out << sunContrib << std::endl;
-    out << skyContrib << std::endl;
-    out << nbWaves << std::endl;
-    out << lambdaMin << std::endl;
-    out << lambdaMax << std::endl;
-    out << heightMax << std::endl;
-    out << waveDirection << std::endl;
-    out << waveDispersion << std::endl;
-    out << cloudLayer << std::endl;
-    out << octaves << std::endl;
-    out << lacunarity << std::endl;
-    out << gain << std::endl;
-    out << norm << std::endl;
-    out << clamp1 << std::endl;
-    out << clamp2 << std::endl;
-    out << cloudColor[0] << std::endl;
-    out << cloudColor[1] << std::endl;
-    out << cloudColor[2] << std::endl;
-    out << cloudColor[3] << std::endl;
-    out.close();
-}
-
-void load(int id)
-{
-    char buf[256];
-    sprintf(buf, "data/scene%d.dat", id);
-    std::ifstream in;
-    in.open(buf);
-    in >> sunTheta;
-    in >> sunPhi;
-    in >> cameraHeight;
-    in >> cameraTheta;
-    in >> gridSize;
-    in >> nyquistMin;
-    in >> nyquistMax;
-    in >> seaColor[0];
-    in >> seaColor[1];
-    in >> seaColor[2];
-    in >> seaColor[3];
-    in >> hdrExposure;
-    in >> grid;
-    in >> animate;
-    in >> seaContrib;
-    in >> sunContrib;
-    in >> skyContrib;
-    in >> nbWaves;
-    in >> lambdaMin;
-    in >> lambdaMax;
-    in >> heightMax;
-    in >> waveDirection;
-    in >> waveDispersion;
-    in >> cloudLayer;
-    in >> octaves;
-    in >> lacunarity;
-    in >> gain;
-    in >> norm;
-    in >> clamp1;
-    in >> clamp2;
-    in >> cloudColor[0];
-    in >> cloudColor[1];
-    in >> cloudColor[2];
-    in >> cloudColor[3];
-    in.close();
-    generateMesh();
-    generateWaves();
-    loadPrograms(true);
-    TwRefreshBar(bar);
-}
-
 // ----------------------------------------------------------------------------
 
 double time()
@@ -691,7 +563,6 @@ void redisplayFunc()
         drawClouds(sun, proj * view);
     }
 
-    TwDraw();
     glutSwapBuffers();
 }
 
@@ -699,71 +570,7 @@ void reshapeFunc(int x, int y)
 {
     width = x;
     height = y;
-    TwWindowSize(x, y);
     glutPostRedisplay();
-}
-
-void keyboardFunc(unsigned char c, int x, int y)
-{
-    if (c == 27) {
-        ::exit(0);
-    } else if (c == '+') {
-        cameraTheta = min(cameraTheta + 5.0f / 180.0f * M_PI, M_PI / 2.0f - 0.001f);
-    } else if (c == '-') {
-        cameraTheta = cameraTheta - 5.0 / 180.0 * M_PI;
-    } else if (c >= '1' && c <= '9') {
-        save(c - '0');
-    }
-
-	TwEventKeyboardGLUT(c, x, y);
-}
-
-void specialKeyFunc(int c, int x, int y)
-{
-    if (c >= GLUT_KEY_F1 && c <= GLUT_KEY_F9) {
-        load(c - GLUT_KEY_F1 + 1);
-    }
-    switch (c) {
-    case GLUT_KEY_PAGE_UP:
-    	cameraHeight = min(800.0f, cameraHeight * 1.1f);
-    	TwRefreshBar(bar);
-        break;
-    case GLUT_KEY_PAGE_DOWN:
-    	cameraHeight = max(0.5f, cameraHeight / 1.1f);
-    	TwRefreshBar(bar);
-        break;
-    }
-}
-
-int oldx;
-int oldy;
-bool drag;
-
-void mouseClickFunc(int b, int s, int x, int y)
-{
-    drag = false;
-	if (!TwEventMouseButtonGLUT(b, s, x, y) && b == 0) {
-        oldx = x;
-        oldy = y;
-		drag = true;
-	}
-}
-
-void mouseMotionFunc(int x, int y)
-{
-    if (drag) {
-        sunPhi += (oldx - x) / 400.0;
-        sunTheta += (y - oldy) / 400.0;
-        oldx = x;
-        oldy = y;
-    } else {
-        TwMouseMotion(x, y);
-    }
-}
-
-void mousePassiveMotionFunc(int x, int y)
-{
-    TwMouseMotion(x, y);
 }
 
 void idleFunc()
@@ -780,54 +587,8 @@ int main(int argc, char* argv[])
     glutCreateMenu(NULL);
     glutDisplayFunc(redisplayFunc);
     glutReshapeFunc(reshapeFunc);
-    glutKeyboardFunc(keyboardFunc);
-    glutSpecialFunc(specialKeyFunc);
-    glutMouseFunc(mouseClickFunc);
-    glutMotionFunc(mouseMotionFunc);
-    glutPassiveMotionFunc(mousePassiveMotionFunc);
     glutIdleFunc(idleFunc);
     glewInit();
-
-    TwInit(TW_OPENGL, NULL);
-	TwGLUTModifiersFunc(glutGetModifiers);
-
-    bar = TwNewBar("Parameters");
-    TwDefine("Parameters size='220 680'");
-    TwAddVarCB(bar, "Wave count", TW_TYPE_INT32, setInt, getInt, &nbWaves, "min=2 max=60 step=1 group=Waves");
-    TwAddVarCB(bar, "Wave direction", TW_TYPE_FLOAT, setFloat, getFloat, &waveDirection, "min=0.0 max=6.28 step=0.1 group=Waves");
-    TwAddVarCB(bar, "Wave dispersion", TW_TYPE_FLOAT, setFloat, getFloat, &waveDispersion, "min=0.1 max=1.76 step=0.05 group=Waves");
-    TwAddVarCB(bar, "Lambda Min", TW_TYPE_FLOAT, setFloat, getFloat, &lambdaMin, "min=0.02 max=30.0 step=0.1 precision=2 group=Waves");
-    TwAddVarCB(bar, "Lambda Max", TW_TYPE_FLOAT, setFloat, getFloat, &lambdaMax, "min=0.02 max=30.0 step=0.1 precision=2 group=Waves");
-    TwAddVarCB(bar, "V20", TW_TYPE_FLOAT, setFloat, getFloat, &U0, "min=0.1 max=20.0 step=0.1 group=Waves");
-    TwAddVarCB(bar, "Amplitude", TW_TYPE_FLOAT, setFloat, getFloat, &heightMax, "min=0.01 max=2.0 step=0.01 group=Waves");
-
-    TwAddVarRO(bar, "Slope Var X", TW_TYPE_FLOAT, &sigmaXsq, "group=Statistics");
-    TwAddVarRO(bar, "Slope Var Y", TW_TYPE_FLOAT, &sigmaYsq, "group=Statistics");
-    TwAddVarRO(bar, "Height Mean", TW_TYPE_FLOAT, &meanHeight, "group=Statistics");
-    TwAddVarRO(bar, "Height Var", TW_TYPE_FLOAT, &heightVariance, "group=Statistics");
-    TwAddVarRO(bar, "Amplitude Max", TW_TYPE_FLOAT, &amplitudeMax, "group=Statistics");
-
-    TwAddVarRO(bar, "Altitude", TW_TYPE_FLOAT, &cameraHeight, "group=Rendering");
-    TwAddVarRW(bar, "Grid size", TW_TYPE_FLOAT, &gridSize, "min=1.0 max=10.0 step=1.0 group=Rendering");
-    TwAddVarRW(bar, "Nyquist Min", TW_TYPE_FLOAT, &nyquistMin, "min=0.1 max=3.0 step=0.05 group=Rendering");
-    TwAddVarRW(bar, "Nyquist Max", TW_TYPE_FLOAT, &nyquistMax, "min=0.1 max=3.0 step=0.05 group=Rendering");
-    TwAddVarRW(bar, "Sea color", TW_TYPE_COLOR4F, &seaColor, "group=Rendering");
-    TwAddVarRW(bar, "Exposure", TW_TYPE_FLOAT, &hdrExposure, "min=0.01 max=4.0 step=0.01 group=Rendering");
-    TwAddVarRW(bar, "Animation", TW_TYPE_BOOL8, &animate, "group=Rendering");
-    TwAddVarRW(bar, "Grid", TW_TYPE_BOOL8, &grid, "group=Rendering");
-    TwAddVarCB(bar, "Sea", TW_TYPE_BOOL8, setBool, getBool, &seaContrib, "group=Rendering");
-    TwAddVarCB(bar, "Sun", TW_TYPE_BOOL8, setBool, getBool, &sunContrib, "group=Rendering");
-    TwAddVarCB(bar, "Sky", TW_TYPE_BOOL8, setBool, getBool, &skyContrib, "group=Rendering");
-    TwAddVarCB(bar, "Manual filter", TW_TYPE_BOOL8, setBool, getBool, &manualFilter, "group=Rendering");
-
-    TwAddVarRW(bar, "Octaves", TW_TYPE_FLOAT, &octaves, "min=1.0 max=16.0 step=1.0 group=Clouds");
-    TwAddVarRW(bar, "Lacunarity", TW_TYPE_FLOAT, &lacunarity, "min=0.1 max=3.0 step=0.1 group=Clouds");
-    TwAddVarRW(bar, "Gain", TW_TYPE_FLOAT, &gain, "min=0.01 max=2.0 step=0.01 group=Clouds");
-    TwAddVarRW(bar, "Norm", TW_TYPE_FLOAT, &norm, "min=0.01 max=1.0 step=0.01 group=Clouds");
-    TwAddVarRW(bar, "Clamp1", TW_TYPE_FLOAT, &clamp1, "min=-1.0 max=1.0 step=0.01 group=Clouds");
-    TwAddVarRW(bar, "Clamp2", TW_TYPE_FLOAT, &clamp2, "min=-1.0 max=1.0 step=0.01 group=Clouds");
-    TwAddVarRW(bar, "Color", TW_TYPE_COLOR4F, &cloudColor, "group=Clouds");
-    TwAddVarCB(bar, "Enable", TW_TYPE_BOOL8, setBool, getBool, &cloudLayer, "group=Clouds");
 
     GLuint transmittanceTex;
     GLuint irradianceTex;
