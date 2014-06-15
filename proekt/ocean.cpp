@@ -86,19 +86,31 @@ Ocean::Ocean(float x1, float z1, float x2, float z2, float y, uint xDiv, uint zD
 
 void Ocean::Draw()
 {
-	glEnableClientState(GL_VERTEX_ARRAY); 
-    glEnableClientState( GL_TEXTURE_COORD_ARRAY );             
+	if (false) //"net"
+	{
+		glEnableClientState(GL_VERTEX_ARRAY); 
 
-	glBindBufferARB(GL_ARRAY_BUFFER, _vboVert);
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
+		glBindBufferARB(GL_ARRAY_BUFFER, _vboVert);
+		glVertexPointer(3, GL_FLOAT, 0, NULL);
 
-	glBindBufferARB(GL_ARRAY_BUFFER, _vboUV);
-	glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+		glDrawArrays(GL_LINES, 0, _num * 3);
 
-	//Actually draw the triangle, giving the number of vertices provided
-	glDrawArrays(GL_TRIANGLES, 0, _num);
-	//glDrawArrays(GL_LINES, 0, _num * 3);
+		glDisableClientState( GL_VERTEX_ARRAY );                
+	}
+	else
+	{
+		glEnableClientState(GL_VERTEX_ARRAY); 
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );             
 
-	glDisableClientState( GL_VERTEX_ARRAY );                
-    glDisableClientState( GL_TEXTURE_COORD_ARRAY );             
+		glBindBufferARB(GL_ARRAY_BUFFER, _vboVert);
+		glVertexPointer(3, GL_FLOAT, 0, NULL);
+
+		glBindBufferARB(GL_ARRAY_BUFFER, _vboUV);
+		glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+
+		glDrawArrays(GL_TRIANGLES, 0, _num);
+
+		glDisableClientState( GL_VERTEX_ARRAY );                
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );             
+	}
 }
