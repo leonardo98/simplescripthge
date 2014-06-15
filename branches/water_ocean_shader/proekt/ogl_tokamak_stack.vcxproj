@@ -180,8 +180,8 @@
     <None Include="data\shader\LandVS.glsl" />
     <None Include="data\shader\ShaderPS.glsl" />
     <None Include="data\shader\ShaderVS.glsl" />
-    <None Include="data\shader\WaterPS.glsl" />
-    <None Include="data\shader\WaterVS.glsl" />
+    <None Include="shader\WaterPS.glsl" />
+    <None Include="shader\WaterVS.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ogl_tokamak_stack.rc" />
