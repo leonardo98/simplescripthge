@@ -350,7 +350,6 @@ unsigned int TextureLandP;
 
 //переменные для шейдера воды
 unsigned int TextureWater; // карта нормалей
-unsigned int TextureWater3d; // карта преломлений (сцены под водой)
 unsigned int TextureNV; // карта отражений (сцены над водой)
 unsigned int TextureNV1; // карта глубины сцены
 unsigned int TextureNV2; // карта глубины сцены с позиции источника света
@@ -1396,7 +1395,6 @@ void init( void )
 
    // связать переменные с шейдером
    TextureWater = glGetUniformLocationARB(SWater, "normal_texture");
-   TextureWater3d = glGetUniformLocationARB(SWater, "refract_texture");
    TextureNV = glGetUniformLocationARB(SWater, "reflect_texture");
    TextureNV1 = glGetUniformLocationARB(SWater, "depth_texture");
    TextureNV2 = glGetUniformLocationARB(SWater, "shadow_texture");
@@ -2098,9 +2096,8 @@ char* loadShader(char *shaderName)
       {
          return NULL;
       }
-   while(!input.eof())
+   while(input.getline(tempLine, 128, '\n'))
       {
-         input.getline(tempLine, 128, '\n');
          count++;
       }
    input.close();
@@ -3133,7 +3130,6 @@ glPopMatrix();
 
 	//текстуры
 	glUniform1iARB(TextureWater, 0);// карта нормалей
-	glUniform1iARB(TextureWater3d, 1);// карта преломлений (сцены под водой)
 	glUniform1iARB(TextureNV, 2);// карта отражений (сцены над водой)
 	glUniform1iARB(TextureNV1, 3);// карта глубины сцены
 	glUniform1iARB(TextureNV2, 4);// карта глубины сцены с позиции источника света

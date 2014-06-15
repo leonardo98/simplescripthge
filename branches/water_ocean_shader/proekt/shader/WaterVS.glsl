@@ -7,6 +7,11 @@ varying vec4 vertex;
 varying vec4 shadow_proj_coords;
 varying vec4 proj_coords;
 
+//varying vec4 v_wave;
+varying vec3 v_darkColor;
+varying vec3 v_lightColor;
+varying float v_result;
+
 void main()
 { 
 
@@ -29,7 +34,12 @@ float h = - 0.1 * abs(f)
  
  vertex.y += h * 0.5;
 
- gl_TexCoord[0] = gl_MultiTexCoord0;
+ gl_TexCoord[0] = gl_MultiTexCoord0 * 10.0;
  gl_Position = gl_ModelViewProjectionMatrix * vertex;
  proj_coords = gl_Position;
+
+v_darkColor = vec3(72.0/255.0, 104.0/255.0, 103.0/255.0);
+v_lightColor = vec3(28.0/255.0, 68.0/255.0, 74.0/255.0);
+v_result = abs(h / 0.33);
+
 }
