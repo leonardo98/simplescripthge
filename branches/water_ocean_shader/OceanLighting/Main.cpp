@@ -33,111 +33,61 @@ using namespace std;
 #define NOISE_UNIT 5
 
 int width = 1024;
-
 int height = 768;
-
 Program *render = NULL;
-
 Program *sky = NULL;
-
 Program *skymap = NULL;
-
 Program *clouds = NULL;
-
 unsigned int skyTexSize = 512;
-
 GLuint skyTex;
-
 GLuint noiseTex;
-
 bool cloudLayer = false;
-
 float octaves = 10.0;
-
 float lacunarity = 2.2;
-
 float gain = 0.7;
-
 float norm = 0.5;
-
 float clamp1 = -0.15;
-
 float clamp2 = 0.2;
-
 float cloudColor[4] = { 1.0, 1.0, 1.0, 1.0 };
-
 GLuint fbo;
-
 GLuint vbo;
-
 GLuint vboIndices;
-
 vec4f vboParams;
-
 int vboSize = 0;
-
 float sunTheta = M_PI / 2.0 - 0.05;
-
 float sunPhi = 0.0;
-
 float cameraHeight = 6.0;
-
 float cameraTheta = 0.0;
 
 // RENDERING OPTIONS
-
 float gridSize = 8.0;
-
 float nyquistMin = 1.0;
-
 float nyquistMax = 1.5;
-
 float seaColor[4] = {10.0 / 255.0, 40.0 / 255.0, 120.0 / 255.0, 0.1};
-
 float hdrExposure = 0.4;
-
 bool grid = false;
-
 bool animate = true;
-
 bool seaContrib = true;
-
 bool sunContrib = true;
-
 bool skyContrib = true;
-
 bool manualFilter = false;
 
 // WAVES PARAMETERS (INPUT)
-
 GLuint waveTex;
-
 int nbWaves = 60;
-
 vec4f *waves = NULL;
-
 float lambdaMin = 0.02;
-
 float lambdaMax = 30.0;
-
 float heightMax = 0.32;
-
 float waveDirection = 2.4;
-
 float U0 = 10.0;
-
 float waveDispersion = 1.25f;
 
 // WAVE STATISTICS (OUTPUT)
-
 float sigmaXsq = 0.0;
-
 float sigmaYsq = 0.0;
-
 float meanHeight = 0.0;
-
 float heightVariance = 0.0;
-
 float amplitudeMax = 0.0;
 
 // ----------------------------------------------------------------------------
@@ -448,6 +398,7 @@ void redisplayFunc()
     glViewport(0, 0, width, height);
 
     float ch = cameraHeight - meanHeight;
+	ch += 3 * sin(time() * 1.0);
 
     mat4f view = mat4f(
         0.0, -1.0, 0.0, 0.0,
@@ -456,6 +407,8 @@ void redisplayFunc()
         0.0, 0.0, 0.0, 1.0
     );
     view = mat4f::rotatex(cameraTheta / M_PI * 180.0) * view;
+    view = mat4f::rotatey(sin(time() * 0.5) * 30.0) * view;
+    //view = mat4f::rotatez(sin(time() * 1.6) * 30.0) * view;
 
     mat4f proj = mat4f::perspectiveProjection(90.0, float(width) / float(height), 0.1 * ch, 1000000.0 * ch);
 
@@ -470,20 +423,6 @@ void redisplayFunc()
     windToWorld[1] = -sin(waveDirection);
     windToWorld[2] = sin(waveDirection);
     windToWorld[3] = cos(waveDirection);
-
-	// небо
-    //glUseProgram(sky->program);
-    //glUniformMatrix4fv(glGetUniformLocation(sky->program, "screenToCamera"), 1, true, proj.inverse().coefficients());
-    //glUniformMatrix4fv(glGetUniformLocation(sky->program, "cameraToWorld"), 1, true, view.inverse().coefficients());
-    //glUniform3f(glGetUniformLocation(sky->program, "worldCamera"), 0.0, 0.0, ch);
-    //glUniform3f(glGetUniformLocation(sky->program, "worldSunDir"), sun.x, sun.y, sun.z);
-    //glUniform1f(glGetUniformLocation(sky->program, "hdrExposure"), hdrExposure);
-    //glBegin(GL_TRIANGLE_STRIP);
-    //glVertex2f(-1, -1);
-    //glVertex2f(1, -1);
-    //glVertex2f(-1, 1);
-    //glVertex2f(1, 1);
-    //glEnd();
 
 	glUseProgram(render->program);
     glUniformMatrix4fv(glGetUniformLocation(render->program, "screenToCamera"), 1, true, proj.inverse().coefficients());
@@ -557,24 +496,10 @@ int main(int argc, char* argv[])
     glewInit();
 
     GLuint transmittanceTex;
-    //GLuint irradianceTex;
     GLuint inscatterTex;
 
-    float *data = new float[16*64*3];
+    float *data;
 	FILE *f;
- //   f = fopen("data/irradiance.raw", "rb");
- //   fread(data, 1, 16*64*3*sizeof(float), f);
- //   fclose(f);
- //   glActiveTexture(GL_TEXTURE0 + IRRADIANCE_UNIT);
- //   glGenTextures(1, &irradianceTex);
- //   glBindTexture(GL_TEXTURE_2D, irradianceTex);
- //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
- //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
- //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
- //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
- //   glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
- //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, 64, 16, 0, GL_RGB, GL_FLOAT, data);
-    delete[] data;
 
     int res = 64;
     int nr = res / 2;
