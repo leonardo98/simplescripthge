@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <xkeycheck.h>
+#include <glew.h>
 #include <gl.h>
 #include <glaux.h>
 #include <glext.h>
@@ -286,25 +287,6 @@ gooo bgoo[10]; //popadani
 #define SKYDOWN  5						// Give Down  ID = 5
 CTGALoader SkyboxTexture[6];
 
-//фнкции шейдеров
-PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB = NULL;
-PFNGLCREATESHADEROBJECTARBPROC glCreateShaderObjectARB = NULL;
-PFNGLLINKPROGRAMARBPROC glLinkProgramARB = NULL;
-PFNGLCOMPILESHADERARBPROC glCompileShaderARB = NULL;
-PFNGLGETINFOLOGARBPROC glGetInfoLogARB = NULL;
-PFNGLDELETEOBJECTARBPROC glDeleteObjectARB = NULL;
-PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB = NULL;
-PFNGLSHADERSOURCEARBPROC glShaderSourceARB = NULL;
-PFNGLATTACHOBJECTARBPROC glAttachObjectARB = NULL;
-PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB = NULL;
-PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB = NULL;
-PFNGLUNIFORM4FARBPROC glUniform4fARB = NULL;
-PFNGLUNIFORM1IARBPROC glUniform1iARB = NULL;
-PFNGLUNIFORM1FARBPROC glUniform1fARB = NULL;
-PFNGLACTIVETEXTUREARBPROC       glActiveTextureARB = NULL;
-PFNGLMULTITEXCOORD2FARBPROC     glMultiTexCoord2fARB = NULL;
-PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
-
 //дескрипторы шейдера света
 GLhandleARB glContext;
 GLhandleARB glVertexShader;
@@ -328,9 +310,9 @@ GLhandleARB VSLand;
 GLhandleARB PSLand;
 
 //дескрипторы шейдера воды
-GLhandleARB SWater;
-GLhandleARB VSWater;
-GLhandleARB PSWater;
+//GLhandleARB SWater;
+//GLhandleARB VSWater;
+//GLhandleARB PSWater;
 
 //дескрипторы шейдера key
 GLhandleARB key;
@@ -503,6 +485,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			g_fElpasedTime = (float)((g_dCurTime - g_dLastTime) * 0.001);
 
 			u_time += g_fElpasedTime;
+			ocean->Update(g_fElpasedTime);
 
 			//if(mous==2)
 			//{
@@ -694,7 +677,7 @@ LRESULT CALLBACK WindowProc( HWND   hWnd,
 
 			glMatrixMode( GL_PROJECTION );
 			glLoadIdentity();
-			gluPerspective( 45.0, (GLdouble)nWidth / (GLdouble)nHeight, 0.1, 100.0);
+			gluPerspective( 90.0, (GLdouble)nWidth / (GLdouble)nHeight, 0.1, 100.0);
 		}
 		break;
 
@@ -935,13 +918,15 @@ void init( void )
 
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
-	gluPerspective( 45.0f, 900.0f / 675.0f, 0.1f, 3000.0f);
+	gluPerspective( 90.0f, 900.0f / 675.0f, 0.1f, 3000.0f);
 
     initPhysics();
+	glewInit();
+
 
 	float posxedro1(0.f);
 	float poszedro1(0.f);
-	ocean = new Ocean(0.0f+posxedro1-50, 0.0f+poszedro1-50, 96.f+posxedro1-50, 96.0f+poszedro1-50, 1.8f, 200, 200);
+	ocean = new Ocean(900, 675);
 
 	//грузим модели
 	g_Load3ds.Import3DS(&g_3DModel[0], "5.3ds");
@@ -1091,22 +1076,22 @@ void init( void )
 
 
    //получение адресов функций шейдера
-   glCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC)wglGetProcAddress("glCreateProgramObjectARB");
-   glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC)wglGetProcAddress("glCreateShaderObjectARB");
-   glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC)wglGetProcAddress("glCompileShaderARB");
-   glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC)wglGetProcAddress("glLinkProgramARB");
-   glGetInfoLogARB = (PFNGLGETINFOLOGARBPROC)wglGetProcAddress("glGetInfoLogARB");
-   glDeleteObjectARB  = (PFNGLDELETEOBJECTARBPROC)wglGetProcAddress("glDeleteObjectARB");
-   glUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)wglGetProcAddress("glUseProgramObjectARB");
-   glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC)wglGetProcAddress("glShaderSourceARB");
-   glAttachObjectARB = (PFNGLATTACHOBJECTARBPROC)wglGetProcAddress("glAttachObjectARB");
-   glGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC)wglGetProcAddress("glGetObjectParameterivARB");
-   glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC)wglGetProcAddress("glGetUniformLocationARB");
-   glUniform4fARB = (PFNGLUNIFORM4FARBPROC)wglGetProcAddress("glUniform4fARB");
-   glUniform1iARB = (PFNGLUNIFORM1IARBPROC)wglGetProcAddress("glUniform1iARB");
-   glUniform1fARB = (PFNGLUNIFORM1FARBPROC)wglGetProcAddress("glUniform1fARB");
-   glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)wglGetProcAddress("glActiveTextureARB");
-   glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC)wglGetProcAddress("glMultiTexCoord2fARB");
+   //glCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC)wglGetProcAddress("glCreateProgramObjectARB");
+   //glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC)wglGetProcAddress("glCreateShaderObjectARB");
+   //glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC)wglGetProcAddress("glCompileShaderARB");
+   //glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC)wglGetProcAddress("glLinkProgramARB");
+   //glGetInfoLogARB = (PFNGLGETINFOLOGARBPROC)wglGetProcAddress("glGetInfoLogARB");
+   //glDeleteObjectARB  = (PFNGLDELETEOBJECTARBPROC)wglGetProcAddress("glDeleteObjectARB");
+   //glUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)wglGetProcAddress("glUseProgramObjectARB");
+   //glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC)wglGetProcAddress("glShaderSourceARB");
+   //glAttachObjectARB = (PFNGLATTACHOBJECTARBPROC)wglGetProcAddress("glAttachObjectARB");
+   //glGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC)wglGetProcAddress("glGetObjectParameterivARB");
+   //glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC)wglGetProcAddress("glGetUniformLocationARB");
+   //glUniform4fARB = (PFNGLUNIFORM4FARBPROC)wglGetProcAddress("glUniform4fARB");
+   //glUniform1iARB = (PFNGLUNIFORM1IARBPROC)wglGetProcAddress("glUniform1iARB");
+   //glUniform1fARB = (PFNGLUNIFORM1FARBPROC)wglGetProcAddress("glUniform1fARB");
+   //glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)wglGetProcAddress("glActiveTextureARB");
+   //glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC)wglGetProcAddress("glMultiTexCoord2fARB");
    //
 
    PFNGLTEXIMAGE3DPROC glTexImage3D = (PFNGLTEXIMAGE3DPROC)wglGetProcAddress("glTexImage3D");
@@ -1280,24 +1265,24 @@ void init( void )
 
     /////////////////////////////////////////////////////////////////////шейдер обработки воды
    //подготовка шейдера
-   SWater = glCreateProgramObjectARB();//создать объект программы
+   //SWater = glCreateProgramObjectARB();//создать объект программы
 
    //вершинный шейдер
    //char *CodesWaterv = {"#version 110\n varying vec4 vertex;varying vec4 shadow_proj_coords;varying vec4 proj_coords;void main(){ 	 mat4 edmat = mat4(1.0, 0.0, 0.0, 0.0,			       0.0, 1.0, 0.0, 0.0,			       0.0, 0.0, 1.0, 0.0,			       0.0, 0.0, 0.0, 1.0); mat4 shadow_matrix = edmat; vertex = gl_Vertex; shadow_proj_coords = shadow_matrix * vertex;	    gl_TexCoord[0] = gl_MultiTexCoord0; gl_Position = gl_ModelViewProjectionMatrix * vertex; proj_coords = gl_Position;}"};
-	char *CodesWaterv=loadShader("shader//WaterVS.glsl");//загрузка текста шейдера
+	//char *CodesWaterv=loadShader("shader//WaterVS.glsl");//загрузка текста шейдера
    //if(!CodesWater) return false;
-   VSWater = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);//создать вершинный шейдер
-   glShaderSourceARB(VSWater, 1, (const char**)&CodesWaterv, NULL);//передать шейдеру его исходный код
-   
-   glCompileShaderARB(VSWater);//компилируем шейдер 
-   glGetObjectParameterivARB(VSWater, GL_OBJECT_COMPILE_STATUS_ARB, &result);//результат компил€ции шейдера
-   if(!result)
-      {
-         glGetInfoLogARB(VSWater, sizeof(error), NULL, error);
-         MessageBox(NULL, error, "3333Error v ...", MB_OK);
-      }
-    
-   glAttachObjectARB(SWater, VSWater);//присоедин€ем шейдер к программе
+   //VSWater = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);//создать вершинный шейдер
+   //glShaderSourceARB(VSWater, 1, (const char**)&CodesWaterv, NULL);//передать шейдеру его исходный код
+   //
+   //glCompileShaderARB(VSWater);//компилируем шейдер 
+   //glGetObjectParameterivARB(VSWater, GL_OBJECT_COMPILE_STATUS_ARB, &result);//результат компил€ции шейдера
+   //if(!result)
+   //   {
+   //      glGetInfoLogARB(VSWater, sizeof(error), NULL, error);
+   //      MessageBox(NULL, error, "3333Error v ...", MB_OK);
+   //   }
+   // 
+   //glAttachObjectARB(SWater, VSWater);//присоедин€ем шейдер к программе
    //delete[] CodesWater;//очистка пам€ти
    //CodesWater = NULL;//очистка пам€ти
 
@@ -1367,47 +1352,47 @@ void init( void )
    "result_color.xyz = (result_color.xyz + vec4(texture2D(texture_r, gl_TexCoord[0].xy)).xyz)*1.2;"\
    "if(result_color.x>0.69)		   result_color.x=0.69;		if(result_color.y>0.77)		   result_color.y=0.77;		if(result_color.z>0.78)		   result_color.z=0.78;  gl_FragColor = vec4( result_color, 1.0);   }"};
    */
-   char *CodesWaterb = loadShader("shader//WaterPS.glsl");
-   PSWater = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-   glShaderSourceARB(PSWater, 1, (const char**)&CodesWaterb, NULL);
-   
-   glCompileShaderARB(PSWater);
-   glGetObjectParameterivARB(PSWater, GL_OBJECT_COMPILE_STATUS_ARB, &result); 
-   if(!result)
-      {
-         glGetInfoLogARB(PSWater, sizeof(error), NULL, error);
-         MessageBox(NULL, error, "3333Error p ...", MB_OK);
-      }
+   //char *CodesWaterb = loadShader("shader//WaterPS.glsl");
+   //PSWater = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+   //glShaderSourceARB(PSWater, 1, (const char**)&CodesWaterb, NULL);
+   //
+   //glCompileShaderARB(PSWater);
+   //glGetObjectParameterivARB(PSWater, GL_OBJECT_COMPILE_STATUS_ARB, &result); 
+   //if(!result)
+   //   {
+   //      glGetInfoLogARB(PSWater, sizeof(error), NULL, error);
+   //      MessageBox(NULL, error, "3333Error p ...", MB_OK);
+   //   }
 
-   glAttachObjectARB(SWater, PSWater);
-   //delete[] CodesWater;
-   //CodesWater = NULL;
+   //glAttachObjectARB(SWater, PSWater);
+   ////delete[] CodesWater;
+   ////CodesWater = NULL;
 
-   glLinkProgramARB(SWater);//линкуем программу
-   glGetObjectParameterivARB(SWater, GL_OBJECT_LINK_STATUS_ARB, &result);
+   //glLinkProgramARB(SWater);//линкуем программу
+   //glGetObjectParameterivARB(SWater, GL_OBJECT_LINK_STATUS_ARB, &result);
 
-   if(!result)
-      {
-         glGetInfoLogARB(SWater, sizeof(error), NULL, error);
-         MessageBox(NULL, error, "3333Error linking shaders...", MB_OK);
-         //return false;
-      } 
+   //if(!result)
+   //   {
+   //      glGetInfoLogARB(SWater, sizeof(error), NULL, error);
+   //      MessageBox(NULL, error, "3333Error linking shaders...", MB_OK);
+   //      //return false;
+   //   } 
 
-   // св€зать переменные с шейдером
-   TextureWater = glGetUniformLocationARB(SWater, "normal_texture");
-   TextureNV = glGetUniformLocationARB(SWater, "reflect_texture");
-   TextureNV1 = glGetUniformLocationARB(SWater, "depth_texture");
-   TextureNV2 = glGetUniformLocationARB(SWater, "shadow_texture");
-   TextureNV3 = glGetUniformLocationARB(SWater, "texture_r");
+   //// св€зать переменные с шейдером
+   //TextureWater = glGetUniformLocationARB(SWater, "normal_texture");
+   //TextureNV = glGetUniformLocationARB(SWater, "reflect_texture");
+   //TextureNV1 = glGetUniformLocationARB(SWater, "depth_texture");
+   //TextureNV2 = glGetUniformLocationARB(SWater, "shadow_texture");
+   //TextureNV3 = glGetUniformLocationARB(SWater, "texture_r");
 
-   TimeVater = glGetUniformLocationARB(SWater, "time");
-   glLiSour = glGetUniformLocationARB(SWater, "light_source");
-   glViPos = glGetUniformLocationARB(SWater, "view_position");
-   glWatCol = glGetUniformLocationARB(SWater, "water_color");
-   glSpecCol = glGetUniformLocationARB(SWater, "specular_color");
-   glT = glGetUniformLocationARB(SWater, "time_density_clipplane");
-   u_timePrm = glGetUniformLocationARB(SWater, "u_time");
-   u_time = 0.f;
+   //TimeVater = glGetUniformLocationARB(SWater, "time");
+   //glLiSour = glGetUniformLocationARB(SWater, "light_source");
+   //glViPos = glGetUniformLocationARB(SWater, "view_position");
+   //glWatCol = glGetUniformLocationARB(SWater, "water_color");
+   //glSpecCol = glGetUniformLocationARB(SWater, "specular_color");
+   //glT = glGetUniformLocationARB(SWater, "time_density_clipplane");
+   //u_timePrm = glGetUniformLocationARB(SWater, "u_time");
+   //u_time = 0.f;
 
 
 
@@ -2625,10 +2610,6 @@ void MakeScreenShot()
 //-----------------------------------------------------------------------------
 void render( void )
 {
-
-
-	
-
     updatePhysics();//обновление физики
 
 	/////////////////////GLdouble equation[4] = {0.0, 1.8, 0.0, 0.1};
@@ -2650,13 +2631,6 @@ void render( void )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
  
-
-	
-
-
-
-
-
 	//g_vEye.y=-0.3;
 	//g_vLook.y= 0.5;
 	updateViewMatrix();//обновление камеры
@@ -2700,41 +2674,23 @@ void render( void )
 	matWorld.posx(posxedro1);
 	matWorld.posz(poszedro1);
 
+
 	glPushMatrix();
-Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
-glPopMatrix();
+	Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
+	glPopMatrix();
   
-
-
-   
-
-	
 
 	//poluchenie novih
 	matWorld.posx(lodkax);
 	matWorld.posz(lodkaz);
 
-	
-
-
 	neV3 vr;
 	vr.Set(g_redCubes[0]->GetRotationQ());
 	lodkay=vr[1];
 	
-
-
-	
-
 	////////////////////////////glDisable(GL_CLIP_PLANE0);
-
-
-
 	glBindTexture(GL_TEXTURE_2D, texturerender.ID);//текстура в которую будем рендерить
     glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 800, 600, 0);
-
-
-
-
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -2746,9 +2702,7 @@ glPopMatrix();
 	//getRealTimeUserInput();
 	//keyboard();
 
-        
-
-	g_vEye.x+=lodkax-lodkaxs;
+ 	g_vEye.x+=lodkax-lodkaxs;
 	g_vEye.z+=lodkaz-lodkazs;
 
 	lodkaxs=lodkax;
@@ -2757,32 +2711,15 @@ glPopMatrix();
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
  
-	
-
-	
-
-
-
-
 
 	glColor3f(0.0f, 0.0f, 0.0f);
 
 
-
-
-
 	updateViewMatrix();//обновление камеры
-	
 
-
-
-	
-
-
-
-glPushMatrix();
-Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
-glPopMatrix();
+	glPushMatrix();
+	Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
+	glPopMatrix();
   
 
 
@@ -2836,11 +2773,6 @@ glPopMatrix();
 	glUniform4fARB(glCPos, g_vEye.x, g_vEye.y, g_vEye.z, 1.0f);
 
 
-
-
-
-
-
     for (int i = 0; i<2; i++)
     {
 
@@ -2919,29 +2851,11 @@ glPopMatrix();
     glPopMatrix();
     glBindTexture(GL_TEXTURE_2D, NULL);
 	
-
-
-
-
-
-
-
-
-
-
-
-
 	 /////////////////////////////////////////////////////////////////////////пальма
 	matWorld = NET3_TO_MATRIX4X4f( land[0]->GetTransform() );
 
-
-
-	
-
 	matWorld.posx(posxv);
 	matWorld.posz(poszv);
-
-
 
 	//////////////////brizgi2
 	//matWorldV = NET3_TO_MATRIX4X4f( g_redCubes62->GetTransform() );
@@ -2980,11 +2894,6 @@ glPopMatrix();
 	glUniform4fARB(glCPos, g_vEye.x, g_vEye.y, g_vEye.z, 1.0f);
 
 
-
-
-
-
-
     for (int i = 0; i<2; i++)
     {
 
@@ -3044,157 +2953,31 @@ glPopMatrix();
 						}
 					} 
 					
- 
 					// ѕередаЄм текущую вершину обьекта
 					glVertex3f(pObject->pVerts[ index ].x, pObject->pVerts[ index ].y, pObject->pVerts[ index ].z);
 				}
 				//countpoligons++;
 			}
 	
-   
 			glEnd();
 
-
 	}
-
-
 
 	glUseProgramObjectARB(0);//запретить шейдер
     glPopMatrix();
     glBindTexture(GL_TEXTURE_2D, NULL);
 
 
-
-
-
-
-  
-
-/////////////////////////////////////////////////////////////////////вода
-	 //matrix4x4f matW;
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_COLOR, GL_ONE);
-	//float time;
-	//time1=time1+0.01f;
-   
-   //if(time1<4.0f)
-	  // time1=time1+0.01f;
-
-   //if(time1>1.0f)
-	   //time1=time1-0.01f;
-
-   float t=(float)(GetTickCount()/1000);
-
-
-	
-
-
-   //glDisable(GL_DEPTH_TEST);
-	 
-	
-	//glMatrixMode( GL_MODELVIEW );
-    //glMultMatrixf( matW.m );
-
-
-
-//float modelview[16];
-//float projection[16];
-//glMatrixMode(GL_TEXTURE);
-//glLoadIdentity();
-//glTranslatef(0.0,0.0, 0);
-//glScalef(0.0,0.0, 0);
-//glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
-//glGetFloatv(GL_PROJECTION_MATRIX, projection);
-//glMultMatrixf(projection);
-//glMultMatrixf(modelview);
-	
-
-
-
-	glUseProgramObjectARB(SWater);//разрешить шейдер
+	/////////////////////////////////////////////////////////////////////вода
 	glPushMatrix();
-
-	
-	
-
-
-	//числовые парметры
-	//glUniform1fARB(tr, t);
-	glUniform1fARB(u_timePrm, u_time);
-	glUniform4fARB(glLiSour, lPos[0], lPos[1], lPos[2], 1.0f);
-	glUniform4fARB(glViPos, g_vEye.x, g_vEye.y, g_vEye.z, 1.0f);
-	glUniform4fARB(glWatCol, 0.0f, 0.0f, 0.0f, 1.0f);
-	glUniform4fARB(glSpecCol, 1.0f, 1.0f, 1.0f, 1.0f);
-	glUniform4fARB(glT, tyr, 0.1f, 0.01f, 1000.0f);
-
-
-	//текстуры
-	glUniform1iARB(TextureWater, 0);// карта нормалей
-	glUniform1iARB(TextureNV, 2);// карта отражений (сцены над водой)
-	glUniform1iARB(TextureNV1, 3);// карта глубины сцены
-	glUniform1iARB(TextureNV2, 4);// карта глубины сцены с позиции источника света
-	glUniform1iARB(TextureNV3, 5);// кра€
-
-	                     
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texturebox[24].ID);  
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-    glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texturebox[22].ID); 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-	glActiveTextureARB(GL_TEXTURE2_ARB);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D,texturerender.ID); 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-	glActiveTextureARB(GL_TEXTURE3_ARB);
-    glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texturebox[22].ID); 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-	glActiveTextureARB(GL_TEXTURE4_ARB);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texturebox[22].ID); 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-	glActiveTextureARB(GL_TEXTURE5_ARB);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texturebox[26].ID); 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  
-	// draw water surface
-	glPushMatrix();
-	glTranslatef(posxedro1, 0.f, poszedro1);
-	ocean->Draw();
-	glPopMatrix();
-    //glBegin(GL_QUADS);
-    //    glTexCoord2f(0.0f, 0.0f); glVertex3f(0.0f+posxedro1-50, 1.8f,  0.0f+poszedro1-50);	
-    //    glTexCoord2f(1.0f, 0.0f); glVertex3f( 96.f+posxedro1-50,  1.8f,  0.0f+poszedro1-50);	
-    //    glTexCoord2f(1.0f, 1.0f); glVertex3f( 96.0f+posxedro1-50,  1.8f,  96.0f+poszedro1-50);	
-    //    glTexCoord2f(0.0f, 1.0f); glVertex3f(0.0f+posxedro1-50,  1.8f,  96.0f+poszedro1-50);	
-    //glEnd(); 
-
-	glUseProgramObjectARB(0);//запретить шейдер
+	//glTranslatef(posxedro1, 0.f, poszedro1);
+	ocean->Draw(atan2(g_vLook.z , g_vLook.x), atan2(g_vLook.y , sqrt(g_vLook.x * g_vLook.x + g_vLook.y * g_vLook.y)));
     glPopMatrix();
 
-
+	
 
 	glActiveTextureARB(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, NULL);
-
-
-
-
-
-
-
-
-
 
 	SwapBuffers( g_hDC );
 }

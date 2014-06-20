@@ -15,8 +15,9 @@
 
 #include"CCubeMap.h"
 #include<windows.h>           // The windows header file.
-#include<gl/gl.h>             // Standard opengl include.
-#include<gl/glu.h>            // Opengl utilities.
+#include<glew.h>             // Standard opengl include.
+#include<gl.h>             // Standard opengl include.
+#include<glu.h>            // Opengl utilities.
 #include<glext.h>          // Gl extensions.
 
 
