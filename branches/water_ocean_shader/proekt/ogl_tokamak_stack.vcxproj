@@ -84,7 +84,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>tokamak_d.lib;opengl32.lib;glu32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>tokamak_d.lib;opengl32.lib;glu32.lib;winmm.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/ogl_tokamak_stack.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -152,6 +152,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="particle.cpp" />
+    <ClCompile Include="Program.cpp" />
     <ClCompile Include="source3ds.cpp" />
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="vector3f.cpp" />
@@ -162,10 +163,13 @@
     <ClInclude Include="CTgaLoader.h" />
     <ClInclude Include="header3ds.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="mat4.h" />
     <ClInclude Include="matrix4x4f.h" />
     <ClInclude Include="ocean.h" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="Program.h" />
     <ClInclude Include="tga.h" />
+    <ClInclude Include="vec4.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="vector3f.h" />
     <ClInclude Include="resource.h" />

@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-#include <GL/gl.h>
+#include <glew.h>
+#include <gl.h>
 
 class tgaImageFile
 {
