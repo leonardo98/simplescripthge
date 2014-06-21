@@ -88,6 +88,9 @@ void Shutdown()
 
 void Startup()
 {
+	timer.init();
+
+	sgenrand(time(NULL));
 
 	Resize(wsizex, wsizey, 0, 0, 60);
 

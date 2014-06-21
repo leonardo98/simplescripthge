@@ -906,18 +906,6 @@ void updateViewMatrix( void )
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 //-----------------------------------------------------------------------------
 // Name: init()
 // Desc: 
@@ -2207,6 +2195,8 @@ void keyboard()
 		{
         speed=2.8f;
 		}
+		g_vEye.x += g_vLook().x * 0.05;
+		g_vEye.z += g_vLook().z * 0.05;
 	}
 
 	if(/*(GetKeyState(VK_DOWN) & 0x80) || */(GetKeyState('S') & 0x80))
@@ -2225,6 +2215,8 @@ void keyboard()
 		//joint2->SetMotor(neJoint::NE_MOTOR_SPEED, 0.0f, 10000.f);
 		//joint->SetMotor(neJoint::NE_MOTOR_SPEED, 0.0f, 10000.f);
 		}
+		g_vEye.x -= g_vLook().x * 0.05;
+		g_vEye.z -= g_vLook().z * 0.05;
 	}
 
 	if(/*(GetKeyState(VK_LEFT) & 0x80) || */(GetKeyState('A') & 0x80))
@@ -2761,9 +2753,9 @@ void render( void )
 	//glPopMatrix();
 	/////////////////////////////////////////////////////////////////////вода
 	glPushMatrix();
-	//glTranslatef(posxedro1, 0.f, poszedro1);
+	//glTranslatef(0.f, -1.8f, 0.f);
 	//SkyBox::camera.pos = SkyBox::vector(posxedro1, 0.f, poszedro1);
-	SkyBox::camera.pos = SkyBox::vector(g_vEye.x, g_vEye.y, g_vEye.z);
+	SkyBox::camera.pos = SkyBox::vector(g_vEye.x, g_vEye.y + 50.8f, g_vEye.z);
 	SkyBox::camera.rot = SkyBox::vector(yAngle, xAngle/*-atan2(g_vUp.z, g_vUp.x) / M_PI * 180*/, 0.f);
 	//SkyBox::camera.rot = SkyBox::vector(atan2(g_vLook.y, g_vLook.x) / M_PI * 180, -atan2(g_vLook.z, g_vLook.x) / M_PI * 180/*-atan2(g_vUp.z, g_vUp.x) / M_PI * 180*/, 0.f);
 	SkyBox::Render();
