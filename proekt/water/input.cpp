@@ -78,63 +78,7 @@ void ShutdownInput()
 
 void Input()
 {
-	lastdims = dims;
 
-	g_pMouse->Acquire();
-	g_pMouse->GetDeviceState(sizeof(DIMOUSESTATE2), &dims);
-	g_KDIDev->Acquire();
-	g_KDIDev->GetDeviceState(sizeof(keybuffer), &keybuffer);
-//	g_Joy->Acquire();
-//	g_Joy->Poll();
-//	g_Joy->GetDeviceState(sizeof(DIJOYSTATE), &dijs);
-
-	mousex += dims.lX;
-	mousey += dims.lY;
-	if (mousex >= wsizex)
-		mousex = wsizex - 1;
-	else if (mousex < 0)
-		mousex = 0;
-	if (mousey >= wsizey)
-		mousey = wsizey - 1;
-	else if (mousey < 0)
-		mousey = 0;
-
-	camera.rot.v[0] -= dims.lY * .1;
-	camera.rot.v[1] -= dims.lX * .1;
-
-	float xzscale = cosf(camera.rot.v[0] * PIOVER180);
-
-	float speed = 50;
-	if (keybuffer[DIK_W] & 0x80)
-	{
-		camera.pos.v[0] -= sinf(camera.rot.v[1] * PIOVER180) * speed * frametime * xzscale;
-		camera.pos.v[1] += sinf(camera.rot.v[0] * PIOVER180) * speed * frametime;
-		camera.pos.v[2] -= cosf(camera.rot.v[1] * PIOVER180) * speed * frametime * xzscale;
-	}
-	if (keybuffer[DIK_S] & 0x80)
-	{
-		camera.pos.v[0] += sinf(camera.rot.v[1] * PIOVER180) * speed * frametime;
-		camera.pos.v[1] -= sinf(camera.rot.v[0] * PIOVER180) * speed * frametime;
-		camera.pos.v[2] += cosf(camera.rot.v[1] * PIOVER180) * speed * frametime;
-	}
-	if (keybuffer[DIK_A] & 0x80)
-	{
-		camera.pos.v[0] -= sinf((camera.rot.v[1] + 90) * PIOVER180) * speed * frametime;
-		camera.pos.v[2] -= cosf((camera.rot.v[1] + 90) * PIOVER180) * speed * frametime;
-	}
-	if (keybuffer[DIK_D] & 0x80)
-	{
-		camera.pos.v[0] -= sinf((camera.rot.v[1] - 90) * PIOVER180) * speed * frametime;
-		camera.pos.v[2] -= cosf((camera.rot.v[1] - 90) * PIOVER180) * speed * frametime;
-	}
-	if (keybuffer[DIK_LCONTROL] & 0x80)
-	{
-		camera.pos.v[1] -= speed * frametime;
-	}
-	if (keybuffer[DIK_SPACE] & 0x80)
-	{
-		camera.pos.v[1] += speed * frametime;
-	}
 }
 
 }

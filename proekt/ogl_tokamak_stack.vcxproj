@@ -144,7 +144,6 @@
   <ItemGroup>
     <ClCompile Include="CCubeMap.cpp" />
     <ClCompile Include="CTgaLoader.cpp" />
-    <ClCompile Include="ocean.cpp" />
     <ClCompile Include="ogl_tokamak_stack.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
@@ -156,7 +155,6 @@
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="vector3f.cpp" />
     <ClCompile Include="water\cloudvolume.cpp" />
-    <ClCompile Include="water\extensions.cpp" />
     <ClCompile Include="water\fftsg.cpp" />
     <ClCompile Include="water\fftsg2d.cpp" />
     <ClCompile Include="water\font.cpp" />
@@ -175,14 +173,12 @@
     <ClInclude Include="header3ds.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="matrix4x4f.h" />
-    <ClInclude Include="ocean.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="tga.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="vector3f.h" />
     <ClInclude Include="water\cloudvolume.h" />
-    <ClInclude Include="water\extensions.h" />
     <ClInclude Include="water\fft.h" />
     <ClInclude Include="water\skybox.h" />
     <ClInclude Include="water\matrix.h" />

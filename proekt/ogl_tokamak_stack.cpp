@@ -24,22 +24,20 @@
    
 #include <ctime>
 
-#include "ocean.h"
+#include "water/skybox.h"
 
 
 int wsizex = 900;
 int wsizey = 675;
 int wbitdepth = 32;
 
-
-
+float xAngle = 0;
+float yAngle = 0;
+#define M_PI 3.14
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "glaux.lib")
 
                   
-   
- Ocean *ocean = NULL;
-
 
 	float xin=0.0f;
 	float yin=0.0f;
@@ -183,9 +181,39 @@ double g_dCurTime;
 double g_dLastTime;
 
 vector3f g_vEye(-4.3f, 3.9f, 0.0f);  // Eye Position  1 -2.9
-vector3f g_vLook(0.6f, -0.1f, 0.0f); // Look Vector 1 0.6
-vector3f g_vUp(0.0f, 1.0f, 0.0f);     // Up Vector
+//vector3f g_vLook(0.6f, -0.1f, 0.0f); // Look Vector 1 0.6
+//const vector3f g_vUp(0.0f, 1.0f, 0.0f);     // Up Vector
 vector3f g_vRight(1.0f, 0.0f, 0.0f);  // Right Vector
+
+vector3f g_vLook()
+{
+	vector3f look(1.f, 0.f, 0.f);
+
+	look.x = cos(xAngle / 180 * M_PI) * cos(yAngle / 180 * M_PI);
+	look.z = -sin(xAngle / 180 * M_PI) * cos(yAngle / 180 * M_PI);
+	look.y =  sin(yAngle / 180 * M_PI);
+
+	return look;
+}
+
+vector3f g_vUp()
+{
+	if (fabs(g_vLook().y) < 1e-5)
+	{
+		return vector3f(0.f, 1.f, 0.f);
+	}
+	vector3f up;
+	if (g_vLook().y > 0)
+	{
+		up = vector3f(-g_vLook().x, (g_vLook().x * g_vLook().x + g_vLook().z * g_vLook().z) / g_vLook().y, -g_vLook().z);
+	}
+	else
+	{
+		up = vector3f(g_vLook().x, -(g_vLook().x * g_vLook().x + g_vLook().z * g_vLook().z) / g_vLook().y, g_vLook().z);
+	}
+	up.normalize();
+	return up;
+}
 
 //vector3f g_vEye(-2.9f, 3.9f, 2.9f);  // Eye Position  1 -2.9
 //vector3f g_vLook(0.6f, -0.2f, -0.6f); // Look Vector 1 0.6
@@ -489,7 +517,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			g_fElpasedTime = (float)((g_dCurTime - g_dLastTime) * 0.001);
 
 			u_time += g_fElpasedTime;
-			ocean->Update(g_fElpasedTime);
+			//SkyBox::Update(g_fElpasedTime);
 
 			//if(mous==2)
 			//{
@@ -729,20 +757,33 @@ void getRealTimeUserInput( void )
     {
 		int nXDiff = (g_ptCurrentMousePosit.x - g_ptLastMousePosit.x);
         int nYDiff = (g_ptCurrentMousePosit.y - g_ptLastMousePosit.y);
-        
-        if( nYDiff != 0 )
-        {
-            matRotation.rotate( -(float)nYDiff / 3.0f, g_vRight );
-            matRotation.transformVector( &g_vLook );
-            matRotation.transformVector( &g_vUp );
-        }
+        xAngle -= nXDiff / 3.f;
+		float limit = 65;
+		if (yAngle - nYDiff / 3.f > limit)
+		{
+			//nYDiff = -(limit - yAngle) * 3; 
+			yAngle = limit;
+		}
+		else if (yAngle - nYDiff / 3.f < - limit)
+		{
+			//nYDiff = -(- limit - yAngle) * 3; 
+			yAngle = - limit;
+		}
+		else
+		{
+			yAngle -= nYDiff / 3.f;
+		}
+		//if( nYDiff != 0  )
+  //      {
+  //          matRotation.rotate( -(float)nYDiff / 3.0f, g_vRight );
+  //          matRotation.transformVector( &g_vLook );
+  //      }
 
-        if( nXDiff != 0 )
-        {
-            matRotation.rotate( -(float)nXDiff / 3.0f, vector3f(0.0f, 1.0f, 0.0f) );
-            matRotation.transformVector( &g_vLook );
-            matRotation.transformVector( &g_vUp );
-        }
+  //      if( nXDiff != 0 )
+  //      {
+  //          matRotation.rotate( -(float)nXDiff / 3.0f, vector3f(0.0f, 1.0f, 0.0f) );
+  //          matRotation.transformVector( &g_vLook );
+  //      }
 
 
 
@@ -785,7 +826,7 @@ mf:
 	unsigned char keys[256];
 	GetKeyboardState( keys ); 
 
-	vector3f tmpLook  = g_vLook;
+	vector3f tmpLook  = g_vLook();
 	vector3f tmpRight = g_vRight;
 
 	////// Up Arrow Key - View moves forward
@@ -836,34 +877,29 @@ void updateViewMatrix( void )
     matrix4x4f view;
     view.identity();
 
-    g_vLook.normalize();
+   // g_vLook.normalize();
 
-    g_vRight = crossProduct(g_vLook, g_vUp);
+    g_vRight = crossProduct(g_vLook(), g_vUp());
     g_vRight.normalize();
 
-    g_vUp = crossProduct(g_vRight, g_vLook);
-    g_vUp.normalize();
-
-
-
     view.m[0] =  g_vRight.x;
-    view.m[1] =  g_vUp.x;
-    view.m[2] = -g_vLook.x;
+    view.m[1] =  g_vUp().x;
+    view.m[2] = -g_vLook().x;
     view.m[3] =  0.0f;
 
     view.m[4] =  g_vRight.y;
-    view.m[5] =  g_vUp.y;
-    view.m[6] = -g_vLook.y;
+    view.m[5] =  g_vUp().y;
+    view.m[6] = -g_vLook().y;
     view.m[7] =  0.0f;
 
     view.m[8]  =  g_vRight.z;
-    view.m[9]  =  g_vUp.z;
-    view.m[10] = -g_vLook.z;
+    view.m[9]  =  g_vUp().z;
+    view.m[10] = -g_vLook().z;
     view.m[11] =  0.0f;
 
     view.m[12] = -dotProduct(g_vRight, g_vEye);
-    view.m[13] = -dotProduct(g_vUp, g_vEye);
-    view.m[14] =  dotProduct(g_vLook, g_vEye);
+    view.m[13] = -dotProduct(g_vUp(), g_vEye);
+    view.m[14] =  dotProduct(g_vLook(), g_vEye);
     view.m[15] =  1.0f;
 
     glMultMatrixf( view.m );
@@ -930,7 +966,8 @@ void init( void )
 
 	float posxedro1(0.f);
 	float poszedro1(0.f);
-	ocean = new Ocean(wsizex, wsizey);
+	//ocean = new Ocean(wsizex, wsizey);
+	SkyBox::Startup();
 
 	//грузим модели
 	g_Load3ds.Import3DS(&g_3DModel[0], "5.3ds");
@@ -1956,8 +1993,7 @@ void initPhysics( void )
 //-----------------------------------------------------------------------------
 void shutDown( void )	
 {
-	delete ocean;
-	ocean = NULL;
+	SkyBox::Shutdown();
     neSimulator::DestroySimulator( g_simulator );
 
 	if( g_hRC != NULL )
@@ -2407,11 +2443,10 @@ void RotateAroundPoint(vector3f vCenter, float angle, float x, float y, float z)
     vNewPosition.z += ((1 - cosTheta) * y * z + x * sinTheta)   * vPos.y;
     vNewPosition.z += (cosTheta + (1 - cosTheta) * z * z)       * vPos.z;
  
-	g_vLook.x = -vPos.x;
-	g_vLook.y = -1.0f;
-	g_vLook.z = -vPos.z;
+	//g_vLook.x = -vPos.x;
+	//g_vLook.y = -1.0f;
+	//g_vLook.z = -vPos.z;
 
-	g_vUp.set(0.0f, 1.0f, 0.0f);     // Up Vector
 	g_vRight.set(1.0f, 0.0f, 0.0f);  // Right Vector
 
     // Теперь просто прибавим новый вектор к нашей позиции,
@@ -2724,6 +2759,18 @@ void render( void )
 	//glPushMatrix();
 	//Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
 	//glPopMatrix();
+	/////////////////////////////////////////////////////////////////////вода
+	glPushMatrix();
+	//glTranslatef(posxedro1, 0.f, poszedro1);
+	//SkyBox::camera.pos = SkyBox::vector(posxedro1, 0.f, poszedro1);
+	SkyBox::camera.pos = SkyBox::vector(g_vEye.x, g_vEye.y, g_vEye.z);
+	SkyBox::camera.rot = SkyBox::vector(yAngle, xAngle/*-atan2(g_vUp.z, g_vUp.x) / M_PI * 180*/, 0.f);
+	//SkyBox::camera.rot = SkyBox::vector(atan2(g_vLook.y, g_vLook.x) / M_PI * 180, -atan2(g_vLook.z, g_vLook.x) / M_PI * 180/*-atan2(g_vUp.z, g_vUp.x) / M_PI * 180*/, 0.f);
+	SkyBox::Render();
+    glPopMatrix();
+	//SwapBuffers( g_hDC );
+
+	//return;
   
 
 
@@ -2970,14 +3017,6 @@ void render( void )
 	glUseProgramObjectARB(0);//запретить шейдер
     glPopMatrix();
     glBindTexture(GL_TEXTURE_2D, NULL);
-
-
-	/////////////////////////////////////////////////////////////////////вода
-	glPushMatrix();
-	//glTranslatef(posxedro1, 0.f, poszedro1);
-	ocean->Draw(atan2(g_vLook.z , g_vLook.x), atan2(g_vLook.y , sqrt(g_vLook.x * g_vLook.x + g_vLook.y * g_vLook.y)));
-    glPopMatrix();
-
 	
 
 	glActiveTextureARB(GL_TEXTURE0);

@@ -1,5 +1,5 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef SKYBOX_VECTOR_H
+#define SKYBOX_VECTOR_H
 
 #include <math.h>
 
