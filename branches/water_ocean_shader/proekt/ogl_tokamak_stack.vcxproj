@@ -152,10 +152,21 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="particle.cpp" />
-    <ClCompile Include="Program.cpp" />
     <ClCompile Include="source3ds.cpp" />
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="vector3f.cpp" />
+    <ClCompile Include="water\cloudvolume.cpp" />
+    <ClCompile Include="water\extensions.cpp" />
+    <ClCompile Include="water\fftsg.cpp" />
+    <ClCompile Include="water\fftsg2d.cpp" />
+    <ClCompile Include="water\font.cpp" />
+    <ClCompile Include="water\input.cpp" />
+    <ClCompile Include="water\skybox.cpp" />
+    <ClCompile Include="water\noise.cpp" />
+    <ClCompile Include="water\random.cpp" />
+    <ClCompile Include="water\render.cpp" />
+    <ClCompile Include="water\timer.cpp" />
+    <ClCompile Include="water\skybox_vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\opengl\include\GLAUX.H" />
@@ -163,16 +174,22 @@
     <ClInclude Include="CTgaLoader.h" />
     <ClInclude Include="header3ds.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="mat4.h" />
     <ClInclude Include="matrix4x4f.h" />
     <ClInclude Include="ocean.h" />
     <ClInclude Include="particle.h" />
-    <ClInclude Include="Program.h" />
     <ClInclude Include="tga.h" />
-    <ClInclude Include="vec4.h" />
     <ClInclude Include="vector.h" />
-    <ClInclude Include="vector3f.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="vector3f.h" />
+    <ClInclude Include="water\cloudvolume.h" />
+    <ClInclude Include="water\extensions.h" />
+    <ClInclude Include="water\fft.h" />
+    <ClInclude Include="water\skybox.h" />
+    <ClInclude Include="water\matrix.h" />
+    <ClInclude Include="water\noise.h" />
+    <ClInclude Include="water\random.h" />
+    <ClInclude Include="water\timer.h" />
+    <ClInclude Include="water\skybox_vector.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="codesampler.ico" />

@@ -27,6 +27,10 @@
 #include "ocean.h"
 
 
+int wsizex = 900;
+int wsizey = 675;
+int wbitdepth = 32;
+
 
 
 #pragma comment(lib, "ws2_32.lib")
@@ -343,7 +347,7 @@ unsigned int glViPos; //view_position
 unsigned int glWatCol; //water_color
 unsigned int glSpecCol; //specular_color
 unsigned int glT; //time_density_clipplane
-uint u_timePrm;
+//uint u_timePrm;
 float u_time = 0.f;
 
 
@@ -460,7 +464,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	g_hWnd = CreateWindowEx( NULL, "MY_WINDOWS_CLASS", 
                              "",
 						     WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
-					         0, 0, 900, 675, NULL, NULL, hInstance, NULL );
+					         0, 0, wsizex, wsizey, NULL, NULL, hInstance, NULL );
 	
 
 	if( g_hWnd == NULL )
@@ -918,7 +922,7 @@ void init( void )
 
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
-	gluPerspective( 90.0f, 900.0f / 675.0f, 0.1f, 3000.0f);
+	gluPerspective( 90.0f, float(wsizex) / wsizey, 0.1f, 3000.0f);
 
     initPhysics();
 	glewInit();
@@ -926,7 +930,7 @@ void init( void )
 
 	float posxedro1(0.f);
 	float poszedro1(0.f);
-	ocean = new Ocean(900, 675);
+	ocean = new Ocean(wsizex, wsizey);
 
 	//грузим модели
 	g_Load3ds.Import3DS(&g_3DModel[0], "5.3ds");
@@ -2675,9 +2679,9 @@ void render( void )
 	matWorld.posz(poszedro1);
 
 
-	glPushMatrix();
-	Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
-	glPopMatrix();
+	//glPushMatrix();
+	//Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
+	//glPopMatrix();
   
 
 	//poluchenie novih
@@ -2717,9 +2721,9 @@ void render( void )
 
 	updateViewMatrix();//обновление камеры
 
-	glPushMatrix();
-	Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
-	glPopMatrix();
+	//glPushMatrix();
+	//Draw_Skybox(posxedro1,0,poszedro1,150,50,150);
+	//glPopMatrix();
   
 
 

@@ -1,0 +1,79 @@
+!!ARBfp1.0
+
+PARAM p0 = {-7, .5, 32, .2};
+PARAM p1 = {0, 1, 0, .6};
+
+TEMP r0;
+TEMP r1;
+TEMP r2;
+TEMP r3;
+TEMP r4;
+
+
+# normal tex
+TEX r0, fragment.texcoord[0], texture[0], 2D;
+# detail normal tex
+TEX r1, fragment.texcoord[3], texture[0], 2D;
+#scale & bias to [-1, 1]
+MAD r0, r0, 2, -1;
+MAD r1, r1, 2, -1;
+# scale detail normal tex by some factor based on eye distance
+# maybe replace this with smoothed out mipmap levels
+MUL r1, r1, fragment.texcoord[1].w;
+
+# instead of per vertex normals it is all done in textures
+#ADD r0, r0, fragment.texcoord[2];
+ADD r0, r0, r1;
+DP3 r0.w, r0, r0;
+RSQ r0.w, r0.w;
+MUL r0, r0, r0.w;
+
+# normalize the eye to vertex vector
+DP3 r2.w, fragment.texcoord[1], fragment.texcoord[1];
+RSQ r2.w, r2.w;
+MUL r2, fragment.texcoord[1], r2.w;
+
+# bias towards an up vector when on edge/far away
+POW r3.w, -r2.y, p1.w;
+MOV r4, r0;
+LRP r0, r3.w, r0, p1;
+# specular needs to be biased less, or not at all
+LRP r4, r3.w, r0, r4;
+
+# vertex to eye * normal, clamped
+DP3_SAT r2.w, -r2, r0;
+
+# get the half angle vector and normalize
+ADD r3, -r2, program.local[3];
+DP3 r3.w, r3, r3;
+RSQ r3.w, r3.w;
+MUL r3, r3, r3.w;
+# half angle * normal
+DP3_SAT r0.w, r3, r4;
+# specular exponent
+POW r0.w, r0.w, p0.z;
+
+# fresnel = (1 + eye-normal dot product) ^ -7    (an approximation)
+# could probably approximate with 1 - dot(vertex to eye, normal)
+ADD r3.w, 1, r2.w;
+POW r3.w, r3.w, p0.x;
+
+# prepare the reflection texture coords (uses n.x and n.z as an offset)
+MOV r0.y, r0.z;
+# scale and bias screen position to get reflection texcoords - could do this in vertex program?
+MAD r1, fragment.position, program.local[0], program.local[1];
+# offset coords by normal, scaled down by distance (extra 10x factor stored in program.local[0].z)
+RCP r1.z, r1.z;
+MAD r1, r0, r1.z, r1;
+# offset reflection lookup
+TEX r1, r1, texture[1], 2D;
+
+# specular
+MUL r3.xyz, r0.w, program.local[4];
+# reflection * fresnel
+MAD r1, r1, r3.w, r3;
+# add water color * (1 - fresnel)
+ADD r3.w, 1, -r3.w;
+MAD result.color, program.local[2], r3.w, r1;
+
+END
