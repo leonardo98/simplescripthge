@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <string.h>
+#include <glew.h>
 #include <gl.h>
 #include <glu.h>
 #include <glext.h>
@@ -24,7 +25,7 @@
 #include "timer.h"
 #include "skybox_vector.h"
 #include "matrix.h"
-#include "extensions.h"
+//#include "extensions.h"
 #include "random.h"
 #include "cloudvolume.h"
 #include "noise.h"
@@ -99,6 +100,8 @@ extern float				mousex, mousey;
 void Input();
 int SetupInput();
 void ShutdownInput();
+void Shutdown();
+void Startup();
 
 }
 

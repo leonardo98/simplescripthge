@@ -31,7 +31,7 @@ unsigned int			refraction = 0;
 int						reflectiontexsizex = 512;
 int						reflectiontexsizey = 512;
 
-int wirewater = 0;
+int wirewater = 1;
 
 
 double modelview[16];
@@ -1076,7 +1076,7 @@ float Phillips(float a, float k[2], float wind[2])
 
 void SetupRender()
 {
-	InitExtensions();
+//	InitExtensions();
 
 	camera.pos.set(0, 50, 0);
 	camera.rot.v[1] = 0;
@@ -1213,7 +1213,7 @@ void SetupRender()
 
 
 	memset(program, 0, 10000);
-	file = fopen("shaders\\waterfp1.txt", "rt");
+	file = fopen("shader\\waterfp1.txt", "rt");
 	fread(program, filelength(file->_file), 1, file);
 	fclose(file);
 	glGenProgramsARB(1, &waterfp1);
@@ -1244,7 +1244,7 @@ void SetupRender()
 
 
 	memset(program, 0, 10000);
-	file = fopen("shaders\\watervp1.txt", "rt");
+	file = fopen("shader\\watervp1.txt", "rt");
 	fread(program, filelength(file->_file), 1, file);
 	fclose(file);
 	glGenProgramsARB(1, &watervp1);
