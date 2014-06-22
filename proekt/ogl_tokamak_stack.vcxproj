@@ -157,8 +157,6 @@
     <ClCompile Include="water\cloudvolume.cpp" />
     <ClCompile Include="water\fftsg.cpp" />
     <ClCompile Include="water\fftsg2d.cpp" />
-    <ClCompile Include="water\font.cpp" />
-    <ClCompile Include="water\input.cpp" />
     <ClCompile Include="water\skybox.cpp" />
     <ClCompile Include="water\noise.cpp" />
     <ClCompile Include="water\random.cpp" />
@@ -202,6 +200,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ogl_tokamak_stack.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shader\waterfp1.txt" />
+    <Text Include="shader\watervp1.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

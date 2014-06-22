@@ -19,7 +19,6 @@
 #include <gl.h>
 #include <glu.h>
 #include <glext.h>
-#include <dinput.h>
 #include <time.h>
 #include <io.h>
 #include "timer.h"
@@ -62,12 +61,9 @@ extern unsigned int		*texture;
 extern unsigned int		textures;
 extern TexInfo			*texinfo;
 
-extern unsigned int		fonttex;
-
 extern double modelview[16];
 extern double projection[16];
 extern int viewport[4];
-
 
 void Render();
 void ShutdownRender();
@@ -77,29 +73,6 @@ int CreateTexture(char filename[], bool clamp, bool duplicate);
 bool LoadCubemap(char name[], unsigned int &texid);
 
 
-// font.cpp
-
-extern unsigned int fontbase;
-
-void PrintULTRA(float scale, int x, int y, char format[], ...);
-void Print(int x, int y, char format[], ...);
-void DeleteFont();
-void BuildFont(char *widthfile, int tex, unsigned int &base);
-
-
-// input.cpp
-
-extern DIMOUSESTATE2			dims;
-extern DIMOUSESTATE2			lastdims;
-//extern DIJOYSTATE				dijs;
-extern BYTE					keybuffer[256];
-extern BYTE					keybuffer2[256];
-
-extern float				mousex, mousey;
-
-void Input();
-int SetupInput();
-void ShutdownInput();
 void Shutdown();
 void Startup();
 
