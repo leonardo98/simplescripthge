@@ -14,10 +14,6 @@ unsigned int			*texture = NULL;
 unsigned int			textures = 0;
 TexInfo					*texinfo = NULL;
 
-unsigned int			fonttex = 0;
-
-unsigned int			particletex = 0;
-
 
 unsigned int			waternormaltex = 0;
 
@@ -1024,13 +1020,6 @@ void Render()
 
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1, 1, 1, 1);
-	glBindTexture(GL_TEXTURE_2D, texture[fonttex]);
-
-
-	Print(wsizex - 36, wsizey - 16, "%.0f", averagefps);
-//	Print(wsizex - 120, wsizey - 16 * 2, "%.3f %.3f %.3f", ortho.up.v[0], ortho.up.v[1], ortho.up.v[2]);
-//	Print(wsizex - 120, wsizey - 16 * 3, "%.3f %.3f %.3f", ortho.right.v[0], ortho.right.v[1], ortho.right.v[2]);
-
 
 
 	glDisable(GL_ALPHA_TEST);
@@ -1174,14 +1163,7 @@ void SetupRender()
 	Noise3DInit(noise2, noisedim / 4, noisedim / 4, noisedim / 4);
 	Noise3DInit(noise1, noisedim / 8, noisedim / 8, noisedim / 8);
 
-
-	fonttex = CreateTexture("font.tga", false, false);
-	BuildFont("font", fonttex, fontbase);
-
-
 	LoadCubemap("cube", cubemap);
-
-
 
 	char program[10000];
 	FILE *file;
