@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#pragma warning (disable: 4018 4244 4305 4102)
+#pragma warning (disable: 4018 4244 4305 4102 4996)
 
 #pragma comment (lib, "opengl32")
 #pragma comment (lib, "glu32")
