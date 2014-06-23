@@ -181,8 +181,6 @@ double g_dCurTime;
 double g_dLastTime;
 
 vector3f g_vEye(-4.3f, 3.9f, 0.0f);  // Eye Position  1 -2.9
-//vector3f g_vLook(0.6f, -0.1f, 0.0f); // Look Vector 1 0.6
-//const vector3f g_vUp(0.0f, 1.0f, 0.0f);     // Up Vector
 vector3f g_vRight(1.0f, 0.0f, 0.0f);  // Right Vector
 
 vector3f g_vLook()
@@ -203,13 +201,14 @@ vector3f g_vUp()
 		return vector3f(0.f, 1.f, 0.f);
 	}
 	vector3f up;
+	vector3f look(g_vLook());
 	if (g_vLook().y > 0)
 	{
-		up = vector3f(-g_vLook().x, (g_vLook().x * g_vLook().x + g_vLook().z * g_vLook().z) / g_vLook().y, -g_vLook().z);
+		up = vector3f(-look.x, (look.x * look.x + look.z * look.z) / look.y, -look.z);
 	}
 	else
 	{
-		up = vector3f(g_vLook().x, -(g_vLook().x * g_vLook().x + g_vLook().z * g_vLook().z) / g_vLook().y, g_vLook().z);
+		up = vector3f(look.x, -(look.x * look.x + look.z * look.z) / look.y, look.z);
 	}
 	up.normalize();
 	return up;
@@ -517,7 +516,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			g_fElpasedTime = (float)((g_dCurTime - g_dLastTime) * 0.001);
 
 			u_time += g_fElpasedTime;
-			//SkyBox::Update(g_fElpasedTime);
 
 			//if(mous==2)
 			//{
@@ -761,35 +759,21 @@ void getRealTimeUserInput( void )
 		float limit = 65;
 		if (yAngle - nYDiff / 3.f > limit)
 		{
-			//nYDiff = -(limit - yAngle) * 3; 
 			yAngle = limit;
 		}
 		else if (yAngle - nYDiff / 3.f < - limit)
 		{
-			//nYDiff = -(- limit - yAngle) * 3; 
 			yAngle = - limit;
 		}
 		else
 		{
 			yAngle -= nYDiff / 3.f;
 		}
-		//if( nYDiff != 0  )
-  //      {
-  //          matRotation.rotate( -(float)nYDiff / 3.0f, g_vRight );
-  //          matRotation.transformVector( &g_vLook );
-  //      }
-
-  //      if( nXDiff != 0 )
-  //      {
-  //          matRotation.rotate( -(float)nXDiff / 3.0f, vector3f(0.0f, 1.0f, 0.0f) );
-  //          matRotation.transformVector( &g_vLook );
-  //      }
 
 
 
 
-
-	if ((g_ptLastMousePosit.y>600) & (g_ptLastMousePosit.x <50))
+		if ((g_ptLastMousePosit.y>600) & (g_ptLastMousePosit.x <50))
 		{
 			menum = 1;
 	        goto mf;
