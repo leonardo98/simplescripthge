@@ -17,8 +17,17 @@ TexInfo					*texinfo = NULL;
 
 unsigned int			waternormaltex = 0;
 
-unsigned int			waterfp1 = 0;
-unsigned int			watervp1 = 0;
+GLhandleARB waterShader = 0;
+GLhandleARB waterfp1 = 0;
+GLhandleARB watervp1 = 0;
+GLuint localPosition;
+GLuint inputVector0;
+GLuint inputVector1;
+GLuint inputVector2;
+GLuint inputVector3;
+GLuint inputVector4;
+GLuint WaterTexture0;
+GLuint WaterTexture1;
 
 unsigned int			cubemap = 0;
 
@@ -916,13 +925,13 @@ void Render()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
+	glUseProgramObjectARB(waterShader);//разрешить шейдер
+ 
+	glUniform1iARB(WaterTexture0, 0);
+	glUniform1iARB(WaterTexture1, 1);
+
 //	glActiveTextureARB(GL_TEXTURE2_ARB);
 //	glBindTexture(GL_TEXTURE_2D, refraction);
-
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-//	glEnable(GL_TEXTURE_CUBE_MAP_ARB);
-//	glDisable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, reflection);
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 //	glDisable(GL_TEXTURE_CUBE_MAP_ARB);
@@ -930,26 +939,35 @@ void Render()
 	glBindTexture(GL_TEXTURE_2D, waternormaltex);
 //	glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, 0);
 
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+//	glEnable(GL_TEXTURE_CUBE_MAP_ARB);
+//	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, reflection);
 
 
-	glBindProgramARB(GL_VERTEX_PROGRAM_ARB, watervp1);
-	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, waterfp1);
-	glEnable(GL_VERTEX_PROGRAM_ARB);
-	glEnable(GL_FRAGMENT_PROGRAM_ARB);
 
-	glProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, 0, camera.pos.v[0], camera.pos.v[1], camera.pos.v[2], 1);
+      //установка переменных шейдера
+
+	glUniform4f(localPosition, camera.pos.v[0], camera.pos.v[1], camera.pos.v[2], 1);
+	//glProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, 0, camera.pos.v[0], camera.pos.v[1], camera.pos.v[2], 1);
 
 	// texscale because reflection texture has a wider fov
 	float texscale = tanf(60 * .5 * PIOVER180) / tanf(70 * .5 * PIOVER180);
-	glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, (float)1 / wsizex * texscale, (float)1 / wsizey * texscale, 10, 1); // z is inverse scale
-	glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1, (1 - texscale) * .5, (1 - texscale) * .5, 0, 0);
+	
+	glUniform4f(inputVector0, (float)1 / wsizex * texscale, (float)1 / wsizey * texscale, 10, 1); // z is inverse scale
+	//glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, (float)1 / wsizex * texscale, (float)1 / wsizey * texscale, 10, 1); // z is inverse scale
+	glUniform4f(inputVector1, (1 - texscale) * .5, (1 - texscale) * .5, 0, 0);
+	//glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1, (1 - texscale) * .5, (1 - texscale) * .5, 0, 0);
 	// water color. Clear to this when drawing reflection texture
-	glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2, .169, .412, .396, 1);
+	glUniform4f(inputVector2, .169, .412, .396, 1);
+	//glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2, .169, .412, .396, 1);
 	// direction to light
 //	glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 3, 0, .9396926, .3420201, 1);
-	glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 3, 0, sinf(32 * PIOVER180), cosf(32 * PIOVER180), 1);
+	glUniform4f(inputVector3, 0, sinf(32 * PIOVER180), cosf(32 * PIOVER180), 1);
+	//glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 3, 0, sinf(32 * PIOVER180), cosf(32 * PIOVER180), 1);
 	// specular color
-	glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 4, 1, .9, .8, 1);
+	glUniform4f(inputVector4, 1, .9, .8, 1);
+	//glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 4, 1, .9, .8, 1);
 
 
 	glColor4f(1, 1, 1, 1);
@@ -966,8 +984,9 @@ void Render()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 
-	glDisable(GL_VERTEX_PROGRAM_ARB);
-	glDisable(GL_FRAGMENT_PROGRAM_ARB);
+	glUseProgramObjectARB(0);//запретить шейдер
+	//glDisable(GL_VERTEX_PROGRAM_ARB);
+	//glDisable(GL_FRAGMENT_PROGRAM_ARB);
 
 
 	glActiveTextureARB(GL_TEXTURE2_ARB);
@@ -1006,8 +1025,6 @@ void Render()
 
 	glPushMatrix();
 	glLoadIdentity();
-	RECT window;
-	//GetClientRect(hWnd, &window);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -1169,59 +1186,70 @@ void SetupRender()
 	FILE *file;
 	FILE *shaderlog = fopen("shaderlog.txt", "wt");
 
-	int maxinstructions, maxtemps, maxparams, maxattribs, maxalu, maxtex, maxindirect;
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &maxinstructions);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB, &maxtemps);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB, &maxparams);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB, &maxattribs);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &maxalu);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &maxtex);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &maxindirect);
+	//int maxinstructions, maxtemps, maxparams, maxattribs, maxalu, maxtex, maxindirect;
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &maxinstructions);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB, &maxtemps);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB, &maxparams);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB, &maxattribs);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &maxalu);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &maxtex);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &maxindirect);
 
-	fprintf(shaderlog, "Fragment Program Native Maximums:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
-		maxinstructions, maxtemps, maxparams, maxattribs, maxalu, maxtex, maxindirect);
+	//fprintf(shaderlog, "Fragment Program Native Maximums:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
+	//	maxinstructions, maxtemps, maxparams, maxattribs, maxalu, maxtex, maxindirect);
 
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &maxinstructions);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB, &maxtemps);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB, &maxparams);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB, &maxattribs);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &maxalu);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &maxtex);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &maxindirect);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &maxinstructions);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB, &maxtemps);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB, &maxparams);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB, &maxattribs);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &maxalu);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &maxtex);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &maxindirect);
 
-	fprintf(shaderlog, "Vertex Program Native Maximums:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
-		maxinstructions, maxtemps, maxparams, maxattribs, maxalu, maxtex, maxindirect);
+	//fprintf(shaderlog, "Vertex Program Native Maximums:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
+	//	maxinstructions, maxtemps, maxparams, maxattribs, maxalu, maxtex, maxindirect);
 
-
+	waterShader = glCreateProgramObjectARB();//создать объект программы
 
 	memset(program, 0, 10000);
 	file = fopen("shader\\waterfp1.txt", "rt");
 	fread(program, filelength(file->_file), 1, file);
 	fclose(file);
-	glGenProgramsARB(1, &waterfp1);
-	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, waterfp1);
-	glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(program), program);
 
-	unsigned char *error;
-	error = (unsigned char *)glGetString(GL_PROGRAM_ERROR_STRING_ARB);
+	waterfp1 = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);//создать пиксельный шейдер
+	GLint lengthProgram = strlen(program);
+	GLchar *pLonelyShader;
+	pLonelyShader = &program[0];
+	glShaderSourceARB (waterfp1, 1, (const GLcharARB**) &pLonelyShader, NULL);
+   
+   //compilv
+   glCompileShaderARB(waterfp1);//компилируем шейдер 
+   GLint result;
+   glGetObjectParameterivARB(waterfp1, GL_OBJECT_COMPILE_STATUS_ARB, &result);//результат компил€ции шейдера
+   if(!result)
+      {
+		  char error[1000];
+         glGetInfoLogARB(waterfp1, sizeof(error), NULL, error);
+		 MessageBox(NULL, error, "Error!", MB_OK | MB_ICONERROR);
+      }
 
-	int instructions, temps, params, attribs, alu, tex, indirect;
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &instructions);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEMPORARIES_ARB, &temps);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_PARAMETERS_ARB, &params);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_ATTRIBS_ARB, &attribs);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &alu);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &tex);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &indirect);
+   //int instructions, temps, params, attribs, alu, tex, indirect;
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &instructions);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEMPORARIES_ARB, &temps);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_PARAMETERS_ARB, &params);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_ATTRIBS_ARB, &attribs);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &alu);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &tex);
+	//glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &indirect);
 
-	int errorposition = 0;
+	//int errorposition = 0;
 //	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_ERROR_POSITION_ARB, &errorposition);
-	glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorposition);
+	//glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorposition);
 
-	fprintf(shaderlog, "Shader waterfp1.txt\n\n");
-	fprintf(shaderlog, "Errors:\n%s\nLocation: %d\n\n", error, errorposition);
-	fprintf(shaderlog, "Native Resources:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
-		instructions, temps, params, attribs, alu, tex, indirect);
+//	fprintf(shaderlog, "Shader waterfp1.txt\n\n");
+//	fprintf(shaderlog, "Errors:\n%s\nLocation: %d\n\n", error, errorposition);
+	//fprintf(shaderlog, "Native Resources:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
+	//	instructions, temps, params, attribs, alu, tex, indirect);
 
 
 
@@ -1229,28 +1257,82 @@ void SetupRender()
 	file = fopen("shader\\watervp1.txt", "rt");
 	fread(program, filelength(file->_file), 1, file);
 	fclose(file);
-	glGenProgramsARB(1, &watervp1);
-	glBindProgramARB(GL_VERTEX_PROGRAM_ARB, watervp1);
-	glProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(program), program);
 
-	error = (unsigned char *)glGetString(GL_PROGRAM_ERROR_STRING_ARB);
+	watervp1 = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);//создать вершинный шейдер
+	lengthProgram = strlen(program);
+	pLonelyShader = &program[0];
+	glShaderSourceARB (watervp1, 1, (const GLcharARB**) &pLonelyShader, NULL);
+   
+   //compilv
+   glCompileShaderARB(watervp1);//компилируем шейдер 
+   glGetObjectParameterivARB(watervp1, GL_OBJECT_COMPILE_STATUS_ARB, &result);//результат компил€ции шейдера
+   if(!result)
+      {
+		  char error[1000];
+         glGetInfoLogARB(watervp1, sizeof(error), NULL, error);
+		 MessageBox(NULL, error, "Error!", MB_OK | MB_ICONERROR);
+      }
 
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &instructions);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEMPORARIES_ARB, &temps);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_PARAMETERS_ARB, &params);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_ATTRIBS_ARB, &attribs);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &alu);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &tex);
-	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &indirect);
+ 
+   glAttachObjectARB(waterShader, watervp1);
+   glAttachObjectARB(waterShader, waterfp1);
+   //delete[] CodesLand;
+   //CodesLand = NULL;
 
-	errorposition = 0;
-//	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_ERROR_POSITION_ARB, &errorposition);
-	glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorposition);
+   glLinkProgramARB(waterShader);//линкуем программу
+   glGetObjectParameterivARB(waterShader, GL_OBJECT_LINK_STATUS_ARB, &result);
+   
+   if(!result)
+      {
+		 char error[1000];
+         glGetInfoLogARB(waterShader, sizeof(error), NULL, error);
+		 MessageBox(NULL, error, "Error!", MB_OK | MB_ICONERROR);
+      } 
 
-	fprintf(shaderlog, "Shader watervp1.txt\n\n");
-	fprintf(shaderlog, "Errors:\n%s\nLocation: %d\n\n", error, errorposition);
-	fprintf(shaderlog, "Native Resources:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
-		instructions, temps, params, attribs, alu, tex, indirect);
+   localPosition = glGetUniformLocationARB(waterShader, "local");
+
+   WaterTexture0 = glGetUniformLocationARB(waterShader, "Texture0");
+   WaterTexture1 = glGetUniformLocationARB(waterShader, "Texture1");
+
+   inputVector0 = glGetUniformLocationARB(waterShader, "inputVector0");
+   inputVector1 = glGetUniformLocationARB(waterShader, "inputVector1");
+   inputVector2 = glGetUniformLocationARB(waterShader, "inputVector2");
+   inputVector3 = glGetUniformLocationARB(waterShader, "inputVector3");
+   inputVector4 = glGetUniformLocationARB(waterShader, "inputVector4");
+
+   glGetObjectParameterivARB(waterShader, GL_OBJECT_LINK_STATUS_ARB, &result);
+   
+   if(!result)
+      {
+		 char error[1000];
+         glGetInfoLogARB(waterShader, sizeof(error), NULL, error);
+		 MessageBox(NULL, error, "Error!", MB_OK | MB_ICONERROR);
+      } 
+   //params = glGetUniformLocationARB(watervp1, "position");
+   //attribs = glGetUniformLocationARB(watervp1, "uv_coord");
+	//glGenProgramsARB(1, &watervp1);
+	//glBindProgramARB(GL_VERTEX_PROGRAM_ARB, watervp1);
+	//glProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(program), program);
+
+	//error = (unsigned char *)glGetString(GL_PROGRAM_ERROR_STRING_ARB);
+	//OutputDebugString((LPCSTR)(error));
+
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB, &instructions);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEMPORARIES_ARB, &temps);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_PARAMETERS_ARB, &params);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_ATTRIBS_ARB, &attribs);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB, &alu);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB, &tex);
+	//glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB, &indirect);
+
+//	errorposition = 0;
+////	glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_ERROR_POSITION_ARB, &errorposition);
+//	glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorposition);
+//
+//	fprintf(shaderlog, "Shader watervp1.txt\n\n");
+////	fprintf(shaderlog, "Errors:\n%s\nLocation: %d\n\n", error, errorposition);
+//	fprintf(shaderlog, "Native Resources:\nInstructions: %d\nTemps: %d\nParams: %d\nAttribs: %d\nALU Instructions: %d\nTEX Instructions: %d\nTex Indirections: %d\n\n",
+//		instructions, temps, params, attribs, alu, tex, indirect);
 
 
 
