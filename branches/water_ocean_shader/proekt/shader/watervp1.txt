@@ -1,25 +1,43 @@
-!!ARBvp1.0
+//!!ARBvp1.0
 
-OPTION ARB_position_invariant;
+//OPTION ARB_position_invariant;
 
-TEMP r0;
+uniform vec4 local; 
 
-# get eye to vertex
-ADD r0, vertex.position, -program.local[0];
-# stuff for scaling the detail normal tex by distance
-DP3 r0.w, r0, r0;
-RCP r0.w, r0.w;
-MUL r0.w, r0.w, 250000;
-MIN r0.w, r0.w, 1;
+varying vec4 param1;
 
-# eye to vertex
-MOV result.texcoord[1], r0;
+void main()
+{
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	//return;
 
-# normal tex coord
-MOV result.texcoord[0], vertex.texcoord[0];
-# detail normal tex coord
-MUL result.texcoord[3], vertex.texcoord[0], 5;
-# not used currently, surface normal
-#MOV result.texcoord[2].x, -r0.y;
+	//TEMP r0;
 
-END
+	//# get eye to vertex
+	//ADD r0, vertex.position, -program.local[0];
+	vec4 r0 = gl_Vertex - local;
+
+	//# stuff for scaling the detail normal tex by distance
+	//DP3 r0.w, r0, r0;
+	//RCP r0.w, r0.w;
+	//MUL r0.w, r0.w, 250000;
+	//MIN r0.w, r0.w, 1;
+	r0.w = min(1.0, 250000.0 / (r0.x * r0.x + r0.y * r0.y + r0.y * r0.y));
+
+	//# eye to vertex
+	//MOV result.texcoord[1], r0;
+	gl_TexCoord[1] = r0;
+
+	//# normal tex coord
+	//MOV result.texcoord[0], vertex.texcoord[0];
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+
+	//# detail normal tex coord
+	//MUL result.texcoord[3], vertex.texcoord[0], 5;
+	gl_TexCoord[3] = gl_MultiTexCoord0 * 5.0;
+
+	//# not used currently, surface normal
+	//#MOV result.texcoord[2].x, -r0.y;
+	gl_TexCoord[2].x = -r0.y;
+
+}
