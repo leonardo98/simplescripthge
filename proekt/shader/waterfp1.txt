@@ -31,7 +31,7 @@ void main()
 
 	//# detail normal tex
 	//TEX r1, fragment.texcoord[3], texture[0], 2D;
-	vec4 r1 = texture2D( Texture0, gl_TexCoord[0].xy );
+	vec4 r1 = texture2D( Texture0, gl_TexCoord[3].xy );
 
 	//#scale & bias to [-1, 1]
 	//MAD r0, r0, 2, -1;
@@ -51,13 +51,14 @@ void main()
 	//RSQ r0.w, r0.w;
 	//MUL r0, r0, r0.w;
 	r0 += r1;
-	r0 *= 1.0 / sqrt(r0.x * r0.x + r0.y * r0.y + r0.z * r0.z);
+	r0.w = dot(r0.xyz, r0.xyz);
+	r0 *= 1.0 / sqrt(r0.w);
 
 	//# normalize the eye to vertex vector
 	//DP3 r2.w, fragment.texcoord[1], fragment.texcoord[1];
 	//RSQ r2.w, r2.w;
 	//MUL r2, fragment.texcoord[1], r2.w;
-	vec4 r2 = gl_TexCoord[1] / sqrt(gl_TexCoord[1].x * gl_TexCoord[1].x + gl_TexCoord[1].y * gl_TexCoord[1].y + gl_TexCoord[1].z * gl_TexCoord[1].z);
+	vec4 r2 = gl_TexCoord[1] / sqrt(dot(gl_TexCoord[1].xyz, gl_TexCoord[1].xyz));
 
 	//# bias towards an up vector when on edge/far away
 	//POW r3.w, -r2.y, p1.w;
@@ -74,7 +75,7 @@ void main()
 
 	//# vertex to eye * normal, clamped
 	//DP3_SAT r2.w, -r2, r0;
-	r2.w = clamp(-r2.x * r0.x - r2.y * r0.y - r2.z * r0.z, 0.0, 1.0);
+	r2.w = clamp(-dot(r2.xyz, r0.xyz), 0.0, 1.0);
 
 	//# get the half angle vector and normalize
 	//ADD r3, -r2, program.local[3];
@@ -82,12 +83,12 @@ void main()
 	//RSQ r3.w, r3.w;
 	//MUL r3, r3, r3.w;
 	r3 = -r2 + inputVector3;
-	r3.w = 1.0 / sqrt(r3.x * r3.x + r3.y * r3.y + r3.z * r3.z);
+	r3.w = 1.0 / sqrt(dot(r3.xyz, r3.xyz));
 	r3 *= r3.w;
 	
 	//# half angle * normal
 	//DP3_SAT r0.w, r3, r4;
-	r0.w = clamp(r3.x * r4.x + r3.y * r4.y + r3.z * r4.z, 0.0, 1.0);
+	r0.w = clamp(dot(r3.xyz, r4.xyz), 0.0, 1.0);
 
 	//# specular exponent
 	//POW r0.w, r0.w, p0.z;
