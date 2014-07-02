@@ -4,12 +4,11 @@
 
 uniform vec4 local; 
 
-varying vec4 param1;
-
 void main()
 {
+    //gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	//return;
+    //gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex - local);
 
 	//TEMP r0;
 
@@ -22,7 +21,7 @@ void main()
 	//RCP r0.w, r0.w;
 	//MUL r0.w, r0.w, 250000;
 	//MIN r0.w, r0.w, 1;
-	r0.w = min(1.0, 250000.0 / (r0.x * r0.x + r0.y * r0.y + r0.y * r0.y));
+	r0.w = min(1.0, 250000.0 / (r0.x * r0.x + r0.y * r0.y + r0.z * r0.z));
 
 	//# eye to vertex
 	//MOV result.texcoord[1], r0;

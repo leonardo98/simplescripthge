@@ -51,7 +51,7 @@ void main()
 	//RSQ r0.w, r0.w;
 	//MUL r0, r0, r0.w;
 	r0 += r1;
-	r0 *= 1.0 / sqrt(r0.x * r0.x + r0.y * r0.y + r0.y * r0.y);
+	r0 *= 1.0 / sqrt(r0.x * r0.x + r0.y * r0.y + r0.z * r0.z);
 
 	//# normalize the eye to vertex vector
 	//DP3 r2.w, fragment.texcoord[1], fragment.texcoord[1];

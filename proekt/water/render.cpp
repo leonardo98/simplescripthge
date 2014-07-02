@@ -974,10 +974,17 @@ void Render()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	//glPushMatrix();
+	//glScalef(0.5f, 0.5f, 0.5f);
+	
 	glVertexPointer(3, GL_FLOAT, sizeof(WaterVertex), point[0].pos);
 	glNormalPointer(GL_FLOAT, sizeof(WaterVertex), point[0].normal);
 	glTexCoordPointer(2, GL_FLOAT, sizeof(WaterVertex), point[0].texcoord0);
 	glDrawRangeElementsEXT(GL_TRIANGLE_STRIP, 0, picount, picount, GL_UNSIGNED_INT, pindex);
+
+	//glPopMatrix();
+
 //	glDrawElements(GL_TRIANGLE_STRIP, picount, GL_UNSIGNED_INT, pindex);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
