@@ -1,0 +1,168 @@
+
+```
+ <?php
+
+  require_once('SimpleCassie.php');
+
+  $cassie = new SimpleCassie(HOST, PORT, TIMEOUT_MS);
+
+
+  // добавляем новые ноды(сервера) для распределения нагрузки 
+  // и повышения отказоустойчивости (SimpleCassie 0.7.1.2):
+  $cassie->addNode(HOST2, PORT2, TIMEOUT_MS);
+  $cassie->addNode(HOST3, PORT3, TIMEOUT_MS);
+
+  // проверка соединения
+  if(!$cassie->isConnected())
+    throw new Exception('Couldn\'t connect to server');
+
+  // проверка активного нода (SimpleCassie 0.7.1.2)
+  $activeNode = $cassie->getActiveNode();
+
+  /*
+  * устанавливаем рабочее пространство-"keyspace(<имя пространства>)",
+  * аналог имени базы данных в MySQL
+  * возвращает "false" в случае неудачи, "true" - если все хорошо
+  * рабочее пространство может быть изменено в любой момент вызовом ->keyspace()
+  */
+   $cassie->keyspace('Keyspace1');
+
+
+  /*
+  * обращение к таблице "cf(<имя таблицы>)"
+  * обращение к столбцу "column(<имя столбца>)"
+  * фильтр по ключевому значению "key(<значение ключа>)"
+  * установка нового значения "set(<значение>)"
+  * если поле или ключ не существуют - они будут созданы
+  * возвращает "false" при неудаче
+  */
+   $cassie->keyspace('MyApp')->cf('Users')->key('user1')->column('name')->set('Marcin');
+   $cassie->cf('Users')->key('user1')->column('surname')->set('Rosinski');
+   
+  /*
+  * формирование пачки для изменения/установки значений (batch(<значение>) вместо set)
+  * возвращает количество(номер?) в пачке или "false" при неудаче
+  */
+   $cassie->cf('Users')->key('user1')->column('name')->batch('Marcin');
+   $cassie->cf('Users')->key('user1')->column('surname')->batch('Rosinski');
+
+   // пометка поля на удаление
+   $cassie->cf('Users')->key('user1')->column('columntodrop')->batch();
+
+   // применить/записать значения из сформированной пачки в таблицу/на сервер
+   $cassie->batchCommit();
+
+  /*
+  * удалить поле/столбец или ряд/ключ
+  * возвращает "false" при неудаче
+  */
+
+  //удалить столбец
+  $cassie->cf('Users')->key('user1')->column('name')->remove();
+
+  //удалить ряд
+  $cassie->cf('Users')->key('user1')->remove();
+
+   /*
+  * посчитать количество записей в ключе
+  * возвращает число или "false" при неудаче
+  */
+  $count = $cassie->cf('Users')->key('user2')->count();
+
+  /*
+  * посчитать количество столбцов с предикатом: от колонки к колонке
+  * возвращает число или "false" при неудаче
+  */
+  $count = $cassie->cf('Users')->key('user2')->column('fromColumn','toColumn')->count();
+
+  /*
+  * посчитать количество столбцов с предикатом: от колонки к колонке для нескольких ключей
+  * возвращает число или "false" при неудаче
+  */
+  $count = $cassie->cf('Users')->key('user2','user3')->column('fromColumn','toColumn')->count();
+
+  /*
+  * получение значения одного столбца
+  * возвращает объект или "null" при неудаче
+  */
+  $name = $cassie->keyspace('Keyspace1')->cf('Standard1')->key('user1')->column('name')->get();
+
+  /*
+  * получение нескольких столбцов
+  * возвращает массив объектов или "null" при неудаче
+  */
+  $user = $cassie->cf('Standard1')->key('user1')->column('name','surname')->get();
+
+  /*
+  * получение нескольких столбцов
+  * возвращает массив объектов или "null" при неудаче
+  */
+  $user = $cassie->cf('Standard1')->key('user1')->column('name','surname')->value();
+
+  /*
+  * получение одного столбца от нескольких рядов/ключей
+  * возвращает массив объектов или "null" при неудаче
+  */
+  $users = $cassie->cf('Standard1')->key('user1','user2')->column('name')->get();
+
+  /*
+  * получение нескольких столбцов от нескольких рядов/ключей
+  * возвращает массив объектов или "null" при неудаче
+  */
+  $users = $cassie->cf('Standard1')->key('user1','user2')->column('name','username')->get();
+
+  /*
+  * получение среза значений одного ряда/ключа
+  * возвращает массив объектов или "null" при неудаче
+  */
+  $limit = 10;
+  $reversed = false;
+  $from_name = 'Puma';
+  $to_name = 'Tiger';
+  $friends = $cassie->cf('Standard1')->key('user1friends')->column($from_name,$to_name)->slice($limit,$reversed);
+
+  /*
+  * получение среза значений из одного суперстолбца ряда/ключа
+  * возвращает массив объектов или "null" при неудаче
+  */
+  $limit = 10;
+  $reversed = false;
+  $friends = $cassie->cf('Standard1')->key('user1')->supercolumn('friends')->column($from_name,$to_name)->slice($limit,$reversed);
+
+  //сброс суперстолбца для дальнейшего использования 
+  //НЕ используется!!! с SimpleCassie 0.7.1.3 - этот процесс автоматизирован
+  $cassie->key('user1')->supercolumn(null);
+
+  /*
+  * получение среза значений из нескольких столбцов и рядов
+  * возвращает массив объектов или "null" при неудаче
+  */
+  $limit = 10;
+  $reversed = true;
+  $friends = $cassie->cf('Standard1')->key('user1friends','user2friends')->column($from_name,$to_name)->slice($limit,$reversed);
+
+  /*
+  * увеличение столбца значения на 1
+  * возвращает новое значение или "false" при неудаче
+  */
+  $new_value = $cassie->cf('Standard1')->key('user1')->column('friends')->increment();
+
+  /*
+  * уменьшает столбца значения на 1
+  * возвращает новое значение или "false" при неудаче
+  */
+  $new_value = $cassie->cf('Standard1')->key('user1')->column('friends')->decrement();
+
+
+  /*
+  * вывод активного рабочего простраства
+  */
+  echo $cassie->keyspace();
+
+  /*
+   * Range support - since SimpleCassie 0.7.1.2
+   */
+  $range = $cassie->cf('MyColumnFamily')->key('fromKey','toKey')->column('fromColumn','toColumn')->range($keyCount,$columnCount);
+
+  ?>
+```
